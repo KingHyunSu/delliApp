@@ -17,24 +17,22 @@ function App(): JSX.Element {
   const Stack = createStackNavigator()
 
   React.useEffect(() => {
-    const handleEnter = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token')
-        console.log('token', token)
-        if (token) {
-          await authApi.login()
-        } else {
-          const result = await authApi.join()
-
-          const newToken = result.data.token
-          await AsyncStorage.setItem('token', newToken)
-        }
-      } catch (e) {
-        console.log('e', e)
-      }
-    }
-
-    handleEnter()
+    // const handleEnter = async () => {
+    //   try {
+    //     const token = await AsyncStorage.getItem('token')
+    //     console.log('token', token)
+    //     if (token) {
+    //       await authApi.login()
+    //     } else {
+    //       const result = await authApi.join()
+    //       const newToken = result.data.token
+    //       await AsyncStorage.setItem('token', newToken)
+    //     }
+    //   } catch (e) {
+    //     console.log('e', e)
+    //   }
+    // }
+    // handleEnter()
   }, [])
 
   return (
