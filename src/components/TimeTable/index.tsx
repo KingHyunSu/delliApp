@@ -4,14 +4,17 @@ import {Svg, G, Text} from 'react-native-svg'
 
 import Background from './src/Background'
 
-const TimeTable = () => {
+interface Props {
+  onClick: Function
+}
+const TimeTable = ({onClick}: Props) => {
   const {width} = useWindowDimensions()
   const x = width / 2
   const y = width / 2
   const radius = width / 2 - 36
 
   return (
-    <Svg>
+    <Svg onPress={() => onClick()}>
       <G>
         <Background x={x} y={y} radius={radius} />
         <Text x={x} y={y} fontSize={18} fill={'#BABABA'} textAnchor="middle">

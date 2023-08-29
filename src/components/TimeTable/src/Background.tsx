@@ -1,6 +1,6 @@
 import React from 'react'
 import {StyleSheet, Text} from 'react-native'
-import {Svg, G, Circle, ForeignObject} from 'react-native-svg'
+import {G, Circle, ForeignObject} from 'react-native-svg'
 import {polarToCartesian} from '../util'
 
 interface Props {
