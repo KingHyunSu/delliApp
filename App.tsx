@@ -40,8 +40,8 @@ function App(): JSX.Element {
       <NavigationContainer>
         <Stack.Navigator screenOptions={{headerShown: false}}>
           <Stack.Group>
-            <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="Login" component={Login} />
           </Stack.Group>
         </Stack.Navigator>
       </NavigationContainer>
