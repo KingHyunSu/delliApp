@@ -10,6 +10,7 @@ import Login from '@/views/Login'
 import Home from '@/views/Home'
 
 // utils
+import {RecoilRoot} from 'recoil'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as authApi from '@/apis/auth'
@@ -36,18 +37,20 @@ function App(): JSX.Element {
   }, [])
 
   return (
-    <SafeAreaView style={{flex: 1}}>
-      {/* <GestureHandlerRootView style={{flex: 1}}> */}
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={{headerShown: false}}>
-          <Stack.Group>
-            <Stack.Screen name="Home" component={Home} />
-            <Stack.Screen name="Login" component={Login} />
-          </Stack.Group>
-        </Stack.Navigator>
-      </NavigationContainer>
-      {/* </GestureHandlerRootView> */}
-    </SafeAreaView>
+    <RecoilRoot>
+      <SafeAreaView style={{flex: 1}}>
+        {/* <GestureHandlerRootView style={{flex: 1}}> */}
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={{headerShown: false}}>
+            <Stack.Group>
+              <Stack.Screen name="Home" component={Home} />
+              <Stack.Screen name="Login" component={Login} />
+            </Stack.Group>
+          </Stack.Navigator>
+        </NavigationContainer>
+        {/* </GestureHandlerRootView> */}
+      </SafeAreaView>
+    </RecoilRoot>
   )
 }
 

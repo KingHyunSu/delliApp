@@ -4,10 +4,14 @@ import {StyleSheet, View, Text} from 'react-native'
 import BottomSheet from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 
-const InsertScheduleBottomSheet = () => {
-  const bottomSheetRef = React.useRef<BottomSheet>(null)
+import {useRecoilValue} from 'recoil'
+import {scheduleState} from '@/store/schedule'
 
-  const snapPoints = React.useMemo(() => ['23%', '95%'], [])
+const InsertScheduleBottomSheet = () => {
+  const schedule = useRecoilValue(scheduleState)
+
+  const bottomSheetRef = React.useRef<BottomSheet>(null)
+  const snapPoints = React.useMemo(() => ['35%', '95%'], [])
 
   return (
     <BottomSheet
@@ -17,6 +21,9 @@ const InsertScheduleBottomSheet = () => {
       handleComponent={BottomSheetShadowHandler}>
       <View style={styles.container}>
         <Text>insert schedule</Text>
+
+        <Text>{schedule.start_time}</Text>
+        <Text>{schedule.end_time}</Text>
       </View>
     </BottomSheet>
   )
