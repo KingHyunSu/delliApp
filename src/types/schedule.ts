@@ -10,3 +10,5 @@ export interface Schedule {
   alram: boolean
   color: string
 }
+
+export type TimeFlag = 'START' | 'END'

@@ -1,6 +1,6 @@
 import React from 'react'
 import {PanResponder, Platform, StatusBar} from 'react-native'
-import {G, Circle} from 'react-native-svg'
+import {G, Circle, Text} from 'react-native-svg'
 
 import SchedulePie from './SchedulePie'
 
@@ -119,7 +119,7 @@ const InsertTimeTable = ({x, y, radius}: Props) => {
           cx={dragStartBtnCoordinate.x}
           cy={dragStartBtnCoordinate.y}
           r={10}
-          fill="#555"
+          fill="#BABABA"
         />
         <Circle
           {...endPanResponders.panHandlers}
@@ -136,7 +136,7 @@ const InsertTimeTable = ({x, y, radius}: Props) => {
           cx={dragEndBtnCoordinate.x}
           cy={dragEndBtnCoordinate.y}
           r={10}
-          fill="#555"
+          fill="#1E90FF"
         />
         <Circle
           {...startPanResponders.panHandlers}
