@@ -1,10 +1,10 @@
 import React from 'react'
-import {StyleSheet, Animated, View, Text, Pressable} from 'react-native'
+import {StyleSheet, Animated, View, Pressable} from 'react-native'
 
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import TimeTable from '@/components/TimeTable'
-import ScheduleListBottomSheet from '@/components/ScheduleListBottomSheet'
-import InsertScheduleBottomSheet from '@/components/InsertScheduleBottomSheet'
+import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
+import InsertScheduleBottomSheet from '@/views/BottomSheet/InsertScheduleBottomSheet'
 
 import {useResetRecoilState} from 'recoil'
 import {scheduleState} from '@/store/schedule'
@@ -15,11 +15,7 @@ const Home = () => {
   const weeklyDatePickerTranslateY = React.useRef(new Animated.Value(0)).current
   const timaTableTranslateY = React.useRef(new Animated.Value(0)).current
 
-  const translateAnimation = (
-    target: Animated.Value,
-    to: number,
-    duration?: number
-  ) => {
+  const translateAnimation = (target: Animated.Value, to: number, duration?: number) => {
     Animated.timing(target, {
       toValue: to,
       duration: duration ? duration : 300,
@@ -36,12 +32,7 @@ const Home = () => {
       translateAnimation(weeklyDatePickerTranslateY, 0, 350)
       translateAnimation(timaTableTranslateY, 0)
     }
-  }, [
-    isInsertMode,
-    weeklyDatePickerTranslateY,
-    timaTableTranslateY,
-    resetScheduleEdit
-  ])
+  }, [isInsertMode, weeklyDatePickerTranslateY, timaTableTranslateY, resetScheduleEdit])
 
   return (
     <View style={homeStyles.container}>
@@ -55,27 +46,17 @@ const Home = () => {
       />
 
       <Animated.View
-        style={[
-          homeStyles.weekDatePickerSection,
-          {transform: [{translateY: weeklyDatePickerTranslateY}]}
-        ]}>
+        style={[homeStyles.weekDatePickerSection, {transform: [{translateY: weeklyDatePickerTranslateY}]}]}>
         <WeeklyDatePicker />
       </Animated.View>
 
       <Animated.View style={[{transform: [{translateY: timaTableTranslateY}]}]}>
         <Pressable onPress={() => changeInsertMode(false)}>
-          <TimeTable
-            isInsertMode={isInsertMode}
-            onClick={() => changeInsertMode(true)}
-          />
+          <TimeTable isInsertMode={isInsertMode} onClick={() => changeInsertMode(true)} />
         </Pressable>
       </Animated.View>
 
-      {isInsertMode ? (
-        <InsertScheduleBottomSheet />
-      ) : (
-        <ScheduleListBottomSheet />
-      )}
+      {isInsertMode ? <InsertScheduleBottomSheet /> : <ScheduleListBottomSheet />}
     </View>
   )
 }

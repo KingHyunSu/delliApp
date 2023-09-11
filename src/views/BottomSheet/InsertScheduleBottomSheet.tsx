@@ -1,7 +1,7 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable, TextInput} from 'react-native'
 
-import DatePickerBottomSheet from '@/components/DatePickerBottomSheet'
+import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
 import BottomSheet from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 

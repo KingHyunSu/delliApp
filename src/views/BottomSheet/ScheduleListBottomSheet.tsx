@@ -10,11 +10,7 @@ const ScheduleListBottomSheet = () => {
   const snapPoints = React.useMemo(() => ['23%', '95%'], [])
 
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      index={0}
-      snapPoints={snapPoints}
-      handleComponent={BottomSheetShadowHandler}>
+    <BottomSheet ref={bottomSheetRef} index={0} snapPoints={snapPoints} handleComponent={BottomSheetShadowHandler}>
       <View style={styles.container}>
         <Text>schedule list</Text>
       </View>
