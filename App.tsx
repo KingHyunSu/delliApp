@@ -11,10 +11,14 @@ import Home from '@/views/Home'
 
 // utils
 import {RecoilRoot} from 'recoil'
-import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+
+import {useSetRecoilState} from 'recoil'
+import {isLoginState} from '@/store/user'
+
 import * as authApi from '@/apis/auth'
 function App(): JSX.Element {
+  const setLoginState = useSetRecoilState(isLoginState)
   const Stack = createStackNavigator()
 
   React.useEffect(() => {
@@ -35,6 +39,21 @@ function App(): JSX.Element {
     // }
     // handleEnter()
   }, [])
+
+  React.useEffect(() => {
+    const handleEnter = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token')
+        if (token) {
+          setLoginState(true)
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    handleEnter()
+  }, [setLoginState])
 
   return (
     <RecoilRoot>

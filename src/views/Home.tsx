@@ -5,12 +5,30 @@ import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import TimeTable from '@/components/TimeTable'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import InsertScheduleBottomSheet from '@/views/BottomSheet/InsertScheduleBottomSheet'
+import LoginBottomSheet from '@/views/BottomSheet/LoginBottomSheet'
 
-import {useResetRecoilState} from 'recoil'
+import {useRecoilValue, useResetRecoilState} from 'recoil'
+import {isLoginState} from '@/store/user'
 import {scheduleState} from '@/store/schedule'
+
 const Home = () => {
+  const isLogin = useRecoilValue(isLoginState)
   const resetScheduleEdit = useResetRecoilState(scheduleState)
   const [isInsertMode, changeInsertMode] = React.useState(false)
+  const [isShowLoginBottomSheet, setShowLoginBottomSheet] = React.useState(false)
+
+  const handleLoginBottomSheetChanges = () => {
+    changeInsertMode(false)
+    setShowLoginBottomSheet(false)
+  }
+
+  const showInsertBottomSheet = () => {
+    if (!isLogin) {
+      setShowLoginBottomSheet(true)
+    } else {
+      changeInsertMode(true)
+    }
+  }
 
   const weeklyDatePickerTranslateY = React.useRef(new Animated.Value(0)).current
   const timaTableTranslateY = React.useRef(new Animated.Value(0)).current
@@ -22,7 +40,12 @@ const Home = () => {
       useNativeDriver: true
     }).start()
   }
+
   React.useEffect(() => {
+    if (!isLogin) {
+      return
+    }
+
     if (isInsertMode) {
       translateAnimation(weeklyDatePickerTranslateY, -200, 350)
       translateAnimation(timaTableTranslateY, -100)
@@ -32,7 +55,7 @@ const Home = () => {
       translateAnimation(weeklyDatePickerTranslateY, 0, 350)
       translateAnimation(timaTableTranslateY, 0)
     }
-  }, [isInsertMode, weeklyDatePickerTranslateY, timaTableTranslateY, resetScheduleEdit])
+  }, [isLogin, isInsertMode, weeklyDatePickerTranslateY, timaTableTranslateY, resetScheduleEdit])
 
   return (
     <View style={homeStyles.container}>
@@ -52,11 +75,12 @@ const Home = () => {
 
       <Animated.View style={[{transform: [{translateY: timaTableTranslateY}]}]}>
         <Pressable onPress={() => changeInsertMode(false)}>
-          <TimeTable isInsertMode={isInsertMode} onClick={() => changeInsertMode(true)} />
+          <TimeTable isInsertMode={isInsertMode && isLogin} onClick={showInsertBottomSheet} />
         </Pressable>
       </Animated.View>
 
       {isInsertMode ? <InsertScheduleBottomSheet /> : <ScheduleListBottomSheet />}
+      {!isLogin && <LoginBottomSheet isShow={isShowLoginBottomSheet} onClose={handleLoginBottomSheetChanges} />}
     </View>
   )
 }
@@ -68,7 +92,6 @@ const homeStyles = StyleSheet.create({
   },
 
   weekDatePickerSection: {
-    // marginVertical: 20,
     paddingHorizontal: 16
   }
 })
