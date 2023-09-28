@@ -15,7 +15,8 @@ const Home = () => {
   const isLogin = useRecoilValue(isLoginState)
   const resetScheduleEdit = useResetRecoilState(scheduleState)
   const [isInsertMode, changeInsertMode] = React.useState(false)
-  const [isShowLoginBottomSheet, setShowLoginBottomSheet] = React.useState(false)
+  const [isShowLoginBottomSheet, setShowLoginBottomSheet] =
+    React.useState(false)
 
   const handleLoginBottomSheetChanges = () => {
     changeInsertMode(false)
@@ -33,7 +34,11 @@ const Home = () => {
   const weeklyDatePickerTranslateY = React.useRef(new Animated.Value(0)).current
   const timaTableTranslateY = React.useRef(new Animated.Value(0)).current
 
-  const translateAnimation = (target: Animated.Value, to: number, duration?: number) => {
+  const translateAnimation = (
+    target: Animated.Value,
+    to: number,
+    duration?: number
+  ) => {
     Animated.timing(target, {
       toValue: to,
       duration: duration ? duration : 300,
@@ -55,7 +60,13 @@ const Home = () => {
       translateAnimation(weeklyDatePickerTranslateY, 0, 350)
       translateAnimation(timaTableTranslateY, 0)
     }
-  }, [isLogin, isInsertMode, weeklyDatePickerTranslateY, timaTableTranslateY, resetScheduleEdit])
+  }, [
+    isLogin,
+    isInsertMode,
+    weeklyDatePickerTranslateY,
+    timaTableTranslateY,
+    resetScheduleEdit
+  ])
 
   return (
     <View style={homeStyles.container}>
@@ -69,18 +80,33 @@ const Home = () => {
       />
 
       <Animated.View
-        style={[homeStyles.weekDatePickerSection, {transform: [{translateY: weeklyDatePickerTranslateY}]}]}>
+        style={[
+          homeStyles.weekDatePickerSection,
+          {transform: [{translateY: weeklyDatePickerTranslateY}]}
+        ]}>
         <WeeklyDatePicker />
       </Animated.View>
 
       <Animated.View style={[{transform: [{translateY: timaTableTranslateY}]}]}>
         <Pressable onPress={() => changeInsertMode(false)}>
-          <TimeTable isInsertMode={isInsertMode && isLogin} onClick={showInsertBottomSheet} />
+          <TimeTable
+            isInsertMode={isInsertMode && isLogin}
+            onClick={showInsertBottomSheet}
+          />
         </Pressable>
       </Animated.View>
 
-      {isInsertMode ? <InsertScheduleBottomSheet /> : <ScheduleListBottomSheet />}
-      {!isLogin && <LoginBottomSheet isShow={isShowLoginBottomSheet} onClose={handleLoginBottomSheetChanges} />}
+      {isInsertMode ? (
+        <InsertScheduleBottomSheet />
+      ) : (
+        <ScheduleListBottomSheet />
+      )}
+      {!isLogin && (
+        <LoginBottomSheet
+          isShow={isShowLoginBottomSheet}
+          onClose={handleLoginBottomSheetChanges}
+        />
+      )}
     </View>
   )
 }

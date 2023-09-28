@@ -21,7 +21,8 @@ const InsertScheduleBottomSheet = () => {
   const [timeFlag, setTimeFlag] = useRecoilState(timeFlagState)
 
   const [rangeFlag, setRangeFlag] = React.useState<RangeFlag>(RANGE_FLAG.START)
-  const [showDatePickerBottomSheet, setDatePickerBottomSheet] = React.useState(false)
+  const [showDatePickerBottomSheet, setDatePickerBottomSheet] =
+    React.useState(false)
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
 
@@ -51,7 +52,11 @@ const InsertScheduleBottomSheet = () => {
   }
 
   const changeDate = (data: string[]) => {
-    setSchedule(prevState => ({...prevState, start_date: data[0], end_date: data[1]}))
+    setSchedule(prevState => ({
+      ...prevState,
+      start_date: data[0],
+      end_date: data[1]
+    }))
   }
 
   const changeMemo = (e: string) => {
@@ -59,27 +64,41 @@ const InsertScheduleBottomSheet = () => {
   }
 
   return (
-    <BottomSheet ref={bottomSheetRef} index={0} snapPoints={snapPoints} handleComponent={BottomSheetShadowHandler}>
+    <BottomSheet
+      ref={bottomSheetRef}
+      index={0}
+      snapPoints={snapPoints}
+      handleComponent={BottomSheetShadowHandler}>
       <View style={styles.container}>
         <View style={{gap: 30}}>
           {/* 시간 */}
           <View style={styles.timeContainer}>
-            <Pressable style={styles.timeWrapper} onPress={() => setTimeFlag('START')}>
+            <Pressable
+              style={styles.timeWrapper}
+              onPress={() => setTimeFlag('START')}>
               <TimeIcon
                 width={30}
                 fill={'#1E90FF'}
                 // fill={timeFlag === 'START' ? '#1E90FF' : '#BABABA'}
               />
-              <Text style={styles.timeText}>{`${startTime.hour} : ${startTime.minute}`}</Text>
+              <Text
+                style={
+                  styles.timeText
+                }>{`${startTime.hour} : ${startTime.minute}`}</Text>
             </Pressable>
             <Text>-</Text>
-            <Pressable style={styles.timeWrapper} onPress={() => setTimeFlag('END')}>
+            <Pressable
+              style={styles.timeWrapper}
+              onPress={() => setTimeFlag('END')}>
               <TimeIcon
                 width={30}
                 fill={'#1E90FF'}
                 // fill={timeFlag === 'END' ? '#1E90FF' : '#BABABA'}
               />
-              <Text style={styles.timeText}>{`${endTime.hour} : ${endTime.minute}`}</Text>
+              <Text
+                style={
+                  styles.timeText
+                }>{`${endTime.hour} : ${endTime.minute}`}</Text>
             </Pressable>
           </View>
 
@@ -102,15 +121,23 @@ const InsertScheduleBottomSheet = () => {
             <Text style={styles.label}>일정</Text>
 
             <View style={styles.dateContainer}>
-              <Pressable style={styles.dateWrapper} onPress={() => openDatePickerBottomSheet(RANGE_FLAG.START)}>
+              <Pressable
+                style={styles.dateWrapper}
+                onPress={() => openDatePickerBottomSheet(RANGE_FLAG.START)}>
                 <CalendarIcon fill={'#1E90FF'} style={{marginRight: 10}} />
                 <Text style={styles.dateText}>{schedule.start_date}</Text>
               </Pressable>
 
               <Text>-</Text>
 
-              <Pressable style={styles.dateWrapper} onPress={() => openDatePickerBottomSheet(RANGE_FLAG.END)}>
-                <Text style={styles.dateText}>{schedule.end_date === '9999-12-31' ? '없음' : schedule.end_date}</Text>
+              <Pressable
+                style={styles.dateWrapper}
+                onPress={() => openDatePickerBottomSheet(RANGE_FLAG.END)}>
+                <Text style={styles.dateText}>
+                  {schedule.end_date === '9999-12-31'
+                    ? '없음'
+                    : schedule.end_date}
+                </Text>
               </Pressable>
             </View>
           </View>
