@@ -44,6 +44,7 @@ function App(): JSX.Element {
     const handleEnter = async () => {
       try {
         const token = await AsyncStorage.getItem('token')
+        console.log('token', token)
         if (token) {
           setLoginState(true)
         }
@@ -56,20 +57,18 @@ function App(): JSX.Element {
   }, [setLoginState])
 
   return (
-    <RecoilRoot>
-      <SafeAreaView style={{flex: 1}}>
-        {/* <GestureHandlerRootView style={{flex: 1}}> */}
-        <NavigationContainer>
-          <Stack.Navigator screenOptions={{headerShown: false}}>
-            <Stack.Group>
-              <Stack.Screen name="Home" component={Home} />
-              <Stack.Screen name="Login" component={Login} />
-            </Stack.Group>
-          </Stack.Navigator>
-        </NavigationContainer>
-        {/* </GestureHandlerRootView> */}
-      </SafeAreaView>
-    </RecoilRoot>
+    <SafeAreaView style={{flex: 1}}>
+      {/* <GestureHandlerRootView style={{flex: 1}}> */}
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{headerShown: false}}>
+          <Stack.Group>
+            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="Login" component={Login} />
+          </Stack.Group>
+        </Stack.Navigator>
+      </NavigationContainer>
+      {/* </GestureHandlerRootView> */}
+    </SafeAreaView>
   )
 }
 

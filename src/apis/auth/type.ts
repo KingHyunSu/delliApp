@@ -6,3 +6,7 @@ export interface loginRequest {
   token: string
   type: string
 }
+
+export interface loginResponse {
+  token: string
+}
