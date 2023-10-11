@@ -4,24 +4,21 @@ import {View, Text} from 'react-native'
 
 import {polarToCartesian, describeArc} from '../util'
 
+import {Schedule} from '@/types/schedule'
+
 interface Props {
+  data: Schedule
   x: number
   y: number
   radius: number
+  fillOpacity?: number
   startAngle: number
   endAngle: number
-  fillOpacity?: number
 }
 
-const SchedulePie = ({
-  x,
-  y,
-  radius,
-  startAngle,
-  endAngle,
-  fillOpacity = 1
-}: Props) => {
+const SchedulePie = ({data, x, y, radius, fillOpacity = 1, startAngle, endAngle}: Props) => {
   const STROK_WIDTH = 1
+
   const absAngle = Math.abs(startAngle - endAngle)
   const isBigPie = absAngle >= 50
 
@@ -80,23 +77,15 @@ const SchedulePie = ({
     return absAngle / 2 + startAngle
   }
 
-  const textCoordinate = polarToCartesian(
-    x,
-    y,
-    getStartAngleByRadius(startAngle),
-    getPositionByDegrees()
-  )
+  const textCoordinate = polarToCartesian(x, y, getStartAngleByRadius(startAngle), getPositionByDegrees())
 
   return (
     <G fillOpacity={fillOpacity}>
-      <Path d={path} fill={'#fff'} stroke={'#efefef'} fillOpacity={1} />
-      <G
-        originX={textCoordinate.x}
-        originY={textCoordinate.y}
-        rotation={getStartAngleByTextRotation(startAngle)}>
+      <Path d={path} fill={data.screenDisable ? '#e2e2e2' : '#fff'} stroke={'#efefef'} fillOpacity={1} />
+      <G originX={textCoordinate.x} originY={textCoordinate.y} rotation={getStartAngleByTextRotation(startAngle)}>
         <ForeignObject x={textCoordinate.x} y={textCoordinate.y}>
           <View style={{width: radius - 40}}>
-            <Text>테스트</Text>
+            <Text>{data.title}</Text>
           </View>
         </ForeignObject>
       </G>

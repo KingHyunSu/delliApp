@@ -1,6 +1,7 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable, Image} from 'react-native'
-import BottomSheet, {BottomSheetBackdrop} from '@gorhom/bottom-sheet'
+import BottomSheet from '@gorhom/bottom-sheet'
+import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 // provider
 import {login as kakaoLogin} from '@react-native-seoul/kakao-login'
 // apis
@@ -58,16 +59,9 @@ const LoginBottomSheet = ({isShow, onClose}: Props) => {
       snapPoints={snapPoints}
       enablePanDownToClose
       onChange={handleSheetChanges}
-      backdropComponent={props => (
-        <BottomSheetBackdrop
-          {...props}
-          opacity={0.5}
-          // enableTouchThrough={false}
-          appearsOnIndex={0}
-          disappearsOnIndex={-1}
-          style={[{backgroundColor: 'rgba(0, 0, 0, 1)'}, StyleSheet.absoluteFillObject]}
-        />
-      )}>
+      backdropComponent={props => {
+        return <BottomSheetBackdrop props={props} />
+      }}>
       <View style={styles.container}>
         <Text>로그인</Text>
 

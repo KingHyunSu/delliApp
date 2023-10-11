@@ -16,9 +16,7 @@ interface TimePosition {
   angle: number
 }
 const Background = ({x, y, radius}: Props) => {
-  const [hourPositionList, setHourPositionList] = React.useState<
-    TimePosition[]
-  >([])
+  const [hourPositionList, setHourPositionList] = React.useState<TimePosition[]>([])
 
   React.useEffect(() => {
     const list = []
@@ -37,11 +35,7 @@ const Background = ({x, y, radius}: Props) => {
       <Circle cx={x} cy={y} r={radius} fill={'#f5f6f8'} fillOpacity={1} />
       {hourPositionList.map((hourPosition, index) => {
         return (
-          <G
-            key={index}
-            x={hourPosition.x}
-            y={hourPosition.y}
-            rotation={hourPosition.angle}>
+          <G key={index} x={hourPosition.x} y={hourPosition.y} rotation={hourPosition.angle}>
             <ForeignObject translateX={-6}>
               <Text style={styles.text}>{hourPosition.hour}</Text>
             </ForeignObject>

@@ -1,32 +1,33 @@
 import React from 'react'
 import {PanResponder, Platform, StatusBar} from 'react-native'
-import {G, Circle, Text} from 'react-native-svg'
+import {G, Circle} from 'react-native-svg'
 
 import SchedulePie from './SchedulePie'
 
 import {polarToCartesian} from '../util'
 import {getStatusBarHeight} from 'react-native-status-bar-height'
 
-import {useRecoilState} from 'recoil'
-import {scheduleState} from '@/store/schedule'
+import {useRecoilState, useSetRecoilState} from 'recoil'
+import {scheduleListState, scheduleState} from '@/store/schedule'
+
+import {Schedule} from '@/types/schedule'
 
 interface Props {
+  scheduleList: Schedule[]
   x: number
   y: number
   radius: number
 }
 
-const InsertTimeTable = ({x, y, radius}: Props) => {
+const InsertTimeTable = ({scheduleList, x, y, radius}: Props) => {
   /**
    * [todo]
    * ios에서는 moveY가 status bar 영역까지 계산되고 있는데 android에서는 어떻게 계산되는지 확인해보기
    * android에서 status bar 제외하고 계산되면 StatusBarHeight에 0 할당
    */
-  const StatusBarHeight =
-    Platform.OS === 'ios'
-      ? getStatusBarHeight(true)
-      : StatusBar.currentHeight || 0
+  const StatusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
 
+  const setScheduleListState = useSetRecoilState(scheduleListState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
   const startAngle = React.useMemo(() => {
@@ -36,6 +37,36 @@ const InsertTimeTable = ({x, y, radius}: Props) => {
   const endAngle = React.useMemo(() => {
     return schedule.end_time * 0.25
   }, [schedule.end_time])
+
+  React.useEffect(() => {
+    const list = scheduleList.map(item => {
+      const {start_time, end_time} = schedule
+
+      const isOverlapAll =
+        item.start_time >= start_time &&
+        item.start_time < end_time &&
+        item.end_time <= end_time &&
+        item.end_time > start_time
+
+      const isOverlapLeft = item.start_time >= start_time && item.end_time > end_time && item.start_time < end_time
+
+      const isOverlapRight = item.start_time < start_time && item.end_time <= end_time && item.end_time > start_time
+
+      const isOverlapCenter =
+        item.start_time < start_time &&
+        item.end_time > end_time &&
+        item.start_time < end_time &&
+        item.end_time > start_time
+
+      if (isOverlapAll || isOverlapLeft || isOverlapRight || isOverlapCenter) {
+        return {...item, screenDisable: true}
+      } else {
+        return {...item, screenDisable: false}
+      }
+    })
+
+    setScheduleListState(list)
+  }, [schedule.start_time, schedule.end_time])
 
   const dragStartBtnCoordinate = polarToCartesian(x, y, radius, endAngle)
   const dragEndBtnCoordinate = polarToCartesian(x, y, radius, startAngle)
@@ -103,9 +134,12 @@ const InsertTimeTable = ({x, y, radius}: Props) => {
     })
   ).current
 
+  React.useEffect(() => {}, [])
+
   return (
     <G>
       <SchedulePie
+        data={schedule}
         x={x}
         y={y}
         radius={radius}

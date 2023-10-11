@@ -17,7 +17,6 @@ const Login = () => {
 
       const params = {
         token: accessToken,
-        // token: 'oM26yjWDcfQygTITXTZ0tlXljc46rmuykAGcixoZCiolUAAAAYodBm3F',
         type: LOGIN_TYPE.KAKAO
       }
 

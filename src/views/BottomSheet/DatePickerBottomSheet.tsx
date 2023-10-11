@@ -53,8 +53,10 @@ const DatePickerBottomSheet = ({value, range, rangeFlag, isShow, onClose, onChan
   React.useEffect(() => {
     if (isShow) {
       openMoal.start()
+    } else {
+      closeModal.start()
     }
-  }, [isShow, openMoal])
+  }, [isShow, openMoal, closeModal])
 
   const onChangeDate = (arg: string | string[]) => {
     if (arg) {
@@ -101,7 +103,6 @@ const styles = StyleSheet.create({
     gap: 20,
     justifyContent: 'space-between',
     backgroundColor: '#fff',
-    // height: 450,
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
     paddingHorizontal: 16,

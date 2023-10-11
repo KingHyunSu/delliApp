@@ -5,9 +5,9 @@ import {addDays, addMonths, setDate, lastDayOfMonth} from 'date-fns'
 
 interface Props {
   date: Date
-  setDate: Function
+  onChange: Function
 }
-const WeekController = ({date, setDate: setCurrentDate}: Props) => {
+const WeekController = ({date, onChange}: Props) => {
   const THURSDAY_NUMBER = 4
 
   const [screenMonth, setScreenMonth] = React.useState(date.getMonth() + 1)
@@ -39,19 +39,17 @@ const WeekController = ({date, setDate: setCurrentDate}: Props) => {
     const dateOfFirstDate = setDate(value, 1)
     const dateOfFirstDayOfWeek = dateOfFirstDate.getDay()
 
-    const weekNumber = Math.ceil(
-      (value.getDate() + (dateOfFirstDayOfWeek - 1)) / 7
-    )
+    const weekNumber = Math.ceil((value.getDate() + (dateOfFirstDayOfWeek - 1)) / 7)
 
     return weekNumber
   }
 
   const handlePrev = () => {
-    setCurrentDate(addDays(date, -7))
+    onChange(addDays(date, -7))
   }
 
   const handleNext = () => {
-    setCurrentDate(addDays(date, 7))
+    onChange(addDays(date, 7))
   }
 
   return (

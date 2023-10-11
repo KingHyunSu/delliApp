@@ -1,19 +1,13 @@
 import React from 'react'
 import {StyleSheet, View, Pressable, Text} from 'react-native'
 
-import {
-  addDays,
-  eachDayOfInterval,
-  isSameDay,
-  isSameMonth,
-  isSameYear
-} from 'date-fns'
+import {addDays, eachDayOfInterval, isSameDay, isSameMonth, isSameYear} from 'date-fns'
 
 interface Props {
   date: Date
-  setDate: Function
+  onChange: Function
 }
-const DayPicker = ({date, setDate}: Props) => {
+const DayPicker = ({date, onChange}: Props) => {
   const [dateList, setDateList] = React.useState<Array<Date>>([])
 
   React.useEffect(() => {
@@ -27,9 +21,7 @@ const DayPicker = ({date, setDate}: Props) => {
   }, [date])
 
   const isActive = (item: Date) => {
-    return (
-      isSameYear(item, date) && isSameMonth(item, date) && isSameDay(item, date)
-    )
+    return isSameYear(item, date) && isSameMonth(item, date) && isSameDay(item, date)
   }
 
   return (
@@ -37,15 +29,10 @@ const DayPicker = ({date, setDate}: Props) => {
       {dateList.map((item, index) => {
         return (
           <Pressable
-            style={[
-              dayPickerStyles.item,
-              isActive(item) && dayPickerStyles.activeItem
-            ]}
+            style={[dayPickerStyles.item, isActive(item) && dayPickerStyles.activeItem]}
             key={index}
-            onPress={() => setDate(item)}>
-            <Text style={isActive(item) && dayPickerStyles.activeText}>
-              {item.getDate()}
-            </Text>
+            onPress={() => onChange(item)}>
+            <Text style={isActive(item) && dayPickerStyles.activeText}>{item.getDate()}</Text>
           </Pressable>
         )
       })}

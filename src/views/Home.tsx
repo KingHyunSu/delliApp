@@ -1,26 +1,133 @@
 import React from 'react'
-import {StyleSheet, Animated, View, Pressable} from 'react-native'
+import {Animated, Pressable, StyleSheet, Text, View} from 'react-native'
 
-import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import TimeTable from '@/components/TimeTable'
-import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
+import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import InsertScheduleBottomSheet from '@/views/BottomSheet/InsertScheduleBottomSheet'
 import LoginBottomSheet from '@/views/BottomSheet/LoginBottomSheet'
+import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
+import TimeTableCategotyBottomSheet from '@/views/BottomSheet/TimeTableCategotyBottomSheet'
 
-import {useRecoilValue, useResetRecoilState} from 'recoil'
+import {scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
+import {activeTimeTableCategoryState} from '@/store/timetable'
 import {isLoginState} from '@/store/user'
-import {scheduleState} from '@/store/schedule'
+import {useRecoilState, useRecoilValue, useResetRecoilState} from 'recoil'
+
+import {getScheduleList, setSchedule, updateScheduleComplete, SetScheduleParam} from '@/apis/schedule'
+import {getTimetableCategoryList} from '@/apis/timetable'
+import {useMutation, useQuery} from '@tanstack/react-query'
+
+import {getDayOfWeekKey} from '@/utils/helper'
+import {format} from 'date-fns'
+
+import {Schedule} from '@/types/schedule'
 
 const Home = () => {
   const isLogin = useRecoilValue(isLoginState)
+  const scheduleDate = useRecoilValue(scheduleDateState)
+  const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
+  const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const resetScheduleEdit = useResetRecoilState(scheduleState)
+
   const [isInsertMode, changeInsertMode] = React.useState(false)
-  const [isShowLoginBottomSheet, setShowLoginBottomSheet] =
-    React.useState(false)
+  const [isShowTimeTableCategoryBottomSheet, setShowTimeTableCategoryBottomSheet] = React.useState(false)
+  const [isShowLoginBottomSheet, setShowLoginBottomSheet] = React.useState(false)
+
+  useQuery({
+    queryKey: ['timetableCategoryList'],
+    queryFn: async () => {
+      const response = await getTimetableCategoryList()
+      const result = response.data
+
+      if (result.length > 0) {
+        setActiveTimeTableCategory(result[0])
+      }
+
+      return result
+    }
+  })
+
+  const {
+    isLoading,
+    isError,
+    error,
+    refetch: refetchScheduleList
+  } = useQuery({
+    queryKey: ['scheduleList', scheduleDate],
+    queryFn: async () => {
+      if (activeTimeTableCategory.timetable_category_id) {
+        const date = format(scheduleDate, 'yyyy-MM-dd')
+
+        const param = {
+          date,
+          mon: '',
+          tue: '',
+          wed: '',
+          thu: '',
+          fri: '',
+          sat: '',
+          sun: '',
+          timetable_category_id: activeTimeTableCategory.timetable_category_id
+        }
+        const dayOfWeek = getDayOfWeekKey(scheduleDate.getDay())
+
+        if (dayOfWeek) {
+          param[dayOfWeek] = '1'
+        }
+
+        const response = await getScheduleList(param)
+        const result = response.data.map(item => {
+          return {...item, screenDisable: false}
+        })
+
+        setScheduleList(result)
+
+        return result
+      }
+
+      return []
+    },
+    initialData: [],
+    enabled: !!activeTimeTableCategory.timetable_category_id
+  })
+
+  const setScheduleMutation = useMutation({
+    mutationFn: async (data: SetScheduleParam) => {
+      return await setSchedule(data)
+    },
+    onSuccess: () => {
+      refetchScheduleList()
+      changeInsertMode(false)
+    }
+  })
+
+  const updateScheduleCompleteMutation = useMutation({
+    mutationFn: async (data: Schedule) => {
+      return await updateScheduleComplete(data)
+    }
+  })
+
+  const handleSubmit = async (data: SetScheduleParam) => {
+    setScheduleMutation.mutate(data)
+  }
+
+  const updateComplete = (data: Schedule) => {
+    updateScheduleCompleteMutation.mutate(data)
+  }
 
   const handleLoginBottomSheetChanges = () => {
     changeInsertMode(false)
     setShowLoginBottomSheet(false)
+  }
+
+  const handleInsertScheduleBottomSheetClose = () => {
+    const list = scheduleList.map(item => {
+      return {...item, screenDisable: false}
+    })
+
+    setScheduleList(list)
+
+    changeInsertMode(false)
   }
 
   const showInsertBottomSheet = () => {
@@ -31,14 +138,10 @@ const Home = () => {
     }
   }
 
-  const weeklyDatePickerTranslateY = React.useRef(new Animated.Value(0)).current
+  const headerTranslateY = React.useRef(new Animated.Value(0)).current
   const timaTableTranslateY = React.useRef(new Animated.Value(0)).current
 
-  const translateAnimation = (
-    target: Animated.Value,
-    to: number,
-    duration?: number
-  ) => {
+  const translateAnimation = (target: Animated.Value, to: number, duration?: number) => {
     Animated.timing(target, {
       toValue: to,
       duration: duration ? duration : 300,
@@ -52,61 +155,51 @@ const Home = () => {
     }
 
     if (isInsertMode) {
-      translateAnimation(weeklyDatePickerTranslateY, -200, 350)
+      translateAnimation(headerTranslateY, -200, 350)
       translateAnimation(timaTableTranslateY, -100)
     } else {
       resetScheduleEdit()
 
-      translateAnimation(weeklyDatePickerTranslateY, 0, 350)
+      translateAnimation(headerTranslateY, 0, 350)
       translateAnimation(timaTableTranslateY, 0)
     }
-  }, [
-    isLogin,
-    isInsertMode,
-    weeklyDatePickerTranslateY,
-    timaTableTranslateY,
-    resetScheduleEdit
-  ])
+  }, [isLogin, isInsertMode, headerTranslateY, timaTableTranslateY, resetScheduleEdit])
 
   return (
     <View style={homeStyles.container}>
-      <View
-        // [todo] app bar
-        style={{
-          paddingHorizontal: 16,
-          height: 48,
-          justifyContent: 'center'
-        }}
-      />
+      <Animated.View style={{transform: [{translateY: headerTranslateY}]}}>
+        <View
+          style={{
+            paddingHorizontal: 16,
+            height: 48,
+            justifyContent: 'center'
+          }}>
+          <Pressable onPress={() => setShowTimeTableCategoryBottomSheet(true)}>
+            <Text>{activeTimeTableCategory.title}</Text>
+          </Pressable>
+        </View>
 
-      <Animated.View
-        style={[
-          homeStyles.weekDatePickerSection,
-          {transform: [{translateY: weeklyDatePickerTranslateY}]}
-        ]}>
-        <WeeklyDatePicker />
+        <View style={homeStyles.weekDatePickerSection}>
+          <WeeklyDatePicker />
+        </View>
       </Animated.View>
 
       <Animated.View style={[{transform: [{translateY: timaTableTranslateY}]}]}>
-        <Pressable onPress={() => changeInsertMode(false)}>
-          <TimeTable
-            isInsertMode={isInsertMode && isLogin}
-            onClick={showInsertBottomSheet}
-          />
+        <Pressable onPress={handleInsertScheduleBottomSheetClose}>
+          <TimeTable data={scheduleList} isInsertMode={isInsertMode && isLogin} onClick={showInsertBottomSheet} />
         </Pressable>
       </Animated.View>
 
       {isInsertMode ? (
-        <InsertScheduleBottomSheet />
+        <InsertScheduleBottomSheet data={scheduleList} onSubmit={handleSubmit} />
       ) : (
-        <ScheduleListBottomSheet />
+        <ScheduleListBottomSheet data={scheduleList} onComplete={updateComplete} />
       )}
-      {!isLogin && (
-        <LoginBottomSheet
-          isShow={isShowLoginBottomSheet}
-          onClose={handleLoginBottomSheetChanges}
-        />
-      )}
+      {!isLogin && <LoginBottomSheet isShow={isShowLoginBottomSheet} onClose={handleLoginBottomSheetChanges} />}
+      <TimeTableCategotyBottomSheet
+        isShow={isShowTimeTableCategoryBottomSheet}
+        onClose={() => setShowTimeTableCategoryBottomSheet(false)}
+      />
     </View>
   )
 }

@@ -28,12 +28,14 @@ instance.interceptors.response.use(
   },
   async error => {
     const statusCode = error.response.status
+    console.error('e', statusCode)
     switch (statusCode) {
       case 401:
         console.log('401 Error!!', error)
         return Promise.reject(error)
       case 403:
         console.log('403 Error!!')
+        await AsyncStorage.setItem('token', '')
         return Promise.reject(error)
     }
     return Promise.reject(error)
