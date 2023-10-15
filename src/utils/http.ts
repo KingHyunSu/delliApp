@@ -2,7 +2,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import Axios from 'axios'
 
 const instance = Axios.create({
-  baseURL: 'http://localhost:8080',
+  // baseURL: 'http://localhost:8080',
+  baseURL: 'http://3.36.34.250:8080',
   headers: {
     'Content-type:': 'application/json;charset=UTF-8'
   }
@@ -28,13 +29,10 @@ instance.interceptors.response.use(
   },
   async error => {
     const statusCode = error.response.status
-    console.error('e', statusCode)
     switch (statusCode) {
       case 401:
-        console.log('401 Error!!', error)
         return Promise.reject(error)
       case 403:
-        console.log('403 Error!!')
         await AsyncStorage.setItem('token', '')
         return Promise.reject(error)
     }

@@ -12,19 +12,23 @@ import {Item, RangeFlag} from './type'
 import {dateItemStyles} from './style'
 
 interface Props {
-  value: string | Array<string>
+  value: string | string[]
   range: boolean
-  rangeFlag: RangeFlag
+  flag: RangeFlag
+  onChangeFlag: Function
   onChange: Function
 }
-const DatePicker = ({value, range, rangeFlag = 1, onChange}: Props) => {
+const DatePicker = ({value, range, flag, onChangeFlag, onChange}: Props) => {
   // 요일
   const weekdays = ['일', '월', '화', '수', '목', '금', '토']
 
   const [date, setDate] = React.useState(value)
-  const [flag, changeFlag] = React.useState(rangeFlag)
   const [currentDate, setCurrentDate] = React.useState(new Date())
   const [dayList, setDateList] = React.useState<Item[]>([])
+
+  React.useEffect(() => {
+    setDate(value)
+  }, [value])
 
   const changeDate = (item: Item) => {
     const dateStr = `${item.year}-${setDigit(item.month)}-${setDigit(item.day)}`
@@ -71,14 +75,14 @@ const DatePicker = ({value, range, rangeFlag = 1, onChange}: Props) => {
 
   return (
     <View>
-      {Array.isArray(date) && range && <RangePicker date={date} flag={flag} onChange={changeFlag} />}
+      {Array.isArray(date) && range && <RangePicker date={date} flag={flag} onChange={onChangeFlag} />}
 
       <ControlBar onChange={changeCurrentDate} />
 
       <View style={styles.weekContainer}>
         {weekdays.map(week => (
           <View key={week} style={dateItemStyles.wrapper}>
-            <Text style={dateItemStyles.text}>{week}</Text>
+            <Text style={[dateItemStyles.text, styles.dayOfWeekText]}>{week}</Text>
           </View>
         ))}
       </View>
@@ -96,6 +100,9 @@ const DatePicker = ({value, range, rangeFlag = 1, onChange}: Props) => {
 const styles = StyleSheet.create({
   weekContainer: {
     flexDirection: 'row'
+  },
+  dayOfWeekText: {
+    fontWeight: 'bold'
   }
 })
 export default DatePicker

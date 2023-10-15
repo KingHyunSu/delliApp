@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, useWindowDimensions} from 'react-native'
+import {useWindowDimensions} from 'react-native'
 import {Svg, G, Text} from 'react-native-svg'
 
 import Background from './src/Background'
@@ -14,9 +14,9 @@ interface Props {
   onClick: Function
 }
 const TimeTable = ({data, isInsertMode, onClick}: Props) => {
-  const {width} = useWindowDimensions()
+  const {width, height} = useWindowDimensions()
   const x = width / 2
-  const y = width / 2
+  const y = height * 0.28
   const radius = width / 2 - 36
 
   const list = React.useMemo(() => {
@@ -59,34 +59,4 @@ const TimeTable = ({data, isInsertMode, onClick}: Props) => {
   )
 }
 
-const styles = StyleSheet.create({
-  controlButtonContainer: {
-    width: 200,
-    height: 80,
-    justifyContent: 'space-between'
-  },
-  controlButtonWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  controlButton: {
-    width: 60,
-    borderRadius: 10,
-    paddingVertical: 2,
-    paddingLeft: 10,
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    gap: 5
-  },
-  plusControlButtonColor: {
-    backgroundColor: '#6BB5FF'
-  },
-  minusControlButtonColor: {
-    backgroundColor: '#FF8C85'
-  },
-  controlButtonText: {
-    color: '#fff'
-  }
-})
 export default TimeTable

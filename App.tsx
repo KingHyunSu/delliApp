@@ -1,5 +1,5 @@
 import React from 'react'
-import {SafeAreaView} from 'react-native'
+import {Dimensions, StyleSheet, SafeAreaView} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 
 // navigations
@@ -44,14 +44,10 @@ function App(): JSX.Element {
 
   React.useEffect(() => {
     const handleEnter = async () => {
-      try {
-        const token = await AsyncStorage.getItem('token')
-        console.log('token', token)
-        if (token) {
-          setLoginState(true)
-        }
-      } catch (e) {
-        console.error(e)
+      const token = await AsyncStorage.getItem('token')
+      console.log('token', token)
+      if (token) {
+        setLoginState(true)
       }
     }
 
@@ -62,7 +58,7 @@ function App(): JSX.Element {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{flex: 1}}>
         <BottomSheetModalProvider>
-          <SafeAreaView style={{flex: 1}}>
+          <SafeAreaView style={styles.container}>
             <NavigationContainer>
               <Stack.Navigator screenOptions={{headerShown: false}}>
                 <Stack.Group>
@@ -78,4 +74,10 @@ function App(): JSX.Element {
   )
 }
 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+    // backgroundColor: '#fff'
+  }
+})
 export default App

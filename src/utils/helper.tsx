@@ -6,7 +6,8 @@ export const setDigit = (val: string | number) => {
 
 export const getTimeOfMinute = (minute: number) => {
   return {
-    hour: setDigit(Math.floor(minute / 60)),
+    // hour: setDigit(Math.floor(minute / 60)),
+    hour: Math.floor(minute / 60),
     minute: setDigit(Math.floor(minute % 60))
   }
 }

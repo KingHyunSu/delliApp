@@ -66,6 +66,8 @@ const InsertTimeTable = ({scheduleList, x, y, radius}: Props) => {
     })
 
     setScheduleListState(list)
+
+    // Vibration.vibrate()
   }, [schedule.start_time, schedule.end_time])
 
   const dragStartBtnCoordinate = polarToCartesian(x, y, radius, endAngle)
@@ -76,8 +78,14 @@ const InsertTimeTable = ({scheduleList, x, y, radius}: Props) => {
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => false,
       onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + StatusBarHeight)
+        const moveY = gestureState.moveY - y - 100
         const moveX = gestureState.moveX - x
+        console.log('gestureState.moveY', gestureState.moveY)
+        console.log('y', y)
+        console.log('StatusBarHeight', StatusBarHeight)
+        // console.log('gestureState.moveY', gestureState.moveY)
+        // console.log('moveY', moveY)
+        console.log('----------------------------------------')
 
         let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
 
@@ -106,7 +114,7 @@ const InsertTimeTable = ({scheduleList, x, y, radius}: Props) => {
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
       onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + StatusBarHeight)
+        const moveY = gestureState.moveY - y - 100
         const moveX = gestureState.moveX - x
 
         let move = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
@@ -134,10 +142,10 @@ const InsertTimeTable = ({scheduleList, x, y, radius}: Props) => {
     })
   ).current
 
-  React.useEffect(() => {}, [])
-
   return (
     <G>
+      <Circle cx={x} cy={y} r={38} fill={'red'} />
+
       <SchedulePie
         data={schedule}
         x={x}
@@ -155,13 +163,13 @@ const InsertTimeTable = ({scheduleList, x, y, radius}: Props) => {
           r={10}
           fill="#BABABA"
         />
-        <Circle
+        {/* <Circle
           {...endPanResponders.panHandlers}
           cx={dragStartBtnCoordinate.x}
           cy={dragStartBtnCoordinate.y}
           r={38}
           fill={'transparent'}
-        />
+        /> */}
       </G>
 
       <G>
@@ -172,13 +180,13 @@ const InsertTimeTable = ({scheduleList, x, y, radius}: Props) => {
           r={10}
           fill="#1E90FF"
         />
-        <Circle
+        {/* <Circle
           {...startPanResponders.panHandlers}
           cx={dragEndBtnCoordinate.x}
           cy={dragEndBtnCoordinate.y}
           r={38}
           fill={'transparent'}
-        />
+        /> */}
       </G>
     </G>
   )

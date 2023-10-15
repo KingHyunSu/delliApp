@@ -1,104 +1,98 @@
 import React from 'react'
-import {
-  useWindowDimensions,
-  StyleSheet,
-  Modal,
-  TouchableWithoutFeedback,
-  Animated,
-  View,
-  Text,
-  Pressable
-} from 'react-native'
+import {StyleSheet, View, Text, Pressable} from 'react-native'
+import {BottomSheetModal} from '@gorhom/bottom-sheet'
+import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 
 import DatePicker from '@/components/DatePicker'
 import {RangeFlag} from '@/components/DatePicker/type'
 
+import {RANGE_FLAG} from '@/components/DatePicker/utils/code'
+import {format} from 'date-fns'
+
 interface Props {
-  value: string | Array<string>
-  range: boolean
-  rangeFlag: RangeFlag
+  value: string | string[]
+  range?: boolean
+  rangeFlag?: RangeFlag
   isShow: boolean
   onClose: Function
   onChange: Function
 }
-const DatePickerBottomSheet = ({value, range, rangeFlag, isShow, onClose, onChange}: Props) => {
-  const {height} = useWindowDimensions()
+const DatePickerBottomSheet = ({value, range = false, rangeFlag = 1, isShow, onClose, onChange}: Props) => {
+  const datePickerBottomSheetRef = React.useRef<BottomSheetModal>(null)
+  const snapPoints = React.useMemo(() => [range ? 580 : 500], [range])
+
   const [selectDate, changeDate] = React.useState(value)
+  const [flag, changeFlag] = React.useState(rangeFlag)
 
-  const panY = React.useRef(new Animated.Value(height)).current
-
-  const translateY = panY.interpolate({
-    inputRange: [-1, 0, 1],
-    outputRange: [0, 0, 1]
-  })
-
-  const openMoal = Animated.timing(panY, {
-    toValue: 0,
-    duration: 200,
-    useNativeDriver: true
-  })
-
-  const closeModal = Animated.timing(panY, {
-    toValue: height,
-    duration: 200,
-    useNativeDriver: true
-  })
-
-  const handleClose = () => {
-    closeModal.start(() => {
-      onClose()
-    })
+  const onDismiss = () => {
+    onClose()
   }
 
   React.useEffect(() => {
-    if (isShow) {
-      openMoal.start()
-    } else {
-      closeModal.start()
-    }
-  }, [isShow, openMoal, closeModal])
+    changeDate(value)
+  }, [value])
 
-  const onChangeDate = (arg: string | string[]) => {
+  React.useEffect(() => {
+    if (isShow) {
+      datePickerBottomSheetRef.current?.present()
+    } else {
+      datePickerBottomSheetRef.current?.dismiss()
+    }
+  }, [isShow])
+
+  const onChangeDate = (arg: string) => {
+    console.log('test', arg)
     if (arg) {
       changeDate(arg)
+    }
+  }
+
+  const changeToday = () => {
+    const today = format(new Date(), 'yyyy-MM-dd')
+
+    if (range) {
+      if (flag === RANGE_FLAG.START) {
+        changeDate([today, selectDate[1]])
+      } else if (flag === RANGE_FLAG.END) {
+        changeDate([selectDate[0], today])
+      }
     } else {
-      changeDate('9999-12-31')
+      changeDate(today)
     }
   }
 
   const confirm = () => {
     onChange(selectDate)
-    handleClose()
+    onDismiss()
   }
 
   return (
-    <Modal visible={isShow} transparent>
-      <View style={styles.overlay}>
-        <TouchableWithoutFeedback onPress={handleClose}>
-          <View style={styles.background} />
-        </TouchableWithoutFeedback>
+    <BottomSheetModal
+      name="datePicker"
+      ref={datePickerBottomSheetRef}
+      backdropComponent={props => {
+        return <BottomSheetBackdrop props={props} />
+      }}
+      index={0}
+      snapPoints={snapPoints}
+      onDismiss={onDismiss}>
+      <View style={styles.container}>
+        <DatePicker value={selectDate} range={range} flag={flag} onChangeFlag={changeFlag} onChange={onChangeDate} />
 
-        <Animated.View style={[{transform: [{translateY: translateY}]}, styles.container]}>
-          <DatePicker value={value} range={range} rangeFlag={rangeFlag} onChange={onChangeDate} />
-
-          <Pressable style={styles.confirmBtn} onPress={confirm}>
-            <Text style={styles.confirmText}>확인</Text>
+        <View style={styles.buttonWrapper}>
+          <Pressable style={[styles.button, styles.todayButton]} onPress={changeToday}>
+            <Text style={[styles.text, styles.todayText]}>오늘</Text>
           </Pressable>
-        </Animated.View>
+          <Pressable style={[styles.button, styles.confirmButton]} onPress={confirm}>
+            <Text style={[styles.text, styles.confirmText]}>확인</Text>
+          </Pressable>
+        </View>
       </View>
-    </Modal>
+    </BottomSheetModal>
   )
 }
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0, 0, 0, 0.4)'
-  },
-  background: {
-    flex: 1
-  },
   container: {
     gap: 20,
     justifyContent: 'space-between',
@@ -106,18 +100,35 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
     paddingHorizontal: 16,
-    paddingVertical: 20
+    paddingTop: 20,
+    paddingBottom: 40
   },
-  confirmBtn: {
+  buttonWrapper: {
+    flexDirection: 'row',
+    gap: 10
+  },
+  button: {
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 10
+  },
+  todayButton: {
+    flex: 1,
+    backgroundColor: '#7c8698'
+  },
+  confirmButton: {
+    flex: 2,
     backgroundColor: '#2d8cec'
   },
+  text: {
+    fontFamily: 'GmarketSansTTFBold',
+    fontSize: 18
+  },
+  todayText: {
+    color: '#f5f6f8'
+  },
   confirmText: {
-    fontSize: 18,
-    fontWeight: 'bold',
     color: '#fff'
   }
 })

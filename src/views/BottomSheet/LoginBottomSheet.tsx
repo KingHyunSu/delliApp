@@ -1,6 +1,6 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable, Image} from 'react-native'
-import BottomSheet from '@gorhom/bottom-sheet'
+import {BottomSheetModal} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 // provider
 import {login as kakaoLogin} from '@react-native-seoul/kakao-login'
@@ -17,16 +17,20 @@ interface Props {
   onClose: Function
 }
 const LoginBottomSheet = ({isShow, onClose}: Props) => {
-  const setLoginState = useSetRecoilState(isLoginState)
-  const bottomSheetRef = React.useRef<BottomSheet>(null)
-
+  const loginBottomSheetRef = React.useRef<BottomSheetModal>(null)
   const snapPoints = React.useMemo(() => ['50%'], [])
 
-  const handleSheetChanges = (index: number) => {
-    if (bottomSheetRef?.current && index === -1) {
-      onClose()
-    }
+  const setLoginState = useSetRecoilState(isLoginState)
+
+  const onDismiss = () => {
+    onClose()
   }
+
+  React.useEffect(() => {
+    if (isShow) {
+      loginBottomSheetRef.current?.present()
+    }
+  }, [isShow])
 
   const signInWithKakao = async (): Promise<void> => {
     try {
@@ -46,22 +50,16 @@ const LoginBottomSheet = ({isShow, onClose}: Props) => {
     }
   }
 
-  React.useEffect(() => {
-    if (isShow) {
-      bottomSheetRef.current?.expand()
-    }
-  }, [isShow])
-
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      index={0}
-      snapPoints={snapPoints}
-      enablePanDownToClose
-      onChange={handleSheetChanges}
+    <BottomSheetModal
+      name="login"
+      ref={loginBottomSheetRef}
       backdropComponent={props => {
         return <BottomSheetBackdrop props={props} />
-      }}>
+      }}
+      index={0}
+      snapPoints={snapPoints}
+      onDismiss={onDismiss}>
       <View style={styles.container}>
         <Text>로그인</Text>
 
@@ -75,7 +73,7 @@ const LoginBottomSheet = ({isShow, onClose}: Props) => {
           </Pressable>
         </View>
       </View>
-    </BottomSheet>
+    </BottomSheetModal>
   )
 }
 

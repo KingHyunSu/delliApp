@@ -74,6 +74,9 @@
 		<string>NanumSquareRoundB.ttf</string>
 		<string>NanumSquareRoundL.ttf</string>
 		<string>NanumSquareRoundR.ttf</string>
+		<string>GmarketSansTTFBold.ttf</string>
+		<string>GmarketSansTTFLight.ttf</string>
+		<string>GmarketSansTTFMedium.ttf</string>
 	</array>
 </dict>
 </plist>

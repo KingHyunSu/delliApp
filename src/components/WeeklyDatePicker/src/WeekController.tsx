@@ -1,15 +1,25 @@
 import React from 'react'
-import {StyleSheet, View, Pressable, Text} from 'react-native'
+import {useWindowDimensions, StyleSheet, View, Text, Pressable} from 'react-native'
+import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
 
-import {addDays, addMonths, setDate, lastDayOfMonth} from 'date-fns'
+import {addDays, addMonths, setDate, lastDayOfMonth, format} from 'date-fns'
+
+import {useSetRecoilState} from 'recoil'
+import {scheduleDateState} from '@/store/schedule'
 
 interface Props {
   date: Date
   onChange: Function
 }
 const WeekController = ({date, onChange}: Props) => {
+  const {height} = useWindowDimensions()
   const THURSDAY_NUMBER = 4
 
+  const setScheduleDate = useSetRecoilState(scheduleDateState)
+
+  const [showDatePickerBottomSheet, setDatePickerBottomSheet] = React.useState(false)
+  const screenDateStr = React.useMemo(() => format(date, 'yyyy-MM-dd'), [date])
+  const screenYear = React.useMemo(() => date.getFullYear(), [date])
   const [screenMonth, setScreenMonth] = React.useState(date.getMonth() + 1)
   const [screenWeek, setScreenWeek] = React.useState(0)
 
@@ -44,6 +54,10 @@ const WeekController = ({date, onChange}: Props) => {
     return weekNumber
   }
 
+  const changeDate = (data: string) => {
+    setScheduleDate(new Date(data))
+  }
+
   const handlePrev = () => {
     onChange(addDays(date, -7))
   }
@@ -53,39 +67,48 @@ const WeekController = ({date, onChange}: Props) => {
   }
 
   return (
-    <View style={weekControllerStyles.wrapper}>
-      <View style={weekControllerStyles.container}>
-        <Pressable onPress={handlePrev}>
-          <Text>이전</Text>
+    <View style={[styles.wrapper, {marginBottom: height * 0.0177}]}>
+      <View style={styles.container}>
+        {/* <Pressable style={styles.controlButton} onPress={handlePrev}>
+          <LeftArrowIcon width={16} />
+        </Pressable> */}
+
+        <Pressable onPress={() => setDatePickerBottomSheet(true)}>
+          <Text style={styles.text}>{`${screenYear}년 ${screenMonth}월 ${screenWeek}주차`}</Text>
         </Pressable>
 
-        <Text>{`${screenMonth}월 ${screenWeek}주차`}</Text>
-
-        <Pressable onPress={handleNext}>
-          <Text>이후</Text>
-        </Pressable>
+        {/* <Pressable style={styles.controlButton} onPress={handleNext}>
+          <RightArrowIcon width={16} />
+        </Pressable> */}
       </View>
 
-      <Pressable>
-        <Text>달력</Text>
-      </Pressable>
+      <DatePickerBottomSheet
+        value={screenDateStr}
+        isShow={showDatePickerBottomSheet}
+        onClose={() => setDatePickerBottomSheet(false)}
+        onChange={changeDate}
+      />
     </View>
   )
 }
 
-const weekControllerStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   wrapper: {
+    height: 36,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15
+    alignItems: 'center'
   },
   container: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10
   },
-  text: {}
+  text: {
+    fontFamily: 'GmarketSansTTFBold',
+    fontSize: 16
+  },
+  controlButton: {}
 })
 
 export default WeekController

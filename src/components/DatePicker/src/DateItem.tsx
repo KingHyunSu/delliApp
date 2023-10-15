@@ -43,7 +43,7 @@ const DateItem = ({item, value, onChange}: DateItemProps) => {
 
     const [selectYear, selectMonth, selectDay] = value.split('-')
 
-    const itemDateStr = `${itemYear}${setDigit(itemMonth + 1)}${setDigit(itemDay)}`
+    const itemDateStr = `${itemYear}${setDigit(itemMonth)}${setDigit(itemDay)}`
     const selectDateStr = `${selectYear}${selectMonth}${selectDay}`
 
     return itemDateStr === selectDateStr
@@ -87,7 +87,10 @@ const DateItem = ({item, value, onChange}: DateItemProps) => {
           style = {...style, borderRadius: 0}
         }
       }
+    } else {
+      style = {...style, borderRadius: 15}
     }
+
     if (isActive) {
       style = {...style, backgroundColor: '#1E90FF'}
     }

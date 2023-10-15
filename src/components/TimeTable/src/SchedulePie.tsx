@@ -1,6 +1,6 @@
 import React from 'react'
 import {G, Path, ForeignObject} from 'react-native-svg'
-import {View, Text} from 'react-native'
+import {StyleSheet, View, Text} from 'react-native'
 
 import {polarToCartesian, describeArc} from '../util'
 
@@ -85,12 +85,19 @@ const SchedulePie = ({data, x, y, radius, fillOpacity = 1, startAngle, endAngle}
       <G originX={textCoordinate.x} originY={textCoordinate.y} rotation={getStartAngleByTextRotation(startAngle)}>
         <ForeignObject x={textCoordinate.x} y={textCoordinate.y}>
           <View style={{width: radius - 40}}>
-            <Text>{data.title}</Text>
+            <Text style={styles.text}>{data.title}</Text>
           </View>
         </ForeignObject>
       </G>
     </G>
   )
 }
+
+const styles = StyleSheet.create({
+  text: {
+    fontFamily: 'GmarketSansTTFMedium',
+    fontSize: 14
+  }
+})
 
 export default SchedulePie

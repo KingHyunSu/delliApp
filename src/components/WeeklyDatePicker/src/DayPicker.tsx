@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, View, Pressable, Text} from 'react-native'
+import {useWindowDimensions, StyleSheet, View, Pressable, Text} from 'react-native'
 
 import {addDays, eachDayOfInterval, isSameDay, isSameMonth, isSameYear} from 'date-fns'
 
@@ -8,6 +8,8 @@ interface Props {
   onChange: Function
 }
 const DayPicker = ({date, onChange}: Props) => {
+  const {width} = useWindowDimensions()
+  const dayOfWeekSize = width * 0.096
   const [dateList, setDateList] = React.useState<Array<Date>>([])
 
   React.useEffect(() => {
@@ -25,14 +27,18 @@ const DayPicker = ({date, onChange}: Props) => {
   }
 
   return (
-    <View style={dayPickerStyles.container}>
+    <View style={styles.container}>
       {dateList.map((item, index) => {
         return (
           <Pressable
-            style={[dayPickerStyles.item, isActive(item) && dayPickerStyles.activeItem]}
+            style={[
+              styles.item,
+              isActive(item) && styles.activeItem,
+              {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize / 2}
+            ]}
             key={index}
             onPress={() => onChange(item)}>
-            <Text style={isActive(item) && dayPickerStyles.activeText}>{item.getDate()}</Text>
+            <Text style={[styles.text, isActive(item) && styles.activeText]}>{item.getDate()}</Text>
           </Pressable>
         )
       })}
@@ -40,7 +46,7 @@ const DayPicker = ({date, onChange}: Props) => {
   )
 }
 
-const dayPickerStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     justifyContent: 'space-between'
@@ -48,14 +54,15 @@ const dayPickerStyles = StyleSheet.create({
   item: {
     justifyContent: 'center',
     alignItems: 'center',
-
-    width: 32,
-    height: 32,
-    borderRadius: 16,
     backgroundColor: '#f5f6f8'
   },
   activeItem: {
     backgroundColor: '#1E90FF'
+  },
+  text: {
+    fontFamily: 'GmarketSansTTFBold',
+    fontSize: 14,
+    color: '#7c8698'
   },
   activeText: {
     color: '#fff'

@@ -17,7 +17,7 @@ const RangePicker = ({date, flag, onChange}: Props) => {
         <Text style={styles.text}>{date[0]}</Text>
       </Pressable>
 
-      <View style={styles.bar} />
+      {/* <View style={styles.bar} /> */}
 
       <Pressable style={styles.wrapper} onPress={() => onChange(RANGE_FLAG.END)}>
         <Text style={[styles.label, flag === 0 && styles.active]}>종료일</Text>
@@ -48,12 +48,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#e4e4ec'
   },
   label: {
-    fontSize: 14
-    // color: '#BABABA'
+    fontFamily: 'GmarketSansTTFMedium',
+    fontSize: 18
   },
   text: {
-    fontSize: 14
-    // color: '#BABABA'
+    fontFamily: 'GmarketSansTTFMedium',
+    fontSize: 16
   },
   active: {
     color: '#1E90FF',

@@ -48,6 +48,7 @@ const Background = ({x, y, radius}: Props) => {
 
 const styles = StyleSheet.create({
   text: {
+    fontFamily: 'GmarketSansTTFMedium',
     color: '#b2b2b2',
     fontSize: 12
   }

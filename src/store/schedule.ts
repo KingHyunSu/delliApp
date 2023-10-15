@@ -30,6 +30,7 @@ export const scheduleState = atom<Schedule>({
     sun: '1',
     memo: '',
     disable: '0',
+    state: '0',
     alram: false,
     color: ''
   }

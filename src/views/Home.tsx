@@ -1,12 +1,16 @@
 import React from 'react'
 import {Animated, Pressable, StyleSheet, Text, View} from 'react-native'
 
+import AppBar from '@/components/AppBar'
 import TimeTable from '@/components/TimeTable'
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import InsertScheduleBottomSheet from '@/views/BottomSheet/InsertScheduleBottomSheet'
 import LoginBottomSheet from '@/views/BottomSheet/LoginBottomSheet'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimeTableCategotyBottomSheet from '@/views/BottomSheet/TimeTableCategotyBottomSheet'
+
+import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
+import SettingIcon from '@/assets/icons/setting.svg'
 
 import {scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
@@ -33,7 +37,7 @@ const Home = () => {
   const [isShowTimeTableCategoryBottomSheet, setShowTimeTableCategoryBottomSheet] = React.useState(false)
   const [isShowLoginBottomSheet, setShowLoginBottomSheet] = React.useState(false)
 
-  useQuery({
+  const {refetch: refetchTimetableCategoryList} = useQuery({
     queryKey: ['timetableCategoryList'],
     queryFn: async () => {
       const response = await getTimetableCategoryList()
@@ -95,8 +99,8 @@ const Home = () => {
     mutationFn: async (data: SetScheduleParam) => {
       return await setSchedule(data)
     },
-    onSuccess: () => {
-      refetchScheduleList()
+    onSuccess: async () => {
+      await refetchScheduleList()
       changeInsertMode(false)
     }
   })
@@ -115,7 +119,10 @@ const Home = () => {
     updateScheduleCompleteMutation.mutate(data)
   }
 
-  const handleLoginBottomSheetChanges = () => {
+  const handleLoginBottomSheetChanges = async () => {
+    await refetchTimetableCategoryList()
+    await refetchScheduleList()
+
     changeInsertMode(false)
     setShowLoginBottomSheet(false)
   }
@@ -153,7 +160,6 @@ const Home = () => {
     if (!isLogin) {
       return
     }
-
     if (isInsertMode) {
       translateAnimation(headerTranslateY, -200, 350)
       translateAnimation(timaTableTranslateY, -100)
@@ -168,16 +174,18 @@ const Home = () => {
   return (
     <View style={homeStyles.container}>
       <Animated.View style={{transform: [{translateY: headerTranslateY}]}}>
-        <View
-          style={{
-            paddingHorizontal: 16,
-            height: 48,
-            justifyContent: 'center'
-          }}>
-          <Pressable onPress={() => setShowTimeTableCategoryBottomSheet(true)}>
-            <Text>{activeTimeTableCategory.title}</Text>
+        <AppBar>
+          <Pressable
+            style={homeStyles.timetableCategoryButton}
+            onPress={() => setShowTimeTableCategoryBottomSheet(true)}>
+            <Text style={homeStyles.timetableCategoryText} numberOfLines={1}>
+              {activeTimeTableCategory.title}
+            </Text>
+            <ArrowDownIcon stroke="#000" />
           </Pressable>
-        </View>
+
+          <SettingIcon stroke="#242933" />
+        </AppBar>
 
         <View style={homeStyles.weekDatePickerSection}>
           <WeeklyDatePicker />
@@ -211,7 +219,20 @@ const homeStyles = StyleSheet.create({
   },
 
   weekDatePickerSection: {
-    paddingHorizontal: 16
+    paddingHorizontal: 16,
+    justifyContent: 'center'
+  },
+
+  timetableCategoryButton: {
+    width: 150,
+    height: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5
+  },
+  timetableCategoryText: {
+    fontFamily: 'GmarketSansTTFBold',
+    fontSize: 20
   }
 })
 

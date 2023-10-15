@@ -57,12 +57,13 @@ const ScheduleListItem = ({item, index, onComplete}: Props) => {
         <Text
           style={[
             scheduleItemStyles.titleText,
+            isComplete && scheduleItemStyles.titleUnderline,
             isDisable ? scheduleItemStyles.disableTextColor : scheduleItemStyles.textColor
           ]}>
           {item.title}
         </Text>
         <Text style={[scheduleItemStyles.timeText]}>
-          {`${startTime.hour} : ${startTime.minute}`} ~ {`${endTime.hour} : ${endTime.minute}`}
+          오전 {`${startTime.hour}시 ${startTime.minute}분`} - 오전 {`${endTime.hour}시 ${endTime.minute}분`}
         </Text>
       </View>
     </View>
@@ -86,14 +87,18 @@ const scheduleItemStyles = StyleSheet.create({
     borderWidth: 2
   },
   textContainer: {
-    gap: 5
+    gap: 10
   },
   titleText: {
-    fontWeight: 'bold'
+    fontFamily: 'GmarketSansTTFMedium',
+    fontSize: 18
+  },
+  titleUnderline: {
+    textDecorationLine: 'line-through'
   },
   timeText: {
-    fontSize: 12,
-    fontWeight: '200'
+    fontFamily: 'GmarketSansTTFLight',
+    fontSize: 12
   },
   checkBoxColor: {
     borderColor: '#BABABA'
@@ -106,7 +111,7 @@ const scheduleItemStyles = StyleSheet.create({
     borderColor: '#ededed'
   },
   textColor: {
-    color: '#555'
+    // color: '#555'
   },
   disableTextColor: {
     color: '#c3c5cc'
