@@ -5,10 +5,16 @@ export const setDigit = (val: string | number) => {
 }
 
 export const getTimeOfMinute = (minute: number) => {
+  const calcMinute = minute % 720
+  let hour = Math.floor(calcMinute / 60)
+  hour = hour === 0 ? 12 : hour
+
   return {
-    // hour: setDigit(Math.floor(minute / 60)),
-    hour: Math.floor(minute / 60),
-    minute: setDigit(Math.floor(minute % 60))
+    meridiem: minute > 720 ? '오후' : '오전',
+    hour: hour,
+    minute: setDigit(Math.floor(calcMinute % 60))
+    // hour: Math.floor(minute / 60),
+    // minute: setDigit(Math.floor(minute % 60))
   }
 }
 

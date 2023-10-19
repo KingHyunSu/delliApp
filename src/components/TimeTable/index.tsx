@@ -10,10 +10,11 @@ import {Schedule} from '@/types/schedule'
 
 interface Props {
   data: Schedule[]
+  homeTopHeight: number
   isInsertMode: Boolean
   onClick: Function
 }
-const TimeTable = ({data, isInsertMode, onClick}: Props) => {
+const TimeTable = ({data, homeTopHeight, isInsertMode, onClick}: Props) => {
   const {width, height} = useWindowDimensions()
   const x = width / 2
   const y = height * 0.28
@@ -53,7 +54,9 @@ const TimeTable = ({data, isInsertMode, onClick}: Props) => {
           )}
         </G>
 
-        {isInsertMode && <InsertSchedulePie scheduleList={data} x={x} y={y} radius={radius} />}
+        {isInsertMode && (
+          <InsertSchedulePie scheduleList={data} x={x} y={y} radius={radius} homeTopHeight={homeTopHeight} />
+        )}
       </G>
     </Svg>
   )

@@ -1,5 +1,5 @@
 import React from 'react'
-import {Dimensions, StyleSheet, SafeAreaView} from 'react-native'
+import {StyleSheet, SafeAreaView} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 
 // navigations
@@ -76,8 +76,8 @@ function App(): JSX.Element {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
-    // backgroundColor: '#fff'
+    flex: 1,
+    backgroundColor: '#fff'
   }
 })
 export default App

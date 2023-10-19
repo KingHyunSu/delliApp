@@ -17,9 +17,10 @@ interface Props {
   x: number
   y: number
   radius: number
+  homeTopHeight: number
 }
 
-const InsertTimeTable = ({scheduleList, x, y, radius}: Props) => {
+const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => {
   /**
    * [todo]
    * ios에서는 moveY가 status bar 영역까지 계산되고 있는데 android에서는 어떻게 계산되는지 확인해보기
@@ -78,14 +79,8 @@ const InsertTimeTable = ({scheduleList, x, y, radius}: Props) => {
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => false,
       onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - y - 100
+        const moveY = gestureState.moveY - (y + homeTopHeight + StatusBarHeight - 100)
         const moveX = gestureState.moveX - x
-        console.log('gestureState.moveY', gestureState.moveY)
-        console.log('y', y)
-        console.log('StatusBarHeight', StatusBarHeight)
-        // console.log('gestureState.moveY', gestureState.moveY)
-        // console.log('moveY', moveY)
-        console.log('----------------------------------------')
 
         let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
 
@@ -114,7 +109,7 @@ const InsertTimeTable = ({scheduleList, x, y, radius}: Props) => {
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
       onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - y - 100
+        const moveY = gestureState.moveY - (y + homeTopHeight + StatusBarHeight - 100)
         const moveX = gestureState.moveX - x
 
         let move = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
@@ -144,8 +139,6 @@ const InsertTimeTable = ({scheduleList, x, y, radius}: Props) => {
 
   return (
     <G>
-      <Circle cx={x} cy={y} r={38} fill={'red'} />
-
       <SchedulePie
         data={schedule}
         x={x}

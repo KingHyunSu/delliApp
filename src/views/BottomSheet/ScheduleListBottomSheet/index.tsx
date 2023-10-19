@@ -12,7 +12,7 @@ interface Props {
 }
 const ScheduleListBottomSheet = ({data, onComplete}: Props) => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
-  const snapPoints = React.useMemo(() => ['20%', '95%'], [])
+  const snapPoints = React.useMemo(() => ['20%', '77%'], [])
 
   return (
     <BottomSheet ref={bottomSheetRef} index={0} snapPoints={snapPoints} handleComponent={BottomSheetShadowHandler}>

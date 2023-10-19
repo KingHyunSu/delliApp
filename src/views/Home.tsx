@@ -1,5 +1,5 @@
 import React from 'react'
-import {Animated, Pressable, StyleSheet, Text, View} from 'react-native'
+import {Animated, Pressable, StyleSheet, Text, View, LayoutChangeEvent} from 'react-native'
 
 import AppBar from '@/components/AppBar'
 import TimeTable from '@/components/TimeTable'
@@ -33,6 +33,7 @@ const Home = () => {
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const resetScheduleEdit = useResetRecoilState(scheduleState)
 
+  const [homeTopHeight, setHomeTopHeight] = React.useState(0)
   const [isInsertMode, changeInsertMode] = React.useState(false)
   const [isShowTimeTableCategoryBottomSheet, setShowTimeTableCategoryBottomSheet] = React.useState(false)
   const [isShowLoginBottomSheet, setShowLoginBottomSheet] = React.useState(false)
@@ -145,6 +146,10 @@ const Home = () => {
     }
   }
 
+  const handleTopLayout = (layout: LayoutChangeEvent) => {
+    setHomeTopHeight(layout.nativeEvent.layout.height)
+  }
+
   const headerTranslateY = React.useRef(new Animated.Value(0)).current
   const timaTableTranslateY = React.useRef(new Animated.Value(0)).current
 
@@ -173,7 +178,7 @@ const Home = () => {
 
   return (
     <View style={homeStyles.container}>
-      <Animated.View style={{transform: [{translateY: headerTranslateY}]}}>
+      <Animated.View style={{transform: [{translateY: headerTranslateY}]}} onLayout={handleTopLayout}>
         <AppBar>
           <Pressable
             style={homeStyles.timetableCategoryButton}
@@ -194,7 +199,12 @@ const Home = () => {
 
       <Animated.View style={[{transform: [{translateY: timaTableTranslateY}]}]}>
         <Pressable onPress={handleInsertScheduleBottomSheetClose}>
-          <TimeTable data={scheduleList} isInsertMode={isInsertMode && isLogin} onClick={showInsertBottomSheet} />
+          <TimeTable
+            data={scheduleList}
+            homeTopHeight={homeTopHeight}
+            isInsertMode={isInsertMode && isLogin}
+            onClick={showInsertBottomSheet}
+          />
         </Pressable>
       </Animated.View>
 

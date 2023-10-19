@@ -133,6 +133,10 @@ const InsertScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
     return disableScheduleIdList
   }
 
+  const calcTime = (time: number) => {
+    console.log(time % 720)
+  }
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -149,7 +153,7 @@ const InsertScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
               <Pressable style={styles.timeWrapper} onPress={() => setTimeFlag('START')}>
                 <TimeIcon width={30} fill={'#BABABA'} />
                 <View>
-                  <Text style={styles.meridiemText}>오전</Text>
+                  <Text style={styles.meridiemText}>{startTime.meridiem}</Text>
                   <Text style={styles.timeText}>{`${startTime.hour}시 ${startTime.minute}분`}</Text>
                 </View>
               </Pressable>
@@ -157,7 +161,7 @@ const InsertScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
               <Pressable style={styles.timeWrapper} onPress={() => setTimeFlag('END')}>
                 <TimeIcon width={30} fill={'#BABABA'} />
                 <View>
-                  <Text style={styles.meridiemText}>오전</Text>
+                  <Text style={styles.meridiemText}>{endTime.meridiem}</Text>
                   <Text style={styles.timeText}>{`${endTime.hour}시 ${endTime.minute}분`}</Text>
                 </View>
               </Pressable>
