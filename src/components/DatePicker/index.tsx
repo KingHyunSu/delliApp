@@ -27,6 +27,12 @@ const DatePicker = ({value, range, flag, onChangeFlag, onChange}: Props) => {
   const [dayList, setDateList] = React.useState<Item[]>([])
 
   React.useEffect(() => {
+    if (Array.isArray(value)) {
+      setCurrentDate(new Date(value[0]))
+    } else {
+      setCurrentDate(new Date(value))
+    }
+
     setDate(value)
   }, [value])
 
@@ -77,7 +83,7 @@ const DatePicker = ({value, range, flag, onChangeFlag, onChange}: Props) => {
     <View>
       {Array.isArray(date) && range && <RangePicker date={date} flag={flag} onChange={onChangeFlag} />}
 
-      <ControlBar onChange={changeCurrentDate} />
+      <ControlBar currentDate={currentDate} onChange={changeCurrentDate} />
 
       <View style={styles.weekContainer}>
         {weekdays.map(week => (

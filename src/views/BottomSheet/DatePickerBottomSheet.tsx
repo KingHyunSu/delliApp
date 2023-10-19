@@ -41,7 +41,6 @@ const DatePickerBottomSheet = ({value, range = false, rangeFlag = 1, isShow, onC
   }, [isShow])
 
   const onChangeDate = (arg: string) => {
-    console.log('test', arg)
     if (arg) {
       changeDate(arg)
     }

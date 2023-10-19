@@ -2,16 +2,17 @@ import React from 'react'
 import {useWindowDimensions, StyleSheet, View, Text, Pressable} from 'react-native'
 import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
 
-import {addDays, addMonths, setDate, lastDayOfMonth, format} from 'date-fns'
+import {setDate, format} from 'date-fns'
 
 import {useSetRecoilState} from 'recoil'
 import {scheduleDateState} from '@/store/schedule'
 
 interface Props {
   date: Date
+  weeklyDateList: Date[]
   onChange: Function
 }
-const WeekController = ({date, onChange}: Props) => {
+const WeekController = ({date, weeklyDateList, onChange}: Props) => {
   const {height} = useWindowDimensions()
   const THURSDAY_NUMBER = 4
 
@@ -22,28 +23,6 @@ const WeekController = ({date, onChange}: Props) => {
   const screenYear = React.useMemo(() => date.getFullYear(), [date])
   const [screenMonth, setScreenMonth] = React.useState(date.getMonth() + 1)
   const [screenWeek, setScreenWeek] = React.useState(0)
-
-  React.useEffect(() => {
-    const prevDate = addMonths(date, -1)
-    const prevLastDate = lastDayOfMonth(prevDate)
-
-    let weekOfMonth = getWeekOfMonth(date)
-
-    const currentDateOfFirstDayOfWeek = setDate(date, 1).getDay()
-    let month = date.getMonth() + 1
-
-    if (currentDateOfFirstDayOfWeek > THURSDAY_NUMBER) {
-      if (weekOfMonth === 1) {
-        month = prevDate.getMonth() + 1
-        weekOfMonth = getWeekOfMonth(prevLastDate)
-      } else {
-        weekOfMonth -= 1
-      }
-    }
-
-    setScreenMonth(month)
-    setScreenWeek(weekOfMonth)
-  }, [date])
 
   const getWeekOfMonth = (value: Date) => {
     const dateOfFirstDate = setDate(value, 1)
@@ -58,29 +37,42 @@ const WeekController = ({date, onChange}: Props) => {
     setScheduleDate(new Date(data))
   }
 
-  const handlePrev = () => {
-    onChange(addDays(date, -7))
-  }
+  // const handlePrev = () => {
+  //   onChange(addDays(date, -7))
+  // }
 
-  const handleNext = () => {
-    onChange(addDays(date, 7))
-  }
+  // const handleNext = () => {
+  //   onChange(addDays(date, 7))
+  // }
+
+  React.useEffect(() => {
+    const firstDate = weeklyDateList.find(item => {
+      return item.getDate() === 1
+    })
+
+    let month = date.getMonth() + 1
+    let weekOfMonth = getWeekOfMonth(date)
+
+    if (firstDate) {
+      const thursdayDate = weeklyDateList.find(item => {
+        return item.getDay() === THURSDAY_NUMBER
+      })
+
+      if (thursdayDate) {
+        month = thursdayDate.getMonth() + 1
+        weekOfMonth = getWeekOfMonth(thursdayDate)
+      }
+    }
+
+    setScreenMonth(month)
+    setScreenWeek(weekOfMonth)
+  }, [date, weeklyDateList])
 
   return (
     <View style={[styles.wrapper, {marginBottom: height * 0.0177}]}>
-      <View style={styles.container}>
-        {/* <Pressable style={styles.controlButton} onPress={handlePrev}>
-          <LeftArrowIcon width={16} />
-        </Pressable> */}
-
-        <Pressable onPress={() => setDatePickerBottomSheet(true)}>
-          <Text style={styles.text}>{`${screenYear}년 ${screenMonth}월 ${screenWeek}주차`}</Text>
-        </Pressable>
-
-        {/* <Pressable style={styles.controlButton} onPress={handleNext}>
-          <RightArrowIcon width={16} />
-        </Pressable> */}
-      </View>
+      <Pressable onPress={() => setDatePickerBottomSheet(true)}>
+        <Text style={styles.text}>{`${screenYear}년 ${screenMonth}월 ${screenWeek}주차`}</Text>
+      </Pressable>
 
       <DatePickerBottomSheet
         value={screenDateStr}
@@ -99,16 +91,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center'
   },
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10
-  },
   text: {
     fontFamily: 'GmarketSansTTFBold',
     fontSize: 16
-  },
-  controlButton: {}
+  }
 })
 
 export default WeekController

@@ -7,24 +7,19 @@ import RightArrowIcon from '@/assets/icons/arrow_right.svg'
 import {addMonths} from 'date-fns'
 
 interface Props {
+  currentDate: Date
   onChange: Function
 }
-const ControlBar = ({onChange}: Props) => {
-  const [date, setDate] = React.useState(new Date())
-
+const ControlBar = ({currentDate, onChange}: Props) => {
   const handlePrev = () => {
-    const calcDate = addMonths(date, -1)
-    setDate(calcDate)
+    const calcDate = addMonths(currentDate, -1)
+    onChange(calcDate)
   }
 
   const handleNext = () => {
-    const calcDate = addMonths(date, 1)
-    setDate(calcDate)
+    const calcDate = addMonths(currentDate, 1)
+    onChange(calcDate)
   }
-
-  React.useEffect(() => {
-    onChange(date)
-  }, [date, onChange])
 
   return (
     <View style={styles.container}>
@@ -32,7 +27,7 @@ const ControlBar = ({onChange}: Props) => {
         <LeftArrowIcon stroke="#242933" />
       </Pressable>
 
-      <Text style={styles.text}>{`${date.getFullYear()}년 ${date.getMonth() + 1}월`}</Text>
+      <Text style={styles.text}>{`${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월`}</Text>
 
       <Pressable style={styles.arrowButton} onPress={handleNext}>
         <RightArrowIcon stroke="#242933" />
