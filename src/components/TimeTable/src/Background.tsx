@@ -24,7 +24,9 @@ const Background = ({x, y, radius}: Props) => {
       const angle = i * 60 * 0.25
 
       const cartesian = polarToCartesian(x, y, radius + 20, angle)
-      list.push({...cartesian, hour: i, angle})
+      let hour = i > 12 ? i % 12 : i
+      hour = hour === 0 ? 12 : hour
+      list.push({...cartesian, hour, angle})
     }
 
     setHourPositionList(list)

@@ -63,7 +63,8 @@ const ScheduleListItem = ({item, index, onComplete}: Props) => {
           {item.title}
         </Text>
         <Text style={[scheduleItemStyles.timeText]}>
-          오전 {`${startTime.hour}시 ${startTime.minute}분`} - 오전 {`${endTime.hour}시 ${endTime.minute}분`}
+          {startTime.meridiem} {`${startTime.hour}시 ${startTime.minute}분`} - {endTime.meridiem}{' '}
+          {`${endTime.hour}시 ${endTime.minute}분`}
         </Text>
       </View>
     </View>
