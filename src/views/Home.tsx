@@ -176,18 +176,26 @@ const Home = () => {
     }
   }, [isLogin, isInsertMode, headerTranslateY, timaTableTranslateY, resetScheduleEdit])
 
+  React.useEffect(() => {
+    setShowLoginBottomSheet(true)
+  }, [])
+
   return (
     <View style={homeStyles.container}>
       <Animated.View style={{transform: [{translateY: headerTranslateY}]}} onLayout={handleTopLayout}>
         <AppBar>
-          <Pressable
-            style={homeStyles.timetableCategoryButton}
-            onPress={() => setShowTimeTableCategoryBottomSheet(true)}>
-            <Text style={homeStyles.timetableCategoryText} numberOfLines={1}>
-              {activeTimeTableCategory.title}
-            </Text>
-            <ArrowDownIcon stroke="#000" />
-          </Pressable>
+          {isLogin ? (
+            <Pressable
+              style={homeStyles.timetableCategoryButton}
+              onPress={() => setShowTimeTableCategoryBottomSheet(true)}>
+              <Text style={homeStyles.timetableCategoryText} numberOfLines={1}>
+                {activeTimeTableCategory.title}
+              </Text>
+              <ArrowDownIcon stroke="#000" />
+            </Pressable>
+          ) : (
+            <View />
+          )}
 
           <SettingIcon stroke="#242933" />
         </AppBar>

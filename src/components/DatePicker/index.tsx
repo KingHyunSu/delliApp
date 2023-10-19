@@ -20,7 +20,7 @@ interface Props {
 }
 const DatePicker = ({value, range, flag, onChangeFlag, onChange}: Props) => {
   // 요일
-  const weekdays = ['일', '월', '화', '수', '목', '금', '토']
+  const weekdays = ['월', '화', '수', '목', '금', '토', '일']
 
   const [date, setDate] = React.useState(value)
   const [currentDate, setCurrentDate] = React.useState(new Date())
