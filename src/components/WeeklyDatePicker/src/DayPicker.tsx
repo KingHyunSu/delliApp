@@ -20,15 +20,11 @@ const DayPicker = ({date, weeklyDateList, onChange}: Props) => {
   }
 
   const isPrevMonthInfo = (item: Date) => {
-    const day = item.getDay()
-
-    return day > 1 && isLastDayOfMonth(item)
+    return item.getDay() !== 0 && isLastDayOfMonth(item)
   }
 
   const isNextMonthInfo = (item: Date) => {
-    const day = item.getDay()
-
-    return day > 1 && isFirstDayOfMonth(item)
+    return item.getDay() !== 1 && isFirstDayOfMonth(item)
   }
 
   return (
