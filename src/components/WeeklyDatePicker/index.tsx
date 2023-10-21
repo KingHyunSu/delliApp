@@ -7,24 +7,19 @@ import DayPicker from './src/DayPicker'
 import {useRecoilState} from 'recoil'
 import {scheduleDateState} from '@/store/schedule'
 
-import {addDays, eachDayOfInterval} from 'date-fns'
+import {getWeeklyDateList} from './util'
 
 const WeeklyDatePicker = () => {
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
 
-  const weeklyDateList = React.useMemo(() => {
-    const dayOfWeekIndex = scheduleDate.getDay() === 0 ? 6 : scheduleDate.getDay() - 1
-
-    const startDate = addDays(scheduleDate, -dayOfWeekIndex)
-    const endDate = addDays(scheduleDate, 6 - dayOfWeekIndex)
-
-    return eachDayOfInterval({start: startDate, end: endDate})
+  const currentWeeklyDateList = React.useMemo(() => {
+    return getWeeklyDateList(scheduleDate)
   }, [scheduleDate])
 
   return (
     <View>
-      <WeekController date={scheduleDate} weeklyDateList={weeklyDateList} onChange={setScheduleDate} />
-      <DayPicker date={scheduleDate} weeklyDateList={weeklyDateList} onChange={setScheduleDate} />
+      <WeekController date={scheduleDate} currentWeeklyDateList={currentWeeklyDateList} onChange={setScheduleDate} />
+      <DayPicker date={scheduleDate} currentWeeklyDateList={currentWeeklyDateList} onChange={setScheduleDate} />
     </View>
   )
 }

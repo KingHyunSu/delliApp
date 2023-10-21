@@ -9,10 +9,10 @@ import {scheduleDateState} from '@/store/schedule'
 
 interface Props {
   date: Date
-  weeklyDateList: Date[]
+  currentWeeklyDateList: Date[]
   onChange: Function
 }
-const WeekController = ({date, weeklyDateList, onChange}: Props) => {
+const WeekController = ({date, currentWeeklyDateList, onChange}: Props) => {
   const {height} = useWindowDimensions()
   const THURSDAY_NUMBER = 4
 
@@ -46,7 +46,7 @@ const WeekController = ({date, weeklyDateList, onChange}: Props) => {
   // }
 
   React.useEffect(() => {
-    const firstDate = weeklyDateList.find(item => {
+    const firstDate = currentWeeklyDateList.find(item => {
       return item.getDate() === 1
     })
 
@@ -54,7 +54,7 @@ const WeekController = ({date, weeklyDateList, onChange}: Props) => {
     let weekOfMonth = getWeekOfMonth(date)
 
     if (firstDate) {
-      const thursdayDate = weeklyDateList.find(item => {
+      const thursdayDate = currentWeeklyDateList.find(item => {
         return item.getDay() === THURSDAY_NUMBER
       })
 
@@ -66,7 +66,7 @@ const WeekController = ({date, weeklyDateList, onChange}: Props) => {
 
     setScreenMonth(month)
     setScreenWeek(weekOfMonth)
-  }, [date, weeklyDateList])
+  }, [date, currentWeeklyDateList])
 
   return (
     <View style={[styles.wrapper, {marginBottom: height * 0.0177}]}>
