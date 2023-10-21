@@ -11,6 +11,7 @@ import TimeTableCategotyBottomSheet from '@/views/BottomSheet/TimeTableCategotyB
 
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
+import CancleIcon from '@/assets/icons/cancle.svg'
 
 import {scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
@@ -182,9 +183,23 @@ const Home = () => {
 
   return (
     <View style={homeStyles.container}>
-      <Animated.View style={{transform: [{translateY: headerTranslateY}]}} onLayout={handleTopLayout}>
+      {/* insert header */}
+      <View style={homeStyles.insertHeaderContainer}>
         <AppBar>
-          {isLogin ? (
+          <Text style={homeStyles.timetableCategoryText}>{activeTimeTableCategory.title}</Text>
+
+          <Pressable style={homeStyles.button} onPress={handleInsertScheduleBottomSheetClose}>
+            <CancleIcon stroke="#242933" />
+          </Pressable>
+        </AppBar>
+      </View>
+
+      {/* home header */}
+      <Animated.View
+        style={[homeStyles.homeHeaderContainer, {transform: [{translateY: headerTranslateY}]}]}
+        onLayout={handleTopLayout}>
+        <AppBar>
+          {isLogin && activeTimeTableCategory.timetable_category_id ? (
             <Pressable
               style={homeStyles.timetableCategoryButton}
               onPress={() => setShowTimeTableCategoryBottomSheet(true)}>
@@ -206,14 +221,12 @@ const Home = () => {
       </Animated.View>
 
       <Animated.View style={[{transform: [{translateY: timaTableTranslateY}]}]}>
-        <Pressable onPress={handleInsertScheduleBottomSheetClose}>
-          <TimeTable
-            data={scheduleList}
-            homeTopHeight={homeTopHeight}
-            isInsertMode={isInsertMode && isLogin}
-            onClick={showInsertBottomSheet}
-          />
-        </Pressable>
+        <TimeTable
+          data={scheduleList}
+          homeTopHeight={homeTopHeight}
+          isInsertMode={isInsertMode && isLogin}
+          onClick={showInsertBottomSheet}
+        />
       </Animated.View>
 
       {isInsertMode ? (
@@ -235,12 +248,26 @@ const homeStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff'
   },
-
+  button: {
+    width: 36,
+    height: 36,
+    alignItems: 'flex-end',
+    justifyContent: 'center'
+  },
+  homeHeaderContainer: {
+    zIndex: -1,
+    backgroundColor: '#fff'
+  },
+  insertHeaderContainer: {
+    zIndex: -2,
+    position: 'absolute',
+    width: '100%',
+    backgroundColor: '#fff'
+  },
   weekDatePickerSection: {
     paddingHorizontal: 16,
     justifyContent: 'center'
   },
-
   timetableCategoryButton: {
     width: 150,
     height: 48,

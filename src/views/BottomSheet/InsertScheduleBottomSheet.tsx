@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, StyleSheet, View, Text, Pressable, TextInput} from 'react-native'
+import {useWindowDimensions, StyleSheet, View, Text, Pressable} from 'react-native'
 
 import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
 import BottomSheet, {BottomSheetScrollView, BottomSheetTextInput} from '@gorhom/bottom-sheet'
@@ -38,7 +38,7 @@ const InsertScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
 
-  const snapPoints = React.useMemo(() => ['35%', '95%'], [])
+  const snapPoints = React.useMemo(() => ['35%', '93%'], [])
 
   const startTime = React.useMemo(() => {
     return getTimeOfMinute(schedule.start_time)
@@ -131,10 +131,6 @@ const InsertScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
     })
 
     return disableScheduleIdList
-  }
-
-  const calcTime = (time: number) => {
-    console.log(time % 720)
   }
 
   return (
