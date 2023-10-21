@@ -26,6 +26,7 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
   const itemWidth = dayOfWeekSize + gapSize
   const containerWidth = itemWidth * 7
 
+  const [isLoading, setLoading] = React.useState(false)
   const [weeklyDateList, setWeeklyDateList] = React.useState<DataListItem[]>([])
   React.useEffect(() => {
     const prevWeeklyDate = addDays(date, -7)
@@ -39,11 +40,15 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
       {data: currentWeeklyDateList, x: 0},
       {data: nextWeeklyDateList, x: containerWidth}
     ])
-  }, [])
+  }, [date])
 
-  const isActive = (item: Date) => {
-    return isSameYear(item, date) && isSameMonth(item, date) && isSameDay(item, date)
-  }
+  const isActive = React.useCallback(
+    (item: Date) => {
+      return isSameYear(item, date) && isSameMonth(item, date) && isSameDay(item, date)
+    },
+    [date]
+  )
+
   const isPrevMonthInfo = (item: Date) => {
     return item.getDay() !== 0 && isLastDayOfMonth(item)
   }
@@ -60,8 +65,10 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
 
     const list = weeklyDateList
     list.unshift({data: prevWeeklyDateList, x: list[0].x - containerWidth})
+    list.pop()
 
     setWeeklyDateList([...list])
+    setLoading(false)
   }
   const handleNext = () => {
     const changeDate = addDays(date, 7)
@@ -72,8 +79,10 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
 
     const list = weeklyDateList
     list.push({data: nextWeeklyDateList, x: list[list.length - 1].x + containerWidth})
+    list.shift()
 
     setWeeklyDateList([...list])
+    setLoading(false)
   }
 
   const currentPosition = useSharedValue(0)
@@ -84,10 +93,11 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
       position.value = currentPosition.value + e.translationX
     })
     .onEnd(e => {
+      runOnJS(setLoading)(true)
       if (e.translationX > 0) {
         // left
         currentPosition.value += containerWidth
-        position.value = withTiming(currentPosition.value, {duration: 300}, isFinish => {
+        position.value = withTiming(currentPosition.value, {duration: 400}, isFinish => {
           if (isFinish) {
             runOnJS(handlePrev)()
           }
@@ -95,13 +105,14 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
       } else if (e.translationX < 0) {
         // right
         currentPosition.value -= containerWidth
-        position.value = withTiming(currentPosition.value, {duration: 300}, isFinish => {
+        position.value = withTiming(currentPosition.value, {duration: 400}, isFinish => {
           if (isFinish) {
             runOnJS(handleNext)()
           }
         })
       }
     })
+    .enabled(!isLoading)
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{translateX: position.value}]
@@ -141,7 +152,7 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
         </View>
       )
     })
-  }, [weeklyDateList])
+  }, [weeklyDateList, dayOfWeekSize, isActive, onChange])
 
   return (
     <GestureDetector gesture={panGesture}>
