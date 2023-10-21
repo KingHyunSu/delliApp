@@ -149,37 +149,25 @@ const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => 
         fillOpacity={1}
       />
       <G>
+        <Circle cx={dragStartBtnCoordinate.x} cy={dragStartBtnCoordinate.y} r={10} fill="#BABABA" />
         <Circle
-          {...endPanResponders.panHandlers}
-          cx={dragStartBtnCoordinate.x}
-          cy={dragStartBtnCoordinate.y}
-          r={10}
-          fill="#BABABA"
-        />
-        {/* <Circle
           {...endPanResponders.panHandlers}
           cx={dragStartBtnCoordinate.x}
           cy={dragStartBtnCoordinate.y}
           r={38}
           fill={'transparent'}
-        /> */}
+        />
       </G>
 
       <G>
+        <Circle cx={dragEndBtnCoordinate.x} cy={dragEndBtnCoordinate.y} r={10} fill="#1E90FF" />
         <Circle
-          {...startPanResponders.panHandlers}
-          cx={dragEndBtnCoordinate.x}
-          cy={dragEndBtnCoordinate.y}
-          r={10}
-          fill="#1E90FF"
-        />
-        {/* <Circle
           {...startPanResponders.panHandlers}
           cx={dragEndBtnCoordinate.x}
           cy={dragEndBtnCoordinate.y}
           r={38}
           fill={'transparent'}
-        /> */}
+        />
       </G>
     </G>
   )
