@@ -107,7 +107,7 @@ const DateItem = ({item, value, onChange}: DateItemProps) => {
         <Text
           style={[
             dateItemStyles.text,
-            !item.current && {color: '#BABABA'},
+            !item.current && {color: '#D2D2D4'},
             isActive && {color: '#fff', fontWeight: 'bold'}
           ]}>
           {item.day}

@@ -5,13 +5,15 @@ import {BottomSheetBackdrop as Backdrop, BottomSheetBackgroundProps} from '@gorh
 interface Props {
   props: BottomSheetBackgroundProps
   enableTouchThrough?: boolean
+  pressBehavior?: 'none' | 'close' | 'collapse' | number
 }
-const BottomSheetBackdrop = ({props, enableTouchThrough = false}: Props) => {
+const BottomSheetBackdrop = ({props, enableTouchThrough = false, pressBehavior = 'close'}: Props) => {
   return (
     <Backdrop
       {...props}
       opacity={0.5}
       enableTouchThrough={enableTouchThrough}
+      pressBehavior={pressBehavior}
       appearsOnIndex={0}
       disappearsOnIndex={-1}
       style={[styles.container, StyleSheet.absoluteFillObject]}

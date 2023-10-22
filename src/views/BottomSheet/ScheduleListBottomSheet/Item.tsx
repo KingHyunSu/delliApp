@@ -77,14 +77,14 @@ const scheduleItemStyles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 16,
     gap: 16,
-    paddingVertical: 16,
+    paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#f5f6f8'
+    borderBottomColor: '#D2D2D4'
   },
   checkBox: {
     width: 28,
     height: 28,
-    borderRadius: 7,
+    borderRadius: 5,
     borderWidth: 2
   },
   textContainer: {
@@ -102,7 +102,7 @@ const scheduleItemStyles = StyleSheet.create({
     fontSize: 12
   },
   checkBoxColor: {
-    borderColor: '#BABABA'
+    borderColor: '#D2D2D4'
   },
   completeCheckBox: {
     backgroundColor: '#1E90FF',

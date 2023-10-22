@@ -7,7 +7,7 @@ import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import InsertScheduleBottomSheet from '@/views/BottomSheet/InsertScheduleBottomSheet'
 import LoginBottomSheet from '@/views/BottomSheet/LoginBottomSheet'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
-import TimeTableCategotyBottomSheet from '@/views/BottomSheet/TimeTableCategotyBottomSheet'
+import TimetableCategotyBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
@@ -235,7 +235,7 @@ const Home = () => {
         <ScheduleListBottomSheet data={scheduleList} onComplete={updateComplete} />
       )}
       {!isLogin && <LoginBottomSheet isShow={isShowLoginBottomSheet} onClose={handleLoginBottomSheetChanges} />}
-      <TimeTableCategotyBottomSheet
+      <TimetableCategotyBottomSheet
         isShow={isShowTimeTableCategoryBottomSheet}
         onClose={() => setShowTimeTableCategoryBottomSheet(false)}
       />
