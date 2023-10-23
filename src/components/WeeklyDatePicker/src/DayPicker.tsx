@@ -28,19 +28,6 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
 
   const [isLoading, setLoading] = React.useState(false)
   const [weeklyDateList, setWeeklyDateList] = React.useState<DataListItem[]>([])
-  React.useEffect(() => {
-    const prevWeeklyDate = addDays(date, -7)
-    const nextWeeklyDate = addDays(date, 7)
-
-    const prevWeeklyDateList = getWeeklyDateList(prevWeeklyDate)
-    const nextWeeklyDateList = getWeeklyDateList(nextWeeklyDate)
-
-    setWeeklyDateList([
-      {data: prevWeeklyDateList, x: -containerWidth},
-      {data: currentWeeklyDateList, x: 0},
-      {data: nextWeeklyDateList, x: containerWidth}
-    ])
-  }, [date])
 
   const isActive = React.useCallback(
     (item: Date) => {
@@ -117,6 +104,28 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{translateX: position.value}]
   }))
+
+  React.useEffect(() => {
+    const prevWeeklyDate = addDays(date, -7)
+    const nextWeeklyDate = addDays(date, 7)
+
+    const prevWeeklyDateList = getWeeklyDateList(prevWeeklyDate)
+    const nextWeeklyDateList = getWeeklyDateList(nextWeeklyDate)
+
+    if (weeklyDateList.length > 0) {
+      setWeeklyDateList([
+        {data: prevWeeklyDateList, x: weeklyDateList[0].x},
+        {data: currentWeeklyDateList, x: weeklyDateList[1].x},
+        {data: nextWeeklyDateList, x: weeklyDateList[2].x}
+      ])
+    } else {
+      setWeeklyDateList([
+        {data: prevWeeklyDateList, x: -containerWidth},
+        {data: currentWeeklyDateList, x: 0},
+        {data: nextWeeklyDateList, x: containerWidth}
+      ])
+    }
+  }, [date])
 
   const elementList = React.useMemo(() => {
     return weeklyDateList.map((dataList, listIndex) => {
