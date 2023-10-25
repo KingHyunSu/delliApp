@@ -8,3 +8,11 @@ export const getTimetableCategoryList = () => {
 export const getTimetableCategory = () => {
   return http.get<TimeTableCategory>('/timetable/category')
 }
+
+export const setTimetableCategory = (data: TimeTableCategory) => {
+  return http.post<TimeTableCategory>('/timetable/category', data)
+}
+
+export const deleteTimetableCategory = (data: TimeTableCategory) => {
+  return http.post<TimeTableCategory>('/timetable//category/delete', data)
+}

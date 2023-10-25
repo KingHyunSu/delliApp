@@ -172,8 +172,8 @@ const InsertScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
                 value={schedule.title}
                 onChangeText={changeTitle}
                 placeholder={'일정명을 입력해주세요.'}
-                onPressIn={expandBottmSheet}
                 placeholderTextColor={'#c3c5cc'}
+                onPressIn={expandBottmSheet}
               />
             </View>
 

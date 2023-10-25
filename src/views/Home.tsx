@@ -44,7 +44,7 @@ const Home = () => {
     queryFn: async () => {
       const response = await getTimetableCategoryList()
       const result = response.data
-
+      console.log('result', result)
       if (result.length > 0) {
         setActiveTimeTableCategory(result[0])
       }
