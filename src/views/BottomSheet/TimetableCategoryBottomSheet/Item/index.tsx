@@ -16,6 +16,7 @@ interface Props {
   onBlur?: Function
   onEdit: Function
   onClose: Function
+  onDelete: Function
   onSubmit: Function
   setBackdropPressBehavior: Function
 }
@@ -27,6 +28,7 @@ const TimeTableCategoryItem = ({
   onBlur,
   onEdit,
   onClose,
+  onDelete,
   onSubmit,
   setBackdropPressBehavior
 }: Props) => {
@@ -55,6 +57,10 @@ const TimeTableCategoryItem = ({
     onClose()
   }
 
+  const handleDelete = () => {
+    onDelete(value)
+  }
+
   const handleSubmit = () => {
     onSubmit()
   }
@@ -68,7 +74,7 @@ const TimeTableCategoryItem = ({
     return (
       <View style={{width: END_POSITION}}>
         <Animated.View style={[styles.deleteButtonWrapper, {transform: [{translateX: trans}]}]}>
-          <RectButton style={styles.deleteButton}>
+          <RectButton style={styles.deleteButton} onPress={handleDelete}>
             <TrashIcon stroke="#fff" />
           </RectButton>
         </Animated.View>

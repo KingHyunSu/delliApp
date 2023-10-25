@@ -14,5 +14,5 @@ export const setTimetableCategory = (data: TimeTableCategory) => {
 }
 
 export const deleteTimetableCategory = (data: TimeTableCategory) => {
-  return http.post<TimeTableCategory>('/timetable//category/delete', data)
+  return http.post<TimeTableCategory>('/timetable/category/delete', data)
 }

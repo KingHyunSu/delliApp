@@ -14,19 +14,6 @@ import {getTimetableCategoryList, setTimetableCategory, deleteTimetableCategory}
 
 import {TimeTableCategory} from '@/types/timetable'
 
-const tempData: TimeTableCategory[] = [
-  {timetable_category_id: 11, title: '할 일'},
-  {timetable_category_id: 2, title: '할 일2'},
-  {timetable_category_id: 3, title: '할 일3'},
-  {timetable_category_id: 4, title: '할 일3'},
-  {timetable_category_id: 5, title: '할 일3'},
-  {timetable_category_id: 6, title: '할 일3'},
-  {timetable_category_id: 7, title: '할 일3'},
-  {timetable_category_id: 8, title: '할 일3'},
-  {timetable_category_id: 9, title: '할 일3'},
-  {timetable_category_id: 10, title: '할 일3'}
-]
-
 interface Props {
   isShow: boolean
   onClose: Function
@@ -76,9 +63,6 @@ const TimetableCategoryBottomSheet = ({isShow, onClose}: Props) => {
       await refetchTimetableCategoryList()
       setIsNewEdit(false)
       setCategory({timetable_category_id: null, title: ''})
-    },
-    onError: e => {
-      console.log('error', e)
     }
   })
 
@@ -121,7 +105,11 @@ const TimetableCategoryBottomSheet = ({isShow, onClose}: Props) => {
   }
 
   const handleClose = () => {
-    deleteTimetableCategoryMutation.mutate(category)
+    setCategory({timetable_category_id: null, title: ''})
+  }
+
+  const handleDelete = (data: TimeTableCategory) => {
+    deleteTimetableCategoryMutation.mutate(data)
   }
 
   const handleSubmit = () => {
@@ -207,6 +195,7 @@ const TimetableCategoryBottomSheet = ({isShow, onClose}: Props) => {
               setBackdropPressBehavior={setBackdropPressBehavior}
               onEdit={handleEdit}
               onClose={handleClose}
+              onDelete={handleDelete}
               onSubmit={handleSubmit}
             />
           )}
