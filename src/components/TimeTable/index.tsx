@@ -11,10 +11,10 @@ import {Schedule} from '@/types/schedule'
 interface Props {
   data: Schedule[]
   homeTopHeight: number
-  isInsertMode: Boolean
+  isEdit: Boolean
   onClick: Function
 }
-const TimeTable = ({data, homeTopHeight, isInsertMode, onClick}: Props) => {
+const TimeTable = ({data, homeTopHeight, isEdit, onClick}: Props) => {
   const {width, height} = useWindowDimensions()
   const x = width / 2
   const y = height * 0.28
@@ -29,7 +29,7 @@ const TimeTable = ({data, homeTopHeight, isInsertMode, onClick}: Props) => {
       <G>
         <Background x={x} y={y} radius={radius} />
 
-        <G opacity={isInsertMode ? 0.5 : 1}>
+        <G opacity={isEdit ? 0.5 : 1}>
           {list.length > 0 ? (
             list.map((item, index) => {
               const startAngle = item.start_time * 0.25
@@ -54,9 +54,7 @@ const TimeTable = ({data, homeTopHeight, isInsertMode, onClick}: Props) => {
           )}
         </G>
 
-        {isInsertMode && (
-          <InsertSchedulePie scheduleList={data} x={x} y={y} radius={radius} homeTopHeight={homeTopHeight} />
-        )}
+        {isEdit && <InsertSchedulePie scheduleList={data} x={x} y={y} radius={radius} homeTopHeight={homeTopHeight} />}
       </G>
     </Svg>
   )

@@ -13,8 +13,9 @@ interface Props {
   item: Schedule
   index: number
   onComplete: Function
+  onClick: Function
 }
-const ScheduleListItem = ({item, index, onComplete}: Props) => {
+const ScheduleListItem = ({item, index, onComplete, onClick}: Props) => {
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const isDisable = item.disable === '1'
   const isComplete = item.state === '1'
@@ -42,7 +43,7 @@ const ScheduleListItem = ({item, index, onComplete}: Props) => {
   }
 
   return (
-    <View style={scheduleItemStyles.container}>
+    <Pressable style={scheduleItemStyles.container} onPress={() => onClick(item)}>
       <Pressable
         style={[
           scheduleItemStyles.checkBox,
@@ -67,7 +68,7 @@ const ScheduleListItem = ({item, index, onComplete}: Props) => {
           {`${endTime.hour}시 ${endTime.minute}분`}
         </Text>
       </View>
-    </View>
+    </Pressable>
   )
 }
 

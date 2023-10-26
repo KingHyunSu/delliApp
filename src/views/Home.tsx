@@ -4,7 +4,7 @@ import {Animated, Pressable, StyleSheet, Text, View, LayoutChangeEvent} from 're
 import AppBar from '@/components/AppBar'
 import TimeTable from '@/components/TimeTable'
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
-import InsertScheduleBottomSheet from '@/views/BottomSheet/InsertScheduleBottomSheet'
+import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet'
 import LoginBottomSheet from '@/views/BottomSheet/LoginBottomSheet'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimetableCategotyBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
@@ -34,8 +34,9 @@ const Home = () => {
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const resetScheduleEdit = useResetRecoilState(scheduleState)
 
+  const [schedule_id, setSchedule_id] = React.useState<number | null>(null)
   const [homeTopHeight, setHomeTopHeight] = React.useState(0)
-  const [isInsertMode, changeInsertMode] = React.useState(false)
+  const [isEdit, setIsEdit] = React.useState(false)
   const [isShowTimeTableCategoryBottomSheet, setShowTimeTableCategoryBottomSheet] = React.useState(false)
   const [isShowLoginBottomSheet, setShowLoginBottomSheet] = React.useState(false)
 
@@ -44,7 +45,7 @@ const Home = () => {
     queryFn: async () => {
       const response = await getTimetableCategoryList()
       const result = response.data
-      console.log('result', result)
+
       if (result.length > 0) {
         setActiveTimeTableCategory(result[0])
       }
@@ -103,7 +104,7 @@ const Home = () => {
     },
     onSuccess: async () => {
       await refetchScheduleList()
-      changeInsertMode(false)
+      setIsEdit(false)
     }
   })
 
@@ -113,7 +114,12 @@ const Home = () => {
     }
   })
 
-  const handleSubmit = async (data: SetScheduleParam) => {
+  const handleDetail = (data: Schedule) => {
+    setSchedule_id(data.schedule_id)
+    setIsEdit(true)
+  }
+
+  const handleSubmit = (data: SetScheduleParam) => {
     setScheduleMutation.mutate(data)
   }
 
@@ -125,7 +131,7 @@ const Home = () => {
     await refetchTimetableCategoryList()
     await refetchScheduleList()
 
-    changeInsertMode(false)
+    setIsEdit(false)
     setShowLoginBottomSheet(false)
   }
 
@@ -134,16 +140,16 @@ const Home = () => {
       return {...item, screenDisable: false}
     })
 
+    setSchedule_id(null)
     setScheduleList(list)
-
-    changeInsertMode(false)
+    setIsEdit(false)
   }
 
   const showInsertBottomSheet = () => {
     if (!isLogin) {
       setShowLoginBottomSheet(true)
     } else {
-      changeInsertMode(true)
+      setIsEdit(true)
     }
   }
 
@@ -166,7 +172,7 @@ const Home = () => {
     if (!isLogin) {
       return
     }
-    if (isInsertMode) {
+    if (isEdit) {
       translateAnimation(headerTranslateY, -200, 350)
       translateAnimation(timaTableTranslateY, -100)
     } else {
@@ -175,7 +181,7 @@ const Home = () => {
       translateAnimation(headerTranslateY, 0, 350)
       translateAnimation(timaTableTranslateY, 0)
     }
-  }, [isLogin, isInsertMode, headerTranslateY, timaTableTranslateY, resetScheduleEdit])
+  }, [isLogin, isEdit, headerTranslateY, timaTableTranslateY, resetScheduleEdit])
 
   React.useEffect(() => {
     setShowLoginBottomSheet(true)
@@ -224,15 +230,15 @@ const Home = () => {
         <TimeTable
           data={scheduleList}
           homeTopHeight={homeTopHeight}
-          isInsertMode={isInsertMode && isLogin}
+          isEdit={isEdit && isLogin}
           onClick={showInsertBottomSheet}
         />
       </Animated.View>
 
-      {isInsertMode ? (
-        <InsertScheduleBottomSheet data={scheduleList} onSubmit={handleSubmit} />
+      {isEdit ? (
+        <EditScheduleBottomSheet data={scheduleList} schedule_id={schedule_id} onSubmit={handleSubmit} />
       ) : (
-        <ScheduleListBottomSheet data={scheduleList} onComplete={updateComplete} />
+        <ScheduleListBottomSheet data={scheduleList} onComplete={updateComplete} onClick={handleDetail} />
       )}
       {!isLogin && <LoginBottomSheet isShow={isShowLoginBottomSheet} onClose={handleLoginBottomSheetChanges} />}
       <TimetableCategotyBottomSheet

@@ -9,8 +9,9 @@ import {Schedule} from '@/types/schedule'
 interface Props {
   data: Schedule[]
   onComplete: Function
+  onClick: Function
 }
-const ScheduleListBottomSheet = ({data, onComplete}: Props) => {
+const ScheduleListBottomSheet = ({data, onComplete, onClick}: Props) => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const snapPoints = React.useMemo(() => ['20%', '77%'], [])
 
@@ -20,7 +21,7 @@ const ScheduleListBottomSheet = ({data, onComplete}: Props) => {
         data={data}
         keyExtractor={(_, index) => String(index)}
         renderItem={({item, index}) => {
-          return <Item item={item} index={index} onComplete={onComplete} />
+          return <Item item={item} index={index} onComplete={onComplete} onClick={onClick} />
         }}
       />
     </BottomSheet>
