@@ -1,3 +1,5 @@
+export type TimeFlag = 'START' | 'END'
+
 export interface Schedule {
   schedule_id: number | null
   timetable_category_id: number | null
@@ -24,4 +26,8 @@ export interface Schedule {
   screenDisable?: boolean
 }
 
-export type TimeFlag = 'START' | 'END'
+export interface ScheduleComplete {
+  schedule_id: number
+  schedule_complete_id?: number
+  complete_date: string
+}

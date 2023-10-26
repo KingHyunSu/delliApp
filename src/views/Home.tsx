@@ -25,7 +25,7 @@ import {useMutation, useQuery} from '@tanstack/react-query'
 import {getDayOfWeekKey} from '@/utils/helper'
 import {format} from 'date-fns'
 
-import {Schedule} from '@/types/schedule'
+import {Schedule, ScheduleComplete} from '@/types/schedule'
 
 const Home = () => {
   const isLogin = useRecoilValue(isLoginState)
@@ -105,7 +105,14 @@ const Home = () => {
 
   const updateScheduleCompleteMutation = useMutation({
     mutationFn: async (data: Schedule) => {
-      return await updateScheduleComplete(data)
+      if (data.schedule_id) {
+        const params: ScheduleComplete = {
+          schedule_id: data.schedule_id,
+          schedule_complete_id: data.schedule_complete_id,
+          complete_date: format(scheduleDate, 'yyyy-MM-dd')
+        }
+        return await updateScheduleComplete(params)
+      }
     }
   })
 

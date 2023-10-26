@@ -1,5 +1,5 @@
 import http from '@/utils/http'
-import {Schedule} from '@/types/schedule'
+import {Schedule, ScheduleComplete} from '@/types/schedule'
 
 export interface ScheduleListParam {
   timetable_category_id: number
@@ -24,6 +24,6 @@ export const setSchedule = (data: SetScheduleParam) => {
   return http.post<any>('schedule', data)
 }
 
-export const updateScheduleComplete = (data: Schedule) => {
+export const updateScheduleComplete = (data: ScheduleComplete) => {
   return http.post<any>('schedule/complete', data)
 }
