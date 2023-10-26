@@ -83,7 +83,7 @@ const SchedulePie = ({data, x, y, radius, fillOpacity = 1, startAngle, endAngle}
     <G fillOpacity={fillOpacity}>
       <Path d={path} fill={data.screenDisable ? '#e2e2e2' : '#fff'} stroke={'#efefef'} fillOpacity={1} />
       <G originX={textCoordinate.x} originY={textCoordinate.y} rotation={getStartAngleByTextRotation(startAngle)}>
-        <ForeignObject x={textCoordinate.x} y={textCoordinate.y}>
+        <ForeignObject key={Math.random()} x={textCoordinate.x} y={textCoordinate.y}>
           <View style={{width: radius - 40}}>
             <Text style={styles.text}>{data.title}</Text>
           </View>

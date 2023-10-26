@@ -18,7 +18,7 @@ import {activeTimeTableCategoryState} from '@/store/timetable'
 import {isLoginState} from '@/store/user'
 import {useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState} from 'recoil'
 
-import {getScheduleList, setSchedule, updateScheduleComplete, SetScheduleParam} from '@/apis/schedule'
+import {getScheduleList, setSchedule, updateSchedule, updateScheduleComplete, SetScheduleParam} from '@/apis/schedule'
 import {getTimetableCategoryList} from '@/apis/timetable'
 import {useMutation, useQuery} from '@tanstack/react-query'
 
@@ -103,6 +103,16 @@ const Home = () => {
     }
   })
 
+  const updateScheduleMutation = useMutation({
+    mutationFn: async (data: Schedule) => {
+      return await updateSchedule(data)
+    },
+    onSuccess: async () => {
+      await refetchScheduleList()
+      setIsEdit(false)
+    }
+  })
+
   const updateScheduleCompleteMutation = useMutation({
     mutationFn: async (data: Schedule) => {
       if (data.schedule_id) {
@@ -121,8 +131,12 @@ const Home = () => {
     setIsEdit(true)
   }
 
-  const handleSubmit = (data: SetScheduleParam) => {
-    setScheduleMutation.mutate(data)
+  const handleSubmit = ({insertSchedue, disableScheduleIdList}: SetScheduleParam) => {
+    if (insertSchedue.schedule_id) {
+      updateScheduleMutation.mutate(insertSchedue)
+    } else {
+      setScheduleMutation.mutate({insertSchedue, disableScheduleIdList})
+    }
   }
 
   const updateComplete = (data: Schedule) => {
