@@ -16,13 +16,6 @@ export const getScheduleList = (data: ScheduleListParam) => {
   return http.post<Schedule[]>('schedule/list', data)
 }
 
-export interface GetScheduleParam {
-  schedule_id: number
-}
-export const getSchedule = (data: GetScheduleParam) => {
-  return http.get<Schedule>('schedule', {params: {schedule_id: data.schedule_id}})
-}
-
 export interface SetScheduleParam {
   insertSchedue: Schedule
   disableScheduleIdList: number[]

@@ -12,9 +12,6 @@ import {scheduleDateState, scheduleState, timeFlagState} from '@/store/schedule'
 import TimeIcon from '@/assets/icons/time.svg'
 import CalendarIcon from '@/assets/icons/calendar.svg'
 
-import {getSchedule} from '@/apis/schedule'
-import {useQuery} from '@tanstack/react-query'
-
 import {getTimeOfMinute} from '@/utils/helper'
 import {format} from 'date-fns'
 import {RANGE_FLAG} from '@/components/DatePicker/utils/code'
@@ -25,10 +22,9 @@ import {DAY_OF_WEEK} from '@/types/common'
 
 interface Props {
   data: Schedule[]
-  schedule_id: number | null
   onSubmit: Function
 }
-const EditScheduleBottomSheet = ({data: scheduleList, schedule_id, onSubmit}: Props) => {
+const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
   const {width} = useWindowDimensions()
   const dayOfWeekSize = width * 0.096
   const scheduleDate = useRecoilValue(scheduleDateState)
@@ -50,20 +46,6 @@ const EditScheduleBottomSheet = ({data: scheduleList, schedule_id, onSubmit}: Pr
   const endTime = React.useMemo(() => {
     return getTimeOfMinute(schedule.end_time)
   }, [schedule.end_time])
-
-  useQuery({
-    queryKey: ['scheduleDetail'],
-    queryFn: async () => {
-      console.log('schedule_id', schedule_id)
-      if (schedule_id) {
-        const response = await getSchedule({schedule_id: schedule_id})
-        setSchedule(response.data)
-
-        return response.data
-      }
-    },
-    enabled: !!schedule_id
-  })
 
   React.useEffect(() => {
     if (activeTimeTableCategory.timetable_category_id) {
@@ -299,7 +281,7 @@ const EditScheduleBottomSheet = ({data: scheduleList, schedule_id, onSubmit}: Pr
           </View>
 
           <Pressable style={styles.submitBtn} onPress={handleSubmit}>
-            <Text style={styles.submitText}>{schedule_id ? '수정하기' : '등록하기'}</Text>
+            <Text style={styles.submitText}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
           </Pressable>
         </View>
       </BottomSheetScrollView>

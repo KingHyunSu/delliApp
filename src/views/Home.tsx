@@ -16,7 +16,7 @@ import CancleIcon from '@/assets/icons/cancle.svg'
 import {scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {isLoginState} from '@/store/user'
-import {useRecoilState, useRecoilValue, useResetRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState} from 'recoil'
 
 import {getScheduleList, setSchedule, updateScheduleComplete, SetScheduleParam} from '@/apis/schedule'
 import {getTimetableCategoryList} from '@/apis/timetable'
@@ -32,9 +32,9 @@ const Home = () => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
+  const setScheduleDetail = useSetRecoilState(scheduleState)
   const resetScheduleEdit = useResetRecoilState(scheduleState)
 
-  const [schedule_id, setSchedule_id] = React.useState<number | null>(null)
   const [homeTopHeight, setHomeTopHeight] = React.useState(0)
   const [isEdit, setIsEdit] = React.useState(false)
   const [isShowTimeTableCategoryBottomSheet, setShowTimeTableCategoryBottomSheet] = React.useState(false)
@@ -54,12 +54,7 @@ const Home = () => {
     }
   })
 
-  const {
-    isLoading,
-    isError,
-    error,
-    refetch: refetchScheduleList
-  } = useQuery({
+  const {refetch: refetchScheduleList} = useQuery({
     queryKey: ['scheduleList', scheduleDate],
     queryFn: async () => {
       if (activeTimeTableCategory.timetable_category_id) {
@@ -115,7 +110,7 @@ const Home = () => {
   })
 
   const handleDetail = (data: Schedule) => {
-    setSchedule_id(data.schedule_id)
+    setScheduleDetail(data)
     setIsEdit(true)
   }
 
@@ -140,7 +135,6 @@ const Home = () => {
       return {...item, screenDisable: false}
     })
 
-    setSchedule_id(null)
     setScheduleList(list)
     setIsEdit(false)
   }
@@ -236,7 +230,7 @@ const Home = () => {
       </Animated.View>
 
       {isEdit ? (
-        <EditScheduleBottomSheet data={scheduleList} schedule_id={schedule_id} onSubmit={handleSubmit} />
+        <EditScheduleBottomSheet data={scheduleList} onSubmit={handleSubmit} />
       ) : (
         <ScheduleListBottomSheet data={scheduleList} onComplete={updateComplete} onClick={handleDetail} />
       )}
