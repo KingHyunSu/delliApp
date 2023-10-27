@@ -6,6 +6,7 @@ import SchedulePie from './SchedulePie'
 
 import {polarToCartesian} from '../util'
 import {getStatusBarHeight} from 'react-native-status-bar-height'
+import {trigger} from 'react-native-haptic-feedback'
 
 import {useRecoilState, useSetRecoilState} from 'recoil'
 import {scheduleListState, scheduleState} from '@/store/schedule'
@@ -40,6 +41,12 @@ const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => 
   }, [schedule.end_time])
 
   React.useEffect(() => {
+    const options = {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false
+    }
+    trigger('impactLight', options)
+
     const list = scheduleList.map(item => {
       const {start_time, end_time} = schedule
 

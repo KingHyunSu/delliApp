@@ -12,14 +12,14 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
+		3DB6D5C7BEA34B79B2A3D0E6 /* GmarketSansTTFBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6DC84CF5D73B48B58E1BE0D6 /* GmarketSansTTFBold.ttf */; };
 		3EC95C58236A458083FDD74B /* NanumSquareRoundB.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 1AF7927D7BE4476F977868CD /* NanumSquareRoundB.ttf */; };
 		6FFC83CB5D9A47EE91BC2E91 /* NanumSquareRoundL.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 38472CE4252449E59F6812B7 /* NanumSquareRoundL.ttf */; };
 		7699B88040F8A987B510C191 /* libPods-delli-delliTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-delli-delliTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		8CCC7E1BCA60404F88E777F8 /* NanumSquareRoundR.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 3599400D98E341E986AF3212 /* NanumSquareRoundR.ttf */; };
-		3DB6D5C7BEA34B79B2A3D0E6 /* GmarketSansTTFBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6DC84CF5D73B48B58E1BE0D6 /* GmarketSansTTFBold.ttf */; };
-		DC793F2F887146D697032212 /* GmarketSansTTFLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4355E82E8B6C4CE1B07D9DC6 /* GmarketSansTTFLight.ttf */; };
 		9276E340FCFC4FFD84672998 /* GmarketSansTTFMedium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 253CA327BB2946EAA5E62A5D /* GmarketSansTTFMedium.ttf */; };
+		DC793F2F887146D697032212 /* GmarketSansTTFLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4355E82E8B6C4CE1B07D9DC6 /* GmarketSansTTFLight.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,19 +44,20 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = delli/main.m; sourceTree = "<group>"; };
 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-delli-delliTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-delli-delliTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1AF7927D7BE4476F977868CD /* NanumSquareRoundB.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = NanumSquareRoundB.ttf; path = ../src/assets/fonts/NanumSquareRoundB.ttf; sourceTree = "<group>"; };
+		253CA327BB2946EAA5E62A5D /* GmarketSansTTFMedium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = GmarketSansTTFMedium.ttf; path = ../src/assets/fonts/GmarketSansTTFMedium.ttf; sourceTree = "<group>"; };
 		3599400D98E341E986AF3212 /* NanumSquareRoundR.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = NanumSquareRoundR.ttf; path = ../src/assets/fonts/NanumSquareRoundR.ttf; sourceTree = "<group>"; };
 		38472CE4252449E59F6812B7 /* NanumSquareRoundL.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = NanumSquareRoundL.ttf; path = ../src/assets/fonts/NanumSquareRoundL.ttf; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-delli.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli.debug.xcconfig"; path = "Target Support Files/Pods-delli/Pods-delli.debug.xcconfig"; sourceTree = "<group>"; };
+		4355E82E8B6C4CE1B07D9DC6 /* GmarketSansTTFLight.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = GmarketSansTTFLight.ttf; path = ../src/assets/fonts/GmarketSansTTFLight.ttf; sourceTree = "<group>"; };
 		46329EDC2A930BF000EB4B99 /* delli-Briging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "delli-Briging-Header.h"; sourceTree = "<group>"; };
+		4653F0542AEA931400A37E15 /* RNReactNativeHapticFeedback.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNReactNativeHapticFeedback.xcodeproj; path = "../node_modules/react-native-haptic-feedback/ios/RNReactNativeHapticFeedback.xcodeproj"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-delli.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli.release.xcconfig"; path = "Target Support Files/Pods-delli/Pods-delli.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-delli-delliTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli-delliTests.debug.xcconfig"; path = "Target Support Files/Pods-delli-delliTests/Pods-delli-delliTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-delli.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-delli.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		6DC84CF5D73B48B58E1BE0D6 /* GmarketSansTTFBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = GmarketSansTTFBold.ttf; path = ../src/assets/fonts/GmarketSansTTFBold.ttf; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = delli/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		89C6BE57DB24E9ADA2F236DE /* Pods-delli-delliTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli-delliTests.release.xcconfig"; path = "Target Support Files/Pods-delli-delliTests/Pods-delli-delliTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		6DC84CF5D73B48B58E1BE0D6 /* GmarketSansTTFBold.ttf */ = {isa = PBXFileReference; name = "GmarketSansTTFBold.ttf"; path = "../src/assets/fonts/GmarketSansTTFBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		4355E82E8B6C4CE1B07D9DC6 /* GmarketSansTTFLight.ttf */ = {isa = PBXFileReference; name = "GmarketSansTTFLight.ttf"; path = "../src/assets/fonts/GmarketSansTTFLight.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		253CA327BB2946EAA5E62A5D /* GmarketSansTTFMedium.ttf */ = {isa = PBXFileReference; name = "GmarketSansTTFMedium.ttf"; path = "../src/assets/fonts/GmarketSansTTFMedium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,9 +134,17 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		4653F0552AEA931400A37E15 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				4653F0542AEA931400A37E15 /* RNReactNativeHapticFeedback.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -250,6 +259,12 @@
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 4653F0552AEA931400A37E15 /* Products */;
+					ProjectRef = 4653F0542AEA931400A37E15 /* RNReactNativeHapticFeedback.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* delli */,

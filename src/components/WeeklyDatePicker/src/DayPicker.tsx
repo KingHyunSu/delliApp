@@ -9,6 +9,7 @@ import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'r
 
 import {isSameDay, isSameMonth, isSameYear, isFirstDayOfMonth, isLastDayOfMonth, addDays} from 'date-fns'
 import {getWeeklyDateList} from '../util'
+import {trigger} from 'react-native-haptic-feedback'
 
 interface DataListItem {
   data: Date[]
@@ -70,6 +71,16 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
 
     setWeeklyDateList([...list])
     setLoading(false)
+  }
+
+  const handleDateChanged = (item: Date) => {
+    const options = {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false
+    }
+    trigger('impactMedium', options)
+
+    onChange(item)
   }
 
   const currentPosition = useSharedValue(0)
@@ -152,7 +163,7 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
                     isActive(item) && styles.activeItem,
                     {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize / 2}
                   ]}
-                  onPress={() => onChange(item)}>
+                  onPress={() => handleDateChanged(item)}>
                   <Text style={[styles.text, isActive(item) && styles.activeText]}>{item.getDate()}</Text>
                 </Pressable>
               </View>
