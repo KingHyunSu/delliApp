@@ -291,6 +291,7 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
         range
         rangeFlag={rangeFlag}
         isShow={showDatePickerBottomSheet}
+        onChangeRangeFlag={setRangeFlag}
         onClose={() => setDatePickerBottomSheet(false)}
         onChange={changeDate}
       />
