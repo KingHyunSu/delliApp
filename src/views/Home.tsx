@@ -207,7 +207,9 @@ const Home = () => {
       {/* insert header */}
       <View style={homeStyles.insertHeaderContainer}>
         <AppBar>
-          <Text style={homeStyles.timetableCategoryText}>{activeTimeTableCategory.title}</Text>
+          {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
+          {/* <Text style={homeStyles.timetableCategoryText}>{activeTimeTableCategory.title}</Text> */}
+          <View />
 
           <Pressable style={homeStyles.button} onPress={handleInsertScheduleBottomSheetClose}>
             <CancleIcon stroke="#242933" />
@@ -220,7 +222,8 @@ const Home = () => {
         style={[homeStyles.homeHeaderContainer, {transform: [{translateY: headerTranslateY}]}]}
         onLayout={handleTopLayout}>
         <AppBar>
-          {isLogin && activeTimeTableCategory.timetable_category_id ? (
+          {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
+          {/* {isLogin && activeTimeTableCategory.timetable_category_id ? (
             <Pressable
               style={homeStyles.timetableCategoryButton}
               onPress={() => setShowTimeTableCategoryBottomSheet(true)}>
@@ -231,7 +234,8 @@ const Home = () => {
             </Pressable>
           ) : (
             <View />
-          )}
+          )} */}
+          <View />
 
           <SettingIcon stroke="#242933" />
         </AppBar>
