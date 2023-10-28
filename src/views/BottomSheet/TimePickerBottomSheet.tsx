@@ -50,7 +50,7 @@ const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, isShow, onClose, onCh
 
   React.useEffect(() => {
     setMeridiemIndex(timeInfo.meridiem)
-    setHourIndex(timeInfo.hour - 1)
+    setHourIndex(timeInfo.hour)
     setMinuteIndex(timeInfo.minute)
   }, [timeInfo])
 
