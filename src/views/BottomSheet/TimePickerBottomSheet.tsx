@@ -4,12 +4,13 @@ import {BottomSheetModal} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import WheelPicker from 'react-native-wheely'
 
-import {trigger} from 'react-native-haptic-feedback'
+import {useSetRecoilState} from 'recoil'
+import {activeStartTimeControllerState, activeEndTimeControllerState} from '@/store/schedule'
 
 import {getTimeOfMinute} from '@/utils/helper'
 import {RANGE_FLAG} from '@/utils/types'
 
-const hourList = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+const hourList = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
 // prettier-ignore
 const minuteList = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59']
 
@@ -21,6 +22,9 @@ interface Props {
   onChange: Function
 }
 const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, isShow, onClose, onChange}: Props) => {
+  const setActiveStartTimeController = useSetRecoilState(activeStartTimeControllerState)
+  const setActiveEndTimeController = useSetRecoilState(activeEndTimeControllerState)
+
   const datePickerBottomSheetRef = React.useRef<BottomSheetModal>(null)
   const snapPoints = [240]
 
@@ -29,7 +33,6 @@ const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, isShow, onClose, onCh
   const [minuteIndex, setMinuteIndex] = React.useState(0)
 
   const timeInfo = React.useMemo(() => {
-    console.log('value', value)
     let result = getTimeOfMinute(0)
 
     if (rangeFlag === RANGE_FLAG.START) {
@@ -60,12 +63,6 @@ const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, isShow, onClose, onCh
   }, [isShow])
 
   const changeMeridiem = (index: number) => {
-    const options = {
-      enableVibrateFallback: true,
-      ignoreAndroidSystemSettings: false
-    }
-    trigger('impactLight', options)
-
     const meridiemToMinute = index === 0 ? 0 : 720
     const hourToMinute = timeInfo.hour * 60
     const result = meridiemToMinute + hourToMinute + timeInfo.minute
@@ -74,26 +71,14 @@ const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, isShow, onClose, onCh
   }
 
   const changeHour = (index: number) => {
-    const options = {
-      enableVibrateFallback: true,
-      ignoreAndroidSystemSettings: false
-    }
-    trigger('impactLight', options)
-
     const meridiemToMinute = timeInfo.meridiem === 0 ? 0 : 720
-    const hourToMinute = (index + 1) * 60
+    const hourToMinute = Number(hourList[index]) * 60
     const result = meridiemToMinute + hourToMinute + timeInfo.minute
 
     onChange(result)
   }
 
   const changeMinute = (index: number) => {
-    const options = {
-      enableVibrateFallback: true,
-      ignoreAndroidSystemSettings: false
-    }
-    trigger('impactLight', options)
-
     const meridiemToMinute = timeInfo.meridiem === 0 ? 0 : 720
     const hourToMinute = timeInfo.hour * 60
     const result = meridiemToMinute + hourToMinute + index
@@ -101,12 +86,17 @@ const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, isShow, onClose, onCh
     onChange(result)
   }
 
+  const handleBackdropPress = () => {
+    setActiveStartTimeController(false)
+    setActiveEndTimeController(false)
+  }
+
   return (
     <BottomSheetModal
       name="datePicker"
       ref={datePickerBottomSheetRef}
       backdropComponent={props => {
-        return <BottomSheetBackdrop props={props} />
+        return <BottomSheetBackdrop props={props} onPress={handleBackdropPress} />
       }}
       index={0}
       snapPoints={snapPoints}

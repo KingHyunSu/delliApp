@@ -6,9 +6,14 @@ import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
 import BottomSheet, {BottomSheetScrollView, BottomSheetTextInput} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 
-import {useRecoilValue, useRecoilState} from 'recoil'
+import {useRecoilValue, useRecoilState, useSetRecoilState} from 'recoil'
 import {activeTimeTableCategoryState} from '@/store/timetable'
-import {scheduleDateState, scheduleState} from '@/store/schedule'
+import {
+  scheduleDateState,
+  scheduleState,
+  activeStartTimeControllerState,
+  activeEndTimeControllerState
+} from '@/store/schedule'
 
 import TimeIcon from '@/assets/icons/time.svg'
 import CalendarIcon from '@/assets/icons/calendar.svg'
@@ -30,6 +35,8 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const activeTimeTableCategory = useRecoilValue(activeTimeTableCategoryState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const setActiveStartTimeController = useSetRecoilState(activeStartTimeControllerState)
+  const setActiveEndTimeController = useSetRecoilState(activeEndTimeControllerState)
 
   const [timeRangeFlag, setTimeRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
   const [dateRangeFlag, setDateRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
@@ -102,6 +109,14 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
   }
 
   const openTimePickerBottomSheet = (flag: RANGE_FLAG) => {
+    if (flag === RANGE_FLAG.START) {
+      setActiveStartTimeController(true)
+      setActiveEndTimeController(false)
+    } else if (flag === RANGE_FLAG.END) {
+      setActiveStartTimeController(false)
+      setActiveEndTimeController(true)
+    }
+
     setTimeRangeFlag(flag)
     setTimePickerBottomSheet(true)
   }

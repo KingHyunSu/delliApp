@@ -35,3 +35,13 @@ export const scheduleState = atom<Schedule>({
     color: ''
   }
 })
+
+export const activeStartTimeControllerState = atom({
+  key: 'activeStartTimeController',
+  default: false
+})
+
+export const activeEndTimeControllerState = atom({
+  key: 'activeEndTimeController',
+  default: false
+})

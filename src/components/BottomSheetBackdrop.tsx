@@ -6,8 +6,15 @@ interface Props {
   props: BottomSheetBackgroundProps
   enableTouchThrough?: boolean
   pressBehavior?: 'none' | 'close' | 'collapse' | number
+  onPress?: Function
 }
-const BottomSheetBackdrop = ({props, enableTouchThrough = false, pressBehavior = 'close'}: Props) => {
+const BottomSheetBackdrop = ({props, enableTouchThrough = false, pressBehavior = 'close', onPress}: Props) => {
+  const handlePress = () => {
+    if (onPress) {
+      onPress()
+    }
+  }
+
   return (
     <Backdrop
       {...props}
@@ -16,6 +23,7 @@ const BottomSheetBackdrop = ({props, enableTouchThrough = false, pressBehavior =
       pressBehavior={pressBehavior}
       appearsOnIndex={0}
       disappearsOnIndex={-1}
+      onPress={handlePress}
       style={[styles.container, StyleSheet.absoluteFillObject]}
     />
   )

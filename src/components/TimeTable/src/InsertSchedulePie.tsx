@@ -1,6 +1,6 @@
 import React from 'react'
 import {PanResponder, Platform, StatusBar} from 'react-native'
-import {G, Circle} from 'react-native-svg'
+import {G, Circle, Text} from 'react-native-svg'
 
 import SchedulePie from './SchedulePie'
 
@@ -9,7 +9,12 @@ import {getStatusBarHeight} from 'react-native-status-bar-height'
 import {trigger} from 'react-native-haptic-feedback'
 
 import {useRecoilState, useSetRecoilState} from 'recoil'
-import {scheduleListState, scheduleState} from '@/store/schedule'
+import {
+  scheduleListState,
+  scheduleState,
+  activeStartTimeControllerState,
+  activeEndTimeControllerState
+} from '@/store/schedule'
 
 import {Schedule} from '@/types/schedule'
 
@@ -29,6 +34,8 @@ const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => 
    */
   const StatusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
 
+  const [activeStartTimeController, setActiveStartTimeController] = useRecoilState(activeStartTimeControllerState)
+  const [activeEndTimeController, setActiveEndTimeController] = useRecoilState(activeEndTimeControllerState)
   const setScheduleListState = useSetRecoilState(scheduleListState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
@@ -76,13 +83,18 @@ const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => 
     setScheduleListState(list)
   }, [schedule.start_time, schedule.end_time])
 
-  const dragStartBtnCoordinate = polarToCartesian(x, y, radius, endAngle)
-  const dragEndBtnCoordinate = polarToCartesian(x, y, radius, startAngle)
+  const dragEndBtnCoordinate = polarToCartesian(x, y, radius, endAngle)
+  const dragStartBtnCoordinate = polarToCartesian(x, y, radius, startAngle)
 
   const startPanResponders = React.useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => false,
+      onPanResponderGrant: () => {
+        setActiveStartTimeController(true)
+      },
+      onPanResponderRelease: () => {
+        setActiveStartTimeController(false)
+      },
       onPanResponderMove: (event, gestureState) => {
         const moveY = gestureState.moveY - (y + homeTopHeight + StatusBarHeight - 100)
         const moveX = gestureState.moveX - x
@@ -112,7 +124,12 @@ const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => 
   const endPanResponders = React.useRef(
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
-      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        setActiveEndTimeController(true)
+      },
+      onPanResponderRelease: () => {
+        setActiveEndTimeController(false)
+      },
       onPanResponderMove: (event, gestureState) => {
         const moveY = gestureState.moveY - (y + homeTopHeight + StatusBarHeight - 100)
         const moveX = gestureState.moveX - x
@@ -154,25 +171,53 @@ const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => 
         fillOpacity={1}
       />
       <G>
-        <Circle cx={dragStartBtnCoordinate.x} cy={dragStartBtnCoordinate.y} r={10} fill="#BABABA" />
         <Circle
-          {...endPanResponders.panHandlers}
+          cx={dragStartBtnCoordinate.x}
+          cy={dragStartBtnCoordinate.y}
+          r={12}
+          fill={activeStartTimeController ? '#1E90FF' : '#BABABA'}
+        />
+        <Circle
+          {...startPanResponders.panHandlers}
           cx={dragStartBtnCoordinate.x}
           cy={dragStartBtnCoordinate.y}
           r={38}
           fill={'transparent'}
         />
+        <Text
+          x={dragStartBtnCoordinate.x}
+          y={dragStartBtnCoordinate.y + 4}
+          textAnchor="middle"
+          fill="#fff"
+          fontSize={12}
+          fontFamily="GmarketSansTTFBold">
+          S
+        </Text>
       </G>
 
       <G>
-        <Circle cx={dragEndBtnCoordinate.x} cy={dragEndBtnCoordinate.y} r={10} fill="#1E90FF" />
         <Circle
-          {...startPanResponders.panHandlers}
+          cx={dragEndBtnCoordinate.x}
+          cy={dragEndBtnCoordinate.y}
+          r={12}
+          fill={activeEndTimeController ? '#1E90FF' : '#BABABA'}
+        />
+        <Circle
+          {...endPanResponders.panHandlers}
           cx={dragEndBtnCoordinate.x}
           cy={dragEndBtnCoordinate.y}
           r={38}
           fill={'transparent'}
         />
+        <Text
+          x={dragEndBtnCoordinate.x}
+          y={dragEndBtnCoordinate.y + 4}
+          textAnchor="middle"
+          fill="#fff"
+          fontSize={12}
+          fontFamily="GmarketSansTTFBold">
+          E
+        </Text>
       </G>
     </G>
   )
