@@ -4,5 +4,3 @@ export interface Item {
   day: number
   current: boolean
 }
-
-export type RangeFlag = 0 | 1

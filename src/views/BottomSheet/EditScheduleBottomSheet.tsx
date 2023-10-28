@@ -1,22 +1,22 @@
 import React from 'react'
 import {useWindowDimensions, StyleSheet, View, Text, Pressable} from 'react-native'
 
+import TimePickerBottomSheet from '@/views/BottomSheet/TimePickerBottomSheet'
 import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
 import BottomSheet, {BottomSheetScrollView, BottomSheetTextInput} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 
 import {useRecoilValue, useRecoilState} from 'recoil'
 import {activeTimeTableCategoryState} from '@/store/timetable'
-import {scheduleDateState, scheduleState, timeFlagState} from '@/store/schedule'
+import {scheduleDateState, scheduleState} from '@/store/schedule'
 
 import TimeIcon from '@/assets/icons/time.svg'
 import CalendarIcon from '@/assets/icons/calendar.svg'
 
 import {getTimeOfMinute} from '@/utils/helper'
 import {format} from 'date-fns'
-import {RANGE_FLAG} from '@/components/DatePicker/utils/code'
-import {RangeFlag} from '@/components/DatePicker/type'
 
+import {RANGE_FLAG} from '@/utils/types'
 import {Schedule} from '@/types/schedule'
 import {DAY_OF_WEEK} from '@/types/common'
 
@@ -30,9 +30,10 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const activeTimeTableCategory = useRecoilValue(activeTimeTableCategoryState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
-  const [timeFlag, setTimeFlag] = useRecoilState(timeFlagState)
 
-  const [rangeFlag, setRangeFlag] = React.useState<RangeFlag>(RANGE_FLAG.START)
+  const [timeRangeFlag, setTimeRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
+  const [dateRangeFlag, setDateRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
+  const [showTimePickerBototmSheet, setTimePickerBottomSheet] = React.useState(false)
   const [showDatePickerBottomSheet, setDatePickerBottomSheet] = React.useState(false)
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
@@ -57,6 +58,20 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
     const date = format(scheduleDate, 'yyyy-MM-dd')
     setSchedule(prevState => ({...prevState, ...{start_date: date}}))
   }, [scheduleDate, setSchedule])
+
+  const changeTime = (time: number) => {
+    if (timeRangeFlag === RANGE_FLAG.START) {
+      setSchedule(prevState => ({
+        ...prevState,
+        start_time: time
+      }))
+    } else if (timeRangeFlag === RANGE_FLAG.END) {
+      setSchedule(prevState => ({
+        ...prevState,
+        end_time: time
+      }))
+    }
+  }
 
   const changeTitle = (e: string) => {
     setSchedule(prevState => ({...prevState, title: e}))
@@ -86,8 +101,13 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
     }
   }
 
-  const openDatePickerBottomSheet = (flag: RangeFlag) => {
-    setRangeFlag(flag)
+  const openTimePickerBottomSheet = (flag: RANGE_FLAG) => {
+    setTimeRangeFlag(flag)
+    setTimePickerBottomSheet(true)
+  }
+
+  const openDatePickerBottomSheet = (flag: RANGE_FLAG) => {
+    setDateRangeFlag(flag)
     setDatePickerBottomSheet(true)
   }
 
@@ -145,7 +165,7 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
           <View style={{gap: 30}}>
             {/* 시간 */}
             <View style={styles.timeContainer}>
-              <Pressable style={styles.timeWrapper} onPress={() => setTimeFlag('START')}>
+              <Pressable style={styles.timeWrapper} onPress={() => openTimePickerBottomSheet(RANGE_FLAG.START)}>
                 <TimeIcon width={30} fill={'#BABABA'} />
                 <View>
                   <Text style={styles.meridiemText}>{startTime.meridiem}</Text>
@@ -153,7 +173,7 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
                 </View>
               </Pressable>
               <Text style={styles.dash}>-</Text>
-              <Pressable style={styles.timeWrapper} onPress={() => setTimeFlag('END')}>
+              <Pressable style={styles.timeWrapper} onPress={() => openTimePickerBottomSheet(RANGE_FLAG.END)}>
                 <TimeIcon width={30} fill={'#BABABA'} />
                 <View>
                   <Text style={styles.meridiemText}>{endTime.meridiem}</Text>
@@ -286,12 +306,19 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
         </View>
       </BottomSheetScrollView>
 
+      <TimePickerBottomSheet
+        value={[schedule.start_time, schedule.end_time]}
+        isShow={showTimePickerBototmSheet}
+        rangeFlag={timeRangeFlag}
+        onClose={() => setTimePickerBottomSheet(false)}
+        onChange={changeTime}
+      />
       <DatePickerBottomSheet
         value={[schedule.start_date, schedule.end_date]}
         range
-        rangeFlag={rangeFlag}
         isShow={showDatePickerBottomSheet}
-        onChangeRangeFlag={setRangeFlag}
+        rangeFlag={dateRangeFlag}
+        onChangeRangeFlag={setDateRangeFlag}
         onClose={() => setDatePickerBottomSheet(false)}
         onChange={changeDate}
       />

@@ -1,5 +1,3 @@
-export type TimeFlag = 'START' | 'END'
-
 export interface Schedule {
   schedule_id: number | null
   timetable_category_id: number | null

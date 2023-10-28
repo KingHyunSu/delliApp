@@ -1,5 +1,5 @@
 import {atom} from 'recoil'
-import {Schedule, TimeFlag} from '@/types/schedule'
+import {Schedule} from '@/types/schedule'
 
 export const scheduleDateState = atom<Date>({
   key: 'scheduleDateState',
@@ -34,9 +34,4 @@ export const scheduleState = atom<Schedule>({
     alram: false,
     color: ''
   }
-})
-
-export const timeFlagState = atom<TimeFlag>({
-  key: 'timeFlagState',
-  default: 'START'
 })

@@ -2,17 +2,16 @@ import React from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
 import {BottomSheetModal} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
-
 import DatePicker from '@/components/DatePicker'
-import {RangeFlag} from '@/components/DatePicker/type'
 
-import {RANGE_FLAG} from '@/components/DatePicker/utils/code'
 import {format} from 'date-fns'
+
+import {RANGE_FLAG} from '@/utils/types'
 
 interface Props {
   value: string | string[]
   range?: boolean
-  rangeFlag?: RangeFlag
+  rangeFlag?: RANGE_FLAG
   isShow: boolean
   onChangeRangeFlag: Function
   onClose: Function

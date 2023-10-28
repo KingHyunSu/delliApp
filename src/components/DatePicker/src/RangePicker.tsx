@@ -1,12 +1,11 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
 
-import {RangeFlag} from '../type'
-import {RANGE_FLAG} from '../utils/code'
+import {RANGE_FLAG} from '@/utils/types'
 
 interface Props {
   date: string[]
-  flag: RangeFlag
+  flag: RANGE_FLAG
   onChange: Function
 }
 const RangePicker = ({date, flag, onChange}: Props) => {

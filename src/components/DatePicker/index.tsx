@@ -7,14 +7,15 @@ import DateItem from './src/DateItem'
 
 import {setDigit} from '@/utils/helper'
 import {getDateList, getRemainPrevDateList, getRemainNextvDateList} from './utils/date'
-import {RANGE_FLAG} from './utils/code'
-import {Item, RangeFlag} from './type'
+import {Item} from './type'
 import {dateItemStyles} from './style'
+
+import {RANGE_FLAG} from '@/utils/types'
 
 interface Props {
   value: string | string[]
   range: boolean
-  flag: RangeFlag
+  flag: RANGE_FLAG
   onChangeFlag: Function
   onChange: Function
 }

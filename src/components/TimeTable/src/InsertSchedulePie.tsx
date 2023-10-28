@@ -74,8 +74,6 @@ const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => 
     })
 
     setScheduleListState(list)
-
-    // Vibration.vibrate()
   }, [schedule.start_time, schedule.end_time])
 
   const dragStartBtnCoordinate = polarToCartesian(x, y, radius, endAngle)

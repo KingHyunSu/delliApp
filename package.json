@@ -30,6 +30,7 @@
     "react-native-shadow-2": "^7.0.8",
     "react-native-status-bar-height": "^2.6.0",
     "react-native-svg": "^13.11.0",
+    "react-native-wheely": "^0.6.0",
     "recoil": "^0.7.7"
   },
   "devDependencies": {
