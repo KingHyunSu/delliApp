@@ -1,0 +1,50 @@
+diff --git a/node_modules/react-native-wheely/lib/WheelPicker.js b/node_modules/react-native-wheely/lib/WheelPicker.js
+index 575325b..24ba268 100644
+--- a/node_modules/react-native-wheely/lib/WheelPicker.js
++++ b/node_modules/react-native-wheely/lib/WheelPicker.js
+@@ -57,6 +57,15 @@ const WheelPicker = ({ selectedIndex, options, onChange, selectedIndicatorStyle
+             onChange(index);
+         }
+     };
++    const handleScroll = react_native_1.Animated.event(
++        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
++        {
++            listener: (event) => {
++                handleMomentumScrollEnd(event)
++            },
++            useNativeDriver: true 
++        }
++    );
+     (0, react_1.useEffect)(() => {
+         if (selectedIndex < 0 || selectedIndex >= options.length) {
+             throw new Error(`Selected index ${selectedIndex} is out of bounds [0, ${options.length - 1}]`);
+@@ -66,13 +75,13 @@ const WheelPicker = ({ selectedIndex, options, onChange, selectedIndicatorStyle
+      * If selectedIndex is changed from outside (not via onChange) we need to scroll to the specified index.
+      * This ensures that what the user sees as selected in the picker always corresponds to the value state.
+      */
+-    (0, react_1.useEffect)(() => {
+-        var _a;
+-        (_a = flatListRef.current) === null || _a === void 0 ? void 0 : _a.scrollToIndex({
+-            index: selectedIndex,
+-            animated: false,
+-        });
+-    }, [selectedIndex]);
++    // (0, react_1.useEffect)(() => {
++    //     var _a;
++    //     (_a = flatListRef.current) === null || _a === void 0 ? void 0 : _a.scrollToIndex({
++    //         index: selectedIndex,
++    //         animated: false,
++    //     });
++    // }, [selectedIndex]);
+     return (react_1.default.createElement(react_native_1.View, Object.assign({ style: [WheelPicker_styles_1.default.container, { height: containerHeight }, containerStyle] }, containerProps),
+         react_1.default.createElement(react_native_1.View, { style: [
+                 WheelPicker_styles_1.default.selectedIndicator,
+@@ -82,7 +91,7 @@ const WheelPicker = ({ selectedIndex, options, onChange, selectedIndicatorStyle
+                     height: itemHeight,
+                 },
+             ] }),
+-        react_1.default.createElement(react_native_1.Animated.FlatList, Object.assign({}, flatListProps, { ref: flatListRef, style: WheelPicker_styles_1.default.scrollView, showsVerticalScrollIndicator: false, onScroll: react_native_1.Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: true }), onMomentumScrollEnd: handleMomentumScrollEnd, snapToOffsets: offsets, decelerationRate: decelerationRate, initialScrollIndex: selectedIndex, getItemLayout: (data, index) => ({
++        react_1.default.createElement(react_native_1.Animated.FlatList, Object.assign({}, flatListProps, { ref: flatListRef, style: WheelPicker_styles_1.default.scrollView, showsVerticalScrollIndicator: false, onScroll: handleScroll, snapToOffsets: offsets, decelerationRate: decelerationRate, initialScrollIndex: selectedIndex, getItemLayout: (data, index) => ({
+                 length: itemHeight,
+                 offset: itemHeight * index,
+                 index,
