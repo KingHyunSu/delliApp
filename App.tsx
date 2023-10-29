@@ -15,9 +15,6 @@ import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import {useSetRecoilState} from 'recoil'
-import {isLoginState} from '@/store/user'
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -27,7 +24,6 @@ const queryClient = new QueryClient({
 })
 
 function App(): JSX.Element {
-  const setLoginState = useSetRecoilState(isLoginState)
   const Stack = createStackNavigator()
 
   React.useEffect(() => {
@@ -47,12 +43,11 @@ function App(): JSX.Element {
       const token = await AsyncStorage.getItem('token')
       console.log('token', token)
       if (token) {
-        setLoginState(true)
       }
     }
 
     handleEnter()
-  }, [setLoginState])
+  }, [])
 
   return (
     <QueryClientProvider client={queryClient}>
