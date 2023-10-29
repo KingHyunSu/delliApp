@@ -80,7 +80,7 @@ const scheduleItemStyles = StyleSheet.create({
     gap: 16,
     paddingVertical: 20,
     borderBottomWidth: 1,
-    borderBottomColor: '#D2D2D4'
+    borderBottomColor: '#eeeded'
   },
   checkBox: {
     width: 28,
