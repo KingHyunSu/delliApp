@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, SafeAreaView} from 'react-native'
+import {StyleSheet, SafeAreaView, View, Text} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 
 // navigations
@@ -11,20 +11,23 @@ import Login from '@/views/Login'
 import Home from '@/views/Home'
 
 // utils
-import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false
-    }
-  }
-})
+import {useMutation} from '@tanstack/react-query'
 
 function App(): JSX.Element {
   const Stack = createStackNavigator()
+
+  const {
+    isPending,
+    data: token,
+    mutate
+  } = useMutation({
+    mutationFn: async () => {
+      return await AsyncStorage.getItem('token')
+    }
+  })
 
   React.useEffect(() => {
     const reset = async () => {
@@ -39,33 +42,34 @@ function App(): JSX.Element {
   }, [])
 
   React.useEffect(() => {
-    const handleEnter = async () => {
-      const token = await AsyncStorage.getItem('token')
-      console.log('token', token)
-      if (token) {
-      }
-    }
+    mutate()
+  }, [mutate])
 
-    handleEnter()
-  }, [])
-
+  if (isPending) {
+    return (
+      <SafeAreaView style={{flex: 1}}>
+        <Text>test</Text>
+      </SafeAreaView>
+    )
+  }
   return (
-    <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{flex: 1}}>
-        <BottomSheetModalProvider>
-          <SafeAreaView style={styles.container}>
-            <NavigationContainer>
-              <Stack.Navigator screenOptions={{headerShown: false}}>
-                <Stack.Group>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <BottomSheetModalProvider>
+        <SafeAreaView style={styles.container}>
+          <NavigationContainer>
+            <Stack.Navigator screenOptions={{headerShown: false}}>
+              {token ? (
+                <>
                   <Stack.Screen name="Home" component={Home} />
-                  <Stack.Screen name="Login" component={Login} />
-                </Stack.Group>
-              </Stack.Navigator>
-            </NavigationContainer>
-          </SafeAreaView>
-        </BottomSheetModalProvider>
-      </GestureHandlerRootView>
-    </QueryClientProvider>
+                </>
+              ) : (
+                <Stack.Screen name="Login" component={Login} />
+              )}
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaView>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   )
 }
 

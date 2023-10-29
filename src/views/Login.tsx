@@ -3,6 +3,7 @@ import {StyleSheet, View, Text, Pressable, Image} from 'react-native'
 
 // utils
 import {LOGIN_TYPE} from '@/utils/types'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // provider
 import {login as kakaoLogin} from '@react-native-seoul/kakao-login'
@@ -22,7 +23,7 @@ const Login = () => {
 
       const result = await login(params)
 
-      console.log('result', result)
+      await AsyncStorage.setItem('token', result.data.token)
     } catch (e) {
       console.error(e)
     }
