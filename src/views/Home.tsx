@@ -24,8 +24,9 @@ import {getDayOfWeekKey} from '@/utils/helper'
 import {format} from 'date-fns'
 
 import {Schedule, ScheduleComplete} from '@/types/schedule'
+import {HomeNavigationProps} from '@/types/navigation'
 
-const Home = () => {
+const Home = ({navigation}: HomeNavigationProps) => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
@@ -212,9 +213,12 @@ const Home = () => {
           ) : (
             <View />
           )} */}
+
           <View />
 
-          <SettingIcon stroke="#242933" />
+          <Pressable style={homeStyles.settingButton} onPress={() => navigation.navigate('Setting')}>
+            <SettingIcon stroke="#242933" />
+          </Pressable>
         </AppBar>
 
         <View style={homeStyles.weekDatePickerSection}>
@@ -275,6 +279,12 @@ const homeStyles = StyleSheet.create({
   timetableCategoryText: {
     fontFamily: 'GmarketSansTTFBold',
     fontSize: 20
+  },
+  settingButton: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'flex-end'
   }
 })
 

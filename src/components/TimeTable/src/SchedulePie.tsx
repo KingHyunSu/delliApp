@@ -1,6 +1,6 @@
 import React from 'react'
-import {G, Path, ForeignObject} from 'react-native-svg'
-import {StyleSheet, View, Text} from 'react-native'
+import {G, Path, ForeignObject, Text} from 'react-native-svg'
+import {StyleSheet, View} from 'react-native'
 
 import {polarToCartesian, describeArc} from '../util'
 
@@ -82,13 +82,17 @@ const SchedulePie = ({data, x, y, radius, fillOpacity = 1, startAngle, endAngle}
   return (
     <G fillOpacity={fillOpacity}>
       <Path d={path} fill={data.screenDisable ? '#e2e2e2' : '#fff'} stroke={'#efefef'} fillOpacity={1} />
-      <G originX={textCoordinate.x} originY={textCoordinate.y} rotation={getStartAngleByTextRotation(startAngle)}>
+
+      <Text x={textCoordinate.x} y={textCoordinate.y} fontFamily="GmarketSansTTFMedium" fontSize={14}>
+        {data.title}
+      </Text>
+      {/* <G originX={textCoordinate.x} originY={textCoordinate.y} rotation={getStartAngleByTextRotation(startAngle)}>
         <ForeignObject key={Math.random()} x={textCoordinate.x} y={textCoordinate.y}>
           <View style={{width: radius - 40}}>
             <Text style={styles.text}>{data.title}</Text>
           </View>
         </ForeignObject>
-      </G>
+      </G> */}
     </G>
   )
 }

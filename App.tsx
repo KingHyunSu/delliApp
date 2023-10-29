@@ -9,6 +9,7 @@ import {createStackNavigator} from '@react-navigation/stack'
 // components
 import Login from '@/views/Login'
 import Home from '@/views/Home'
+import Setting from '@/views/Setting'
 
 // utils
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
@@ -16,8 +17,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import {useMutation} from '@tanstack/react-query'
 
+import {RootStackParamList} from '@/types/navigation'
+
 function App(): JSX.Element {
-  const Stack = createStackNavigator()
+  const Stack = createStackNavigator<RootStackParamList>()
 
   const {
     isPending,
@@ -57,10 +60,11 @@ function App(): JSX.Element {
       <BottomSheetModalProvider>
         <SafeAreaView style={styles.container}>
           <NavigationContainer>
-            <Stack.Navigator screenOptions={{headerShown: false}}>
+            <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
               {token ? (
                 <>
                   <Stack.Screen name="Home" component={Home} />
+                  <Stack.Screen name="Setting" component={Setting} />
                 </>
               ) : (
                 <Stack.Screen name="Login" component={Login} />
