@@ -7,3 +7,9 @@ export type RootStackParamList = {
 }
 
 export type HomeNavigationProps = StackScreenProps<RootStackParamList, 'Home'>
+export type SettingNavigationProps = StackScreenProps<RootStackParamList, 'Setting'>
+
+export type AppStackParamList = {
+  Home: undefined
+  Setting: undefined
+}

@@ -189,7 +189,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           {/* <Text style={homeStyles.timetableCategoryText}>{activeTimeTableCategory.title}</Text> */}
           <View />
 
-          <Pressable style={homeStyles.button} onPress={handleInsertScheduleBottomSheetClose}>
+          <Pressable style={homeStyles.appBarRightButton} onPress={handleInsertScheduleBottomSheetClose}>
             <CancleIcon stroke="#242933" />
           </Pressable>
         </AppBar>
@@ -216,7 +216,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
           <View />
 
-          <Pressable style={homeStyles.settingButton} onPress={() => navigation.navigate('Setting')}>
+          <Pressable style={homeStyles.appBarRightButton} onPress={() => navigation.navigate('Setting')}>
             <SettingIcon stroke="#242933" />
           </Pressable>
         </AppBar>
@@ -249,12 +249,6 @@ const homeStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff'
   },
-  button: {
-    width: 36,
-    height: 36,
-    alignItems: 'flex-end',
-    justifyContent: 'center'
-  },
   homeHeaderContainer: {
     zIndex: -1,
     backgroundColor: '#fff'
@@ -280,9 +274,10 @@ const homeStyles = StyleSheet.create({
     fontFamily: 'GmarketSansTTFBold',
     fontSize: 20
   },
-  settingButton: {
+  appBarRightButton: {
     width: 36,
     height: 36,
+    paddingRight: 16,
     justifyContent: 'center',
     alignItems: 'flex-end'
   }

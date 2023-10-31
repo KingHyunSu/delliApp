@@ -7,28 +7,35 @@ import {NavigationContainer} from '@react-navigation/native'
 import {createStackNavigator} from '@react-navigation/stack'
 
 // components
-import Login from '@/views/Login'
-import Home from '@/views/Home'
-import Setting from '@/views/Setting'
+import LoginScreen from '@/views/Login'
+import HomeScreen from '@/views/Home'
+import SettingScreen from '@/views/Setting'
 
 // utils
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import {useMutation} from '@tanstack/react-query'
+import {useRecoilState} from 'recoil'
+import {loginState} from '@/store/system'
+
+import {useQuery} from '@tanstack/react-query'
 
 import {RootStackParamList} from '@/types/navigation'
 
 function App(): JSX.Element {
+  const [isLogin, setIsLogin] = useRecoilState(loginState)
   const Stack = createStackNavigator<RootStackParamList>()
 
-  const {
-    isPending,
-    data: token,
-    mutate
-  } = useMutation({
-    mutationFn: async () => {
-      return await AsyncStorage.getItem('token')
+  const {isLoading} = useQuery({
+    queryKey: ['token'],
+    queryFn: async () => {
+      const token = await AsyncStorage.getItem('token')
+
+      if (token) {
+        setIsLogin(true)
+      }
+
+      return token
     }
   })
 
@@ -44,11 +51,7 @@ function App(): JSX.Element {
     // reset()
   }, [])
 
-  React.useEffect(() => {
-    mutate()
-  }, [mutate])
-
-  if (isPending) {
+  if (isLoading) {
     return (
       <SafeAreaView style={{flex: 1}}>
         <Text>test</Text>
@@ -61,13 +64,13 @@ function App(): JSX.Element {
         <SafeAreaView style={styles.container}>
           <NavigationContainer>
             <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
-              {token ? (
+              {isLogin ? (
                 <>
-                  <Stack.Screen name="Home" component={Home} />
-                  <Stack.Screen name="Setting" component={Setting} />
+                  <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen name="Setting" component={SettingScreen} />
                 </>
               ) : (
-                <Stack.Screen name="Login" component={Login} />
+                <Stack.Screen name="Login" component={LoginScreen} />
               )}
             </Stack.Navigator>
           </NavigationContainer>
