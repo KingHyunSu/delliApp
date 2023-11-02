@@ -94,6 +94,7 @@ const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, isShow, onClose, onCh
   return (
     <BottomSheetModal
       name="datePicker"
+      enableContentPanningGesture={false}
       ref={datePickerBottomSheetRef}
       backdropComponent={props => {
         return <BottomSheetBackdrop props={props} onPress={handleBackdropPress} />
