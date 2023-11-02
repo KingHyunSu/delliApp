@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">delli</string>
+    <string name="app_name">델리</string>
+    <string name="kakao_app_key">b809b0eb1d4407ab7d82dc949c60167a</string>
 </resources>
