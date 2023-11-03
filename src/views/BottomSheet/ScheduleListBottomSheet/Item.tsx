@@ -93,14 +93,16 @@ const scheduleItemStyles = StyleSheet.create({
   },
   titleText: {
     fontFamily: 'GmarketSansTTFMedium',
-    fontSize: 18
+    fontSize: 18,
+    color: '#000'
   },
   titleUnderline: {
     textDecorationLine: 'line-through'
   },
   timeText: {
     fontFamily: 'GmarketSansTTFLight',
-    fontSize: 12
+    fontSize: 12,
+    color: '#000'
   },
   checkBoxColor: {
     borderColor: '#D2D2D4'

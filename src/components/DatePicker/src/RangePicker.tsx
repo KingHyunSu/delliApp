@@ -48,15 +48,17 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'GmarketSansTTFMedium',
-    fontSize: 18
+    fontSize: 18,
+    color: '#000'
   },
   text: {
     fontFamily: 'GmarketSansTTFMedium',
-    fontSize: 16
+    fontSize: 16,
+    color: '#000'
   },
   active: {
-    color: '#1E90FF',
-    fontWeight: 'bold'
+    fontFamily: 'GmarketSansTTFBold',
+    color: '#1E90FF'
   }
 })
 export default RangePicker

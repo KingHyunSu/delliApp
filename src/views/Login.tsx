@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end'
   },
   subText: {
-    fontFamily: 'GmarketSansTTFMidium',
+    fontFamily: 'GmarketSansTTFMedium',
     fontSize: 26
   },
   mainText: {

@@ -272,7 +272,8 @@ const homeStyles = StyleSheet.create({
   },
   timetableCategoryText: {
     fontFamily: 'GmarketSansTTFBold',
-    fontSize: 20
+    fontSize: 20,
+    color: '#000'
   },
   appBarRightButton: {
     width: 36,

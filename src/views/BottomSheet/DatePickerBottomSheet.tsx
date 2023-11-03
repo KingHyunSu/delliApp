@@ -93,10 +93,10 @@ const DatePickerBottomSheet = ({
 
         <View style={styles.buttonWrapper}>
           <Pressable style={[styles.button, styles.todayButton]} onPress={changeToday}>
-            <Text style={[styles.text, styles.todayText]}>오늘</Text>
+            <Text style={styles.text}>오늘</Text>
           </Pressable>
           <Pressable style={[styles.button, styles.confirmButton]} onPress={confirm}>
-            <Text style={[styles.text, styles.confirmText]}>확인</Text>
+            <Text style={styles.text}>확인</Text>
           </Pressable>
         </View>
       </View>
@@ -135,12 +135,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: 'GmarketSansTTFBold',
-    fontSize: 18
-  },
-  todayText: {
-    color: '#f5f6f8'
-  },
-  confirmText: {
+    fontSize: 18,
     color: '#fff'
   }
 })

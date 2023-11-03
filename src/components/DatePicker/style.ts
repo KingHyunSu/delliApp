@@ -9,7 +9,7 @@ export const dateItemStyles = StyleSheet.create({
     fontFamily: 'GmarketSansTTFMedium',
     borderRadius: 10,
     textAlign: 'center',
-    color: '#555',
+    color: '#000',
     fontSize: 16
   }
 })

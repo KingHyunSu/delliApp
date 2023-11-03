@@ -43,7 +43,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20
   },
-
   arrowButton: {
     width: 36,
     height: 36,
@@ -53,7 +52,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'GmarketSansTTFBold',
     fontSize: 18,
-    fontWeight: 'bold'
+    color: '#000'
   }
 })
 

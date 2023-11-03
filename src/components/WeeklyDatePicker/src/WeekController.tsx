@@ -93,7 +93,8 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: 'GmarketSansTTFBold',
-    fontSize: 16
+    fontSize: 16,
+    color: '#000'
   }
 })
 
