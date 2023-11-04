@@ -19,7 +19,15 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick}: Props) => {
   const x = width / 2
   const y = height * 0.28
   const fullRadius = width / 2 - 36
-  const radius = fullRadius - (20 - (y - fullRadius - 20))
+  const radius = React.useMemo(() => {
+    let result = fullRadius - (20 - (y - fullRadius - 20))
+
+    if (result > fullRadius) {
+      return fullRadius
+    }
+
+    return result
+  }, [fullRadius, y])
 
   const list = React.useMemo(() => {
     return data.filter(item => item.disable === '0')
