@@ -22,10 +22,7 @@ interface Props {
 }
 const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
   const {width} = useWindowDimensions()
-  const dayOfWeekSize = width * 0.096
-  const gapSize = (width - 32) * 0.0442
-  const itemWidth = dayOfWeekSize + gapSize
-  const containerWidth = itemWidth * 7
+  const dayOfWeekSize = 36
 
   const [isLoading, setLoading] = React.useState(false)
   const [weeklyDateList, setWeeklyDateList] = React.useState<DataListItem[]>([])
@@ -52,7 +49,7 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
     onChange(changeDate)
 
     const list = weeklyDateList
-    list.unshift({data: prevWeeklyDateList, x: list[0].x - containerWidth})
+    list.unshift({data: prevWeeklyDateList, x: list[0].x - width})
     list.pop()
 
     setWeeklyDateList([...list])
@@ -66,22 +63,25 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
     onChange(changeDate)
 
     const list = weeklyDateList
-    list.push({data: nextWeeklyDateList, x: list[list.length - 1].x + containerWidth})
+    list.push({data: nextWeeklyDateList, x: list[list.length - 1].x + width})
     list.shift()
 
     setWeeklyDateList([...list])
     setLoading(false)
   }
 
-  const handleDateChanged = (item: Date) => {
-    const options = {
-      enableVibrateFallback: true,
-      ignoreAndroidSystemSettings: false
-    }
-    trigger('impactMedium', options)
+  const handleDateChanged = React.useCallback(
+    (item: Date) => {
+      const options = {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false
+      }
+      trigger('impactMedium', options)
 
-    onChange(item)
-  }
+      onChange(item)
+    },
+    [onChange]
+  )
 
   const currentPosition = useSharedValue(0)
   const position = useSharedValue(0)
@@ -94,7 +94,7 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
       runOnJS(setLoading)(true)
       if (e.translationX > 0) {
         // left
-        currentPosition.value += containerWidth
+        currentPosition.value += width
         position.value = withTiming(currentPosition.value, {duration: 400}, isFinish => {
           if (isFinish) {
             runOnJS(handlePrev)()
@@ -102,7 +102,7 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
         })
       } else if (e.translationX < 0) {
         // right
-        currentPosition.value -= containerWidth
+        currentPosition.value -= width
         position.value = withTiming(currentPosition.value, {duration: 400}, isFinish => {
           if (isFinish) {
             runOnJS(handleNext)()
@@ -131,9 +131,9 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
       ])
     } else {
       setWeeklyDateList([
-        {data: prevWeeklyDateList, x: -containerWidth},
+        {data: prevWeeklyDateList, x: -width},
         {data: currentWeeklyDateList, x: 0},
-        {data: nextWeeklyDateList, x: containerWidth}
+        {data: nextWeeklyDateList, x: width}
       ])
     }
   }, [date])
@@ -161,7 +161,7 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
                   style={[
                     styles.item,
                     isActive(item) && styles.activeItem,
-                    {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize / 2}
+                    {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize}
                   ]}
                   onPress={() => handleDateChanged(item)}>
                   <Text style={[styles.text, isActive(item) && styles.activeText]}>{item.getDate()}</Text>
@@ -172,7 +172,7 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
         </View>
       )
     })
-  }, [weeklyDateList, dayOfWeekSize, isActive, onChange])
+  }, [weeklyDateList, isActive, dayOfWeekSize, handleDateChanged])
 
   return (
     <GestureDetector gesture={panGesture}>
