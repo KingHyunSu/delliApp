@@ -10,18 +10,18 @@ import {RANGE_FLAG} from '@/utils/types'
 
 interface Props {
   value: string | string[]
+  isShow: boolean
   range?: boolean
   rangeFlag?: RANGE_FLAG
-  isShow: boolean
-  onChangeRangeFlag: Function
+  onChangeRangeFlag?: Function
   onClose: Function
   onChange: Function
 }
 const DatePickerBottomSheet = ({
   value,
+  isShow,
   range = false,
   rangeFlag = 1,
-  isShow,
   onChangeRangeFlag,
   onClose,
   onChange

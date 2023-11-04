@@ -16,26 +16,38 @@ interface Props {
   value: string | string[]
   range: boolean
   flag: RANGE_FLAG
-  onChangeFlag: Function
+  onChangeFlag?: Function
   onChange: Function
 }
 const DatePicker = ({value, range, flag, onChangeFlag, onChange}: Props) => {
   // 요일
   const weekdays = ['월', '화', '수', '목', '금', '토', '일']
 
-  const [date, setDate] = React.useState(value)
-  const [currentDate, setCurrentDate] = React.useState(new Date())
+  const [date, setDate] = React.useState<string | string[] | null>(null)
+  const [currentDate, setCurrentDate] = React.useState<Date | null>(null)
   const [dayList, setDateList] = React.useState<Item[]>([])
 
   React.useEffect(() => {
-    if (Array.isArray(value)) {
-      setCurrentDate(new Date(value[0]))
-    } else {
-      setCurrentDate(new Date(value))
-    }
-
     setDate(value)
-  }, [value])
+  }, [])
+
+  React.useEffect(() => {
+    if (date) {
+      if (Array.isArray(date)) {
+        if (flag === RANGE_FLAG.START) {
+          setCurrentDate(new Date(date[0]))
+        } else if (flag === RANGE_FLAG.END) {
+          if (date[1] === '9999-12-31') {
+            setCurrentDate(new Date(date[0]))
+          } else {
+            setCurrentDate(new Date(date[1]))
+          }
+        }
+      } else {
+        setCurrentDate(new Date(date))
+      }
+    }
+  }, [flag, date])
 
   const changeDate = (item: Item) => {
     const dateStr = `${item.year}-${setDigit(item.month)}-${setDigit(item.day)}`
@@ -73,33 +85,48 @@ const DatePicker = ({value, range, flag, onChangeFlag, onChange}: Props) => {
   }
 
   React.useEffect(() => {
-    const currentDateList = getDateList(currentDate)
-    const remainPrevDateList = getRemainPrevDateList(currentDate)
-    const remainNextDateList = getRemainNextvDateList(currentDate)
+    if (currentDate) {
+      const currentDateList = getDateList(currentDate)
+      const remainPrevDateList = getRemainPrevDateList(currentDate)
+      const remainNextDateList = getRemainNextvDateList(currentDate)
 
-    setDateList([...remainPrevDateList, ...currentDateList, ...remainNextDateList])
+      setDateList([...remainPrevDateList, ...currentDateList, ...remainNextDateList])
+    }
   }, [currentDate])
+
+  if (!date && !currentDate) {
+    return (
+      <View>
+        <Text>loading....</Text>
+      </View>
+    )
+  }
 
   return (
     <View>
-      {Array.isArray(date) && range && <RangePicker date={date} flag={flag} onChange={onChangeFlag} />}
+      {date && currentDate ? (
+        <>
+          {Array.isArray(date) && range && <RangePicker date={date} flag={flag} onChange={onChangeFlag} />}
 
-      <ControlBar currentDate={currentDate} onChange={changeCurrentDate} />
+          <ControlBar currentDate={currentDate} onChange={changeCurrentDate} />
 
-      <View style={styles.weekContainer}>
-        {weekdays.map(week => (
-          <View key={week} style={dateItemStyles.wrapper}>
-            <Text style={[dateItemStyles.text, styles.dayOfWeekText]}>{week}</Text>
+          <View style={styles.weekContainer}>
+            {weekdays.map(week => (
+              <View key={week} style={dateItemStyles.wrapper}>
+                <Text style={[dateItemStyles.text, styles.dayOfWeekText]}>{week}</Text>
+              </View>
+            ))}
           </View>
-        ))}
-      </View>
-
-      <FlatList
-        data={dayList}
-        keyExtractor={(_, index) => String(index)}
-        renderItem={({item}) => <DateItem item={item} value={date} onChange={changeDate} />}
-        numColumns={7}
-      />
+          <FlatList
+            data={dayList}
+            keyExtractor={(_, index) => String(index)}
+            renderItem={({item}) => <DateItem item={item} value={date} onChange={changeDate} />}
+            numColumns={7}
+          />
+        </>
+      ) : (
+        <Text>loading...</Text>
+      )}
     </View>
   )
 }

@@ -10,9 +10,8 @@ import {scheduleDateState} from '@/store/schedule'
 interface Props {
   date: Date
   currentWeeklyDateList: Date[]
-  onChange: Function
 }
-const WeekController = ({date, currentWeeklyDateList, onChange}: Props) => {
+const WeekController = ({date, currentWeeklyDateList}: Props) => {
   const {height} = useWindowDimensions()
   const THURSDAY_NUMBER = 4
 
@@ -36,14 +35,6 @@ const WeekController = ({date, currentWeeklyDateList, onChange}: Props) => {
   const changeDate = (data: string) => {
     setScheduleDate(new Date(data))
   }
-
-  // const handlePrev = () => {
-  //   onChange(addDays(date, -7))
-  // }
-
-  // const handleNext = () => {
-  //   onChange(addDays(date, 7))
-  // }
 
   React.useEffect(() => {
     const firstDate = currentWeeklyDateList.find(item => {

@@ -18,7 +18,7 @@ const WeeklyDatePicker = () => {
 
   return (
     <View>
-      <WeekController date={scheduleDate} currentWeeklyDateList={currentWeeklyDateList} onChange={setScheduleDate} />
+      <WeekController date={scheduleDate} currentWeeklyDateList={currentWeeklyDateList} />
       <DayPicker date={scheduleDate} currentWeeklyDateList={currentWeeklyDateList} onChange={setScheduleDate} />
     </View>
   )

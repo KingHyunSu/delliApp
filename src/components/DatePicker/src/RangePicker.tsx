@@ -6,19 +6,30 @@ import {RANGE_FLAG} from '@/utils/types'
 interface Props {
   date: string[]
   flag: RANGE_FLAG
-  onChange: Function
+  onChange?: Function
 }
 const RangePicker = ({date, flag, onChange}: Props) => {
+  const changeStart = () => {
+    if (onChange) {
+      onChange(RANGE_FLAG.START)
+    }
+  }
+  const changeEnd = () => {
+    if (onChange) {
+      onChange(RANGE_FLAG.END)
+    }
+  }
+
   return (
     <View style={styles.container}>
-      <Pressable style={styles.wrapper} onPress={() => onChange(RANGE_FLAG.START)}>
+      <Pressable style={styles.wrapper} onPress={changeStart}>
         <Text style={[styles.label, flag === 1 && styles.active]}>시작일</Text>
         <Text style={styles.text}>{date[0]}</Text>
       </Pressable>
 
       {/* <View style={styles.bar} /> */}
 
-      <Pressable style={styles.wrapper} onPress={() => onChange(RANGE_FLAG.END)}>
+      <Pressable style={styles.wrapper} onPress={changeEnd}>
         <Text style={[styles.label, flag === 0 && styles.active]}>종료일</Text>
         <Text style={styles.text}>{date[1] === '9999-12-31' ? '없음' : date[1]}</Text>
       </Pressable>
