@@ -1,6 +1,5 @@
 import React from 'react'
-import {G, Path, ForeignObject, Text} from 'react-native-svg'
-import {StyleSheet, View} from 'react-native'
+import {G, Path, Text} from 'react-native-svg'
 
 import {polarToCartesian, describeArc} from '../util'
 
@@ -11,12 +10,11 @@ interface Props {
   x: number
   y: number
   radius: number
-  fillOpacity?: number
   startAngle: number
   endAngle: number
 }
 
-const SchedulePie = ({data, x, y, radius, fillOpacity = 1, startAngle, endAngle}: Props) => {
+const SchedulePie = ({data, x, y, radius, startAngle, endAngle}: Props) => {
   const STROK_WIDTH = 1
 
   const absAngle = Math.abs(startAngle - endAngle)
@@ -80,28 +78,17 @@ const SchedulePie = ({data, x, y, radius, fillOpacity = 1, startAngle, endAngle}
   const textCoordinate = polarToCartesian(x, y, getStartAngleByRadius(startAngle), getPositionByDegrees())
 
   return (
-    <G fillOpacity={fillOpacity}>
+    <G>
       <Path d={path} fill={data.screenDisable ? '#e2e2e2' : '#fff'} stroke={'#efefef'} fillOpacity={1} />
 
-      <Text x={textCoordinate.x} y={textCoordinate.y} fontFamily="GmarketSansTTFMedium" fontSize={14}>
-        {data.title}
-      </Text>
-      {/* <G originX={textCoordinate.x} originY={textCoordinate.y} rotation={getStartAngleByTextRotation(startAngle)}>
-        <ForeignObject key={Math.random()} x={textCoordinate.x} y={textCoordinate.y}>
-          <View style={{width: radius - 40}}>
-            <Text style={styles.text}>{data.title}</Text>
-          </View>
-        </ForeignObject>
-      </G> */}
+      {/* todo timetable/index로 빼기 */}
+      <G x={textCoordinate.x} y={textCoordinate.y} rotation={0}>
+        <Text fontFamily="GmarketSansTTFMedium" fontSize={14}>
+          {data.title}
+        </Text>
+      </G>
     </G>
   )
 }
-
-const styles = StyleSheet.create({
-  text: {
-    fontFamily: 'GmarketSansTTFMedium',
-    fontSize: 14
-  }
-})
 
 export default SchedulePie

@@ -1,11 +1,10 @@
 import React from 'react'
-import {PanResponder, Platform, StatusBar} from 'react-native'
+import {PanResponder} from 'react-native'
 import {G, Circle, Text} from 'react-native-svg'
 
 import SchedulePie from './SchedulePie'
 
 import {polarToCartesian} from '../util'
-import {getStatusBarHeight} from 'react-native-status-bar-height'
 import {trigger} from 'react-native-haptic-feedback'
 
 import {useRecoilState, useSetRecoilState} from 'recoil'
@@ -23,17 +22,11 @@ interface Props {
   x: number
   y: number
   radius: number
+  statusBarHeight: number
   homeTopHeight: number
 }
 
-const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => {
-  /**
-   * [todo]
-   * ios에서는 moveY가 status bar 영역까지 계산되고 있는데 android에서는 어떻게 계산되는지 확인해보기
-   * android에서 status bar 제외하고 계산되면 StatusBarHeight에 0 할당
-   */
-  const StatusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
-
+const InsertTimeTable = ({scheduleList, x, y, radius, statusBarHeight, homeTopHeight}: Props) => {
   const [activeStartTimeController, setActiveStartTimeController] = useRecoilState(activeStartTimeControllerState)
   const [activeEndTimeController, setActiveEndTimeController] = useRecoilState(activeEndTimeControllerState)
   const setScheduleListState = useSetRecoilState(scheduleListState)
@@ -96,7 +89,7 @@ const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => 
         setActiveStartTimeController(false)
       },
       onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + homeTopHeight + StatusBarHeight - 100)
+        const moveY = gestureState.moveY - (y + homeTopHeight + statusBarHeight - 100)
         const moveX = gestureState.moveX - x
 
         let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
@@ -131,7 +124,7 @@ const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => 
         setActiveEndTimeController(false)
       },
       onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + homeTopHeight + StatusBarHeight - 100)
+        const moveY = gestureState.moveY - (y + homeTopHeight + statusBarHeight - 100)
         const moveX = gestureState.moveX - x
 
         let move = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
@@ -161,15 +154,8 @@ const InsertTimeTable = ({scheduleList, x, y, radius, homeTopHeight}: Props) => 
 
   return (
     <G>
-      <SchedulePie
-        data={schedule}
-        x={x}
-        y={y}
-        radius={radius}
-        startAngle={startAngle}
-        endAngle={endAngle}
-        fillOpacity={1}
-      />
+      <SchedulePie data={schedule} x={x} y={y} radius={radius} startAngle={startAngle} endAngle={endAngle} />
+
       <G>
         <Circle
           cx={dragStartBtnCoordinate.x}

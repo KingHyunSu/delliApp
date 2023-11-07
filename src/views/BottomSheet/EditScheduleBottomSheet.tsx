@@ -102,12 +102,6 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
     setSchedule(prevState => ({...prevState, [key]: flag}))
   }
 
-  const expandBottmSheet = () => {
-    if (bottomSheetRef?.current) {
-      bottomSheetRef.current.expand()
-    }
-  }
-
   const openTimePickerBottomSheet = (flag: RANGE_FLAG) => {
     if (flag === RANGE_FLAG.START) {
       setActiveStartTimeController(true)
@@ -207,7 +201,6 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
                 onChangeText={changeTitle}
                 placeholder={'일정명을 입력해주세요.'}
                 placeholderTextColor={'#c3c5cc'}
-                onPressIn={expandBottmSheet}
               />
             </View>
 
