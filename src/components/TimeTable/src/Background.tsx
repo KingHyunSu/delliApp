@@ -1,6 +1,5 @@
 import React from 'react'
-import {StyleSheet, Text} from 'react-native'
-import {G, Circle, ForeignObject} from 'react-native-svg'
+import {G, Circle, Text} from 'react-native-svg'
 import {polarToCartesian} from '../util'
 
 interface Props {
@@ -23,7 +22,7 @@ const Background = ({x, y, radius}: Props) => {
     for (let i = 1; i <= 24; i++) {
       const angle = i * 60 * 0.25
 
-      const cartesian = polarToCartesian(x, y, radius + 20, angle)
+      const cartesian = polarToCartesian(x, y, radius + 10, angle)
       let hour = i > 12 ? i % 12 : i
       hour = hour === 0 ? 12 : hour
       list.push({...cartesian, hour, angle})
@@ -38,22 +37,14 @@ const Background = ({x, y, radius}: Props) => {
       {hourPositionList.map((hourPosition, index) => {
         return (
           <G key={index} x={hourPosition.x} y={hourPosition.y} rotation={hourPosition.angle}>
-            <ForeignObject translateX={-6}>
-              <Text style={styles.text}>{hourPosition.hour}</Text>
-            </ForeignObject>
+            <Text textAnchor="middle" fontSize={12} fill="#b2b2b2" fontFamily="GmarketSansTTFMedium">
+              {hourPosition.hour}
+            </Text>
           </G>
         )
       })}
     </G>
   )
 }
-
-const styles = StyleSheet.create({
-  text: {
-    fontFamily: 'GmarketSansTTFMedium',
-    color: '#b2b2b2',
-    fontSize: 12
-  }
-})
 
 export default Background
