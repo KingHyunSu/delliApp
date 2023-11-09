@@ -17,6 +17,10 @@ export interface Schedule {
   disable: string
   schedule_complete_id?: number
   state: string
+  title_x: number
+  title_y: number
+  title_width: number
+  title_rotate: number
 
   alram: boolean
   color: string

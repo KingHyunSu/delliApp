@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, Platform, StatusBar, View} from 'react-native'
+import {useWindowDimensions, Platform, StatusBar, StyleSheet, View} from 'react-native'
 import {Svg, G, Text} from 'react-native-svg'
 
 import Background from './src/Background'
@@ -9,6 +9,9 @@ import ScheduleText from './src/ScheduleText'
 import InsertScheduleText from './src/InsertScheduleText'
 
 import {getStatusBarHeight} from 'react-native-status-bar-height'
+
+import {scheduleState} from '@/store/schedule'
+import {useRecoilState} from 'recoil'
 
 import {Schedule} from '@/types/schedule'
 
@@ -24,6 +27,11 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick}: Props) => {
   const x = width / 2
   const y = height * 0.28
   const fullRadius = width / 2 - 36
+
+  const [schedule, setSchedule] = useRecoilState(scheduleState)
+
+  const [isComponentEdit, setIsComponentEdit] = React.useState(false)
+
   const radius = React.useMemo(() => {
     let result = fullRadius - (20 - (y - fullRadius - 20))
 
@@ -38,10 +46,18 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick}: Props) => {
     return data.filter(item => item.disable === '0')
   }, [data])
 
-  return (
-    <View>
-      {/* <ScheduleText centerX={x} centerY={y} /> */}
+  const changeSchedule = React.useCallback(
+    (data: Object) => {
+      setSchedule(prevState => ({
+        ...prevState,
+        ...data
+      }))
+    },
+    [setSchedule]
+  )
 
+  return (
+    <View style={{position: 'relative'}}>
       <Svg onPress={() => onClick()}>
         <G>
           <Background x={x} y={y} radius={radius} />
@@ -70,31 +86,50 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick}: Props) => {
               </Text>
             )}
           </G>
-
-          {isEdit && (
-            <InsertSchedulePie
-              scheduleList={data}
-              x={x}
-              y={y}
-              radius={radius}
-              statusBarHeight={StatusBarHeight}
-              homeTopHeight={homeTopHeight}
-            />
-          )}
         </G>
       </Svg>
 
+      {data.map((item, index) => {
+        return <ScheduleText key={index} data={item} centerX={x} centerY={y} radius={radius} />
+      })}
+
       {isEdit && (
-        <InsertScheduleText
-          centerX={x}
-          centerY={y}
-          radius={radius}
-          statusBarHeight={StatusBarHeight}
-          homeTopHeight={homeTopHeight}
-        />
+        <View style={styles.editContainer}>
+          <InsertSchedulePie
+            data={schedule}
+            scheduleList={data}
+            x={x}
+            y={y}
+            radius={radius}
+            statusBarHeight={StatusBarHeight}
+            homeTopHeight={homeTopHeight}
+            isComponentEdit={isComponentEdit}
+            onChangeSchedule={changeSchedule}
+          />
+
+          <InsertScheduleText
+            data={schedule}
+            centerX={x}
+            centerY={y}
+            radius={radius}
+            statusBarHeight={StatusBarHeight}
+            homeTopHeight={homeTopHeight}
+            isComponentEdit={isComponentEdit}
+            setIsComponentEdit={setIsComponentEdit}
+            onChangeSchedule={changeSchedule}
+          />
+        </View>
       )}
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  editContainer: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%'
+  }
+})
 
 export default TimeTable

@@ -18,6 +18,9 @@ import {
 import TimeIcon from '@/assets/icons/time.svg'
 import CalendarIcon from '@/assets/icons/calendar.svg'
 
+import {useMutation} from '@tanstack/react-query'
+import * as API from '@/apis/schedule'
+
 import {getTimeOfMinute} from '@/utils/helper'
 import {format} from 'date-fns'
 
@@ -26,10 +29,11 @@ import {Schedule} from '@/types/schedule'
 import {DAY_OF_WEEK} from '@/types/common'
 
 interface Props {
-  data: Schedule[]
-  onSubmit: Function
+  scheduleList: Schedule[]
+  refetchScheduleList: Function
+  setIsEdit: Function
 }
-const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
+const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit}: Props) => {
   const {width} = useWindowDimensions()
   const dayOfWeekSize = width * 0.096
   const scheduleDate = useRecoilValue(scheduleDateState)
@@ -65,6 +69,16 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
     const date = format(scheduleDate, 'yyyy-MM-dd')
     setSchedule(prevState => ({...prevState, ...{start_date: date}}))
   }, [scheduleDate, setSchedule])
+
+  const setScheduleMutation = useMutation({
+    mutationFn: async (params: API.SetScheduleParam) => {
+      return await API.setSchedule(params)
+    },
+    onSuccess: async () => {
+      await refetchScheduleList()
+      setIsEdit(false)
+    }
+  })
 
   const changeTime = (time: number) => {
     if (timeRangeFlag === RANGE_FLAG.START) {
@@ -121,12 +135,12 @@ const EditScheduleBottomSheet = ({data: scheduleList, onSubmit}: Props) => {
   }
 
   const handleSubmit = () => {
-    const param = {
-      insertSchedue: schedule,
+    const params = {
+      schedule,
       disableScheduleIdList: getDisableScheduleIdList()
     }
 
-    onSubmit(param)
+    setScheduleMutation.mutate(params)
   }
 
   const getDisableScheduleIdList = () => {

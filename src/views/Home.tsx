@@ -16,7 +16,7 @@ import {scheduleDateState, scheduleListState, scheduleState} from '@/store/sched
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState} from 'recoil'
 
-import {getScheduleList, setSchedule, updateSchedule, updateScheduleComplete, SetScheduleParam} from '@/apis/schedule'
+import {getScheduleList, updateScheduleComplete} from '@/apis/schedule'
 import {getTimetableCategoryList} from '@/apis/timetable'
 import {useMutation, useQuery} from '@tanstack/react-query'
 
@@ -90,26 +90,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
     enabled: !!activeTimeTableCategory.timetable_category_id
   })
 
-  const setScheduleMutation = useMutation({
-    mutationFn: async (data: SetScheduleParam) => {
-      return await setSchedule(data)
-    },
-    onSuccess: async () => {
-      await refetchScheduleList()
-      setIsEdit(false)
-    }
-  })
-
-  const updateScheduleMutation = useMutation({
-    mutationFn: async (data: Schedule) => {
-      return await updateSchedule(data)
-    },
-    onSuccess: async () => {
-      await refetchScheduleList()
-      setIsEdit(false)
-    }
-  })
-
   const updateScheduleCompleteMutation = useMutation({
     mutationFn: async (data: Schedule) => {
       if (data.schedule_id) {
@@ -126,14 +106,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const handleDetail = (data: Schedule) => {
     setScheduleDetail(data)
     setIsEdit(true)
-  }
-
-  const handleSubmit = ({insertSchedue, disableScheduleIdList}: SetScheduleParam) => {
-    if (insertSchedue.schedule_id) {
-      updateScheduleMutation.mutate(insertSchedue)
-    } else {
-      setScheduleMutation.mutate({insertSchedue, disableScheduleIdList})
-    }
   }
 
   const updateComplete = (data: Schedule) => {
@@ -231,7 +203,11 @@ const Home = ({navigation}: HomeNavigationProps) => {
       </Animated.View>
 
       {isEdit ? (
-        <EditScheduleBottomSheet data={scheduleList} onSubmit={handleSubmit} />
+        <EditScheduleBottomSheet
+          scheduleList={scheduleList}
+          refetchScheduleList={refetchScheduleList}
+          setIsEdit={setIsEdit}
+        />
       ) : (
         <ScheduleListBottomSheet data={scheduleList} onComplete={updateComplete} onClick={handleDetail} />
       )}

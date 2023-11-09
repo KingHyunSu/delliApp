@@ -1,30 +1,44 @@
 import React from 'react'
-import {G, Text} from 'react-native-svg'
+import {StyleSheet, View, Text} from 'react-native'
 
-const tempData = {x: 50, y: 50, rotate: 20, text: 'test123'}
+import {Schedule} from '@/types/schedule'
 
 interface Props {
+  data: Schedule
   centerX: number
   centerY: number
-  absX: number
-  absY: number
+  radius: number
 }
-const ScheduleText = ({centerX, centerY}: Props) => {
-  const textPosition = React.useMemo(() => {
+const ScheduleText = ({data, centerX, centerY, radius}: Props) => {
+  const {top, left} = React.useMemo(() => {
     return {
-      top: centerY - tempData.y,
-      left: centerX + tempData.x
+      top: centerY - (radius / 100) * data.title_y,
+      left: centerX + (radius / 100) * data.title_x
     }
-  }, [centerX, centerY])
+  }, [data.title_x, data.title_y, centerX, centerY, radius])
 
-  // return <Text style={[styles.text, {top: textPosition.top, left: textPosition.left, width: 40}]}>adadasdas</Text>
   return (
-    <G>
-      <Text fontFamily="GmarketSansTTFMedium" fontSize={14} fill="#000">
-        adadasdas
-      </Text>
-    </G>
+    <View
+      style={[
+        styles.container,
+        {top, left, width: data.title_width, transform: [{rotateZ: `${data.title_rotate}deg`}]}
+      ]}>
+      <Text style={styles.text}>{data.title}</Text>
+    </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    position: 'absolute',
+    minWidth: 40,
+    padding: 5
+  },
+  text: {
+    fontFamily: 'GmarketSansTTFMedium',
+    fontSize: 14,
+    color: '#000'
+  }
+})
 
 export default ScheduleText
