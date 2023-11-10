@@ -166,7 +166,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit}:
         item.end_time > start_time
 
       if (isOverlapAll || isOverlapLeft || isOverlapRight || isOverlapCenter) {
-        if (item.schedule_id) {
+        if (item.schedule_id && item.schedule_id !== schedule.schedule_id) {
           disableScheduleIdList.push(item.schedule_id)
         }
       }

@@ -66,7 +66,7 @@ const InsertScheduleText = ({
 
   const containerWidth = useSharedValue(defaultWidth)
 
-  const containerRotate = useSharedValue(0)
+  const containerRotate = useSharedValue(data.title_rotate)
 
   // handle move
   const moveGesture = Gesture.Pan()
