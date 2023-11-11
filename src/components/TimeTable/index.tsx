@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, Platform, StatusBar, StyleSheet, View} from 'react-native'
+import {useWindowDimensions, Platform, StatusBar, StyleSheet, View, Pressable} from 'react-native'
 import {Svg, G, Text} from 'react-native-svg'
 
 import Background from './src/Background'
@@ -89,12 +89,12 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick}: Props) => {
         </G>
       </Svg>
 
-      {data.map((item, index) => {
+      {list.map((item, index) => {
         return <ScheduleText key={index} data={item} centerX={x} centerY={y} radius={radius} />
       })}
 
       {isEdit && (
-        <View style={styles.editContainer}>
+        <Pressable style={styles.editContainer} onPress={() => setIsComponentEdit(false)}>
           <InsertSchedulePie
             data={schedule}
             scheduleList={data}
@@ -118,7 +118,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick}: Props) => {
             setIsComponentEdit={setIsComponentEdit}
             onChangeSchedule={changeSchedule}
           />
-        </View>
+        </Pressable>
       )}
     </View>
   )

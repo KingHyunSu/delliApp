@@ -36,13 +36,10 @@ const InsertScheduleText = ({
   setIsComponentEdit,
   onChangeSchedule
 }: Props) => {
-  const defaultWidth = radius - radius / 3
-  const padding = 5
-
   const [flag, setFlag] = React.useState<Flag>('MOVE')
   const [containerLayout, setContainerLayout] = React.useState<LayoutRectangle | null>(null)
 
-  const [width, setWidth] = React.useState(defaultWidth)
+  const [width, setWidth] = React.useState(0)
   const [top, setTop] = React.useState(0)
   const [left, setLeft] = React.useState(0)
 
@@ -61,10 +58,13 @@ const InsertScheduleText = ({
     setContainerLayout(e.nativeEvent.layout)
   }
 
+  const changeSchedule = (data: Object) => {
+    onChangeSchedule(data)
+  }
   const containerX = useSharedValue(0)
   const containerY = useSharedValue(0)
 
-  const containerWidth = useSharedValue(defaultWidth)
+  const containerWidth = useSharedValue(0)
 
   const containerRotate = useSharedValue(data.title_rotate)
 
@@ -75,8 +75,16 @@ const InsertScheduleText = ({
       containerY.value = top + e.translationY
     })
     .onEnd(e => {
-      runOnJS(setLeft)(left + e.translationX)
-      runOnJS(setTop)(top + e.translationY)
+      const changedX = left + e.translationX
+      const changedY = top + e.translationY
+
+      const xPercentage = ((changedX - centerX) / radius) * 100
+      const yPercentage = (((changedY - centerY) * -1) / radius) * 100
+
+      runOnJS(setLeft)(changedX)
+      runOnJS(setTop)(changedY)
+
+      runOnJS(changeSchedule)({title_x: xPercentage, title_y: yPercentage})
     })
     .enabled(flag === 'MOVE')
 
@@ -86,7 +94,11 @@ const InsertScheduleText = ({
       containerWidth.value = width + e.translationX
     })
     .onEnd(e => {
-      runOnJS(setWidth)(width + e.translationX)
+      const changedWidth = width + e.translationX
+
+      runOnJS(setWidth)(changedWidth)
+
+      runOnJS(changeSchedule)({title_width: changedWidth})
     })
     .enabled(true)
 
@@ -105,7 +117,11 @@ const InsertScheduleText = ({
       const anchorAngle = (Math.atan2(anchorY - rotateCenterY, anchorX - rotateCenterX) * 180) / Math.PI + 90
       const moveAngle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
 
-      containerRotate.value = -Math.round(anchorAngle - moveAngle)
+      const changedRotate = -Math.round(anchorAngle - moveAngle)
+
+      containerRotate.value = changedRotate
+
+      runOnJS(changeSchedule)({title_rotate: changedRotate})
     }
   })
 
@@ -121,26 +137,28 @@ const InsertScheduleText = ({
   }))
 
   React.useEffect(() => {
-    const {x, y} = polarToCartesian(centerX - defaultWidth / 2, centerY - 20, radius / 2, angle)
+    const defaultWidth = radius - radius / 3
 
-    setTop(Math.round(y))
-    setLeft(Math.round(x))
-  }, [centerX, centerY, radius, defaultWidth, angle])
+    const {x, y} = polarToCartesian(centerX, centerY - 13, radius / 3, angle)
 
-  React.useEffect(() => {
-    const xPercentage = ((left - centerX) / radius) * 100
-    const yPercentage = (((top - centerY) * -1) / radius) * 100
+    let changedWidth = defaultWidth
+    let changedY = Math.round(y)
+    let changedX = Math.round(x)
 
-    onChangeSchedule({title_x: xPercentage, title_y: yPercentage})
-  }, [top, left, centerX, centerY, radius, onChangeSchedule])
+    if (data.schedule_id) {
+      changedWidth = data.title_width
+      changedY = centerY - (radius / 100) * data.title_y
+      changedX = centerX + (radius / 100) * data.title_x
+    }
 
-  React.useEffect(() => {
-    onChangeSchedule({title_width: width})
-  }, [width, onChangeSchedule])
+    setWidth(changedWidth)
+    setLeft(changedX)
+    setTop(changedY)
 
-  React.useEffect(() => {
-    onChangeSchedule({title_rotate: containerRotate.value})
-  }, [containerRotate.value, onChangeSchedule])
+    containerWidth.value = changedWidth
+    containerX.value = changedX
+    containerY.value = changedY
+  }, [])
 
   if (!top && !left) {
     return <></>
@@ -148,15 +166,15 @@ const InsertScheduleText = ({
   if (!isComponentEdit) {
     return (
       <Pressable
-        style={[styles.conatiner, {top: top, left: left}]}
+        style={[styles.conatiner, {width, top, left, transform: [{rotateZ: `${data.title_rotate}deg`}]}]}
         onPress={() => setIsComponentEdit(!isComponentEdit)}>
-        <Text>{data.title}</Text>
+        <Text style={styles.text}>{data.title}</Text>
       </Pressable>
     )
   }
   return (
     <Animated.View
-      style={[moveAnimatedStyle, sizeAnimatedStyle, rotateAnimatedStyle, styles.conatiner, {top: top, left: left}]}
+      style={[moveAnimatedStyle, sizeAnimatedStyle, rotateAnimatedStyle, styles.conatiner]}
       onLayout={handleContainerLayout}>
       <View style={styles.controlIconContainer}>
         <Pressable
@@ -177,13 +195,7 @@ const InsertScheduleText = ({
       </View>
 
       <GestureDetector gesture={moveGesture}>
-        <View
-          style={[
-            {
-              paddingVertical: padding,
-              paddingHorizontal: padding
-            }
-          ]}>
+        <View>
           <Text style={styles.text}>{data.title}</Text>
         </View>
       </GestureDetector>
@@ -213,7 +225,8 @@ const styles = StyleSheet.create({
     minWidth: 40,
     borderWidth: 1,
     borderStyle: 'dashed',
-    borderColor: '#BABABA'
+    borderColor: '#BABABA',
+    padding: 5
   },
   controlIconContainer: {
     flexDirection: 'row',
