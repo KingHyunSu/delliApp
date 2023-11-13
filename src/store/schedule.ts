@@ -33,7 +33,6 @@ export const scheduleState = atom<Schedule>({
     state: '0',
     title_x: 0,
     title_y: 0,
-    title_width: 0,
     title_rotate: 0,
     alram: false,
     color: ''

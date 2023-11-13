@@ -6,7 +6,7 @@ import Background from './src/Background'
 import SchedulePie from './src/SchedulePie'
 import InsertSchedulePie from './src/InsertSchedulePie'
 import ScheduleText from './src/ScheduleText'
-import InsertScheduleText from './src/InsertScheduleText'
+import EditScheduleText from './src/EditScheduleText'
 
 import {getStatusBarHeight} from 'react-native-status-bar-height'
 
@@ -94,7 +94,8 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick}: Props) => {
       })}
 
       {isEdit && (
-        <Pressable style={styles.editContainer} onPress={() => setIsComponentEdit(false)}>
+        <Pressable style={styles.editContainer}>
+          {/* <Pressable style={styles.editContainer} onPress={() => setIsComponentEdit(false)}> */}
           <InsertSchedulePie
             data={schedule}
             scheduleList={data}
@@ -107,17 +108,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick}: Props) => {
             onChangeSchedule={changeSchedule}
           />
 
-          <InsertScheduleText
-            data={schedule}
-            centerX={x}
-            centerY={y}
-            radius={radius}
-            statusBarHeight={StatusBarHeight}
-            homeTopHeight={homeTopHeight}
-            isComponentEdit={isComponentEdit}
-            setIsComponentEdit={setIsComponentEdit}
-            onChangeSchedule={changeSchedule}
-          />
+          <EditScheduleText data={schedule} centerX={x} centerY={y} radius={radius} onChangeSchedule={changeSchedule} />
         </Pressable>
       )}
     </View>
