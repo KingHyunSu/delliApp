@@ -1,9 +1,9 @@
 import React from 'react'
-import {useWindowDimensions, StyleSheet, View, Text, Pressable} from 'react-native'
+import {useWindowDimensions, StyleSheet, View, Text, Pressable, TextInput} from 'react-native'
 
 import TimePickerBottomSheet from '@/views/BottomSheet/TimePickerBottomSheet'
 import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
-import BottomSheet, {BottomSheetScrollView, BottomSheetTextInput} from '@gorhom/bottom-sheet'
+import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 
 import {useRecoilValue, useRecoilState, useSetRecoilState} from 'recoil'
@@ -32,8 +32,9 @@ interface Props {
   scheduleList: Schedule[]
   refetchScheduleList: Function
   setIsEdit: Function
+  titleInputRef: React.RefObject<TextInput>
 }
-const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit}: Props) => {
+const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, titleInputRef}: Props) => {
   const {width} = useWindowDimensions()
   const dayOfWeekSize = width * 0.096
   const scheduleDate = useRecoilValue(scheduleDateState)
@@ -59,6 +60,10 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit}:
     return getTimeOfMinute(schedule.end_time)
   }, [schedule.end_time])
 
+  const title = React.useMemo(() => {
+    return String(schedule.title).replace(/\n/g, ' ')
+  }, [schedule.title])
+
   React.useEffect(() => {
     if (activeTimeTableCategory.timetable_category_id) {
       setSchedule(prevState => ({...prevState, timetable_category_id: activeTimeTableCategory.timetable_category_id}))
@@ -80,6 +85,13 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit}:
     }
   })
 
+  const onFocusTitleInput = () => {
+    if (titleInputRef && titleInputRef.current && bottomSheetRef && bottomSheetRef.current) {
+      bottomSheetRef.current?.collapse()
+      titleInputRef.current.focus()
+    }
+  }
+
   const changeTime = (time: number) => {
     if (timeRangeFlag === RANGE_FLAG.START) {
       setSchedule(prevState => ({
@@ -92,10 +104,6 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit}:
         end_time: time
       }))
     }
-  }
-
-  const changeTitle = (e: string) => {
-    setSchedule(prevState => ({...prevState, title: e}))
   }
 
   const changeDate = (date: string[]) => {
@@ -176,13 +184,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit}:
   }
 
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      index={0}
-      snapPoints={snapPoints}
-      keyboardBlurBehavior={'restore'}
-      keyboardBehavior={'extend'}
-      handleComponent={BottomSheetShadowHandler}>
+    <BottomSheet ref={bottomSheetRef} index={0} snapPoints={snapPoints} handleComponent={BottomSheetShadowHandler}>
       <BottomSheetScrollView>
         <View style={styles.container}>
           <View style={{gap: 30}}>
@@ -209,13 +211,11 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit}:
             <View>
               <Text style={styles.label}>일정명</Text>
 
-              <BottomSheetTextInput
-                style={styles.input}
-                value={schedule.title}
-                onChangeText={changeTitle}
-                placeholder={'일정명을 입력해주세요.'}
-                placeholderTextColor={'#c3c5cc'}
-              />
+              <Pressable style={styles.input} onPress={onFocusTitleInput}>
+                <Text style={[styles.inputText, !schedule.title && {color: '#c3c5cc'}]} numberOfLines={1}>
+                  {schedule.title ? title : '일정명을 입력해주세요.'}
+                </Text>
+              </Pressable>
             </View>
 
             {/* 기간 */}
@@ -312,7 +312,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit}:
             <View>
               <Text style={styles.label}>메모</Text>
 
-              <BottomSheetTextInput
+              <TextInput
                 style={[styles.input, {height: 96}]}
                 value={schedule.memo}
                 onChangeText={changeMemo}
@@ -364,14 +364,17 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   input: {
-    fontFamily: 'GmarketSansTTFMedium',
-    color: '#555',
-    fontSize: 16,
+    justifyContent: 'center',
     borderWidth: 2,
     borderColor: '#e4e4ec',
     borderRadius: 10,
     paddingHorizontal: 10,
-    height: 48
+    paddingVertical: 14
+  },
+  inputText: {
+    fontFamily: 'GmarketSansTTFMedium',
+    color: '#555',
+    fontSize: 16
   },
   dash: {
     fontFamily: 'GmarketSansTTFBold',

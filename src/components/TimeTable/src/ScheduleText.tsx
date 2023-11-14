@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, View, Text} from 'react-native'
+import {StyleSheet, View, TextInput} from 'react-native'
 
 import {Schedule} from '@/types/schedule'
 
@@ -11,8 +11,6 @@ interface Props {
 }
 const ScheduleText = ({data, centerX, centerY, radius}: Props) => {
   const {top, left} = React.useMemo(() => {
-    console.log('scheduleText y', data.title, Math.round(centerY - (radius / 100) * data.title_y))
-    console.log('scheduleText x', data.title, Math.round(centerX + (radius / 100) * data.title_x))
     return {
       top: Math.round(centerY - (radius / 100) * data.title_y),
       left: Math.round(centerX + (radius / 100) * data.title_x)
@@ -21,7 +19,7 @@ const ScheduleText = ({data, centerX, centerY, radius}: Props) => {
 
   return (
     <View style={[styles.container, {top, left, transform: [{rotateZ: `${data.title_rotate}deg`}]}]}>
-      <Text style={styles.text}>{data.title}</Text>
+      <TextInput value={data.title} style={styles.textInput} multiline editable={false} />
     </View>
   )
 }
@@ -31,10 +29,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     minWidth: 40
   },
-  text: {
+  textInput: {
     fontFamily: 'GmarketSansTTFMedium',
     fontSize: 14,
-    color: '#000'
+    color: '#000',
+    paddingVertical: 0
   }
 })
 

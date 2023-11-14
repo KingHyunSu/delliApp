@@ -1,10 +1,13 @@
 import React from 'react'
-import {StyleSheet, View, Text} from 'react-native'
+import {StyleSheet, View, TextInput} from 'react-native'
 
 import {polarToCartesian} from '../util'
 
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS} from 'react-native-reanimated'
+
+import {useRecoilValue} from 'recoil'
+import {scheduleState} from '@/store/schedule'
 
 import {Schedule} from '@/types/schedule'
 
@@ -13,11 +16,15 @@ interface Props {
   centerX: number
   centerY: number
   radius: number
+  titleInputRef: React.RefObject<TextInput>
   onChangeSchedule: Function
 }
-const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Props) => {
+const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChangeSchedule}: Props) => {
   const containerPadding = 20
   const wrapperPadding = 5
+  const borderWidth = 1
+
+  const schedule = useRecoilValue(scheduleState)
 
   const [top, setTop] = React.useState(0)
   const [left, setLeft] = React.useState(0)
@@ -33,12 +40,20 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     return startAngle + (endAngle - startAngle) / 2
   }, [data.start_time, data.end_time])
 
-  const changeSchedule = (data: Object) => {
-    onChangeSchedule(data)
+  const changeSchedule = (value: Object) => {
+    onChangeSchedule(value)
   }
 
-  const containerX = useSharedValue(0)
-  const containerY = useSharedValue(0)
+  const changeTitle = (value: string) => {
+    changeSchedule({title: value})
+  }
+
+  const containerX = useSharedValue(
+    Math.round(centerX - (containerPadding + wrapperPadding + borderWidth) + (radius / 100) * data.title_x)
+  )
+  const containerY = useSharedValue(
+    Math.round(centerY - (containerPadding + wrapperPadding + borderWidth) - (radius / 100) * data.title_y)
+  )
 
   const containerRotate = useSharedValue(data.title_rotate)
   const conatinerSavedRotate = useSharedValue(0)
@@ -92,29 +107,25 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     let changedX = Math.round(x)
 
     if (data.schedule_id) {
-      const borderWidth = 1
-      const padding = containerPadding + wrapperPadding + borderWidth
-
-      changedY = Math.round(centerY - padding - (radius / 100) * data.title_y)
-      changedX = Math.round(centerX - padding + (radius / 100) * data.title_x)
+      changedY = Math.round(centerY - (containerPadding + wrapperPadding + borderWidth) - (radius / 100) * data.title_y)
+      changedX = Math.round(centerX - (containerPadding + wrapperPadding + borderWidth) + (radius / 100) * data.title_x)
     }
 
     setLeft(changedX)
     setTop(changedY)
-
-    containerX.value = changedX
-    containerY.value = changedY
   }, [])
-
-  if (!top && !left) {
-    return <></>
-  }
 
   return (
     <GestureDetector gesture={composeGesture}>
       <Animated.View style={[animationStyle, styles.conatiner, {padding: containerPadding}]}>
-        <View style={[styles.wrapper, {padding: wrapperPadding}]}>
-          <Text style={styles.text}>{data.title}</Text>
+        <View style={[styles.wrapper, !schedule.title && {borderWidth: 0}, {padding: wrapperPadding}]}>
+          <TextInput
+            ref={titleInputRef}
+            value={data.title}
+            style={styles.textInput}
+            multiline
+            onChangeText={changeTitle}
+          />
         </View>
       </Animated.View>
     </GestureDetector>
@@ -130,10 +141,11 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderColor: '#BABABA'
   },
-  text: {
+  textInput: {
     fontFamily: 'GmarketSansTTFMedium',
     fontSize: 14,
-    color: '#000'
+    color: '#000',
+    paddingVertical: 0
   }
 })
 

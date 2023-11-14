@@ -1,5 +1,5 @@
 import React from 'react'
-import {Animated, Pressable, StyleSheet, Text, View, LayoutChangeEvent} from 'react-native'
+import {Animated, Pressable, StyleSheet, Text, View, TextInput, LayoutChangeEvent} from 'react-native'
 
 import AppBar from '@/components/AppBar'
 import TimeTable from '@/components/TimeTable'
@@ -27,6 +27,8 @@ import {Schedule, ScheduleComplete} from '@/types/schedule'
 import {HomeNavigationProps} from '@/types/navigation'
 
 const Home = ({navigation}: HomeNavigationProps) => {
+  const titleInputRef = React.useRef<TextInput>(null)
+
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
@@ -199,7 +201,13 @@ const Home = ({navigation}: HomeNavigationProps) => {
       </Animated.View>
 
       <Animated.View style={[{transform: [{translateY: timaTableTranslateY}]}]}>
-        <TimeTable data={scheduleList} homeTopHeight={homeTopHeight} isEdit={isEdit} onClick={showInsertBottomSheet} />
+        <TimeTable
+          data={scheduleList}
+          homeTopHeight={homeTopHeight}
+          isEdit={isEdit}
+          titleInputRef={titleInputRef}
+          onClick={showInsertBottomSheet}
+        />
       </Animated.View>
 
       {isEdit ? (
@@ -207,6 +215,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           scheduleList={scheduleList}
           refetchScheduleList={refetchScheduleList}
           setIsEdit={setIsEdit}
+          titleInputRef={titleInputRef}
         />
       ) : (
         <ScheduleListBottomSheet data={scheduleList} onComplete={updateComplete} onClick={handleDetail} />
