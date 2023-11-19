@@ -4,11 +4,18 @@ import {BottomSheetBackdrop as Backdrop, BottomSheetBackgroundProps} from '@gorh
 
 interface Props {
   props: BottomSheetBackgroundProps
+  opacity?: number
   enableTouchThrough?: boolean
   pressBehavior?: 'none' | 'close' | 'collapse' | number
   onPress?: Function
 }
-const BottomSheetBackdrop = ({props, enableTouchThrough = false, pressBehavior = 'close', onPress}: Props) => {
+const BottomSheetBackdrop = ({
+  props,
+  opacity = 0.5,
+  enableTouchThrough = false,
+  pressBehavior = 'close',
+  onPress
+}: Props) => {
   const handlePress = () => {
     if (onPress) {
       onPress()
@@ -18,7 +25,7 @@ const BottomSheetBackdrop = ({props, enableTouchThrough = false, pressBehavior =
   return (
     <Backdrop
       {...props}
-      opacity={0.5}
+      opacity={opacity}
       enableTouchThrough={enableTouchThrough}
       pressBehavior={pressBehavior}
       appearsOnIndex={0}

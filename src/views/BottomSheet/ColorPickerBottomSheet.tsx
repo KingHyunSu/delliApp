@@ -1,7 +1,11 @@
 import React from 'react'
-import {useWindowDimensions, StyleSheet, FlatList, View, Pressable} from 'react-native'
+import {useWindowDimensions, StyleSheet, FlatList, View, Text, Pressable} from 'react-native'
 import {BottomSheetModal, BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
+import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
+
+import {useRecoilState} from 'recoil'
+import {showColorPickerBottomSheetState} from '@/store/bottomSheet'
 
 interface ColorItemProps {
   item: string
@@ -15,11 +19,9 @@ const ColorItem = ({item, wrapperSize}: ColorItemProps) => {
   )
 }
 
-interface Props {
-  isShow: boolean
-  onClose: Function
-}
-const ColorPickerBottomSheet = ({isShow, onClose}: Props) => {
+const ColorPickerBottomSheet = () => {
+  const [isShow, setIsShow] = useRecoilState(showColorPickerBottomSheetState)
+
   const {width} = useWindowDimensions()
   const itemWidth = React.useMemo(() => {
     return (width - 32) / 5
@@ -42,20 +44,20 @@ const ColorPickerBottomSheet = ({isShow, onClose}: Props) => {
       name="colorPicker"
       ref={colorPickerBottomSheet}
       backdropComponent={props => {
-        return <BottomSheetBackdrop props={props} />
+        return <BottomSheetBackdrop props={props} opacity={0} />
       }}
+      handleComponent={BottomSheetShadowHandler}
       index={0}
-      snapPoints={['30%']}
-      onDismiss={() => onClose()}>
+      snapPoints={['35%']}
+      onDismiss={() => setIsShow(false)}>
       <BottomSheetScrollView style={styles.container} scrollEnabled={false}>
+        <Text style={styles.title}>배경색 선택하기</Text>
         <FlatList
           data={defaultColorList}
           keyExtractor={item => item}
           numColumns={5}
           scrollEnabled={false}
-          style={styles.section}
           columnWrapperStyle={styles.columnWrapper}
-          // ListHeaderComponent={() => <Text style={styles.label}>기본</Text>}
           renderItem={({item}) => <ColorItem item={item} wrapperSize={itemWidth} />}
         />
       </BottomSheetScrollView>
@@ -65,15 +67,17 @@ const ColorPickerBottomSheet = ({isShow, onClose}: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 30
-  },
-  section: {
-    // borderBottomWidth: 1,
-    // borderBottomColor: '#e4e4ec'
+    paddingTop: 20
   },
   columnWrapper: {
     paddingHorizontal: 16,
     marginBottom: 20
+  },
+  title: {
+    fontFamily: 'GmarketSansTTFBold',
+    fontSize: 18,
+    paddingLeft: 16,
+    marginBottom: 30
   },
   label: {
     fontFamily: 'GmarketSansTTFMedium',
@@ -82,11 +86,36 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   item: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     borderWidth: 2,
     borderColor: '#f5f6f8'
+  },
+  buttonWrapper: {
+    flexDirection: 'row',
+    gap: 10,
+    marginHorizontal: 16,
+    marginBottom: 20
+  },
+  button: {
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10
+  },
+  closebutton: {
+    flex: 1,
+    backgroundColor: '#BABABA'
+  },
+  confirmButton: {
+    flex: 2,
+    backgroundColor: '#2d8cec'
+  },
+  buttonText: {
+    fontFamily: 'GmarketSansTTFBold',
+    fontSize: 18,
+    color: '#fff'
   }
 })
 

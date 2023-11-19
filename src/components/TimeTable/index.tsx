@@ -1,6 +1,6 @@
 import React from 'react'
 import {useWindowDimensions, Platform, StatusBar, StyleSheet, View, Pressable, TextInput} from 'react-native'
-import {Svg, G, Text} from 'react-native-svg'
+import {Svg, G, Text, Circle} from 'react-native-svg'
 
 import Background from './src/Background'
 import SchedulePie from './src/SchedulePie'
@@ -10,10 +10,13 @@ import EditScheduleText from './src/EditScheduleText'
 
 import {getStatusBarHeight} from 'react-native-status-bar-height'
 
+import {useRecoilState, useSetRecoilState} from 'recoil'
 import {scheduleState} from '@/store/schedule'
-import {useRecoilState} from 'recoil'
+import {showStyleBottomSheetState} from '@/store/bottomSheet'
 
 import {Schedule} from '@/types/schedule'
+
+import PaletteIcon from '@/assets/icons/palette.svg'
 
 interface Props {
   data: Schedule[]
@@ -30,6 +33,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
   const fullRadius = width / 2 - 36
 
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const setIsShowStyleBottomSheet = useSetRecoilState(showStyleBottomSheetState)
 
   const [isComponentEdit, setIsComponentEdit] = React.useState(false)
 
@@ -64,7 +68,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
   )
 
   return (
-    <View style={{position: 'relative'}}>
+    <View>
       <Svg onPress={() => onClick()}>
         <G>
           <Background x={x} y={y} radius={radius} />
@@ -102,18 +106,24 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
 
       {isEdit && (
         <Pressable style={styles.editContainer} onPress={clickBackground}>
-          {/* <Pressable style={styles.editContainer} onPress={() => setIsComponentEdit(false)}> */}
-          <InsertSchedulePie
-            data={schedule}
-            scheduleList={data}
-            x={x}
-            y={y}
-            radius={radius}
-            statusBarHeight={StatusBarHeight}
-            homeTopHeight={homeTopHeight}
-            isComponentEdit={isComponentEdit}
-            onChangeSchedule={changeSchedule}
-          />
+          <Svg>
+            <G x={20} y={y + radius - 10}>
+              <PaletteIcon width={32} height={32} fill="#BABABA" />
+              <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={() => setIsShowStyleBottomSheet(true)} />
+            </G>
+
+            <InsertSchedulePie
+              data={schedule}
+              scheduleList={data}
+              x={x}
+              y={y}
+              radius={radius}
+              statusBarHeight={StatusBarHeight}
+              homeTopHeight={homeTopHeight}
+              isComponentEdit={isComponentEdit}
+              onChangeSchedule={changeSchedule}
+            />
+          </Svg>
 
           <EditScheduleText
             data={schedule}

@@ -1,9 +1,8 @@
 import React from 'react'
-import {useWindowDimensions, StyleSheet, View, Text, Pressable, TextInput} from 'react-native'
+import {StyleSheet, View, Text, Pressable, TextInput} from 'react-native'
 
 import TimePickerBottomSheet from '@/views/BottomSheet/TimePickerBottomSheet'
 import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
-import ColorPickerBottomSheet from '@/views/BottomSheet/ColorPickerBottomSheet'
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 
@@ -25,7 +24,7 @@ import * as API from '@/apis/schedule'
 import {getTimeOfMinute} from '@/utils/helper'
 import {format} from 'date-fns'
 
-import {RANGE_FLAG, COLOR_FLAG} from '@/utils/types'
+import {RANGE_FLAG} from '@/utils/types'
 import {Schedule} from '@/types/schedule'
 import {DAY_OF_WEEK} from '@/types/common'
 
@@ -44,10 +43,8 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
 
   const [timeRangeFlag, setTimeRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
   const [dateRangeFlag, setDateRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
-  const [colorFlag, setColorFlag] = React.useState<COLOR_FLAG | null>(null)
   const [showTimePickerBototmSheet, setTimePickerBottomSheet] = React.useState(false)
   const [showDatePickerBottomSheet, setDatePickerBottomSheet] = React.useState(false)
-  const [showColorPickerBottomSheet, setColorPickerBottomSheet] = React.useState(false)
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
 
@@ -115,9 +112,9 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
     }))
   }
 
-  const changeMemo = (e: string) => {
-    setSchedule(prevState => ({...prevState, memo: e}))
-  }
+  // const changeMemo = (e: string) => {
+  //   setSchedule(prevState => ({...prevState, memo: e}))
+  // }
 
   const changeDayOfWeek = (key: DAY_OF_WEEK) => {
     const flag = schedule[key] === '1' ? '0' : '1'
@@ -141,11 +138,6 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   const openDatePickerBottomSheet = (flag: RANGE_FLAG) => {
     setDateRangeFlag(flag)
     setDatePickerBottomSheet(true)
-  }
-
-  const openColorPickerBottomSheet = (flag: COLOR_FLAG) => {
-    setColorFlag(flag)
-    setColorPickerBottomSheet(true)
   }
 
   const handleSubmit = () => {
@@ -296,65 +288,6 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
                 placeholderTextColor={'#c3c5cc'}
               />
             </View> */}
-
-          {/* temp start  */}
-          <View>
-            <Text style={styles.label}>배경색</Text>
-            <Pressable
-              style={{
-                flexDirection: 'row',
-                height: 52,
-                paddingHorizontal: 20,
-                backgroundColor: '#f5f6f8',
-                alignSelf: 'flex-start',
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: 10,
-                gap: 20
-              }}>
-              <View
-                style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: 12,
-                  backgroundColor: '#fff',
-                  borderWidth: 1,
-                  borderColor: '#e6e7e9'
-                }}
-              />
-              {/* <Text style={{fontFamily: 'GmarketSansTTFMedium', fontSize: 16, color: '#7c8698'}}>배경색</Text> */}
-            </Pressable>
-          </View>
-
-          <View>
-            <Text style={styles.label}>글자색</Text>
-            <Pressable
-              style={{
-                flexDirection: 'row',
-                height: 52,
-                paddingHorizontal: 20,
-                backgroundColor: '#f5f6f8',
-                alignSelf: 'flex-start',
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: 10,
-                gap: 20
-              }}
-              onPress={() => openColorPickerBottomSheet('text')}>
-              <View
-                style={{
-                  width: 24,
-                  height: 24,
-                  borderRadius: 12,
-                  backgroundColor: 'skyblue',
-                  borderWidth: 1,
-                  borderColor: '#e6e7e9'
-                }}
-              />
-              {/* <Text style={{fontFamily: 'GmarketSansTTFMedium', fontSize: 16, color: '#7c8698'}}>글자색</Text> */}
-            </Pressable>
-          </View>
-          {/* temp end */}
         </View>
 
         <Pressable style={styles.submitBtn} onPress={handleSubmit}>
@@ -378,7 +311,6 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
         onClose={() => setDatePickerBottomSheet(false)}
         onChange={changeDate}
       />
-      <ColorPickerBottomSheet isShow={showColorPickerBottomSheet} onClose={() => setColorPickerBottomSheet(false)} />
     </BottomSheet>
   )
 }
@@ -393,8 +325,7 @@ const styles = StyleSheet.create({
     fontFamily: 'GmarketSansTTFBold',
     fontSize: 18,
     marginBottom: 16,
-    color: '#000',
-    fontWeight: 'bold'
+    color: '#000'
   },
   input: {
     justifyContent: 'center',

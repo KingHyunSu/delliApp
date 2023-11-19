@@ -7,14 +7,17 @@ import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimetableCategotyBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
+import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
+import ColorPickerBottomSheet from '@/views/BottomSheet/ColorPickerBottomSheet'
 
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
 import CancleIcon from '@/assets/icons/cancle.svg'
 
+import {useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState} from 'recoil'
 import {scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
-import {useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState} from 'recoil'
+import {showColorPickerBottomSheetState} from '@/store/bottomSheet'
 
 import {getScheduleList, updateScheduleComplete} from '@/apis/schedule'
 import {getTimetableCategoryList} from '@/apis/timetable'
@@ -34,6 +37,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const setScheduleDetail = useSetRecoilState(scheduleState)
   const resetScheduleEdit = useResetRecoilState(scheduleState)
+
+  const isShowColorPickerBottomSheetState = useRecoilValue(showColorPickerBottomSheetState)
 
   const [homeTopHeight, setHomeTopHeight] = React.useState(0)
   const [isEdit, setIsEdit] = React.useState(false)
@@ -163,9 +168,11 @@ const Home = ({navigation}: HomeNavigationProps) => {
           {/* <Text style={homeStyles.timetableCategoryText}>{activeTimeTableCategory.title}</Text> */}
           <View />
 
-          <Pressable style={homeStyles.appBarRightButton} onPress={handleInsertScheduleBottomSheetClose}>
-            <CancleIcon stroke="#242933" />
-          </Pressable>
+          {!isShowColorPickerBottomSheetState && (
+            <Pressable style={homeStyles.appBarRightButton} onPress={handleInsertScheduleBottomSheetClose}>
+              <CancleIcon stroke="#242933" />
+            </Pressable>
+          )}
         </AppBar>
       </View>
 
@@ -225,6 +232,9 @@ const Home = ({navigation}: HomeNavigationProps) => {
         isShow={isShowTimeTableCategoryBottomSheet}
         onClose={() => setShowTimeTableCategoryBottomSheet(false)}
       />
+
+      <StyleBottomSheet />
+      <ColorPickerBottomSheet />
     </View>
   )
 }

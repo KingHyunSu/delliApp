@@ -1,6 +1,6 @@
 import React from 'react'
 import {PanResponder} from 'react-native'
-import {Svg, G, Circle, Text} from 'react-native-svg'
+import {G, Circle, Text} from 'react-native-svg'
 
 import SchedulePie from './SchedulePie'
 
@@ -11,8 +11,6 @@ import {useRecoilState, useSetRecoilState} from 'recoil'
 import {scheduleListState, activeStartTimeControllerState, activeEndTimeControllerState} from '@/store/schedule'
 
 import {Schedule} from '@/types/schedule'
-
-import PaletteIcon from '@/assets/icons/palette.svg'
 
 interface Props {
   data: Schedule
@@ -48,10 +46,6 @@ const InsertTimeTable = ({
   const endAngle = React.useMemo(() => {
     return data.end_time * 0.25
   }, [data.end_time])
-
-  const test = () => {
-    console.log('123123123')
-  }
 
   React.useEffect(() => {
     const options = {
@@ -158,7 +152,7 @@ const InsertTimeTable = ({
   ).current
 
   return (
-    <Svg>
+    <G>
       <SchedulePie data={data} x={x} y={y} radius={radius} startAngle={startAngle} endAngle={endAngle} />
 
       {!isComponentEdit && (
@@ -214,12 +208,7 @@ const InsertTimeTable = ({
           </Text>
         </G>
       )}
-
-      <G x={20} y={y + radius - 10}>
-        <PaletteIcon width={32} height={32} fill="#BABABA" />
-        <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={test} />
-      </G>
-    </Svg>
+    </G>
   )
 }
 
