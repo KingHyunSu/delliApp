@@ -124,6 +124,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
             value={data.title}
             style={styles.textInput}
             multiline
+            scrollEnabled={false}
             onChangeText={changeTitle}
           />
         </View>

@@ -19,7 +19,7 @@ const ScheduleText = ({data, centerX, centerY, radius}: Props) => {
 
   return (
     <View style={[styles.container, {top, left, transform: [{rotateZ: `${data.title_rotate}deg`}]}]}>
-      <TextInput value={data.title} style={styles.textInput} multiline editable={false} />
+      <TextInput value={data.title} style={styles.textInput} multiline scrollEnabled={false} editable={false} />
     </View>
   )
 }

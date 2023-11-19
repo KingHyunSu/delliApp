@@ -2,9 +2,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import Axios from 'axios'
 
 const instance = Axios.create({
-  baseURL: 'http://localhost:8080',
-  // baseURL: 'https://api.delli.info',
+  // baseURL: 'http://localhost:8080',
+  baseURL: 'https://api.delli.info',
   headers: {
+    // 'Content-Type:': 'application/json;charset=UTF-8'
     // 'content-type:': 'application/json;charset=UTF-8'
   }
 })

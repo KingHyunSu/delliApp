@@ -43,41 +43,75 @@ const ScheduleListItem = ({item, index, onComplete, onClick}: Props) => {
   }
 
   return (
-    <Pressable style={scheduleItemStyles.container} onPress={() => onClick(item)}>
-      <Pressable
+    <Pressable style={styles.container} onPress={() => onClick(item)}>
+      {/* <Pressable
         style={[
-          scheduleItemStyles.checkBox,
-          isDisable ? scheduleItemStyles.disableCheckBoxColor : scheduleItemStyles.checkBoxColor,
-          isComplete && scheduleItemStyles.completeCheckBox
+          styles.checkBox,
+          isDisable ? styles.disableCheckBoxColor : styles.checkBoxColor,
+          isComplete && styles.completeCheckBox
         ]}
         onPress={handleComplete}>
         {isComplete && <DoneIcon fill="#fff" />}
-      </Pressable>
+      </Pressable> */}
 
-      <View style={scheduleItemStyles.textContainer}>
+      <View style={styles.textContainer}>
         <Text
           style={[
-            scheduleItemStyles.titleText,
-            isComplete && scheduleItemStyles.titleUnderline,
-            isDisable ? scheduleItemStyles.disableTextColor : scheduleItemStyles.textColor
+            styles.titleText,
+            isComplete && styles.titleUnderline,
+            isDisable ? styles.disableTextColor : styles.textColor
           ]}>
           {item.title}
         </Text>
-        <Text style={[scheduleItemStyles.timeText]}>
-          {startTime.meridiem} {`${startTime.hour}시 ${startTime.minute}분`} - {endTime.meridiem}{' '}
-          {`${endTime.hour}시 ${endTime.minute}분`}
-        </Text>
+
+        <View style={styles.timeContainer}>
+          <View style={styles.timeLabel}>
+            <Text style={[styles.timeLabelText, {color: '#BABABA'}]}>계획</Text>
+          </View>
+
+          <Text style={styles.timeText}>
+            {startTime.meridiem} {`${startTime.hour}시 ${startTime.minute}분`} - {endTime.meridiem}{' '}
+            {`${endTime.hour}시 ${endTime.minute}분`}
+          </Text>
+        </View>
+
+        <View style={styles.timeContainer}>
+          <View style={[styles.timeLabel, {backgroundColor: '#BABABA'}]}>
+            <Text style={styles.timeLabelText}>실제</Text>
+          </View>
+
+          {index <= 1 ? (
+            <Text style={styles.timeText}>
+              {startTime.meridiem} {`${startTime.hour}시 ${startTime.minute}분`} - {endTime.meridiem}{' '}
+              {`${endTime.hour}시 ${endTime.minute}분`}
+            </Text>
+          ) : (
+            <Text style={[styles.timeText]}>시작전</Text>
+          )}
+        </View>
       </View>
+
+      <Pressable
+        style={{
+          paddingHorizontal: 18,
+          paddingVertical: 12,
+          borderRadius: 10,
+          // justifyContent: 'center',
+          // alignItems: 'center',
+          backgroundColor: '#1E90FF'
+        }}>
+        <Text style={{color: '#fff', fontFamily: 'GmarketSansTTFBold'}}>시작</Text>
+      </Pressable>
     </Pressable>
   )
 }
 
-const scheduleItemStyles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     marginHorizontal: 16,
-    gap: 16,
     paddingVertical: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#eeeded'
@@ -89,15 +123,37 @@ const scheduleItemStyles = StyleSheet.create({
     borderWidth: 2
   },
   textContainer: {
-    gap: 10
+    gap: 5
   },
   titleText: {
     fontFamily: 'GmarketSansTTFMedium',
     fontSize: 18,
-    color: '#000'
+    color: '#000',
+    marginBottom: 10
   },
   titleUnderline: {
     textDecorationLine: 'line-through'
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5
+  },
+  timeLabel: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f6f8',
+    borderWidth: 1,
+    borderColor: '#BABABA',
+    // backgroundColor: '#BABABA',
+    paddingVertical: 3,
+    paddingHorizontal: 5,
+    borderRadius: 5
+  },
+  timeLabelText: {
+    fontFamily: 'GmarketSansTTFMedium',
+    fontSize: 10,
+    color: '#f5f6f8'
   },
   timeText: {
     fontFamily: 'GmarketSansTTFLight',

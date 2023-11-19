@@ -12,6 +12,8 @@ import {scheduleListState, activeStartTimeControllerState, activeEndTimeControll
 
 import {Schedule} from '@/types/schedule'
 
+import PaletteIcon from '@/assets/icons/palette.svg'
+
 interface Props {
   data: Schedule
   scheduleList: Schedule[]
@@ -47,11 +49,16 @@ const InsertTimeTable = ({
     return data.end_time * 0.25
   }, [data.end_time])
 
+  const test = () => {
+    console.log('123123123')
+  }
+
   React.useEffect(() => {
     const options = {
       enableVibrateFallback: true,
       ignoreAndroidSystemSettings: false
     }
+
     trigger('impactLight', options)
 
     const list = scheduleList.map(item => {
@@ -207,6 +214,11 @@ const InsertTimeTable = ({
           </Text>
         </G>
       )}
+
+      <G x={20} y={y + radius - 10}>
+        <PaletteIcon width={32} height={32} fill="#BABABA" />
+        <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={test} />
+      </G>
     </Svg>
   )
 }

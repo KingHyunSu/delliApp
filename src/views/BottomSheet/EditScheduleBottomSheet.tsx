@@ -3,6 +3,7 @@ import {useWindowDimensions, StyleSheet, View, Text, Pressable, TextInput} from 
 
 import TimePickerBottomSheet from '@/views/BottomSheet/TimePickerBottomSheet'
 import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
+import ColorPickerBottomSheet from '@/views/BottomSheet/ColorPickerBottomSheet'
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 
@@ -24,7 +25,7 @@ import * as API from '@/apis/schedule'
 import {getTimeOfMinute} from '@/utils/helper'
 import {format} from 'date-fns'
 
-import {RANGE_FLAG} from '@/utils/types'
+import {RANGE_FLAG, COLOR_FLAG} from '@/utils/types'
 import {Schedule} from '@/types/schedule'
 import {DAY_OF_WEEK} from '@/types/common'
 
@@ -35,8 +36,6 @@ interface Props {
   titleInputRef: React.RefObject<TextInput>
 }
 const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, titleInputRef}: Props) => {
-  const {width} = useWindowDimensions()
-  const dayOfWeekSize = width * 0.096
   const scheduleDate = useRecoilValue(scheduleDateState)
   const activeTimeTableCategory = useRecoilValue(activeTimeTableCategoryState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
@@ -45,8 +44,10 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
 
   const [timeRangeFlag, setTimeRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
   const [dateRangeFlag, setDateRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
+  const [colorFlag, setColorFlag] = React.useState<COLOR_FLAG | null>(null)
   const [showTimePickerBototmSheet, setTimePickerBottomSheet] = React.useState(false)
   const [showDatePickerBottomSheet, setDatePickerBottomSheet] = React.useState(false)
+  const [showColorPickerBottomSheet, setColorPickerBottomSheet] = React.useState(false)
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
 
@@ -142,6 +143,11 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
     setDatePickerBottomSheet(true)
   }
 
+  const openColorPickerBottomSheet = (flag: COLOR_FLAG) => {
+    setColorFlag(flag)
+    setColorPickerBottomSheet(true)
+  }
+
   const handleSubmit = () => {
     const params = {
       schedule,
@@ -185,131 +191,101 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
 
   return (
     <BottomSheet ref={bottomSheetRef} index={0} snapPoints={snapPoints} handleComponent={BottomSheetShadowHandler}>
-      <BottomSheetScrollView>
-        <View style={styles.container}>
-          <View style={{gap: 30}}>
-            {/* 시간 */}
-            <View style={styles.timeContainer}>
-              <Pressable style={styles.timeWrapper} onPress={() => openTimePickerBottomSheet(RANGE_FLAG.START)}>
-                <TimeIcon width={30} fill={'#BABABA'} />
-                <View>
-                  <Text style={styles.meridiemText}>{startTime.meridiem}</Text>
-                  <Text style={styles.timeText}>{`${startTime.hour}시 ${startTime.minute}분`}</Text>
-                </View>
+      <BottomSheetScrollView contentContainerStyle={styles.container}>
+        <View style={{gap: 30}}>
+          {/* 시간 */}
+          <View style={styles.timeContainer}>
+            <Pressable style={styles.timeWrapper} onPress={() => openTimePickerBottomSheet(RANGE_FLAG.START)}>
+              <TimeIcon width={30} fill={'#BABABA'} />
+              <View>
+                <Text style={styles.meridiemText}>{startTime.meridiem}</Text>
+                <Text style={styles.timeText}>{`${startTime.hour}시 ${startTime.minute}분`}</Text>
+              </View>
+            </Pressable>
+            <Text style={styles.dash}>-</Text>
+            <Pressable style={styles.timeWrapper} onPress={() => openTimePickerBottomSheet(RANGE_FLAG.END)}>
+              <TimeIcon width={30} fill={'#BABABA'} />
+              <View>
+                <Text style={styles.meridiemText}>{endTime.meridiem}</Text>
+                <Text style={styles.timeText}>{`${endTime.hour}시 ${endTime.minute}분`}</Text>
+              </View>
+            </Pressable>
+          </View>
+
+          {/* 제목 */}
+          <View>
+            <Text style={styles.label}>일정명</Text>
+
+            <Pressable style={styles.input} onPress={onFocusTitleInput}>
+              <Text style={[styles.inputText, !schedule.title && {color: '#c3c5cc'}]} numberOfLines={1}>
+                {schedule.title ? title : '일정명을 입력해주세요.'}
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* 기간 */}
+          <View>
+            <Text style={styles.label}>기간</Text>
+
+            <View style={styles.dateContainer}>
+              <Pressable style={styles.dateWrapper} onPress={() => openDatePickerBottomSheet(RANGE_FLAG.START)}>
+                <CalendarIcon stroke="#BABABA" style={{marginRight: 10}} />
+                <Text style={styles.dateText}>{schedule.start_date}</Text>
               </Pressable>
+
               <Text style={styles.dash}>-</Text>
-              <Pressable style={styles.timeWrapper} onPress={() => openTimePickerBottomSheet(RANGE_FLAG.END)}>
-                <TimeIcon width={30} fill={'#BABABA'} />
-                <View>
-                  <Text style={styles.meridiemText}>{endTime.meridiem}</Text>
-                  <Text style={styles.timeText}>{`${endTime.hour}시 ${endTime.minute}분`}</Text>
-                </View>
+
+              <Pressable style={styles.dateWrapper} onPress={() => openDatePickerBottomSheet(RANGE_FLAG.END)}>
+                <CalendarIcon stroke="#BABABA" style={{marginRight: 10}} />
+                <Text style={styles.dateText}>{schedule.end_date === '9999-12-31' ? '없음' : schedule.end_date}</Text>
               </Pressable>
             </View>
+          </View>
 
-            {/* 제목 */}
-            <View>
-              <Text style={styles.label}>일정명</Text>
-
-              <Pressable style={styles.input} onPress={onFocusTitleInput}>
-                <Text style={[styles.inputText, !schedule.title && {color: '#c3c5cc'}]} numberOfLines={1}>
-                  {schedule.title ? title : '일정명을 입력해주세요.'}
-                </Text>
+          {/* 요일 */}
+          <View>
+            <Text style={styles.label}>요일</Text>
+            <View style={styles.dayOfWeekContainer}>
+              <Pressable
+                style={[styles.dayOfWeek, schedule.mon === '1' && styles.activeDayOfWeek]}
+                onPress={() => changeDayOfWeek('mon')}>
+                <Text style={[styles.dayofWeekText, schedule.mon === '1' && styles.activeDayOfWeekText]}>월</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.dayOfWeek, schedule.tue === '1' && styles.activeDayOfWeek]}
+                onPress={() => changeDayOfWeek('tue')}>
+                <Text style={[styles.dayofWeekText, schedule.tue === '1' && styles.activeDayOfWeekText]}>화</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.dayOfWeek, schedule.wed === '1' && styles.activeDayOfWeek]}
+                onPress={() => changeDayOfWeek('wed')}>
+                <Text style={[styles.dayofWeekText, schedule.wed === '1' && styles.activeDayOfWeekText]}>수</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.dayOfWeek, schedule.thu === '1' && styles.activeDayOfWeek]}
+                onPress={() => changeDayOfWeek('thu')}>
+                <Text style={[styles.dayofWeekText, schedule.thu === '1' && styles.activeDayOfWeekText]}>목</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.dayOfWeek, schedule.fri === '1' && styles.activeDayOfWeek]}
+                onPress={() => changeDayOfWeek('fri')}>
+                <Text style={[styles.dayofWeekText, schedule.fri === '1' && styles.activeDayOfWeekText]}>금</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.dayOfWeek, schedule.sat === '1' && styles.activeDayOfWeek]}
+                onPress={() => changeDayOfWeek('sat')}>
+                <Text style={[styles.dayofWeekText, schedule.sat === '1' && styles.activeDayOfWeekText]}>토</Text>
+              </Pressable>
+              <Pressable
+                style={[styles.dayOfWeek, schedule.sun === '1' && styles.activeDayOfWeek]}
+                onPress={() => changeDayOfWeek('sun')}>
+                <Text style={[styles.dayofWeekText, schedule.sun === '1' && styles.activeDayOfWeekText]}>일</Text>
               </Pressable>
             </View>
+          </View>
 
-            {/* 기간 */}
-            <View>
-              <Text style={styles.label}>기간</Text>
-
-              <View style={styles.dateContainer}>
-                <Pressable style={styles.dateWrapper} onPress={() => openDatePickerBottomSheet(RANGE_FLAG.START)}>
-                  <CalendarIcon stroke="#BABABA" style={{marginRight: 10}} />
-                  <Text style={styles.dateText}>{schedule.start_date}</Text>
-                </Pressable>
-
-                <Text style={styles.dash}>-</Text>
-
-                <Pressable style={styles.dateWrapper} onPress={() => openDatePickerBottomSheet(RANGE_FLAG.END)}>
-                  <CalendarIcon stroke="#BABABA" style={{marginRight: 10}} />
-                  <Text style={styles.dateText}>{schedule.end_date === '9999-12-31' ? '없음' : schedule.end_date}</Text>
-                </Pressable>
-              </View>
-            </View>
-
-            {/* 요일 */}
-            <View>
-              <Text style={styles.label}>요일</Text>
-              <View style={styles.dayOfWeekContainer}>
-                <Pressable
-                  style={[
-                    styles.dayOfWeek,
-                    schedule.mon === '1' && styles.activeDayOfWeek,
-                    {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize / 2}
-                  ]}
-                  onPress={() => changeDayOfWeek('mon')}>
-                  <Text style={[styles.dayofWeekText, schedule.mon === '1' && styles.activeDayOfWeekText]}>월</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.dayOfWeek,
-                    schedule.tue === '1' && styles.activeDayOfWeek,
-                    {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize / 2}
-                  ]}
-                  onPress={() => changeDayOfWeek('tue')}>
-                  <Text style={[styles.dayofWeekText, schedule.tue === '1' && styles.activeDayOfWeekText]}>화</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.dayOfWeek,
-                    schedule.wed === '1' && styles.activeDayOfWeek,
-                    {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize / 2}
-                  ]}
-                  onPress={() => changeDayOfWeek('wed')}>
-                  <Text style={[styles.dayofWeekText, schedule.wed === '1' && styles.activeDayOfWeekText]}>수</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.dayOfWeek,
-                    schedule.thu === '1' && styles.activeDayOfWeek,
-                    {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize / 2}
-                  ]}
-                  onPress={() => changeDayOfWeek('thu')}>
-                  <Text style={[styles.dayofWeekText, schedule.thu === '1' && styles.activeDayOfWeekText]}>목</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.dayOfWeek,
-                    schedule.fri === '1' && styles.activeDayOfWeek,
-                    {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize / 2}
-                  ]}
-                  onPress={() => changeDayOfWeek('fri')}>
-                  <Text style={[styles.dayofWeekText, schedule.fri === '1' && styles.activeDayOfWeekText]}>금</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.dayOfWeek,
-                    schedule.sat === '1' && styles.activeDayOfWeek,
-                    {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize / 2}
-                  ]}
-                  onPress={() => changeDayOfWeek('sat')}>
-                  <Text style={[styles.dayofWeekText, schedule.sat === '1' && styles.activeDayOfWeekText]}>토</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.dayOfWeek,
-                    schedule.sun === '1' && styles.activeDayOfWeek,
-                    {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize / 2}
-                  ]}
-                  onPress={() => changeDayOfWeek('sun')}>
-                  <Text style={[styles.dayofWeekText, schedule.sun === '1' && styles.activeDayOfWeekText]}>일</Text>
-                </Pressable>
-              </View>
-              <View />
-            </View>
-
-            {/* 메모 */}
-            <View>
+          {/* 메모 */}
+          {/* <View>
               <Text style={styles.label}>메모</Text>
 
               <TextInput
@@ -319,13 +295,71 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
                 multiline={true}
                 placeholderTextColor={'#c3c5cc'}
               />
-            </View>
+            </View> */}
+
+          {/* temp start  */}
+          <View>
+            <Text style={styles.label}>배경색</Text>
+            <Pressable
+              style={{
+                flexDirection: 'row',
+                height: 52,
+                paddingHorizontal: 20,
+                backgroundColor: '#f5f6f8',
+                alignSelf: 'flex-start',
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: 10,
+                gap: 20
+              }}>
+              <View
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 12,
+                  backgroundColor: '#fff',
+                  borderWidth: 1,
+                  borderColor: '#e6e7e9'
+                }}
+              />
+              {/* <Text style={{fontFamily: 'GmarketSansTTFMedium', fontSize: 16, color: '#7c8698'}}>배경색</Text> */}
+            </Pressable>
           </View>
 
-          <Pressable style={styles.submitBtn} onPress={handleSubmit}>
-            <Text style={styles.submitText}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
-          </Pressable>
+          <View>
+            <Text style={styles.label}>글자색</Text>
+            <Pressable
+              style={{
+                flexDirection: 'row',
+                height: 52,
+                paddingHorizontal: 20,
+                backgroundColor: '#f5f6f8',
+                alignSelf: 'flex-start',
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: 10,
+                gap: 20
+              }}
+              onPress={() => openColorPickerBottomSheet('text')}>
+              <View
+                style={{
+                  width: 24,
+                  height: 24,
+                  borderRadius: 12,
+                  backgroundColor: 'skyblue',
+                  borderWidth: 1,
+                  borderColor: '#e6e7e9'
+                }}
+              />
+              {/* <Text style={{fontFamily: 'GmarketSansTTFMedium', fontSize: 16, color: '#7c8698'}}>글자색</Text> */}
+            </Pressable>
+          </View>
+          {/* temp end */}
         </View>
+
+        <Pressable style={styles.submitBtn} onPress={handleSubmit}>
+          <Text style={styles.submitText}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
+        </Pressable>
       </BottomSheetScrollView>
 
       <TimePickerBottomSheet
@@ -344,6 +378,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
         onClose={() => setDatePickerBottomSheet(false)}
         onChange={changeDate}
       />
+      <ColorPickerBottomSheet isShow={showColorPickerBottomSheet} onClose={() => setColorPickerBottomSheet(false)} />
     </BottomSheet>
   )
 }
@@ -352,9 +387,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingTop: 10,
-    paddingBottom: 30,
-    flex: 1,
-    justifyContent: 'space-between'
+    paddingBottom: 30
   },
   label: {
     fontFamily: 'GmarketSansTTFBold',
@@ -415,7 +448,10 @@ const styles = StyleSheet.create({
   dayOfWeek: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f6f8'
+    backgroundColor: '#f5f6f8',
+    width: 40,
+    height: 40,
+    borderRadius: 20
   },
   activeDayOfWeek: {
     backgroundColor: '#1E90FF'
