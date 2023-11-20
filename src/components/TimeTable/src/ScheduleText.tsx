@@ -19,7 +19,13 @@ const ScheduleText = ({data, centerX, centerY, radius}: Props) => {
 
   return (
     <View style={[styles.container, {top, left, transform: [{rotateZ: `${data.title_rotate}deg`}]}]}>
-      <TextInput value={data.title} style={styles.textInput} multiline scrollEnabled={false} editable={false} />
+      <TextInput
+        value={data.title}
+        style={[styles.textInput, {color: data.text_color}]}
+        multiline
+        scrollEnabled={false}
+        editable={false}
+      />
     </View>
   )
 }
@@ -32,7 +38,6 @@ const styles = StyleSheet.create({
   textInput: {
     fontFamily: 'GmarketSansTTFMedium',
     fontSize: 14,
-    color: '#000',
     paddingVertical: 0
   }
 })

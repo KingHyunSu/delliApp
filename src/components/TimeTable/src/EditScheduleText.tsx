@@ -122,7 +122,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
           <TextInput
             ref={titleInputRef}
             value={data.title}
-            style={styles.textInput}
+            style={[styles.textInput, {color: data.text_color}]}
             multiline
             scrollEnabled={false}
             onChangeText={changeTitle}

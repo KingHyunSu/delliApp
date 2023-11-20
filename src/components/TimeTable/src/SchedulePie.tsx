@@ -27,7 +27,9 @@ const SchedulePie = ({data, x, y, radius, startAngle, endAngle}: Props) => {
     })
   }, [x, y, radius, startAngle, endAngle])
 
-  return <Path d={path} fill={data.screenDisable ? '#e2e2e2' : '#fff'} stroke={'#efefef'} fillOpacity={1} />
+  return (
+    <Path d={path} fill={data.screenDisable ? '#e2e2e2' : data.background_color} stroke={'#efefef'} fillOpacity={1} />
+  )
 }
 
 export default SchedulePie

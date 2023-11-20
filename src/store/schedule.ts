@@ -1,5 +1,7 @@
 import {atom} from 'recoil'
+
 import {Schedule} from '@/types/schedule'
+import {COLOR_TYPE} from '@/utils/types'
 
 export const scheduleDateState = atom<Date>({
   key: 'scheduleDateState',
@@ -35,7 +37,8 @@ export const scheduleState = atom<Schedule>({
     title_y: 0,
     title_rotate: 0,
     alram: false,
-    color: ''
+    background_color: '#ffffff',
+    text_color: '#000000'
   }
 })
 
@@ -47,4 +50,9 @@ export const activeStartTimeControllerState = atom({
 export const activeEndTimeControllerState = atom({
   key: 'activeEndTimeController',
   default: false
+})
+
+export const colorTypeState = atom<COLOR_TYPE>({
+  key: 'colorTypeState',
+  default: 'background'
 })

@@ -4,32 +4,83 @@ import {BottomSheetModal, BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 
-import {useRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
+import {scheduleState, colorTypeState} from '@/store/schedule'
 import {showColorPickerBottomSheetState} from '@/store/bottomSheet'
 
 interface ColorItemProps {
   item: string
   wrapperSize: number
+  activeColor: string
+  changeColor: Function
 }
-const ColorItem = ({item, wrapperSize}: ColorItemProps) => {
+const ColorItem = ({item, wrapperSize, activeColor, changeColor}: ColorItemProps) => {
   return (
     <View style={{width: wrapperSize}}>
-      <Pressable style={[styles.item, {backgroundColor: item}]} />
+      <Pressable
+        style={[styles.item, {backgroundColor: item}, activeColor === item && {borderColor: '#BABABA'}]}
+        onPress={() => changeColor(item)}
+      />
     </View>
   )
 }
 
 const ColorPickerBottomSheet = () => {
+  const defaultColorList = [
+    '#ffffff',
+    '#e53935',
+    '#ffb74d',
+    '#ffee58',
+    '#388e5a',
+    '#42a5f5',
+    '#8756d5',
+    '#494e6a',
+    '#000000'
+    // '#1d1e3a',
+    // '#343845',
+  ]
+  const {width} = useWindowDimensions()
+
+  const colorType = useRecoilValue(colorTypeState)
+  const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [isShow, setIsShow] = useRecoilState(showColorPickerBottomSheetState)
 
-  const {width} = useWindowDimensions()
+  const colorPickerBottomSheet = React.useRef<BottomSheetModal>(null)
+
   const itemWidth = React.useMemo(() => {
     return (width - 32) / 5
   }, [width])
 
-  const colorPickerBottomSheet = React.useRef<BottomSheetModal>(null)
+  const activeColor = React.useMemo(() => {
+    if (colorType === 'background') {
+      return schedule.background_color
+    } else if (colorType === 'text') {
+      return schedule.text_color
+    }
+    return ''
+  }, [colorType, schedule.background_color, schedule.text_color])
 
-  const defaultColorList = ['#ffffff', '#e53935', '#ffb74d', '#ffee58', '#388e5a', '#42a5f5', '#8756d5']
+  const activeTitle = React.useMemo(() => {
+    if (colorType === 'background') {
+      return '배경색 선택하기'
+    } else if (colorType === 'text') {
+      return '글자색 선택하기'
+    }
+  }, [colorType])
+
+  const changeColor = (color: string) => {
+    if (colorType === 'background') {
+      setSchedule(prevState => ({
+        ...prevState,
+        background_color: color
+      }))
+    } else if (colorType === 'text') {
+      setSchedule(prevState => ({
+        ...prevState,
+        text_color: color
+      }))
+    }
+  }
 
   React.useEffect(() => {
     if (isShow) {
@@ -51,14 +102,16 @@ const ColorPickerBottomSheet = () => {
       snapPoints={['35%']}
       onDismiss={() => setIsShow(false)}>
       <BottomSheetScrollView style={styles.container} scrollEnabled={false}>
-        <Text style={styles.title}>배경색 선택하기</Text>
+        <Text style={styles.title}>{activeTitle}</Text>
         <FlatList
           data={defaultColorList}
           keyExtractor={item => item}
           numColumns={5}
           scrollEnabled={false}
           columnWrapperStyle={styles.columnWrapper}
-          renderItem={({item}) => <ColorItem item={item} wrapperSize={itemWidth} />}
+          renderItem={({item}) => (
+            <ColorItem item={item} wrapperSize={itemWidth} activeColor={activeColor} changeColor={changeColor} />
+          )}
         />
       </BottomSheetScrollView>
     </BottomSheetModal>

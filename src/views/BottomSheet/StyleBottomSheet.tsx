@@ -3,15 +3,27 @@ import {StyleSheet, View, Pressable, Text} from 'react-native'
 import {BottomSheetModal, BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 
-import {useRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {scheduleState, colorTypeState} from '@/store/schedule'
 import {showStyleBottomSheetState, showColorPickerBottomSheetState} from '@/store/bottomSheet'
+
+import {COLOR_TYPE} from '@/utils/types'
 
 const StyleBottomSheet = () => {
   const styleBottomSheet = React.useRef<BottomSheetModal>(null)
+
+  const schedule = useRecoilValue(scheduleState)
+  const setColorType = useSetRecoilState(colorTypeState)
+
   const [isShowStyleBottomSheet, setIsShowStyleBottomSheet] = useRecoilState(showStyleBottomSheetState)
   const [isShowColorPickerBottomSheet, setIsShowColorPickerBottomSheet] = useRecoilState(
     showColorPickerBottomSheetState
   )
+
+  const openColorPickerBottomSheet = (colorType: COLOR_TYPE) => {
+    setColorType(colorType)
+    setIsShowColorPickerBottomSheet(true)
+  }
 
   React.useEffect(() => {
     if (isShowStyleBottomSheet) {
@@ -42,14 +54,14 @@ const StyleBottomSheet = () => {
           <View>
             <Text style={styles.label}>색상</Text>
             <View style={styles.colorContainer}>
-              <Pressable style={styles.colorWrapper} onPress={() => setIsShowColorPickerBottomSheet(true)}>
+              <Pressable style={styles.colorWrapper} onPress={() => openColorPickerBottomSheet('background')}>
                 <Text style={styles.colorLabel}>배경색</Text>
-                <View style={[styles.color, {backgroundColor: '#fff'}]} />
+                <View style={[styles.color, {backgroundColor: schedule.background_color}]} />
               </Pressable>
 
-              <Pressable style={styles.colorWrapper}>
+              <Pressable style={styles.colorWrapper} onPress={() => openColorPickerBottomSheet('text')}>
                 <Text style={styles.colorLabel}>글자색</Text>
-                <View style={[styles.color, {backgroundColor: '#000'}]} />
+                <View style={[styles.color, {backgroundColor: schedule.text_color}]} />
               </Pressable>
             </View>
           </View>

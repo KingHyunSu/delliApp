@@ -20,9 +20,10 @@ export interface Schedule {
   title_x: number
   title_y: number
   title_rotate: number
+  background_color: string
+  text_color: string
 
   alram: boolean
-  color: string
 
   screenDisable?: boolean
 }
