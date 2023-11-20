@@ -6,7 +6,7 @@ import TimeTable from '@/components/TimeTable'
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
-import TimetableCategotyBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
+import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
 import ColorPickerBottomSheet from '@/views/BottomSheet/ColorPickerBottomSheet'
 
@@ -42,7 +42,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
   const [homeTopHeight, setHomeTopHeight] = React.useState(0)
   const [isEdit, setIsEdit] = React.useState(false)
-  const [isShowTimeTableCategoryBottomSheet, setShowTimeTableCategoryBottomSheet] = React.useState(false)
 
   useQuery({
     queryKey: ['timetableCategoryList'],
@@ -228,11 +227,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
         <ScheduleListBottomSheet data={scheduleList} onComplete={updateComplete} onClick={handleDetail} />
       )}
 
-      <TimetableCategotyBottomSheet
-        isShow={isShowTimeTableCategoryBottomSheet}
-        onClose={() => setShowTimeTableCategoryBottomSheet(false)}
-      />
-
+      {/* bottom sheet */}
+      <TimetableCategoryBottomSheet />
       <StyleBottomSheet />
       <ColorPickerBottomSheet />
     </View>

@@ -4,7 +4,8 @@ import {BottomSheetModal} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import WheelPicker from 'react-native-wheely'
 
-import {useSetRecoilState} from 'recoil'
+import {useRecoilState, useSetRecoilState} from 'recoil'
+import {showTimePickerBototmSheetState} from '@/store/bottomSheet'
 import {activeStartTimeControllerState, activeEndTimeControllerState} from '@/store/schedule'
 
 import {getTimeOfMinute} from '@/utils/helper'
@@ -16,12 +17,11 @@ const minuteList = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', 
 
 interface Props {
   value: number[]
-  isShow: boolean
   rangeFlag: RANGE_FLAG
-  onClose: Function
   onChange: Function
 }
-const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, isShow, onClose, onChange}: Props) => {
+const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, onChange}: Props) => {
+  const [isShow, setIsShow] = useRecoilState(showTimePickerBototmSheetState)
   const setActiveStartTimeController = useSetRecoilState(activeStartTimeControllerState)
   const setActiveEndTimeController = useSetRecoilState(activeEndTimeControllerState)
 
@@ -101,7 +101,7 @@ const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, isShow, onClose, onCh
       }}
       index={0}
       snapPoints={snapPoints}
-      onDismiss={() => onClose()}>
+      onDismiss={() => setIsShow(false)}>
       <View style={styles.container}>
         <View style={styles.contents}>
           <WheelPicker

@@ -9,16 +9,17 @@ import {Shadow} from 'react-native-shadow-2'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 
+import {useRecoilState} from 'recoil'
+import {showTimeTableCategoryBottomSheetState} from '@/store/bottomSheet'
+
 import {useMutation, useQuery} from '@tanstack/react-query'
 import {getTimetableCategoryList, setTimetableCategory, deleteTimetableCategory} from '@/apis/timetable'
 
 import {TimeTableCategory} from '@/types/timetable'
 
-interface Props {
-  isShow: boolean
-  onClose: Function
-}
-const TimetableCategoryBottomSheet = ({isShow, onClose}: Props) => {
+const TimetableCategoryBottomSheet = () => {
+  const [isShow, setIsShow] = useRecoilState(showTimeTableCategoryBottomSheetState)
+
   const [category, setCategory] = React.useState<TimeTableCategory>({timetable_category_id: null, title: ''})
   const [backdropPressBehavior, setBackdropPressBehavior] = React.useState<number | 'close' | 'none' | 'collapse'>(
     'close'
@@ -65,10 +66,6 @@ const TimetableCategoryBottomSheet = ({isShow, onClose}: Props) => {
       setCategory({timetable_category_id: null, title: ''})
     }
   })
-
-  const onDismiss = () => {
-    onClose()
-  }
 
   const addCategory = () => {
     if (disableButton) {
@@ -168,7 +165,7 @@ const TimetableCategoryBottomSheet = ({isShow, onClose}: Props) => {
         return <BottomSheetBackdrop props={props} pressBehavior={backdropPressBehavior} />
       }}
       snapPoints={snapPoints}
-      onDismiss={onDismiss}>
+      onDismiss={() => setIsShow(false)}>
       <View style={styles.container}>
         <Shadow
           startColor="#f0eff586"

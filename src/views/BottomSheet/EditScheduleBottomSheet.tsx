@@ -7,6 +7,7 @@ import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 
 import {useRecoilValue, useRecoilState, useSetRecoilState} from 'recoil'
+import {showTimePickerBototmSheetState} from '@/store/bottomSheet'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {
   scheduleDateState,
@@ -38,13 +39,13 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   const scheduleDate = useRecoilValue(scheduleDateState)
   const activeTimeTableCategory = useRecoilValue(activeTimeTableCategoryState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const setIsShowTimePickerBototmSheet = useSetRecoilState(showTimePickerBototmSheetState)
   const setActiveStartTimeController = useSetRecoilState(activeStartTimeControllerState)
   const setActiveEndTimeController = useSetRecoilState(activeEndTimeControllerState)
 
   const [timeRangeFlag, setTimeRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
   const [dateRangeFlag, setDateRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
-  const [showTimePickerBototmSheet, setTimePickerBottomSheet] = React.useState(false)
-  const [showDatePickerBottomSheet, setDatePickerBottomSheet] = React.useState(false)
+  const [isShowDatePickerBottomSheet, setIsShowDatePickerBottomSheet] = React.useState(false)
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
 
@@ -132,12 +133,12 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
     }
 
     setTimeRangeFlag(flag)
-    setTimePickerBottomSheet(true)
+    setIsShowTimePickerBototmSheet(true)
   }
 
   const openDatePickerBottomSheet = (flag: RANGE_FLAG) => {
     setDateRangeFlag(flag)
-    setDatePickerBottomSheet(true)
+    setIsShowDatePickerBottomSheet(true)
   }
 
   const handleSubmit = () => {
@@ -295,20 +296,19 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
         </Pressable>
       </BottomSheetScrollView>
 
+      {/* bottom sheet */}
       <TimePickerBottomSheet
         value={[schedule.start_time, schedule.end_time]}
-        isShow={showTimePickerBototmSheet}
         rangeFlag={timeRangeFlag}
-        onClose={() => setTimePickerBottomSheet(false)}
         onChange={changeTime}
       />
       <DatePickerBottomSheet
         value={[schedule.start_date, schedule.end_date]}
+        isShow={isShowDatePickerBottomSheet}
         range
-        isShow={showDatePickerBottomSheet}
         rangeFlag={dateRangeFlag}
         onChangeRangeFlag={setDateRangeFlag}
-        onClose={() => setDatePickerBottomSheet(false)}
+        onClose={() => setIsShowDatePickerBottomSheet(false)}
         onChange={changeDate}
       />
     </BottomSheet>

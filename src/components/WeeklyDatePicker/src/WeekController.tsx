@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, StyleSheet, View, Text, Pressable} from 'react-native'
+import {StyleSheet, View, Text, Pressable} from 'react-native'
 import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
 
 import {setDate, format} from 'date-fns'
@@ -12,7 +12,6 @@ interface Props {
   currentWeeklyDateList: Date[]
 }
 const WeekController = ({date, currentWeeklyDateList}: Props) => {
-  const {height} = useWindowDimensions()
   const THURSDAY_NUMBER = 4
 
   const setScheduleDate = useSetRecoilState(scheduleDateState)
