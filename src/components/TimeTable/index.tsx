@@ -4,8 +4,8 @@ import {Svg, G, Text, Circle} from 'react-native-svg'
 
 import Background from './src/Background'
 import SchedulePie from './src/SchedulePie'
-import InsertSchedulePie from './src/InsertSchedulePie'
 import ScheduleText from './src/ScheduleText'
+import EditSchedulePie from './src/EditSchedulePie'
 import EditScheduleText from './src/EditScheduleText'
 
 import {getStatusBarHeight} from 'react-native-status-bar-height'
@@ -112,7 +112,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
               <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={() => setIsShowStyleBottomSheet(true)} />
             </G>
 
-            <InsertSchedulePie
+            <EditSchedulePie
               data={schedule}
               scheduleList={data}
               x={x}

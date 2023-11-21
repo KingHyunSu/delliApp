@@ -24,7 +24,7 @@ interface Props {
   onChangeSchedule: Function
 }
 
-const InsertTimeTable = ({
+const EditSchedulePie = ({
   data,
   scheduleList,
   x,
@@ -212,4 +212,4 @@ const InsertTimeTable = ({
   )
 }
 
-export default InsertTimeTable
+export default EditSchedulePie
