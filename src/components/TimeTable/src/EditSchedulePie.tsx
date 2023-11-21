@@ -153,7 +153,14 @@ const EditSchedulePie = ({
 
   return (
     <G>
-      <SchedulePie data={data} x={x} y={y} radius={radius} startAngle={startAngle} endAngle={endAngle} />
+      <SchedulePie
+        x={x}
+        y={y}
+        radius={radius}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        color={data.background_color}
+      />
 
       {!isComponentEdit && (
         <G>

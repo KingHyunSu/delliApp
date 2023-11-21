@@ -73,7 +73,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
         <G>
           <Background x={x} y={y} radius={radius} />
 
-          <G opacity={isEdit ? 0.5 : 1}>
+          <G opacity={isEdit ? 0.8 : 1}>
             {list.length > 0 ? (
               list.map((item, index) => {
                 const startAngle = item.start_time * 0.25
@@ -82,12 +82,13 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
                 return (
                   <SchedulePie
                     key={index}
-                    data={item}
                     x={x}
                     y={y}
                     radius={radius}
                     startAngle={startAngle}
                     endAngle={endAngle}
+                    color={item.background_color}
+                    disable={item.screenDisable}
                   />
                 )
               })
