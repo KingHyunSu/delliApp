@@ -70,9 +70,11 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   }, [activeTimeTableCategory.timetable_category_id, setSchedule])
 
   React.useEffect(() => {
-    const date = format(scheduleDate, 'yyyy-MM-dd')
-    setSchedule(prevState => ({...prevState, ...{start_date: date}}))
-  }, [scheduleDate, setSchedule])
+    if (!schedule.schedule_id) {
+      const date = format(scheduleDate, 'yyyy-MM-dd')
+      setSchedule(prevState => ({...prevState, ...{start_date: date}}))
+    }
+  }, [schedule.schedule_id, scheduleDate, setSchedule])
 
   const setScheduleMutation = useMutation({
     mutationFn: async (params: API.SetScheduleParam) => {
