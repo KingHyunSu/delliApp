@@ -39,6 +39,9 @@ const EditSchedulePie = ({
   const [activeEndTimeController, setActiveEndTimeController] = useRecoilState(activeEndTimeControllerState)
   const setScheduleListState = useSetRecoilState(scheduleListState)
 
+  const accX = React.useRef(0)
+  const accY = React.useRef(0)
+
   const startAngle = React.useMemo(() => {
     return data.start_time * 0.25
   }, [data.start_time])
@@ -47,13 +50,19 @@ const EditSchedulePie = ({
     return data.end_time * 0.25
   }, [data.end_time])
 
+  const getCalcTotalMinute = (angle: number) => {
+    const totalMinute = angle / 0.25
+    const hour = Math.floor(totalMinute / 60)
+    const minute = Math.floor(totalMinute % 60)
+
+    return hour * 60 + minute
+  }
+
   React.useEffect(() => {
-    const options = {
+    trigger('impactLight', {
       enableVibrateFallback: true,
       ignoreAndroidSystemSettings: false
-    }
-
-    trigger('impactLight', options)
+    })
 
     const list = scheduleList.map(item => {
       const start_time = data.start_time
@@ -95,11 +104,30 @@ const EditSchedulePie = ({
         setActiveStartTimeController(true)
       },
       onPanResponderRelease: () => {
+        accX.current = 0
+        accY.current = 0
         setActiveStartTimeController(false)
       },
       onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + (homeTopHeight + statusBarHeight - 100))
-        const moveX = gestureState.moveX - x
+        // console.log('speed', Math.sqrt(gestureState.vx ** 2 + gestureState.vy ** 2))
+        const speed = Math.round(Math.sqrt(gestureState.vx ** 2 + gestureState.vy ** 2) * 1000)
+
+        console.log('speed', speed)
+        const x0 = gestureState.x0
+        const y0 = gestureState.y0
+        let dx = gestureState.dx
+        let dy = gestureState.dy
+
+        if (speed <= 50) {
+          dx = accX.current + (dx + -accX.current) / 5
+          dy = accY.current + (dy + -accY.current) / 5
+        } else {
+          accX.current = dx
+          accY.current = dy
+        }
+
+        const moveX = x0 + dx - x
+        const moveY = y0 + dy - (y + (homeTopHeight + statusBarHeight - 100))
 
         let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
 
@@ -107,11 +135,7 @@ const EditSchedulePie = ({
           angle += 360
         }
 
-        const totalMinute = angle / 0.25
-        const hour = Math.floor(totalMinute / 60)
-        const minute = Math.floor(totalMinute % 60)
-
-        const calcTotalMinute = hour * 60 + minute
+        const calcTotalMinute = getCalcTotalMinute(angle)
 
         onChangeSchedule({start_time: calcTotalMinute})
       }
@@ -125,11 +149,28 @@ const EditSchedulePie = ({
         setActiveEndTimeController(true)
       },
       onPanResponderRelease: () => {
+        accX.current = 0
+        accY.current = 0
         setActiveEndTimeController(false)
       },
       onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + homeTopHeight + statusBarHeight - 100)
-        const moveX = gestureState.moveX - x
+        const speed = Math.round(Math.sqrt(gestureState.vx ** 2 + gestureState.vy ** 2) * 1000)
+
+        const x0 = gestureState.x0
+        const y0 = gestureState.y0
+        let dx = gestureState.dx
+        let dy = gestureState.dy
+
+        if (speed <= 100) {
+          dx = accX.current + (dx + -accX.current) / 5
+          dy = accY.current + (dy + -accY.current) / 5
+        } else {
+          accX.current = dx
+          accY.current = dy
+        }
+
+        const moveX = x0 + dx - x
+        const moveY = y0 + dy - (y + (homeTopHeight + statusBarHeight - 100))
 
         let move = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
 
@@ -140,11 +181,7 @@ const EditSchedulePie = ({
           angle += 360
         }
 
-        const totalMinute = angle / 0.25
-        const hour = Math.floor(totalMinute / 60)
-        const minute = Math.floor(totalMinute % 60)
-
-        const calcTotalMinute = hour * 60 + minute
+        const calcTotalMinute = getCalcTotalMinute(angle)
 
         onChangeSchedule({end_time: calcTotalMinute})
       }
