@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, Platform, StatusBar, StyleSheet, View, Pressable, TextInput} from 'react-native'
+import {useWindowDimensions, StyleSheet, View, Pressable, TextInput} from 'react-native'
 import {Svg, G, Text, Circle} from 'react-native-svg'
 
 import Background from './src/Background'
@@ -7,8 +7,6 @@ import SchedulePie from './src/SchedulePie'
 import ScheduleText from './src/ScheduleText'
 import EditSchedulePie from './src/EditSchedulePie'
 import EditScheduleText from './src/EditScheduleText'
-
-import {getStatusBarHeight} from 'react-native-status-bar-height'
 
 import {useRecoilState, useSetRecoilState} from 'recoil'
 import {scheduleState} from '@/store/schedule'
@@ -26,7 +24,6 @@ interface Props {
   onClick: Function
 }
 const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props) => {
-  const StatusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
   const {width, height} = useWindowDimensions()
   const x = width / 2
   const y = height * 0.28
@@ -34,8 +31,6 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
 
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const setIsShowStyleBottomSheet = useSetRecoilState(showStyleBottomSheetState)
-
-  const [isComponentEdit, setIsComponentEdit] = React.useState(false)
 
   const radius = React.useMemo(() => {
     let result = fullRadius - (20 - (y - fullRadius - 20))
@@ -113,17 +108,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
               <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={() => setIsShowStyleBottomSheet(true)} />
             </G>
 
-            <EditSchedulePie
-              data={schedule}
-              scheduleList={data}
-              x={x}
-              y={y}
-              radius={radius}
-              statusBarHeight={StatusBarHeight}
-              homeTopHeight={homeTopHeight}
-              isComponentEdit={isComponentEdit}
-              onChangeSchedule={changeSchedule}
-            />
+            <EditSchedulePie data={schedule} scheduleList={data} x={x} y={y} radius={radius} />
           </Svg>
 
           <EditScheduleText

@@ -9,12 +9,7 @@ import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 import {useRecoilValue, useRecoilState, useSetRecoilState} from 'recoil'
 import {showTimePickerBototmSheetState} from '@/store/bottomSheet'
 import {activeTimeTableCategoryState} from '@/store/timetable'
-import {
-  scheduleDateState,
-  scheduleState,
-  activeStartTimeControllerState,
-  activeEndTimeControllerState
-} from '@/store/schedule'
+import {scheduleDateState, scheduleState, activeTimeFlagState} from '@/store/schedule'
 
 import TimeIcon from '@/assets/icons/time.svg'
 import CalendarIcon from '@/assets/icons/calendar.svg'
@@ -39,11 +34,9 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   const scheduleDate = useRecoilValue(scheduleDateState)
   const activeTimeTableCategory = useRecoilValue(activeTimeTableCategoryState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const [activeTimeFlag, setActiveTimeFlag] = useRecoilState(activeTimeFlagState)
   const setIsShowTimePickerBototmSheet = useSetRecoilState(showTimePickerBototmSheetState)
-  const setActiveStartTimeController = useSetRecoilState(activeStartTimeControllerState)
-  const setActiveEndTimeController = useSetRecoilState(activeEndTimeControllerState)
 
-  const [timeRangeFlag, setTimeRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
   const [dateRangeFlag, setDateRangeFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
   const [isShowDatePickerBottomSheet, setIsShowDatePickerBottomSheet] = React.useState(false)
 
@@ -94,12 +87,12 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   }
 
   const changeTime = (time: number) => {
-    if (timeRangeFlag === RANGE_FLAG.START) {
+    if (activeTimeFlag === RANGE_FLAG.START) {
       setSchedule(prevState => ({
         ...prevState,
         start_time: time
       }))
-    } else if (timeRangeFlag === RANGE_FLAG.END) {
+    } else if (activeTimeFlag === RANGE_FLAG.END) {
       setSchedule(prevState => ({
         ...prevState,
         end_time: time
@@ -126,15 +119,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   }
 
   const openTimePickerBottomSheet = (flag: RANGE_FLAG) => {
-    if (flag === RANGE_FLAG.START) {
-      setActiveStartTimeController(true)
-      setActiveEndTimeController(false)
-    } else if (flag === RANGE_FLAG.END) {
-      setActiveStartTimeController(false)
-      setActiveEndTimeController(true)
-    }
-
-    setTimeRangeFlag(flag)
+    setActiveTimeFlag(flag)
     setIsShowTimePickerBototmSheet(true)
   }
 
@@ -299,11 +284,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
       </BottomSheetScrollView>
 
       {/* bottom sheet */}
-      <TimePickerBottomSheet
-        value={[schedule.start_time, schedule.end_time]}
-        rangeFlag={timeRangeFlag}
-        onChange={changeTime}
-      />
+      <TimePickerBottomSheet value={[schedule.start_time, schedule.end_time]} onChange={changeTime} />
       <DatePickerBottomSheet
         value={[schedule.start_date, schedule.end_date]}
         isShow={isShowDatePickerBottomSheet}

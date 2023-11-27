@@ -4,9 +4,9 @@ import {BottomSheetModal} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import WheelPicker from 'react-native-wheely'
 
-import {useRecoilState, useSetRecoilState} from 'recoil'
+import {useRecoilState} from 'recoil'
 import {showTimePickerBototmSheetState} from '@/store/bottomSheet'
-import {activeStartTimeControllerState, activeEndTimeControllerState} from '@/store/schedule'
+import {activeTimeFlagState} from '@/store/schedule'
 
 import {getTimeOfMinute} from '@/utils/helper'
 import {RANGE_FLAG} from '@/utils/types'
@@ -17,27 +17,22 @@ const minuteList = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', 
 
 interface Props {
   value: number[]
-  rangeFlag: RANGE_FLAG
   onChange: Function
 }
-const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, onChange}: Props) => {
+const TimePickerBottomSheet = ({value = [0, 0], onChange}: Props) => {
   const [isShow, setIsShow] = useRecoilState(showTimePickerBototmSheetState)
-  const setActiveStartTimeController = useSetRecoilState(activeStartTimeControllerState)
-  const setActiveEndTimeController = useSetRecoilState(activeEndTimeControllerState)
+  const [activeTimeFlag, setActiveTimeFlag] = useRecoilState(activeTimeFlagState)
 
   const datePickerBottomSheetRef = React.useRef<BottomSheetModal>(null)
-  const snapPoints = [240]
 
   const [meridiemIndex, setMeridiemIndex] = React.useState(0)
   const [hourIndex, setHourIndex] = React.useState(0)
   const [minuteIndex, setMinuteIndex] = React.useState(0)
 
   const timeInfo = React.useMemo(() => {
-    let result = getTimeOfMinute(0)
+    let result = getTimeOfMinute(value[0])
 
-    if (rangeFlag === RANGE_FLAG.START) {
-      result = getTimeOfMinute(value[0])
-    } else if (rangeFlag === RANGE_FLAG.END) {
+    if (activeTimeFlag === RANGE_FLAG.END) {
       result = getTimeOfMinute(value[1])
     }
 
@@ -46,7 +41,7 @@ const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, onChange}: Props) => 
       hour: result.hour,
       minute: Number(result.minute)
     }
-  }, [value, rangeFlag])
+  }, [value, activeTimeFlag])
 
   React.useEffect(() => {
     setMeridiemIndex(timeInfo.meridiem)
@@ -61,6 +56,10 @@ const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, onChange}: Props) => 
       datePickerBottomSheetRef.current?.dismiss()
     }
   }, [isShow])
+
+  const handleDismiss = () => {
+    setIsShow(false)
+  }
 
   const changeMeridiem = (index: number) => {
     const meridiemToMinute = index === 0 ? 0 : 720
@@ -87,8 +86,7 @@ const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, onChange}: Props) => 
   }
 
   const handleBackdropPress = () => {
-    setActiveStartTimeController(false)
-    setActiveEndTimeController(false)
+    setActiveTimeFlag(null)
   }
 
   return (
@@ -100,8 +98,8 @@ const TimePickerBottomSheet = ({value = [0, 0], rangeFlag, onChange}: Props) => 
         return <BottomSheetBackdrop props={props} onPress={handleBackdropPress} />
       }}
       index={0}
-      snapPoints={snapPoints}
-      onDismiss={() => setIsShow(false)}>
+      snapPoints={['35%']}
+      onDismiss={handleDismiss}>
       <View style={styles.container}>
         <View style={styles.contents}>
           <WheelPicker
@@ -144,7 +142,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   contents: {
-    marginTop: 20,
+    flex: 1,
+    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center'
   },

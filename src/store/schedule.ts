@@ -1,7 +1,7 @@
 import {atom} from 'recoil'
 
 import {Schedule} from '@/types/schedule'
-import {COLOR_TYPE} from '@/utils/types'
+import {COLOR_TYPE, RANGE_FLAG} from '@/utils/types'
 
 export const scheduleDateState = atom<Date>({
   key: 'scheduleDateState',
@@ -42,14 +42,9 @@ export const scheduleState = atom<Schedule>({
   }
 })
 
-export const activeStartTimeControllerState = atom({
-  key: 'activeStartTimeController',
-  default: false
-})
-
-export const activeEndTimeControllerState = atom({
-  key: 'activeEndTimeController',
-  default: false
+export const activeTimeFlagState = atom<RANGE_FLAG | null>({
+  key: 'activeTimeFlagState',
+  default: null
 })
 
 export const colorTypeState = atom<COLOR_TYPE>({
