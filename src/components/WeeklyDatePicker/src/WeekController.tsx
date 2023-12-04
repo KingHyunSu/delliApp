@@ -25,7 +25,7 @@ const WeekController = ({date, currentWeeklyDateList}: Props) => {
   const getWeekOfMonth = (value: Date) => {
     const dateOfFirstDate = setDate(value, 1)
     const dateOfFirstDayOfWeek = dateOfFirstDate.getDay()
-
+    // [FIXED] 반내림으로 변경하기
     const weekNumber = Math.ceil((value.getDate() + (dateOfFirstDayOfWeek - 1)) / 7)
 
     return weekNumber
