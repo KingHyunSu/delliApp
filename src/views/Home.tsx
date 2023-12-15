@@ -1,23 +1,30 @@
 import React from 'react'
-import {Animated, Pressable, StyleSheet, Text, View, TextInput, LayoutChangeEvent} from 'react-native'
+import {Platform, Animated, Pressable, StyleSheet, Text, View, TextInput, LayoutChangeEvent} from 'react-native'
 
 import AppBar from '@/components/AppBar'
 import TimeTable from '@/components/TimeTable'
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
+import EditMenuBottomSheet from '@/views/BottomSheet/EditMenuBottomSheet'
 import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet'
-import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
+import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet2'
+// import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
 import ColorPickerBottomSheet from '@/views/BottomSheet/ColorPickerBottomSheet'
+import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
 import CancleIcon from '@/assets/icons/cancle.svg'
+import EditIcon from '@/assets/icons/edit3.svg'
 
-import {useRecoilState, useRecoilValue, useResetRecoilState, useSetRecoilState} from 'recoil'
-import {scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
+import {Shadow} from 'react-native-shadow-2'
+
+import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
+import {isEditState} from '@/store/system'
+import {scheduleDateState, scheduleState, scheduleListState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
-import {showColorPickerBottomSheetState} from '@/store/bottomSheet'
+import {showColorPickerBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
 import {getScheduleList, updateScheduleComplete} from '@/apis/schedule'
 import {getTimetableCategoryList} from '@/apis/timetable'
@@ -26,22 +33,24 @@ import {useMutation, useQuery} from '@tanstack/react-query'
 import {getDayOfWeekKey} from '@/utils/helper'
 import {format} from 'date-fns'
 
+import {trigger} from 'react-native-haptic-feedback'
+
 import {Schedule, ScheduleComplete} from '@/types/schedule'
 import {HomeNavigationProps} from '@/types/navigation'
 
 const Home = ({navigation}: HomeNavigationProps) => {
   const titleInputRef = React.useRef<TextInput>(null)
-
+  const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
-  const setScheduleDetail = useSetRecoilState(scheduleState)
-  const resetScheduleEdit = useResetRecoilState(scheduleState)
 
   const isShowColorPickerBottomSheetState = useRecoilValue(showColorPickerBottomSheetState)
+  const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
+  const setSchedule = useSetRecoilState(scheduleState)
+  const resetSchedule = useResetRecoilState(scheduleState)
 
   const [homeTopHeight, setHomeTopHeight] = React.useState(0)
-  const [isEdit, setIsEdit] = React.useState(false)
 
   useQuery({
     queryKey: ['timetableCategoryList'],
@@ -109,26 +118,27 @@ const Home = ({navigation}: HomeNavigationProps) => {
     }
   })
 
-  const handleDetail = (data: Schedule) => {
-    setScheduleDetail(data)
-    setIsEdit(true)
-  }
-
   const updateComplete = (data: Schedule) => {
     updateScheduleCompleteMutation.mutate(data)
   }
 
-  const handleInsertScheduleBottomSheetClose = () => {
+  const openEditScheduleBottomSheet = () => {
+    // trigger('impactLight', {enableVibrateFallback: true, ignoreAndroidSystemSettings: false})
+    setIsEdit(true)
+  }
+
+  const openEditMenuBottomSheet = (value: Schedule) => {
+    setSchedule(value)
+    setShowEditMenuBottomSheet(true)
+  }
+
+  const closeEditScheduleBottomSheet = () => {
     const list = scheduleList.map(item => {
       return {...item, screenDisable: false}
     })
 
     setScheduleList(list)
     setIsEdit(false)
-  }
-
-  const showInsertBottomSheet = () => {
-    setIsEdit(true)
   }
 
   const handleTopLayout = (layout: LayoutChangeEvent) => {
@@ -151,12 +161,11 @@ const Home = ({navigation}: HomeNavigationProps) => {
       translateAnimation(headerTranslateY, -200, 350)
       translateAnimation(timaTableTranslateY, -100)
     } else {
-      resetScheduleEdit()
-
+      resetSchedule()
       translateAnimation(headerTranslateY, 0, 350)
       translateAnimation(timaTableTranslateY, 0)
     }
-  }, [isEdit, headerTranslateY, timaTableTranslateY, resetScheduleEdit])
+  }, [isEdit, headerTranslateY, timaTableTranslateY, resetSchedule])
 
   return (
     <View style={homeStyles.container}>
@@ -168,7 +177,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           <View />
 
           {!isShowColorPickerBottomSheetState && (
-            <Pressable style={homeStyles.appBarRightButton} onPress={handleInsertScheduleBottomSheetClose}>
+            <Pressable style={homeStyles.appBarRightButton} onPress={closeEditScheduleBottomSheet}>
               <CancleIcon stroke="#242933" />
             </Pressable>
           )}
@@ -212,7 +221,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           homeTopHeight={homeTopHeight}
           isEdit={isEdit}
           titleInputRef={titleInputRef}
-          onClick={showInsertBottomSheet}
+          onClick={openEditMenuBottomSheet}
         />
       </Animated.View>
 
@@ -224,13 +233,23 @@ const Home = ({navigation}: HomeNavigationProps) => {
           titleInputRef={titleInputRef}
         />
       ) : (
-        <ScheduleListBottomSheet data={scheduleList} onComplete={updateComplete} onClick={handleDetail} />
+        <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
+      )}
+
+      {!isEdit && (
+        <Pressable style={homeStyles.fabContainer} onPress={openEditScheduleBottomSheet}>
+          <EditIcon stroke="#fff" width={18} height={18} />
+        </Pressable>
       )}
 
       {/* bottom sheet */}
+      <EditMenuBottomSheet />
       <TimetableCategoryBottomSheet />
       <StyleBottomSheet />
       <ColorPickerBottomSheet />
+
+      {/* modal */}
+      <ScheduleCompleteModal />
     </View>
   )
 }
@@ -272,6 +291,29 @@ const homeStyles = StyleSheet.create({
     paddingRight: 16,
     justifyContent: 'center',
     alignItems: 'flex-end'
+  },
+  fabContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#1E90FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.3,
+        shadowRadius: 3
+      },
+      android: {
+        elevation: 3
+      }
+    })
   }
 })
 

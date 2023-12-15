@@ -1,10 +1,11 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable, TextInput} from 'react-native'
 
-import TimePickerBottomSheet from '@/views/BottomSheet/TimePickerBottomSheet'
+// import TimePickerBottomSheet from '@/views/BottomSheet/TimePickerBottomSheet'
 import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
+import {AlarmModal, AlarmModalRef} from '@/components/Modal'
 
 import {useRecoilValue, useRecoilState, useSetRecoilState} from 'recoil'
 import {showTimePickerBototmSheetState} from '@/store/bottomSheet'
@@ -13,6 +14,7 @@ import {scheduleDateState, scheduleState, activeTimeFlagState} from '@/store/sch
 
 import TimeIcon from '@/assets/icons/time.svg'
 import CalendarIcon from '@/assets/icons/calendar.svg'
+import AlarmIcon from '@/assets/icons/alarm.svg'
 
 import {useMutation} from '@tanstack/react-query'
 import * as API from '@/apis/schedule'
@@ -41,8 +43,16 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   const [isShowDatePickerBottomSheet, setIsShowDatePickerBottomSheet] = React.useState(false)
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
+  const alarmButtonRef = React.useRef<View>(null)
+  const alramModalRef = React.useRef<AlarmModalRef>(null)
 
   const snapPoints = React.useMemo(() => ['35%', '93%'], [])
+
+  //tood
+  React.useEffect(() => {
+    console.log('edit schedule', schedule)
+  }, [schedule])
+  //
 
   const startTime = React.useMemo(() => {
     return getTimeOfMinute(schedule.start_time)
@@ -126,6 +136,18 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   const openDatePickerBottomSheet = (flag: RANGE_FLAG) => {
     setDateRangeFlag(flag)
     setIsShowDatePickerBottomSheet(true)
+  }
+
+  const openAlarmModal = () => {
+    if (alarmButtonRef.current) {
+      alarmButtonRef.current.measureInWindow((x, y) => {
+        console.log('x, y, width, height', x, y)
+      })
+    }
+    // console.log('alramModalRef', alramModalRef.current?)
+    console.log('alarmButtonRef', alarmButtonRef.current?.measureInWindow)
+    // console.log('alramButtonRef', alramButtonRef.current?.)
+    alramModalRef.current?.open()
   }
 
   const handleSubmit = () => {
@@ -264,6 +286,16 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
             </View>
           </View>
 
+          {/* 알람 */}
+          <View>
+            <Text style={styles.label}>알람</Text>
+
+            <Pressable ref={alarmButtonRef} style={styles.alarmWrapper} onPress={openAlarmModal}>
+              <AlarmIcon fill="#BABABA" />
+              <Text style={styles.alarmText}>15분 전</Text>
+            </Pressable>
+          </View>
+
           {/* 메모 */}
           {/* <View>
               <Text style={styles.label}>메모</Text>
@@ -283,8 +315,11 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
         </Pressable>
       </BottomSheetScrollView>
 
+      {/* modal */}
+      {/* <AlarmModal ref={alramModalRef} /> */}
+
       {/* bottom sheet */}
-      <TimePickerBottomSheet value={[schedule.start_time, schedule.end_time]} onChange={changeTime} />
+      {/* <TimePickerBottomSheet value={[schedule.start_time, schedule.end_time]} onChange={changeTime} /> */}
       <DatePickerBottomSheet
         value={[schedule.start_date, schedule.end_date]}
         isShow={isShowDatePickerBottomSheet}
@@ -398,9 +433,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#7c8698'
   },
+  alarmWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 52,
+    width: 150,
+    paddingHorizontal: 10,
+    borderRadius: 10,
+    backgroundColor: '#f5f6f8'
+  },
+  alarmText: {
+    fontFamily: 'GmarketSansTTFMedium',
+    fontSize: 16,
+    color: '#7c8698',
+    marginLeft: 10
+  },
   submitBtn: {
     height: 48,
-    marginTop: 40,
+    marginTop: 80,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,

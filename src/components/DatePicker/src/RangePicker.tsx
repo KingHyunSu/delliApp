@@ -4,11 +4,11 @@ import {StyleSheet, View, Text, Pressable} from 'react-native'
 import {RANGE_FLAG} from '@/utils/types'
 
 interface Props {
-  date: string[]
+  value: string[]
   flag: RANGE_FLAG
   onChange?: Function
 }
-const RangePicker = ({date, flag, onChange}: Props) => {
+const RangePicker = ({value, flag, onChange}: Props) => {
   const changeStart = () => {
     if (onChange) {
       onChange(RANGE_FLAG.START)
@@ -24,14 +24,12 @@ const RangePicker = ({date, flag, onChange}: Props) => {
     <View style={styles.container}>
       <Pressable style={styles.wrapper} onPress={changeStart}>
         <Text style={[styles.label, flag === 1 && styles.active]}>시작일</Text>
-        <Text style={styles.text}>{date[0]}</Text>
+        <Text style={styles.text}>{value[0]}</Text>
       </Pressable>
-
-      {/* <View style={styles.bar} /> */}
 
       <Pressable style={styles.wrapper} onPress={changeEnd}>
         <Text style={[styles.label, flag === 0 && styles.active]}>종료일</Text>
-        <Text style={styles.text}>{date[1] === '9999-12-31' ? '없음' : date[1]}</Text>
+        <Text style={styles.text}>{value[1] === '9999-12-31' ? '없음' : value[1]}</Text>
       </Pressable>
     </View>
   )

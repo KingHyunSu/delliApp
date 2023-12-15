@@ -134,8 +134,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#2d8cec'
   },
   text: {
-    fontFamily: 'GmarketSansTTFBold',
-    fontSize: 18,
+    fontFamily: 'GmarketSansTTFMedium',
+    fontSize: 16,
     color: '#fff'
   }
 })

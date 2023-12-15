@@ -106,7 +106,7 @@ const DatePicker = ({value, range, flag, onChangeFlag, onChange}: Props) => {
     <View>
       {date && currentDate ? (
         <>
-          {Array.isArray(date) && range && <RangePicker date={date} flag={flag} onChange={onChangeFlag} />}
+          {Array.isArray(date) && range && <RangePicker value={date} flag={flag} onChange={onChangeFlag} />}
 
           <ControlBar currentDate={currentDate} onChange={changeCurrentDate} />
 

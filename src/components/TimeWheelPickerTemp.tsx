@@ -1,21 +1,13 @@
 import React from 'react'
 import {StyleSheet, View} from 'react-native'
-import {BottomSheetModal} from '@gorhom/bottom-sheet'
-import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import WheelPicker, {WheelPickerRefs} from '@/components/WheelPicker'
 
-import {useRecoilState} from 'recoil'
-import {showTimePickerBototmSheetState} from '@/store/bottomSheet'
-import {activeTimeFlagState} from '@/store/schedule'
-
-import {getTimeOfMinute} from '@/utils/helper'
-import {RANGE_FLAG} from '@/utils/types'
-
 interface Props {
-  value: number[]
+  value: number
+  visibleRest?: number
   onChange: Function
 }
-const TimePickerBottomSheet = ({value = [0, 0], onChange}: Props) => {
+const TimeWheelPickerTemp = ({value, visibleRest = 2, onChange}: Props) => {
   const meridiemWheelRef = React.useRef<WheelPickerRefs>(null)
   const hourWheelRef = React.useRef<WheelPickerRefs>(null)
   const minuteWheelRef = React.useRef<WheelPickerRefs>(null)
@@ -28,21 +20,12 @@ const TimePickerBottomSheet = ({value = [0, 0], onChange}: Props) => {
   const [hourOptions, setHourOptions] = React.useState([...hourList, ...hourList, ...hourList])
   const [minuteOptions, setMinuteOptions] = React.useState([...minutelist, ...minutelist, ...minutelist])
 
-  const [isShow, setIsShow] = useRecoilState(showTimePickerBototmSheetState)
-  const [activeTimeFlag, setActiveTimeFlag] = useRecoilState(activeTimeFlagState)
-
-  const datePickerBottomSheetRef = React.useRef<BottomSheetModal>(null)
-
   const [meridiemIndex, setMeridiemIndex] = React.useState(0)
   const [hourIndex, setHourIndex] = React.useState(0)
   const [minuteIndex, setMinuteIndex] = React.useState(0)
 
   React.useEffect(() => {
-    let totalMinute = value[0]
-
-    if (activeTimeFlag === RANGE_FLAG.END) {
-      totalMinute = value[1]
-    }
+    let totalMinute = value
 
     let meridie = 0
     const hour = Math.floor(totalMinute / 60)
@@ -52,22 +35,13 @@ const TimePickerBottomSheet = ({value = [0, 0], onChange}: Props) => {
       meridie = 1
     }
 
+    console.log('hour', hour)
+    console.log('minute', minute)
+
     setMeridiemIndex(meridie)
     setHourIndex(hour + 12)
     setMinuteIndex(minute + 60)
-  }, [activeTimeFlag])
-
-  React.useEffect(() => {
-    if (isShow) {
-      datePickerBottomSheetRef.current?.present()
-    } else {
-      datePickerBottomSheetRef.current?.dismiss()
-    }
-  }, [isShow])
-
-  const handleDismiss = () => {
-    setIsShow(false)
-  }
+  }, [])
 
   const handleHourStartReached = () => {
     setHourOptions([...hourList, ...hourOptions])
@@ -150,65 +124,50 @@ const TimePickerBottomSheet = ({value = [0, 0], onChange}: Props) => {
     onChange(total)
   }
 
-  const handleBackdropPress = () => {
-    setActiveTimeFlag(null)
-  }
-
   return (
-    <BottomSheetModal
-      name="datePicker"
-      enableContentPanningGesture={false}
-      ref={datePickerBottomSheetRef}
-      backdropComponent={props => {
-        return <BottomSheetBackdrop props={props} onPress={handleBackdropPress} />
-      }}
-      index={0}
-      snapPoints={['35%']}
-      onDismiss={handleDismiss}>
-      <View style={styles.container}>
-        <View style={styles.contents}>
-          <WheelPicker
-            name="meridiem"
-            ref={meridiemWheelRef}
-            selectedIndex={meridiemIndex}
-            options={['오전', '오후']}
-            visibleRest={2}
-            containerStyle={styles.wheelContainer}
-            selectedIndicatorStyle={[styles.wheelWrapper, styles.leftWheelWrapper]}
-            itemTextStyle={styles.wheelItemText}
-            onChange={handleMeridiemChanged}
-          />
-          <WheelPicker
-            name="hour"
-            ref={hourWheelRef}
-            isInfinite={true}
-            selectedIndex={hourIndex}
-            options={hourOptions}
-            visibleRest={2}
-            containerStyle={styles.wheelContainer}
-            selectedIndicatorStyle={styles.wheelWrapper}
-            itemTextStyle={styles.wheelItemText}
-            onStartReached={handleHourStartReached}
-            onEndReached={handleHourEndReached}
-            onChange={handleHourChanged}
-          />
-          <WheelPicker
-            name="minute"
-            ref={minuteWheelRef}
-            isInfinite={true}
-            selectedIndex={minuteIndex}
-            options={minuteOptions}
-            visibleRest={2}
-            containerStyle={styles.wheelContainer}
-            selectedIndicatorStyle={[styles.wheelWrapper, styles.rightWheelWrapper]}
-            itemTextStyle={styles.wheelItemText}
-            onStartReached={handleMinuteStartReached}
-            onEndReached={handleMinuteEndReached}
-            onChange={handleMinuteChanged}
-          />
-        </View>
+    <View style={styles.container}>
+      <View style={styles.contents}>
+        <WheelPicker
+          name="meridiem"
+          ref={meridiemWheelRef}
+          selectedIndex={meridiemIndex}
+          options={['오전', '오후']}
+          visibleRest={visibleRest}
+          containerStyle={styles.wheelContainer}
+          selectedIndicatorStyle={[styles.wheelWrapper, styles.leftWheelWrapper]}
+          itemTextStyle={styles.wheelItemText}
+          onChange={handleMeridiemChanged}
+        />
+        <WheelPicker
+          name="hour"
+          ref={hourWheelRef}
+          isInfinite={true}
+          selectedIndex={hourIndex}
+          options={hourOptions}
+          visibleRest={visibleRest}
+          containerStyle={styles.wheelContainer}
+          selectedIndicatorStyle={styles.wheelWrapper}
+          itemTextStyle={styles.wheelItemText}
+          onStartReached={handleHourStartReached}
+          onEndReached={handleHourEndReached}
+          onChange={handleHourChanged}
+        />
+        <WheelPicker
+          name="minute"
+          ref={minuteWheelRef}
+          isInfinite={true}
+          selectedIndex={minuteIndex}
+          options={minuteOptions}
+          visibleRest={visibleRest}
+          containerStyle={styles.wheelContainer}
+          selectedIndicatorStyle={[styles.wheelWrapper, styles.rightWheelWrapper]}
+          itemTextStyle={styles.wheelItemText}
+          onStartReached={handleMinuteStartReached}
+          onEndReached={handleMinuteEndReached}
+          onChange={handleMinuteChanged}
+        />
       </View>
-    </BottomSheetModal>
+    </View>
   )
 }
 
@@ -246,4 +205,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default TimePickerBottomSheet
+export default TimeWheelPickerTemp

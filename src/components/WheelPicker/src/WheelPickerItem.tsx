@@ -1,6 +1,6 @@
 import React from 'react'
 import {StyleProp, TextStyle, Animated, Text, ViewStyle} from 'react-native'
-import styles from './TimeWheelPicker.styles'
+import styles from './WheelPicker.styles'
 
 interface ItemProps {
   textStyle: StyleProp<TextStyle>

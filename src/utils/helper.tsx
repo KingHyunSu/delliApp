@@ -10,7 +10,7 @@ export const getTimeOfMinute = (minute: number) => {
   hour = hour === 0 ? 12 : hour
 
   return {
-    meridiem: minute > 720 ? '오후' : '오전',
+    meridiem: minute >= 720 ? '오후' : '오전',
     hour: hour,
     minute: setDigit(Math.floor(calcMinute % 60))
   }

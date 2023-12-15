@@ -73,14 +73,7 @@ const EditSchedulePie = ({data, scheduleList, x, y, radius}: Props) => {
 
   return (
     <G>
-      <SchedulePie
-        x={x}
-        y={y}
-        radius={radius}
-        startAngle={startAngle}
-        endAngle={endAngle}
-        color={data.background_color}
-      />
+      <SchedulePie data={data} x={x} y={y} radius={radius} startAngle={startAngle} endAngle={endAngle} />
 
       {activeTimeFlag === RANGE_FLAG.START && (
         <Circle cx={dragStartBtnCoordinate.x} cy={dragStartBtnCoordinate.y} r={12} fill={'#1E90FF'} />

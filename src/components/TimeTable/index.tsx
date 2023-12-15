@@ -46,6 +46,10 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
     return data.filter(item => item.disable === '0')
   }, [data])
 
+  const handleClick = (value: Schedule) => {
+    onClick(value)
+  }
+
   const clickBackground = () => {
     if (titleInputRef && titleInputRef.current) {
       titleInputRef.current.blur()
@@ -64,7 +68,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
 
   return (
     <View>
-      <Svg onPress={() => onClick()}>
+      <Svg>
         <G>
           <Background x={x} y={y} radius={radius} />
 
@@ -77,13 +81,13 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
                 return (
                   <SchedulePie
                     key={index}
+                    data={item}
                     x={x}
                     y={y}
                     radius={radius}
                     startAngle={startAngle}
                     endAngle={endAngle}
-                    color={item.background_color}
-                    disable={item.screenDisable}
+                    onClick={handleClick}
                   />
                 )
               })
@@ -97,7 +101,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
       </Svg>
 
       {list.map((item, index) => {
-        return <ScheduleText key={index} data={item} centerX={x} centerY={y} radius={radius} />
+        return <ScheduleText key={index} data={item} centerX={x} centerY={y} radius={radius} onClick={handleClick} />
       })}
 
       {isEdit && (

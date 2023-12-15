@@ -8,8 +8,9 @@ interface Props {
   centerX: number
   centerY: number
   radius: number
+  onClick: (value: Schedule) => void
 }
-const ScheduleText = ({data, centerX, centerY, radius}: Props) => {
+const ScheduleText = ({data, centerX, centerY, radius, onClick}: Props) => {
   const {top, left} = React.useMemo(() => {
     return {
       top: Math.round(centerY - (radius / 100) * data.title_y),
@@ -25,6 +26,7 @@ const ScheduleText = ({data, centerX, centerY, radius}: Props) => {
         multiline
         scrollEnabled={false}
         editable={false}
+        onPressIn={() => onClick(data)}
       />
     </View>
   )

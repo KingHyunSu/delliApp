@@ -1,5 +1,10 @@
 import {atom} from 'recoil'
 
+export const showEditMenuBottomSheetState = atom({
+  key: 'showEditMenuBottomSheet',
+  default: false
+})
+
 export const showTimeTableCategoryBottomSheetState = atom({
   key: 'showTimeTableCategoryBottomSheet',
   default: false
