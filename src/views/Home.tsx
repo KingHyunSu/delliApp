@@ -281,7 +281,7 @@ const homeStyles = StyleSheet.create({
     gap: 5
   },
   timetableCategoryText: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 20,
     color: '#000'
   },

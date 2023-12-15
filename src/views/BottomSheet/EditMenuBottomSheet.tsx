@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     gap: 5
   },
   completeTime: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 12,
     color: '#BABABA'
   },
@@ -115,11 +115,11 @@ const styles = StyleSheet.create({
     height: 50
   },
   titleText: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 16
   },
   text: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 14
   }
 })

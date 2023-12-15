@@ -100,7 +100,7 @@ const ScheduleListItem = ({item, index, onComplete, onClick}: Props) => {
           // alignItems: 'center',
           backgroundColor: '#1E90FF'
         }}>
-        <Text style={{color: '#fff', fontFamily: 'GmarketSansTTFBold'}}>시작</Text>
+        <Text style={{color: '#fff', fontFamily: 'Pretendard-Bold'}}>시작</Text>
       </Pressable>
     </Pressable>
   )
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     gap: 5
   },
   titleText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 18,
     color: '#000',
     marginBottom: 10
@@ -151,12 +151,12 @@ const styles = StyleSheet.create({
     borderRadius: 5
   },
   timeLabelText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 10,
     color: '#f5f6f8'
   },
   timeText: {
-    fontFamily: 'GmarketSansTTFLight',
+    fontFamily: 'Pretendard-Light',
     fontSize: 12,
     color: '#000'
   },

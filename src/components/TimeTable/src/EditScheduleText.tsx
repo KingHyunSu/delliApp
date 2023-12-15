@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
     borderColor: '#BABABA'
   },
   textInput: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 14,
     color: '#000',
     paddingVertical: 0

@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10
   },
   wheelItemText: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 16,
     color: '#7c8698'
   }

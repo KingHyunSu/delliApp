@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2d8cec'
   },
   text: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#fff'
   }

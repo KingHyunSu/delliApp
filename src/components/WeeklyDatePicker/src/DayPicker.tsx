@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
     top: -17
   },
   infoText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 10,
     color: '#555'
   },
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E90FF'
   },
   text: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 14,
     color: '#7c8698'
   },

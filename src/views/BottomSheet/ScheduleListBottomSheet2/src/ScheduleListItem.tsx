@@ -109,12 +109,14 @@ const styles = StyleSheet.create({
     borderRadius: 15
   },
   timeText: {
-    fontFamily: 'GmarketSansTTFBold',
-    fontSize: 14
+    fontFamily: 'Pretendard-Bold',
+    fontSize: 14,
+    color: '#000'
   },
   contentText: {
-    fontFamily: 'GmarketSansTTFMedium',
-    fontSize: 16
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 16,
+    color: '#000'
   },
   dayOfWeekWrapper: {
     width: 24,
@@ -125,12 +127,12 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   dayOfWeekText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 12,
     color: '#c3c5cc'
   },
   alarmText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 11,
     color: '#7c8698'
   }

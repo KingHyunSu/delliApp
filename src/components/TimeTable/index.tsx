@@ -92,7 +92,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
                 )
               })
             ) : (
-              <Text x={x} y={y} fontSize={18} fill={'#BABABA'} fontFamily={'GmarketSansTTFBold'} textAnchor="middle">
+              <Text x={x} y={y} fontSize={18} fill={'#BABABA'} fontFamily={'Pretendard-Bold'} textAnchor="middle">
                 터치하여 일정 추가하기
               </Text>
             )}

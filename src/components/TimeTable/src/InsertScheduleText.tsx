@@ -264,7 +264,7 @@
 //     alignItems: 'center'
 //   },
 //   text: {
-//     fontFamily: 'GmarketSansTTFMedium',
+//     fontFamily: 'Pretendard-Medium',
 //     fontSize: 14,
 //     color: '#000'
 //   }

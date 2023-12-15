@@ -127,13 +127,13 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   title: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 18,
     paddingLeft: 16,
     marginBottom: 30
   },
   label: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 18,
     paddingLeft: 16,
     marginBottom: 20
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2d8cec'
   },
   buttonText: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 18,
     color: '#fff'
   }

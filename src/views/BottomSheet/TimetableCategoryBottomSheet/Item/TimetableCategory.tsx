@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
   titleText: {
     paddingVertical: 25,
     fontSize: 18,
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     color: '#000'
   },
   editButtonWrapper: {

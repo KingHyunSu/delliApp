@@ -83,8 +83,8 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   text: {
-    fontFamily: 'GmarketSansTTFBold',
-    fontSize: 16,
+    fontFamily: 'Pretendard-Bold',
+    fontSize: 18,
     color: '#000'
   }
 })

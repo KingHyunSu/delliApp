@@ -37,7 +37,7 @@ const Background = ({x, y, radius}: Props) => {
       {hourPositionList.map((hourPosition, index) => {
         return (
           <G key={index} x={hourPosition.x} y={hourPosition.y} rotation={hourPosition.angle}>
-            <Text textAnchor="middle" fontSize={12} fill="#b2b2b2" fontFamily="GmarketSansTTFMedium">
+            <Text textAnchor="middle" fontSize={12} fill="#b2b2b2" fontFamily="Pretendard-Medium">
               {hourPosition.hour}
             </Text>
           </G>

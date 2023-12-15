@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     gap: 30
   },
   label: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 18,
     marginBottom: 16,
     color: '#000'
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     borderRadius: 10
   },
   colorLabel: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 14,
     color: '#555'
   },

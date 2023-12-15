@@ -83,11 +83,11 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end'
   },
   subText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 26
   },
   mainText: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 30,
     color: '#1E90FF'
   },
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   kakaoLoginButtonText: {
     flex: 1,
     textAlign: 'center',
-    // fontFamily: 'GmarketSansTTFBold',
+    // fontFamily: 'Pretendard-Bold',
     fontWeight: 'bold',
     color: '#000000d9',
     fontSize: 16
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   appleLoginButtonText: {
     flex: 1,
     textAlign: 'center',
-    // fontFamily: 'GmarketSansTTFBold',
+    // fontFamily: 'Pretendard-Bold',
     fontWeight: 'bold',
     color: '#fff',
     fontSize: 16

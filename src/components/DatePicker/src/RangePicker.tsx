@@ -56,17 +56,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#e4e4ec'
   },
   label: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 18,
     color: '#000'
   },
   text: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#000'
   },
   active: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     color: '#1E90FF'
   }
 })

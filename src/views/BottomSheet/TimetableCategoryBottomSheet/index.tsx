@@ -213,7 +213,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   title: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 20
   },
   addButton: {
@@ -226,7 +226,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2d8cec'
   },
   addText: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 18,
     color: '#fff'
   }

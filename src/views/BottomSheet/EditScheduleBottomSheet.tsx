@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30
   },
   label: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 18,
     marginBottom: 16,
     color: '#000'
@@ -354,12 +354,12 @@ const styles = StyleSheet.create({
     paddingVertical: 14
   },
   inputText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     color: '#555',
     fontSize: 16
   },
   dash: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 18,
     color: '#7c8698'
   },
@@ -380,13 +380,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f6f8'
   },
   meridiemText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     color: '#7c8698',
     fontSize: 12,
     marginBottom: 5
   },
   timeText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#7c8698'
   },
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#1E90FF'
   },
   dayofWeekText: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 14,
     color: '#7c8698'
   },
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   dateText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#7c8698'
   },
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f6f8'
   },
   alarmText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#7c8698',
     marginLeft: 10
@@ -457,7 +457,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2d8cec'
   },
   submitText: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 18,
     color: '#fff'
   }

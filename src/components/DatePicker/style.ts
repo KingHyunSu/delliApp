@@ -6,7 +6,7 @@ export const dateItemStyles = StyleSheet.create({
     paddingVertical: 6
   },
   text: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     borderRadius: 10,
     textAlign: 'center',
     color: '#000',

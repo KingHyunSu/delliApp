@@ -69,12 +69,12 @@ const styles = StyleSheet.create({
     paddingVertical: 20
   },
   appBarTitle: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#000'
   },
   contentText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#000'
   },

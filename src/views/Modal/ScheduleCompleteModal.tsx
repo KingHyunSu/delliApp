@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     flex: 1
   },
   title: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 18,
     color: '#000',
     marginBottom: 20
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2d8cec'
   },
   buttonText: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#fff'
   },
@@ -246,12 +246,12 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   timeWheelLabel: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 14,
     color: '#BABABA'
   },
   timeWheelText: {
-    fontFamily: 'GmarketSansTTFBold',
+    fontFamily: 'Pretendard-Bold',
     fontSize: 14,
     color: '#000'
   },

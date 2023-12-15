@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
     minWidth: 40
   },
   textInput: {
-    fontFamily: 'GmarketSansTTFMedium',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 14,
     paddingVertical: 0
   }
