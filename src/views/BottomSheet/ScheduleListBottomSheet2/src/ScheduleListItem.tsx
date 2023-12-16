@@ -9,21 +9,17 @@ import {Schedule} from '@/types/schedule'
 interface Props {
   index: number
   item: Schedule
-  list: Schedule[]
+  openEditScheduleBottomSheet: (value?: Schedule) => void
   onClick: (value: Schedule) => void
 }
-const ScheduleListItem = ({index, item, list, onClick}: Props) => {
-  const isContinue = React.useMemo(() => {
-    let prevScheduleIndex = index - 1
+const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: Props) => {
+  const isContinueSchedule = React.useMemo(() => {
+    return item.display_type === 'continue'
+  }, [item])
 
-    if (prevScheduleIndex > -1) {
-      const prevSchedule = list[prevScheduleIndex]
-
-      return item.start_time === prevSchedule.end_time
-    }
-
-    return false
-  }, [index, item, list])
+  const isGapSchedule = React.useMemo(() => {
+    return item.display_type === 'gap'
+  }, [item])
 
   const startTime = React.useMemo(() => {
     return getTimeOfMinute(item.start_time)
@@ -33,16 +29,26 @@ const ScheduleListItem = ({index, item, list, onClick}: Props) => {
     return getTimeOfMinute(item.end_time)
   }, [item.end_time])
 
+  if (isGapSchedule) {
+    return (
+      <View style={styles.gapContainer}>
+        <View style={styles.gapLine} />
+        <Pressable style={styles.gapButton} onPress={() => openEditScheduleBottomSheet(item)}>
+          <Text style={styles.gapButtonText}>일정 추가하기</Text>
+        </Pressable>
+      </View>
+    )
+  }
   return (
     <View style={styles.container}>
       <View style={styles.processBarContainer}>
-        {!isContinue && <View style={styles.processBarCircle} />}
+        {!isContinueSchedule && <View style={styles.processBarCircle} />}
         <View style={styles.processBarLine} />
         <View style={styles.processBarCircle} />
       </View>
 
       <View style={styles.contentContainer}>
-        {!isContinue && (
+        {!isContinueSchedule && (
           <Text style={styles.timeText}>{`${startTime.meridiem} ${startTime.hour}시 ${startTime.minute}분`}</Text>
         )}
 
@@ -50,13 +56,13 @@ const ScheduleListItem = ({index, item, list, onClick}: Props) => {
           <Text style={styles.contentText}>{item.title}</Text>
 
           <View style={styles.section}>
-            <Text style={[styles.dayOfWeekText, item.mon === '1' && {color: '#1E90FF'}]}>월</Text>
-            <Text style={[styles.dayOfWeekText, item.tue === '1' && {color: '#1E90FF'}]}>화</Text>
-            <Text style={[styles.dayOfWeekText, item.wed === '1' && {color: '#1E90FF'}]}>수</Text>
-            <Text style={[styles.dayOfWeekText, item.thu === '1' && {color: '#1E90FF'}]}>목</Text>
-            <Text style={[styles.dayOfWeekText, item.fri === '1' && {color: '#1E90FF'}]}>금</Text>
-            <Text style={[styles.dayOfWeekText, item.sat === '1' && {color: '#1E90FF'}]}>토</Text>
-            <Text style={[styles.dayOfWeekText, item.sun === '1' && {color: '#1E90FF'}]}>일</Text>
+            <Text style={[styles.dayOfWeekText, item.mon === '1' && styles.activeDayOfWeekText]}>월</Text>
+            <Text style={[styles.dayOfWeekText, item.tue === '1' && styles.activeDayOfWeekText]}>화</Text>
+            <Text style={[styles.dayOfWeekText, item.wed === '1' && styles.activeDayOfWeekText]}>수</Text>
+            <Text style={[styles.dayOfWeekText, item.thu === '1' && styles.activeDayOfWeekText]}>목</Text>
+            <Text style={[styles.dayOfWeekText, item.fri === '1' && styles.activeDayOfWeekText]}>금</Text>
+            <Text style={[styles.dayOfWeekText, item.sat === '1' && styles.activeDayOfWeekText]}>토</Text>
+            <Text style={[styles.dayOfWeekText, item.sun === '1' && styles.activeDayOfWeekText]}>일</Text>
           </View>
 
           <View style={styles.section}>
@@ -79,7 +85,7 @@ const styles = StyleSheet.create({
   section: {
     flexDirection: 'row',
     gap: 5,
-    marginTop: 12,
+    marginTop: 10,
     alignItems: 'center'
   },
 
@@ -103,38 +109,62 @@ const styles = StyleSheet.create({
     flex: 1
   },
   contentWrapper: {
-    marginVertical: 20,
+    marginVertical: 15,
     backgroundColor: '#f6f6f6',
-    padding: 20,
+    paddingVertical: 20,
+    paddingHorizontal: 20,
     borderRadius: 15
   },
   timeText: {
-    fontFamily: 'Pretendard-Bold',
-    fontSize: 14,
-    color: '#000'
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 15,
+    color: '#424242'
   },
   contentText: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#000'
   },
-  dayOfWeekWrapper: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#1E90FF',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
   dayOfWeekText: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
-    color: '#c3c5cc'
+    fontSize: 13,
+    color: '#BABABA'
+  },
+  activeDayOfWeekText: {
+    color: '#1A7BDB'
   },
   alarmText: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 11,
+    fontSize: 12,
     color: '#7c8698'
+  },
+
+  gapContainer: {
+    position: 'relative',
+    height: 52,
+    marginVertical: 15,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  gapLine: {
+    width: '100%',
+    height: 2,
+    backgroundColor: '#f5f6f8'
+  },
+  gapButton: {
+    width: '100%',
+    position: 'absolute',
+    height: 52,
+    justifyContent: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: '#dceafe'
+  },
+  gapButtonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 14,
+    color: '#1E90FF'
+    // color: '#000080'
   }
 })
 

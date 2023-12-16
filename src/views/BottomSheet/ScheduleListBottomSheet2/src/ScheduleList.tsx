@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet} from 'react-native'
+import {StyleSheet, Text} from 'react-native'
 import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 import ScheduleListItem from './ScheduleListItem'
@@ -8,19 +8,103 @@ import {Schedule} from '@/types/schedule'
 
 interface Props {
   data: Schedule[]
+  openEditScheduleBottomSheet: (value?: Schedule) => void
   onClick: (value: Schedule) => void
 }
-const ScheduleList = ({data, onClick}: Props) => {
+const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
+
+  const list = React.useMemo(() => {
+    const SCHEDULE_DISPLAY_TYPE = {CONTINUE: 'continue', GAP: 'gap'}
+
+    if (data.length === 0) {
+      return []
+    }
+
+    let result = [{...data[0], display_type: ''}]
+    let prevScheduleEndTime = data[0].end_time
+
+    for (let i = 1; i < data.length; i++) {
+      let currentSchedule = {
+        ...data[i],
+        display_type: ''
+      }
+      const nextSchedule = data[i + 1]
+
+      if (prevScheduleEndTime === currentSchedule.start_time) {
+        currentSchedule.display_type = SCHEDULE_DISPLAY_TYPE.CONTINUE
+      }
+      if (prevScheduleEndTime !== currentSchedule.start_time) {
+        const defaultSchedule = {
+          schedule_id: null,
+          timetable_category_id: null,
+          start_date: '',
+          end_date: '9999-12-31',
+          start_time: 300,
+          end_time: 500,
+          title: '',
+          mon: '1',
+          tue: '1',
+          wed: '1',
+          thu: '1',
+          fri: '1',
+          sat: '1',
+          sun: '1',
+          memo: '',
+          disable: '0',
+          state: '0',
+          title_x: 0,
+          title_y: 0,
+          title_rotate: 0,
+          alram: false,
+          background_color: '#ffffff',
+          text_color: '#000000'
+        }
+
+        const gapSchedule = {
+          ...defaultSchedule,
+          start_time: prevScheduleEndTime,
+          end_time: currentSchedule.start_time,
+          display_type: 'gap'
+        }
+
+        result.push(gapSchedule)
+      }
+
+      result.push(currentSchedule)
+      prevScheduleEndTime = currentSchedule.end_time
+      // [todo] 계획 시간과 완료 시간이 다르면 display_type = '', result.push
+    }
+
+    return result
+  }, [data])
 
   return (
     <BottomSheet ref={bottomSheetRef} index={0} snapPoints={['20%', '77%']} handleComponent={BottomSheetShadowHandler}>
+      {/* <Text
+        style={{
+          paddingHorizontal: 16,
+          // paddingVertical: 20,
+          paddingTop: 10,
+          paddingBottom: 30,
+          fontSize: 18,
+          fontFamily: 'Pretendard-Bold'
+        }}>
+        일정 목록
+      </Text> */}
       <BottomSheetFlatList
-        data={data}
+        data={list}
         keyExtractor={(_, index) => String(index)}
         style={styles.container}
         renderItem={({item, index}) => {
-          return <ScheduleListItem item={item} index={index} list={data} onClick={onClick} />
+          return (
+            <ScheduleListItem
+              item={item}
+              index={index}
+              openEditScheduleBottomSheet={openEditScheduleBottomSheet}
+              onClick={onClick}
+            />
+          )
         }}
       />
     </BottomSheet>

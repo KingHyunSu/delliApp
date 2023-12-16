@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, StyleSheet, View, Pressable, Text} from 'react-native'
+import {useWindowDimensions, Platform, StyleSheet, View, Pressable, Text} from 'react-native'
 
 import ArrowTailLeftIcon from '@/assets/icons/arrow_tail_left.svg'
 import ArrowTailRightIcon from '@/assets/icons/arrow_tail_right.svg'
@@ -209,7 +209,19 @@ const styles = StyleSheet.create({
   item: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f6f8'
+    backgroundColor: '#f5f6f8',
+
+    ...Platform.select({
+      ios: {
+        shadowColor: '#555',
+        shadowOffset: {width: 0, height: 1},
+        shadowOpacity: 0.2,
+        shadowRadius: 2
+      },
+      android: {
+        elevation: 3
+      }
+    })
   },
   activeItem: {
     backgroundColor: '#1E90FF'

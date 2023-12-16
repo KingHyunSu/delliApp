@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
-    backgroundColor: '#2d8cec'
+    backgroundColor: '#1E90FF'
   },
   addText: {
     fontFamily: 'Pretendard-Bold',

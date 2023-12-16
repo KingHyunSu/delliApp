@@ -46,6 +46,10 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
     return data.filter(item => item.disable === '0')
   }, [data])
 
+  const opacity = React.useMemo(() => {
+    return isEdit ? 0.5 : 1
+  }, [isEdit])
+
   const handleClick = (value: Schedule) => {
     onClick(value)
   }
@@ -72,7 +76,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
         <G>
           <Background x={x} y={y} radius={radius} />
 
-          <G opacity={isEdit ? 0.8 : 1}>
+          <G opacity={opacity}>
             {list.length > 0 ? (
               list.map((item, index) => {
                 const startAngle = item.start_time * 0.25
@@ -101,7 +105,17 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
       </Svg>
 
       {list.map((item, index) => {
-        return <ScheduleText key={index} data={item} centerX={x} centerY={y} radius={radius} onClick={handleClick} />
+        return (
+          <ScheduleText
+            key={index}
+            data={item}
+            centerX={x}
+            centerY={y}
+            radius={radius}
+            opacity={opacity}
+            onClick={handleClick}
+          />
+        )
       })}
 
       {isEdit && (

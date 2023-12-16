@@ -26,16 +26,16 @@ import {scheduleDateState, scheduleState, scheduleListState} from '@/store/sched
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {showColorPickerBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
-import {getScheduleList, updateScheduleComplete} from '@/apis/schedule'
+import {getScheduleList} from '@/apis/schedule'
 import {getTimetableCategoryList} from '@/apis/timetable'
-import {useMutation, useQuery} from '@tanstack/react-query'
+import {useQuery} from '@tanstack/react-query'
 
 import {getDayOfWeekKey} from '@/utils/helper'
 import {format} from 'date-fns'
 
 import {trigger} from 'react-native-haptic-feedback'
 
-import {Schedule, ScheduleComplete} from '@/types/schedule'
+import {Schedule} from '@/types/schedule'
 import {HomeNavigationProps} from '@/types/navigation'
 
 const Home = ({navigation}: HomeNavigationProps) => {
@@ -94,6 +94,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           return {...item, screenDisable: false}
         })
 
+        console.log('result', result)
         setScheduleList(result)
 
         return result
@@ -105,25 +106,11 @@ const Home = ({navigation}: HomeNavigationProps) => {
     enabled: !!activeTimeTableCategory.timetable_category_id
   })
 
-  const updateScheduleCompleteMutation = useMutation({
-    mutationFn: async (data: Schedule) => {
-      if (data.schedule_id) {
-        const params: ScheduleComplete = {
-          schedule_id: data.schedule_id,
-          schedule_complete_id: data.schedule_complete_id,
-          complete_date: format(scheduleDate, 'yyyy-MM-dd')
-        }
-        return await updateScheduleComplete(params)
-      }
+  const openEditScheduleBottomSheet = (value?: Schedule) => {
+    if (value) {
+      setSchedule(value)
     }
-  })
 
-  const updateComplete = (data: Schedule) => {
-    updateScheduleCompleteMutation.mutate(data)
-  }
-
-  const openEditScheduleBottomSheet = () => {
-    // trigger('impactLight', {enableVibrateFallback: true, ignoreAndroidSystemSettings: false})
     setIsEdit(true)
   }
 
@@ -233,11 +220,15 @@ const Home = ({navigation}: HomeNavigationProps) => {
           titleInputRef={titleInputRef}
         />
       ) : (
-        <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
+        <ScheduleListBottomSheet
+          data={scheduleList}
+          openEditScheduleBottomSheet={openEditScheduleBottomSheet}
+          onClick={openEditMenuBottomSheet}
+        />
       )}
 
       {!isEdit && (
-        <Pressable style={homeStyles.fabContainer} onPress={openEditScheduleBottomSheet}>
+        <Pressable style={homeStyles.fabContainer} onPress={() => openEditScheduleBottomSheet()}>
           <EditIcon stroke="#fff" width={18} height={18} />
         </Pressable>
       )}
@@ -307,8 +298,8 @@ const homeStyles = StyleSheet.create({
       ios: {
         shadowColor: '#000',
         shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.3,
-        shadowRadius: 3
+        shadowOpacity: 0.2,
+        shadowRadius: 2
       },
       android: {
         elevation: 3

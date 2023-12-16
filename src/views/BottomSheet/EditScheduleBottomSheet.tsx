@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, View, Text, Pressable, TextInput} from 'react-native'
+import {Platform, StyleSheet, View, Text, Pressable, TextInput} from 'react-native'
 
 // import TimePickerBottomSheet from '@/views/BottomSheet/TimePickerBottomSheet'
 import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
@@ -111,6 +111,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   }
 
   const changeDate = (date: string[]) => {
+    console.log('123123', date)
     setSchedule(prevState => ({
       ...prevState,
       start_date: date[0],
@@ -380,10 +381,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f6f8'
   },
   meridiemText: {
-    fontFamily: 'Pretendard-Medium',
+    fontFamily: 'Pretendard-SemiBold',
     color: '#7c8698',
-    fontSize: 12,
-    marginBottom: 5
+    fontSize: 12
   },
   timeText: {
     fontFamily: 'Pretendard-Medium',
@@ -400,13 +400,25 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5f6f8',
     width: 40,
     height: 40,
-    borderRadius: 20
+    borderRadius: 20,
+
+    ...Platform.select({
+      ios: {
+        shadowColor: '#555',
+        shadowOffset: {width: 0, height: 1},
+        shadowOpacity: 0.2,
+        shadowRadius: 2
+      },
+      android: {
+        elevation: 3
+      }
+    })
   },
   activeDayOfWeek: {
-    backgroundColor: '#1E90FF'
+    backgroundColor: '#2d8cec'
   },
   dayofWeekText: {
-    fontFamily: 'Pretendard-Bold',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 14,
     color: '#7c8698'
   },
@@ -454,7 +466,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
-    backgroundColor: '#2d8cec'
+    backgroundColor: '#1E90FF'
+    // backgroundColor: '#2d8cec'
   },
   submitText: {
     fontFamily: 'Pretendard-Bold',

@@ -4,19 +4,28 @@ import TimeWheelPicker from '@/components/TimeWheelPicker'
 
 import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 
-import {useRecoilState, useRecoilValue} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {showScheduleCompleteModalState} from '@/store/modal'
-import {scheduleState} from '@/store/schedule'
+import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
+import {scheduleDateState, scheduleState} from '@/store/schedule'
 
+import {format} from 'date-fns'
 import {getTimeOfMinute} from '@/utils/helper'
 
 import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 
+import {useMutation} from '@tanstack/react-query'
+import {updateScheduleComplete} from '@/apis/schedule'
+
+import {Schedule, ScheduleComplete} from '@/types/schedule'
+
 const ScheduleCompleteModal = () => {
   const containerHeight = 600
 
   const [showScheduleCompleteModal, setShowScheduleCompleteModal] = useRecoilState(showScheduleCompleteModalState)
+  const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
+  const scheduleDate = useRecoilValue(scheduleDateState)
   const schedule = useRecoilValue(scheduleState)
 
   const [flag, setFlag] = React.useState(0)
@@ -71,16 +80,6 @@ const ScheduleCompleteModal = () => {
     endHeight.value = withTiming(260)
   }
 
-  const handleClose = () => {
-    opacity.value = withTiming(0)
-
-    translateY.value = withTiming(containerHeight * -1, {duration: 300}, isFinish => {
-      if (isFinish) {
-        runOnJS(setShowScheduleCompleteModal)(false)
-      }
-    })
-  }
-
   const changeStartTime = (time: number) => {
     setCompleteStartTime(time)
   }
@@ -91,6 +90,39 @@ const ScheduleCompleteModal = () => {
     } else {
       setCompleteEndTime(time)
     }
+  }
+
+  const handleClose = () => {
+    opacity.value = withTiming(0)
+
+    translateY.value = withTiming(containerHeight * -1, {duration: 300}, isFinish => {
+      if (isFinish) {
+        runOnJS(setShowScheduleCompleteModal)(false)
+      }
+    })
+  }
+
+  const updateScheduleCompleteMutation = useMutation({
+    mutationFn: async (data: Schedule) => {
+      if (data.schedule_id) {
+        const params: ScheduleComplete = {
+          schedule_id: data.schedule_id,
+          schedule_complete_id: data.schedule_complete_id,
+          complete_date: format(scheduleDate, 'yyyy-MM-dd'),
+          complete_start_time: completeStartTime,
+          complete_end_time: completeEndTime
+        }
+        return await updateScheduleComplete(params)
+      }
+    },
+    onSuccess: () => {
+      handleClose()
+      setShowEditMenuBottomSheet(false)
+    }
+  })
+
+  const handleComplete = () => {
+    updateScheduleCompleteMutation.mutate(schedule)
   }
 
   React.useEffect(() => {
@@ -156,7 +188,7 @@ const ScheduleCompleteModal = () => {
               <Pressable style={[styles.button, styles.closeButton]} onPress={handleClose}>
                 <Text style={styles.buttonText}>닫기</Text>
               </Pressable>
-              <Pressable style={[styles.button, styles.confirmButton]}>
+              <Pressable style={[styles.button, styles.confirmButton]} onPress={handleComplete}>
                 <Text style={styles.buttonText}>확인</Text>
               </Pressable>
             </View>
@@ -214,7 +246,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     flex: 2,
-    backgroundColor: '#2d8cec'
+    backgroundColor: '#1E90FF'
   },
   buttonText: {
     fontFamily: 'Pretendard-Medium',

@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     flex: 2,
-    backgroundColor: '#2d8cec'
+    backgroundColor: '#1E90FF'
   },
   buttonText: {
     fontFamily: 'Pretendard-Bold',

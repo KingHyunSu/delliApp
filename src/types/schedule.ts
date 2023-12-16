@@ -25,6 +25,7 @@ export interface Schedule {
 
   alram: boolean
 
+  display_type?: string
   screenDisable?: boolean
 }
 
@@ -32,4 +33,6 @@ export interface ScheduleComplete {
   schedule_id: number
   schedule_complete_id?: number
   complete_date: string
+  complete_start_time: number
+  complete_end_time: number
 }

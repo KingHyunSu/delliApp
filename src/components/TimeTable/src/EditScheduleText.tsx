@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
   },
   textInput: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 14,
+    fontSize: 16,
     color: '#000',
     paddingVertical: 0
   }

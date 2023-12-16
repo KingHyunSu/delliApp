@@ -64,15 +64,15 @@ function App(): JSX.Element {
         <SafeAreaView style={styles.container}>
           <NavigationContainer>
             <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
-              <Stack.Screen name="Home" component={HomeScreen} />
-              {/* {isLogin ? (
+              {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
+              {isLogin ? (
                 <>
                   <Stack.Screen name="Home" component={HomeScreen} />
                   <Stack.Screen name="Setting" component={SettingScreen} />
                 </>
               ) : (
                 <Stack.Screen name="Login" component={LoginScreen} />
-              )} */}
+              )}
             </Stack.Navigator>
           </NavigationContainer>
         </SafeAreaView>

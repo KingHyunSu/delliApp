@@ -16,6 +16,10 @@
     {
       "path": "src/assets/fonts/Pretendard-Regular.otf",
       "sha1": "e205ef0a314d9da4e1a9382e0e65a25900a9ac7b"
+    },
+    {
+      "path": "src/assets/fonts/Pretendard-SemiBold.otf",
+      "sha1": "916a62152b7fd08ff43d239de04303a465521fe6"
     }
   ]
 }

@@ -93,8 +93,7 @@ const styles = StyleSheet.create({
   },
   section: {
     marginVertical: 10,
-    // height: 52,
-    paddingVertical: 15,
+    paddingVertical: 10,
     justifyContent: 'center'
   },
   completeContainer: {
@@ -108,19 +107,21 @@ const styles = StyleSheet.create({
   },
   completeTime: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
-    color: '#BABABA'
+    fontSize: 14,
+    // color: '#1A7BDB'
+    color: '#1E90FF'
   },
   titleContainer: {
     height: 50
   },
   titleText: {
     fontFamily: 'Pretendard-Bold',
-    fontSize: 16
+    fontSize: 18
   },
   text: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 14
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    color: '#424242'
   }
 })
 

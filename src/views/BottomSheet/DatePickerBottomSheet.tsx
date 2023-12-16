@@ -55,11 +55,12 @@ const DatePickerBottomSheet = ({
 
   const changeToday = () => {
     const today = format(new Date(), 'yyyy-MM-dd')
-
     if (range) {
       if (rangeFlag === RANGE_FLAG.START) {
+        console.log('today1', today)
         changeDate([today, selectDate[1]])
       } else if (rangeFlag === RANGE_FLAG.END) {
+        console.log('today2', today)
         changeDate([selectDate[0], today])
       }
     } else {
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     flex: 2,
-    backgroundColor: '#2d8cec'
+    backgroundColor: '#1E90FF'
   },
   text: {
     fontFamily: 'Pretendard-Medium',
