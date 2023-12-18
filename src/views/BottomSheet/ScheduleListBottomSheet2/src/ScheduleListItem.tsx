@@ -29,6 +29,13 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
     return getTimeOfMinute(item.end_time)
   }, [item.end_time])
 
+  const processBarCircleColor = React.useMemo(() => {
+    if (item.complete_start_time) {
+      return item.background_color
+    }
+    return '#BABABA'
+  }, [item.complete_start_time, item.background_color])
+
   if (isGapSchedule) {
     return (
       <View style={styles.gapContainer}>
@@ -42,15 +49,13 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
   return (
     <View style={styles.container}>
       <View style={styles.processBarContainer}>
+        <View style={[styles.processBarCircle, {backgroundColor: processBarCircleColor}]} />
+        <View style={[styles.processBarLine, {backgroundColor: processBarCircleColor, opacity: 0.2}]} />
         {!isContinueSchedule && <View style={styles.processBarCircle} />}
-        <View style={styles.processBarLine} />
-        <View style={styles.processBarCircle} />
       </View>
 
       <View style={styles.contentContainer}>
-        {!isContinueSchedule && (
-          <Text style={styles.timeText}>{`${startTime.meridiem} ${startTime.hour}시 ${startTime.minute}분`}</Text>
-        )}
+        <Text style={styles.timeText}>{`${startTime.meridiem} ${startTime.hour}시 ${startTime.minute}분`}</Text>
 
         <Pressable style={styles.contentWrapper} onPress={() => onClick(item)}>
           <Text style={styles.contentText}>{item.title}</Text>
@@ -71,7 +76,9 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
           </View>
         </Pressable>
 
-        <Text style={[styles.timeText]}>{`${endTime.meridiem} ${endTime.hour}시 ${endTime.minute}분`}</Text>
+        {!isContinueSchedule && (
+          <Text style={[styles.timeText]}>{`${endTime.meridiem} ${endTime.hour}시 ${endTime.minute}분`}</Text>
+        )}
       </View>
     </View>
   )
@@ -96,12 +103,13 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
+    // borderWidth: 1,
+    borderColor: '#f5f6f8',
     backgroundColor: '#BABABA'
   },
   processBarLine: {
     flex: 1,
-    width: 5,
-    backgroundColor: '#f5f6f8'
+    width: 5
   },
 
   contentContainer: {

@@ -126,7 +126,15 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
               <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={() => setIsShowStyleBottomSheet(true)} />
             </G>
 
-            <EditSchedulePie data={schedule} scheduleList={data} x={x} y={y} radius={radius} />
+            <EditSchedulePie
+              data={schedule}
+              scheduleList={data}
+              x={x}
+              y={y}
+              radius={radius}
+              homeTopHeight={homeTopHeight}
+              onChangeSchedule={changeSchedule}
+            />
           </Svg>
 
           <EditScheduleText

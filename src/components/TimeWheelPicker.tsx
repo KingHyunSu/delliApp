@@ -6,9 +6,10 @@ import WheelPicker from 'react-native-wheely'
 interface Props {
   initValue: number
   visibleRest?: number
+  align?: string
   onChange: Function
 }
-const TimeWheelPicker = ({initValue, visibleRest = 2, onChange}: Props) => {
+const TimeWheelPicker = ({initValue, visibleRest = 2, align = 'flex-start', onChange}: Props) => {
   // prettier-ignore
   const hourList = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
   // prettier-ignore
@@ -69,7 +70,7 @@ const TimeWheelPicker = ({initValue, visibleRest = 2, onChange}: Props) => {
   return (
     <View style={styles.container}>
       {isShow && (
-        <View style={styles.contents}>
+        <View style={[styles.contents, {alignItems: align}]}>
           <WheelPicker
             options={['오전', '오후']}
             selectedIndex={meridiemIndex}
@@ -106,12 +107,10 @@ const TimeWheelPicker = ({initValue, visibleRest = 2, onChange}: Props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16,
-    justifyContent: 'space-between'
+    paddingHorizontal: 16
   },
   contents: {
     flex: 1,
-    alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center'
   },

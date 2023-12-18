@@ -93,6 +93,16 @@ export const scheduleState = atom<Schedule>({
   }
 })
 
+export const editStartAngleState = atom({
+  key: 'editStartAngleState',
+  default: 0
+})
+
+export const editEndAngleState = atom({
+  key: 'editEndAngleState',
+  default: 90
+})
+
 export const activeTimeFlagState = atom<RANGE_FLAG | null>({
   key: 'activeTimeFlagState',
   default: null

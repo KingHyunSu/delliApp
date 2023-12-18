@@ -22,6 +22,8 @@ export interface Schedule {
   title_rotate: number
   background_color: string
   text_color: string
+  complete_start_time?: number
+  complete_end_time?: number
 
   alram: boolean
 

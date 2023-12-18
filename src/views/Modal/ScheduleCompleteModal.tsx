@@ -161,7 +161,12 @@ const ScheduleCompleteModal = () => {
                   </Pressable>
 
                   <View style={styles.wheelContainer}>
-                    <TimeWheelPicker initValue={schedule.start_time} visibleRest={1} onChange={changeStartTime} />
+                    <TimeWheelPicker
+                      initValue={schedule.start_time}
+                      visibleRest={1}
+                      align="center"
+                      onChange={changeStartTime}
+                    />
                   </View>
                 </Animated.View>
 
@@ -178,7 +183,12 @@ const ScheduleCompleteModal = () => {
                   </Pressable>
 
                   <View style={styles.wheelContainer}>
-                    <TimeWheelPicker initValue={schedule.end_time} visibleRest={1} onChange={changeEndTime} />
+                    <TimeWheelPicker
+                      initValue={schedule.end_time}
+                      visibleRest={1}
+                      align="center"
+                      onChange={changeEndTime}
+                    />
                   </View>
                 </Animated.View>
               </View>

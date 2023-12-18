@@ -6,28 +6,14 @@ import DatePicker from '@/components/DatePicker'
 
 import {format} from 'date-fns'
 
-import {RANGE_FLAG} from '@/utils/types'
-
 interface Props {
   value: string | string[]
   isShow: boolean
-  range?: boolean
-  rangeFlag?: RANGE_FLAG
-  onChangeRangeFlag?: Function
   onClose: Function
   onChange: Function
 }
-const DatePickerBottomSheet = ({
-  value,
-  isShow,
-  range = false,
-  rangeFlag = 1,
-  onChangeRangeFlag,
-  onClose,
-  onChange
-}: Props) => {
+const DatePickerBottomSheet = ({value, isShow, onClose, onChange}: Props) => {
   const datePickerBottomSheetRef = React.useRef<BottomSheetModal>(null)
-  const snapPoints = React.useMemo(() => [range ? 580 : 500], [range])
 
   const [selectDate, changeDate] = React.useState(value)
 
@@ -55,17 +41,7 @@ const DatePickerBottomSheet = ({
 
   const changeToday = () => {
     const today = format(new Date(), 'yyyy-MM-dd')
-    if (range) {
-      if (rangeFlag === RANGE_FLAG.START) {
-        console.log('today1', today)
-        changeDate([today, selectDate[1]])
-      } else if (rangeFlag === RANGE_FLAG.END) {
-        console.log('today2', today)
-        changeDate([selectDate[0], today])
-      }
-    } else {
-      changeDate(today)
-    }
+    changeDate(today)
   }
 
   const confirm = () => {
@@ -81,16 +57,10 @@ const DatePickerBottomSheet = ({
         return <BottomSheetBackdrop props={props} />
       }}
       index={0}
-      snapPoints={snapPoints}
+      snapPoints={[500]}
       onDismiss={onDismiss}>
       <View style={styles.container}>
-        <DatePicker
-          value={selectDate}
-          range={range}
-          flag={rangeFlag}
-          onChangeFlag={onChangeRangeFlag}
-          onChange={onChangeDate}
-        />
+        <DatePicker value={selectDate} onChange={onChangeDate} />
 
         <View style={styles.buttonWrapper}>
           <Pressable style={[styles.button, styles.todayButton]} onPress={changeToday}>

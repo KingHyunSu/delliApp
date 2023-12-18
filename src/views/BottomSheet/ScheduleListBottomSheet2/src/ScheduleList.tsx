@@ -21,20 +21,22 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
       return []
     }
 
-    let result = [{...data[0], display_type: ''}]
-    let prevScheduleEndTime = data[0].end_time
-
-    for (let i = 1; i < data.length; i++) {
+    let result = []
+    // let prevScheduleEndTime = data[0].end_time
+    console.log('data.length', data.length)
+    for (let i = 0; i < data.length - 1; i++) {
       let currentSchedule = {
         ...data[i],
         display_type: ''
       }
-      const nextSchedule = data[i + 1]
+      const nextScheduleStartTime = data[i + 1].start_time
 
-      if (prevScheduleEndTime === currentSchedule.start_time) {
+      if (currentSchedule.end_time === nextScheduleStartTime) {
         currentSchedule.display_type = SCHEDULE_DISPLAY_TYPE.CONTINUE
       }
-      if (prevScheduleEndTime !== currentSchedule.start_time) {
+      result.push(currentSchedule)
+
+      if (currentSchedule.end_time !== nextScheduleStartTime) {
         const defaultSchedule = {
           schedule_id: null,
           timetable_category_id: null,
@@ -63,18 +65,18 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
 
         const gapSchedule = {
           ...defaultSchedule,
-          start_time: prevScheduleEndTime,
-          end_time: currentSchedule.start_time,
+          start_time: currentSchedule.end_time,
+          end_time: nextScheduleStartTime,
           display_type: 'gap'
         }
 
         result.push(gapSchedule)
       }
-
-      result.push(currentSchedule)
-      prevScheduleEndTime = currentSchedule.end_time
       // [todo] 계획 시간과 완료 시간이 다르면 display_type = '', result.push
     }
+
+    const lastSchedule = {...data[data.length - 1], dispay_type: ''}
+    result.push(lastSchedule)
 
     return result
   }, [data])

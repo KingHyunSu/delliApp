@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
     paddingBottom: 30
   },
   label: {
-    fontFamily: 'Pretendard-Bold',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 18,
     marginBottom: 16,
     color: '#000'

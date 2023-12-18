@@ -5,7 +5,7 @@ import AppBar from '@/components/AppBar'
 import TimeTable from '@/components/TimeTable'
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import EditMenuBottomSheet from '@/views/BottomSheet/EditMenuBottomSheet'
-import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet'
+import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet2'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet2'
 // import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
@@ -94,7 +94,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
           return {...item, screenDisable: false}
         })
 
-        console.log('result', result)
         setScheduleList(result)
 
         return result
