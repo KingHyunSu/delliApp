@@ -31,8 +31,8 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
 
   const activeTimeTableCategory = useRecoilValue(activeTimeTableCategoryState)
   const scheduleDate = useRecoilValue(scheduleDateState)
-  const editStartAngle = useRecoilValue(editStartAngleState)
-  const editEndAngle = useRecoilValue(editEndAngleState)
+  const [editStartAngle, setEditStartAngle] = useRecoilState(editStartAngleState)
+  const [editEndAngle, setEditEndAngle] = useRecoilState(editEndAngleState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
   const [activeTimePanel, setActiveTimePanel] = React.useState(false)
@@ -146,17 +146,18 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
   }
 
   const changeTime = (time: number, flag: RANGE_FLAG) => {
-    console.log('time', time)
     if (flag === RANGE_FLAG.START) {
       setSchedule(prevState => ({
         ...prevState,
         start_time: time
       }))
+      setEditStartAngle(time * 0.25)
     } else if (flag === RANGE_FLAG.END) {
       setSchedule(prevState => ({
         ...prevState,
         end_time: time
       }))
+      setEditEndAngle(time * 0.25)
     }
   }
 
@@ -303,7 +304,7 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
                 <TimeWheelPicker
                   initValue={schedule.start_time}
                   visibleRest={1}
-                  onChange={(time: number) => changeTime(time, RANGE_FLAG.START)}
+                  onChange={(time: number) => changeTime(time, RANGE_FLAG.END)}
                 />
               </View>
             </Animated.View>
@@ -381,8 +382,63 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
           <Pressable style={[styles.expansionPanelHeader, {height: defaultPanelHeight}]} onPress={handleDayOfWeekPanel}>
             <View style={styles.expansionPanelHeaderTextBox}>
               <Text style={styles.expansionPanelHeaderLabel}>요일</Text>
-              <View>
-                <Text style={styles.expansionPanelHeaderTitle}>월 화 수 목 금 토 일</Text>
+              <View style={styles.dateOfWeekTitleContainer}>
+                <Text
+                  style={[
+                    styles.expansionPanelHeaderTitle,
+                    styles.disableDayOfWeekText,
+                    schedule.mon === '1' && styles.activeDayOfWeekText
+                  ]}>
+                  월
+                </Text>
+                <Text
+                  style={[
+                    styles.expansionPanelHeaderTitle,
+                    styles.disableDayOfWeekText,
+                    schedule.tue === '1' && styles.activeDayOfWeekText
+                  ]}>
+                  화
+                </Text>
+                <Text
+                  style={[
+                    styles.expansionPanelHeaderTitle,
+                    styles.disableDayOfWeekText,
+                    schedule.wed === '1' && styles.activeDayOfWeekText
+                  ]}>
+                  수
+                </Text>
+                <Text
+                  style={[
+                    styles.expansionPanelHeaderTitle,
+                    styles.disableDayOfWeekText,
+                    schedule.thu === '1' && styles.activeDayOfWeekText
+                  ]}>
+                  목
+                </Text>
+                <Text
+                  style={[
+                    styles.expansionPanelHeaderTitle,
+                    styles.disableDayOfWeekText,
+                    schedule.fri === '1' && styles.activeDayOfWeekText
+                  ]}>
+                  금
+                </Text>
+                <Text
+                  style={[
+                    styles.expansionPanelHeaderTitle,
+                    styles.disableDayOfWeekText,
+                    schedule.sat === '1' && styles.activeDayOfWeekText
+                  ]}>
+                  토
+                </Text>
+                <Text
+                  style={[
+                    styles.expansionPanelHeaderTitle,
+                    styles.disableDayOfWeekText,
+                    schedule.sun === '1' && styles.activeDayOfWeekText
+                  ]}>
+                  일
+                </Text>
               </View>
             </View>
 
@@ -536,6 +592,10 @@ const styles = StyleSheet.create({
     color: '#fff'
   },
 
+  dateOfWeekTitleContainer: {
+    flexDirection: 'row',
+    gap: 5
+  },
   dayOfWeekContainer: {
     flexDirection: 'row',
     gap: 10,
@@ -560,10 +620,13 @@ const styles = StyleSheet.create({
     color: '#c3c5cc'
   },
   activeDayOfWeekText: {
-    color: '#1E90FF'
+    color: '#424242'
+  },
+  disableDayOfWeekText: {
+    color: '#c3c5cc'
   },
   activeDayOfWeek: {
-    borderColor: '#1E90FF'
+    borderColor: '#424242'
   },
 
   submitBtn: {
