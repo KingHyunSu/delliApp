@@ -371,7 +371,11 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
               </View>
 
               <View style={styles.expansionPanelItemContents}>
-                <DatePicker value="2023-10-20" onChange={(date: string) => changeDate(date, RANGE_FLAG.END)} />
+                <DatePicker
+                  value={schedule.end_date}
+                  hasNull
+                  onChange={(date: string) => changeDate(date, RANGE_FLAG.END)}
+                />
               </View>
             </Animated.View>
           </View>

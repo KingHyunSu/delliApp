@@ -11,9 +11,10 @@ import {dateItemStyles} from './style'
 
 interface Props {
   value: string
+  hasNull?: boolean
   onChange: Function
 }
-const DatePicker = ({value, onChange}: Props) => {
+const DatePicker = ({value, hasNull = false, onChange}: Props) => {
   // 요일
   const weekdays = ['월', '화', '수', '목', '금', '토', '일']
 
@@ -27,12 +28,20 @@ const DatePicker = ({value, onChange}: Props) => {
 
   React.useEffect(() => {
     if (date) {
-      setCurrentDate(new Date(date))
+      if (hasNull && date === '9999-12-31') {
+        setCurrentDate(new Date())
+      } else {
+        setCurrentDate(new Date(date))
+      }
     }
-  }, [date])
+  }, [date, hasNull])
 
   const changeDate = (item: Item) => {
-    const dateStr = `${item.year}-${setDigit(item.month)}-${setDigit(item.day)}`
+    let dateStr = `${item.year}-${setDigit(item.month)}-${setDigit(item.day)}`
+
+    if (hasNull && dateStr === date) {
+      dateStr = '9999-12-31'
+    }
 
     setDate(dateStr)
     onChange(dateStr)

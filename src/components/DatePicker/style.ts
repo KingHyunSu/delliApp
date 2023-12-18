@@ -6,10 +6,10 @@ export const dateItemStyles = StyleSheet.create({
     paddingVertical: 6
   },
   text: {
-    fontFamily: 'Pretendard-Medium',
+    fontFamily: 'Pretendard-Regular',
     borderRadius: 10,
     textAlign: 'center',
-    color: '#000',
+    color: '#424242',
     fontSize: 16
   }
 })
