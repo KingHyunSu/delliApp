@@ -31,19 +31,23 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
 
   const processBarCircleColor = React.useMemo(() => {
     if (item.complete_start_time) {
-      return item.background_color
+      return '#1E90FF'
     }
     return '#BABABA'
-  }, [item.complete_start_time, item.background_color])
+  }, [item.complete_start_time])
+  // const processBarCircleColor = React.useMemo(() => {
+  //   if (item.complete_start_time) {
+  //     // return '#1E90FF'
+  //     return item.background_color
+  //   }
+  //   return '#BABABA'
+  // }, [item.complete_start_time, item.background_color])
 
   if (isGapSchedule) {
     return (
-      <View style={styles.gapContainer}>
-        <View style={styles.gapLine} />
-        <Pressable style={styles.gapButton} onPress={() => openEditScheduleBottomSheet(item)}>
-          <Text style={styles.gapButtonText}>일정 추가하기</Text>
-        </Pressable>
-      </View>
+      <Pressable style={styles.gapButton} onPress={() => openEditScheduleBottomSheet(item)}>
+        <Text style={styles.gapButtonText}>일정 추가하기</Text>
+      </Pressable>
     )
   }
   return (
@@ -147,23 +151,10 @@ const styles = StyleSheet.create({
     color: '#7c8698'
   },
 
-  gapContainer: {
-    position: 'relative',
-    height: 52,
-    marginVertical: 15,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  gapLine: {
-    width: '100%',
-    height: 2,
-    backgroundColor: '#f5f6f8'
-  },
   gapButton: {
-    width: '100%',
-    position: 'absolute',
     height: 52,
     justifyContent: 'center',
+    marginVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 10,
     backgroundColor: '#dceafe'
@@ -172,7 +163,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 14,
     color: '#1E90FF'
-    // color: '#000080'
   }
 })
 

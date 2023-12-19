@@ -38,6 +38,7 @@ const SchedulePie = ({data, x, y, radius, startAngle, endAngle, opacity = 1, onC
     <Path
       d={path}
       fill={data.screenDisable ? '#e2e2e2' : data.background_color}
+      // fill={data.screenDisable ? '#e2e2e2' : '#fff'}
       stroke={'#efefef'}
       fillOpacity={opacity}
       onPress={handleClick}
