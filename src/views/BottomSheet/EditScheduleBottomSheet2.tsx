@@ -1,15 +1,17 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable, TextInput} from 'react-native'
+import Switch from '@/components/Swtich'
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 import TimeWheelPicker from '@/components/TimeWheelPicker'
 import DatePicker from '@/components/DatePicker'
+import WheelPicker from 'react-native-wheely'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {scheduleDateState, scheduleState, editStartAngleState, editEndAngleState} from '@/store/schedule'
 
-import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
+import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
 import {format} from 'date-fns'
 
@@ -19,6 +21,8 @@ import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import {RANGE_FLAG} from '@/utils/types'
 import {DAY_OF_WEEK} from '@/types/common'
 
+import notifee from '@notifee/react-native'
+
 interface Props {
   titleInputRef: React.RefObject<TextInput>
 }
@@ -27,6 +31,10 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
   const defaultItemPanelHeight = 56
   const defaultFullTimeItemPanelHeight = 216
   const defaultFullDateItemPanelHeight = 426
+
+  const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
+  const [alarmWheelIndex, setAlarmWheelIndex] = React.useState(1)
+
   const bottomSheetRef = React.useRef<BottomSheet>(null)
 
   const activeTimeTableCategory = useRecoilValue(activeTimeTableCategoryState)
@@ -41,6 +49,7 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
   const [activeAlarmPanel, setActiveAlarmPanel] = React.useState(false)
   const [timeFlag, setTimeFlag] = React.useState(0)
   const [dateFlag, setDateFlag] = React.useState(0)
+  const [alarmTime, setAlarmTime] = React.useState<null | number>(null)
 
   const startTime = React.useMemo(() => {
     return getTimeOfMinute(editStartAngle * 4)
@@ -110,7 +119,9 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
     setActiveTimePanel(false)
     setActiveDatePanel(false)
     setActiveDayOfWeekPanel(false)
-    setActiveAlarmPanel(!activeAlarmPanel)
+    if (alarmTime) {
+      setActiveAlarmPanel(!activeAlarmPanel)
+    }
   }
   const handleStartTimePanel = () => {
     setTimeFlag(0)
@@ -181,6 +192,46 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
     setSchedule(prevState => ({...prevState, [key]: flag}))
   }
 
+  const changeAlarm = (value: boolean) => {
+    setActiveAlarmPanel(value)
+
+    if (value) {
+      setActiveTimePanel(false)
+      setActiveDatePanel(false)
+      setActiveDayOfWeekPanel(false)
+
+      setAlarmTime(15)
+    } else {
+      setAlarmTime(null)
+    }
+  }
+
+  const alarmTest = async () => {
+    console.log('notifee', notifee)
+    // Request permissions (required for iOS)
+    await notifee.requestPermission()
+
+    // Create a channel (required for Android)
+    const channelId = await notifee.createChannel({
+      id: 'default',
+      name: 'Default Channel'
+    })
+
+    // Display a notification
+    await notifee.displayNotification({
+      title: 'Notification Title',
+      body: 'Main body content of the notification',
+      android: {
+        channelId,
+        smallIcon: 'name-of-a-small-icon', // optional, defaults to 'ic_launcher'.
+        // pressAction is needed if you want the notification to open the app when pressed
+        pressAction: {
+          id: 'default'
+        }
+      }
+    })
+  }
+
   React.useEffect(() => {
     if (activeTimePanel) {
       timePanelHeight.value = withTiming(
@@ -196,7 +247,7 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
       dayOfWeekPanelHeight.value = withTiming(defaultPanelHeight + 77)
     }
     if (activeAlarmPanel) {
-      alarmPanelHeight.value = withTiming(200)
+      alarmPanelHeight.value = withTiming(defaultPanelHeight + 160)
     }
 
     if (!activeTimePanel) {
@@ -493,10 +544,28 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
           <Pressable style={[styles.expansionPanelHeader, {height: defaultPanelHeight}]} onPress={handleAlarmPanel}>
             <View style={styles.expansionPanelHeaderTextBox}>
               <Text style={styles.expansionPanelHeaderLabel}>알람</Text>
-              <Text style={styles.expansionPanelHeaderTitle}>15분 전</Text>
+              <Text style={styles.expansionPanelHeaderTitle}>{`${alarmWheelTimeList[alarmWheelIndex]}분 전`}</Text>
             </View>
+
+            <Switch value={!!alarmTime} onChange={changeAlarm} />
           </Pressable>
+
+          <View style={styles.expansionPanelContents}>
+            <WheelPicker
+              options={alarmWheelTimeList}
+              selectedIndex={alarmWheelIndex}
+              visibleRest={1}
+              containerStyle={styles.alarmWheelContainer}
+              selectedIndicatorStyle={styles.alarmWheelSelectedWrapper}
+              itemTextStyle={styles.alarmWheelText}
+              onChange={index => setAlarmWheelIndex(index)}
+            />
+          </View>
         </Animated.View>
+
+        <Pressable onPress={alarmTest}>
+          <Text>알람 테스트</Text>
+        </Pressable>
 
         <Pressable style={styles.submitBtn}>
           <Text style={styles.submitText}>{'등록하기'}</Text>
@@ -631,6 +700,19 @@ const styles = StyleSheet.create({
   },
   activeDayOfWeek: {
     borderColor: '#424242'
+  },
+  alarmWheelContainer: {
+    marginTop: 20,
+    marginHorizontal: 16
+  },
+  alarmWheelSelectedWrapper: {
+    backgroundColor: '#f5f6f8',
+    borderRadius: 10
+  },
+  alarmWheelText: {
+    fontFamily: 'Pretendard-Bold',
+    fontSize: 16,
+    color: '#7c8698'
   },
 
   submitBtn: {

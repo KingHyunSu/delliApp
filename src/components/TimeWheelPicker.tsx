@@ -1,12 +1,13 @@
 import React from 'react'
 import {StyleSheet, View} from 'react-native'
-// import WheelPicker, {WheelPickerRefs} from '@/components/WheelPicker'
 import WheelPicker from 'react-native-wheely'
+
+type FlexAlignType = 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline'
 
 interface Props {
   initValue: number
   visibleRest?: number
-  align?: string
+  align?: FlexAlignType
   onChange: Function
 }
 const TimeWheelPicker = ({initValue, visibleRest = 2, align = 'flex-start', onChange}: Props) => {
