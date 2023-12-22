@@ -58,7 +58,7 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
           title_x: 0,
           title_y: 0,
           title_rotate: 0,
-          alram: false,
+          alarm: 0,
           background_color: '#ffffff',
           text_color: '#000000'
         }

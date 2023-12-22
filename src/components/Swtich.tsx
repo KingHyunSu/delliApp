@@ -18,7 +18,7 @@ const Switch = ({value = false, onChange}: Props) => {
   })
 
   const backgroundStyle = useAnimatedStyle(() => {
-    const backgroundColor = interpolateColor(precess.value, [0, 1], ['#eeeded', '#81b0ff'])
+    const backgroundColor = interpolateColor(precess.value, [0, 1], ['#eeeded', '#1E90FF'])
     return {backgroundColor}
   })
 

@@ -32,7 +32,7 @@ export const scheduleListState = atom<Schedule[]>({
       title_x: 30,
       title_y: 37,
       title_rotate: -20,
-      alram: false,
+      alarm: 0,
       background_color: '#ffffff',
       text_color: '#000'
     },
@@ -57,7 +57,7 @@ export const scheduleListState = atom<Schedule[]>({
       title_x: 30,
       title_y: -18,
       title_rotate: 10,
-      alram: false,
+      alarm: 0,
       background_color: '#ffffff',
       text_color: '#000'
     }
@@ -71,8 +71,8 @@ export const scheduleState = atom<Schedule>({
     timetable_category_id: null,
     start_date: '',
     end_date: '9999-12-31',
-    start_time: 300,
-    end_time: 500,
+    start_time: 0,
+    end_time: 360,
     title: '',
     mon: '1',
     tue: '1',
@@ -87,7 +87,7 @@ export const scheduleState = atom<Schedule>({
     title_x: 0,
     title_y: 0,
     title_rotate: 0,
-    alram: false,
+    alarm: 0,
     background_color: '#ffffff',
     text_color: '#000000'
   }

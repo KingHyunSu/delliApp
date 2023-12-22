@@ -24,8 +24,7 @@ export interface Schedule {
   text_color: string
   complete_start_time?: number
   complete_end_time?: number
-
-  alram: boolean
+  alarm: number
 
   display_type?: string
   screenDisable?: boolean

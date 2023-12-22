@@ -5,7 +5,6 @@ import {Platform, StyleSheet, View, Text, Pressable, TextInput} from 'react-nati
 import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
-import {AlarmModal, AlarmModalRef} from '@/components/Modal'
 
 import {useRecoilValue, useRecoilState, useSetRecoilState} from 'recoil'
 import {showTimePickerBototmSheetState} from '@/store/bottomSheet'
@@ -44,7 +43,6 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const alarmButtonRef = React.useRef<View>(null)
-  const alramModalRef = React.useRef<AlarmModalRef>(null)
 
   const snapPoints = React.useMemo(() => ['35%', '93%'], [])
 
@@ -146,9 +144,9 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
       })
     }
     // console.log('alramModalRef', alramModalRef.current?)
-    console.log('alarmButtonRef', alarmButtonRef.current?.measureInWindow)
-    // console.log('alramButtonRef', alramButtonRef.current?.)
-    alramModalRef.current?.open()
+    // console.log('alarmButtonRef', alarmButtonRef.current?.measureInWindow)
+    // // console.log('alramButtonRef', alramButtonRef.current?.)
+    // alramModalRef.current?.open()
   }
 
   const handleSubmit = () => {

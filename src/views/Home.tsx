@@ -22,7 +22,13 @@ import {Shadow} from 'react-native-shadow-2'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
-import {scheduleDateState, scheduleState, scheduleListState} from '@/store/schedule'
+import {
+  scheduleDateState,
+  scheduleState,
+  scheduleListState,
+  editStartAngleState,
+  editEndAngleState
+} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {showColorPickerBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
@@ -48,6 +54,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const isShowColorPickerBottomSheetState = useRecoilValue(showColorPickerBottomSheetState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
   const setSchedule = useSetRecoilState(scheduleState)
+  const setEditStartAngle = useSetRecoilState(editStartAngleState)
+  const setEditEndAngle = useSetRecoilState(editEndAngleState)
   const resetSchedule = useResetRecoilState(scheduleState)
 
   const [homeTopHeight, setHomeTopHeight] = React.useState(0)
@@ -114,6 +122,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
   }
 
   const openEditMenuBottomSheet = (value: Schedule) => {
+    setEditStartAngle(value.start_time * 0.25)
+    setEditEndAngle(value.end_time * 0.25)
     setSchedule(value)
     setShowEditMenuBottomSheet(true)
   }
