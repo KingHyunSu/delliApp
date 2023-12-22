@@ -7,33 +7,39 @@ import TimeWheelPicker from '@/components/TimeWheelPicker'
 import DatePicker from '@/components/DatePicker'
 import WheelPicker from 'react-native-wheely'
 
+import {useMutation} from '@tanstack/react-query'
+import * as API from '@/apis/schedule'
+
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {scheduleDateState, scheduleState, editStartAngleState, editEndAngleState} from '@/store/schedule'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
-import {format} from 'date-fns'
+import {format, getTime, startOfToday, setMinutes} from 'date-fns'
 
 import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 
+import {Schedule} from '@/types/schedule'
 import {RANGE_FLAG} from '@/utils/types'
 import {DAY_OF_WEEK} from '@/types/common'
 
-import notifee from '@notifee/react-native'
+import notifee, {TimestampTrigger, TriggerType, RepeatFrequency} from '@notifee/react-native'
 
 interface Props {
+  scheduleList: Schedule[]
+  refetchScheduleList: Function
+  setIsEdit: Function
   titleInputRef: React.RefObject<TextInput>
 }
-const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
+const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, titleInputRef}: Props) => {
   const defaultPanelHeight = 74
   const defaultItemPanelHeight = 56
   const defaultFullTimeItemPanelHeight = 216
   const defaultFullDateItemPanelHeight = 426
 
   const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
-  const [alarmWheelIndex, setAlarmWheelIndex] = React.useState(1)
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
 
@@ -49,7 +55,7 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
   const [activeAlarmPanel, setActiveAlarmPanel] = React.useState(false)
   const [timeFlag, setTimeFlag] = React.useState(0)
   const [dateFlag, setDateFlag] = React.useState(0)
-  const [alarmTime, setAlarmTime] = React.useState<null | number>(null)
+  const [alarmWheelIndex, setAlarmWheelIndex] = React.useState(1)
 
   const startTime = React.useMemo(() => {
     return getTimeOfMinute(editStartAngle * 4)
@@ -62,6 +68,10 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
   const endDate = React.useMemo(() => {
     return schedule.end_date !== '9999-12-31' ? schedule.end_date : '없음'
   }, [schedule.end_date])
+
+  const isActiveAlarm = React.useMemo(() => {
+    return schedule.alarm !== 0
+  }, [schedule.alarm])
 
   const timePanelHeight = useSharedValue(defaultPanelHeight)
   const datePanelHeight = useSharedValue(defaultPanelHeight)
@@ -119,7 +129,7 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
     setActiveTimePanel(false)
     setActiveDatePanel(false)
     setActiveDayOfWeekPanel(false)
-    if (alarmTime) {
+    if (isActiveAlarm) {
       setActiveAlarmPanel(!activeAlarmPanel)
     }
   }
@@ -192,45 +202,134 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
     setSchedule(prevState => ({...prevState, [key]: flag}))
   }
 
-  const changeAlarm = (value: boolean) => {
-    setActiveAlarmPanel(value)
+  const changeAlarm = (index: number) => {
+    setSchedule(prevState => ({...prevState, alarm: (index + 1) * 5}))
+  }
 
+  const changeAlarmSwitch = (value: boolean) => {
     if (value) {
       setActiveTimePanel(false)
       setActiveDatePanel(false)
       setActiveDayOfWeekPanel(false)
 
-      setAlarmTime(15)
+      changeAlarm(alarmWheelIndex)
     } else {
-      setAlarmTime(null)
+      setSchedule(prevState => ({...prevState, alarm: 0}))
+    }
+
+    setActiveAlarmPanel(value)
+  }
+
+  const registNotification = async () => {
+    try {
+      await notifee.requestPermission()
+
+      const isChannel = await notifee.getChannel('schedule')
+
+      if (!isChannel) {
+        await notifee.createChannel({
+          id: 'schedule',
+          name: 'schedule'
+        })
+      }
+
+      let alarmTime = getTime(setMinutes(startOfToday(), schedule.start_time - schedule.alarm))
+      const currentTime = new Date().getTime()
+
+      if (alarmTime < currentTime) {
+        alarmTime += 1000 * 60 * 60 * 24 // 1 day after
+      }
+
+      const trigger: TimestampTrigger = {
+        type: TriggerType.TIMESTAMP,
+        timestamp: alarmTime,
+        repeatFrequency: RepeatFrequency.DAILY
+      }
+
+      if (schedule.schedule_id) {
+        await notifee.createTriggerNotification(
+          {
+            id: String(schedule.schedule_id),
+            title: '델리',
+            body: schedule.title,
+            android: {
+              channelId: 'schedule'
+            }
+          },
+          trigger
+        )
+      }
+    } catch (e) {
+      throw e
     }
   }
 
-  const alarmTest = async () => {
-    console.log('notifee', notifee)
-    // Request permissions (required for iOS)
-    await notifee.requestPermission()
+  const getDisableScheduleIdList = () => {
+    const {start_time, end_time} = schedule
 
-    // Create a channel (required for Android)
-    const channelId = await notifee.createChannel({
-      id: 'default',
-      name: 'Default Channel'
-    })
+    const disableScheduleIdList: number[] = []
 
-    // Display a notification
-    await notifee.displayNotification({
-      title: 'Notification Title',
-      body: 'Main body content of the notification',
-      android: {
-        channelId,
-        smallIcon: 'name-of-a-small-icon', // optional, defaults to 'ic_launcher'.
-        // pressAction is needed if you want the notification to open the app when pressed
-        pressAction: {
-          id: 'default'
+    scheduleList.forEach(item => {
+      const isOverlapAll =
+        item.start_time >= start_time &&
+        item.start_time < end_time &&
+        item.end_time <= end_time &&
+        item.end_time > start_time
+
+      const isOverlapLeft = item.start_time >= start_time && item.end_time > end_time && item.start_time < end_time
+
+      const isOverlapRight = item.start_time < start_time && item.end_time <= end_time && item.end_time > start_time
+
+      const isOverlapCenter =
+        item.start_time < start_time &&
+        item.end_time > end_time &&
+        item.start_time < end_time &&
+        item.end_time > start_time
+
+      if (isOverlapAll || isOverlapLeft || isOverlapRight || isOverlapCenter) {
+        if (item.schedule_id && item.schedule_id !== schedule.schedule_id) {
+          disableScheduleIdList.push(item.schedule_id)
         }
       }
     })
+
+    return disableScheduleIdList
   }
+
+  const setScheduleMutation = useMutation({
+    mutationFn: async (params: API.SetScheduleParam) => {
+      return await API.setSchedule(params)
+    },
+    onSuccess: async () => {
+      await refetchScheduleList()
+      setIsEdit(false)
+    }
+  })
+
+  const handleSubmit = async () => {
+    try {
+      if (isActiveAlarm) {
+        await registNotification()
+      } else {
+        await notifee.cancelNotification(String(schedule.schedule_id))
+      }
+
+      const params = {
+        schedule,
+        disableScheduleIdList: getDisableScheduleIdList()
+      }
+
+      setScheduleMutation.mutateAsync(params)
+    } catch (e) {
+      console.error('e', e)
+    }
+  }
+
+  React.useEffect(() => {
+    if (schedule.alarm > 0) {
+      setAlarmWheelIndex(schedule.alarm / 5 - 1)
+    }
+  }, [schedule.alarm])
 
   React.useEffect(() => {
     if (activeTimePanel) {
@@ -353,7 +452,7 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
 
               <View style={[styles.expansionPanelItemContents, {height: defaultFullTimeItemPanelHeight}]}>
                 <TimeWheelPicker
-                  initValue={schedule.start_time}
+                  initValue={schedule.end_time}
                   visibleRest={1}
                   onChange={(time: number) => changeTime(time, RANGE_FLAG.END)}
                 />
@@ -544,10 +643,10 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
           <Pressable style={[styles.expansionPanelHeader, {height: defaultPanelHeight}]} onPress={handleAlarmPanel}>
             <View style={styles.expansionPanelHeaderTextBox}>
               <Text style={styles.expansionPanelHeaderLabel}>알람</Text>
-              <Text style={styles.expansionPanelHeaderTitle}>{`${alarmWheelTimeList[alarmWheelIndex]}분 전`}</Text>
+              <Text style={styles.expansionPanelHeaderTitle}>{isActiveAlarm ? `${schedule.alarm}분 전` : '없음'}</Text>
             </View>
 
-            <Switch value={!!alarmTime} onChange={changeAlarm} />
+            <Switch value={isActiveAlarm} onChange={changeAlarmSwitch} />
           </Pressable>
 
           <View style={styles.expansionPanelContents}>
@@ -558,17 +657,13 @@ const EditScheduleBottomSheet = ({titleInputRef}: Props) => {
               containerStyle={styles.alarmWheelContainer}
               selectedIndicatorStyle={styles.alarmWheelSelectedWrapper}
               itemTextStyle={styles.alarmWheelText}
-              onChange={index => setAlarmWheelIndex(index)}
+              onChange={changeAlarm}
             />
           </View>
         </Animated.View>
 
-        <Pressable onPress={alarmTest}>
-          <Text>알람 테스트</Text>
-        </Pressable>
-
-        <Pressable style={styles.submitBtn}>
-          <Text style={styles.submitText}>{'등록하기'}</Text>
+        <Pressable style={styles.submitBtn} onPress={handleSubmit}>
+          <Text style={styles.submitText}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
         </Pressable>
       </BottomSheetScrollView>
     </BottomSheet>
