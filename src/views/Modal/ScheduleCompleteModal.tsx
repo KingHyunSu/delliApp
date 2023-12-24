@@ -199,7 +199,7 @@ const ScheduleCompleteModal = () => {
                 <Text style={styles.buttonText}>닫기</Text>
               </Pressable>
               <Pressable style={[styles.button, styles.confirmButton]} onPress={handleComplete}>
-                <Text style={styles.buttonText}>확인</Text>
+                <Text style={styles.buttonText}>완료</Text>
               </Pressable>
             </View>
           </View>
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
   },
   confirmButton: {
     flex: 2,
-    backgroundColor: '#1E90FF'
+    backgroundColor: '#76d672'
   },
   buttonText: {
     fontFamily: 'Pretendard-Medium',

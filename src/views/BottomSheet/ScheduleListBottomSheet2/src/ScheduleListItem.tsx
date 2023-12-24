@@ -29,19 +29,39 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
     return getTimeOfMinute(item.end_time)
   }, [item.end_time])
 
+  // [V2] - 완료 일정
+  // const completeStartTime = React.useMemo(() => {
+  //   if (item.complete_start_time) {
+  //     return getTimeOfMinute(item.complete_start_time)
+  //   }
+
+  //   return null
+  // }, [item.complete_start_time])
+
+  // const completeEndTime = React.useMemo(() => {
+  //   if (item.complete_end_time) {
+  //     return getTimeOfMinute(item.complete_end_time)
+  //   }
+
+  //   return null
+  // }, [item.complete_end_time])
+
+  // const strikeThroughStartTime = React.useMemo(() => {
+  //   return item.complete_start_time && item.complete_start_time !== item.start_time
+  // }, [item.complete_start_time, item.start_time])
+
+  // const strikeThroughEndTime = React.useMemo(() => {
+  //   if (item.complete_end_time && item.complete_end_time !== item.end_time) {
+  //     return styles.strikeThroughText
+  //   }
+  // }, [item.complete_end_time, item.end_time])
+
   const processBarCircleColor = React.useMemo(() => {
     if (item.complete_start_time) {
       return '#1E90FF'
     }
     return '#BABABA'
   }, [item.complete_start_time])
-  // const processBarCircleColor = React.useMemo(() => {
-  //   if (item.complete_start_time) {
-  //     // return '#1E90FF'
-  //     return item.background_color
-  //   }
-  //   return '#BABABA'
-  // }, [item.complete_start_time, item.background_color])
 
   if (isGapSchedule) {
     return (
@@ -55,11 +75,13 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
       <View style={styles.processBarContainer}>
         <View style={[styles.processBarCircle, {backgroundColor: processBarCircleColor}]} />
         <View style={[styles.processBarLine, {backgroundColor: processBarCircleColor, opacity: 0.2}]} />
-        {!isContinueSchedule && <View style={styles.processBarCircle} />}
+        {!isContinueSchedule && <View style={[styles.processBarCircle, {backgroundColor: processBarCircleColor}]} />}
       </View>
 
       <View style={styles.contentContainer}>
-        <Text style={styles.timeText}>{`${startTime.meridiem} ${startTime.hour}시 ${startTime.minute}분`}</Text>
+        <View style={styles.timeTextContainer}>
+          <Text style={[styles.timeText]}>{`${startTime.meridiem} ${startTime.hour}시 ${startTime.minute}분`}</Text>
+        </View>
 
         <Pressable style={styles.contentWrapper} onPress={() => onClick(item)}>
           <Text style={styles.contentText}>{item.title}</Text>
@@ -81,7 +103,7 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
         </Pressable>
 
         {!isContinueSchedule && (
-          <Text style={[styles.timeText]}>{`${endTime.meridiem} ${endTime.hour}시 ${endTime.minute}분`}</Text>
+          <Text style={styles.timeText}>{`${endTime.meridiem} ${endTime.hour}시 ${endTime.minute}분`}</Text>
         )}
       </View>
     </View>
@@ -104,20 +126,20 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   processBarCircle: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     // borderWidth: 1,
     borderColor: '#f5f6f8',
     backgroundColor: '#BABABA'
   },
   processBarLine: {
     flex: 1,
-    width: 5
+    width: 3
   },
 
   contentContainer: {
-    paddingVertical: 3,
+    // paddingVertical: 3,
     flex: 1
   },
   contentWrapper: {
@@ -127,11 +149,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderRadius: 15
   },
+  timeTextContainer: {
+    flexDirection: 'row',
+    gap: 7
+  },
   timeText: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 15,
+    fontSize: 14,
     color: '#424242'
   },
+  // strikeThroughText: {
+  //   textDecorationLine: 'line-through',
+  //   textDecorationStyle: 'solid',
+  //   textDecorationColor: '#424242',
+  //   color: '#7c8698'
+  // },
   contentText: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,

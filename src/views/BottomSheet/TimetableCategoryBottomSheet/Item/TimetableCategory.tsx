@@ -4,8 +4,7 @@ import {StyleSheet, Pressable, View} from 'react-native'
 import {BottomSheetTextInput} from '@gorhom/bottom-sheet'
 import {TextInput} from 'react-native-gesture-handler'
 
-import EditIcon from '@/assets/icons/edit.svg'
-import Edit2Icon from '@/assets/icons/edit2.svg'
+import EditIcon from '@/assets/icons/edit2.svg'
 import CancleIcon from '@/assets/icons/cancle.svg'
 
 import Animated, {useSharedValue, useAnimatedStyle} from 'react-native-reanimated'

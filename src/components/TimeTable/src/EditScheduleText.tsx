@@ -122,6 +122,8 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
           <TextInput
             ref={titleInputRef}
             value={data.title}
+            placeholder="일정명을 입력해주세요."
+            placeholderTextColor="#c3c5cc"
             style={[styles.textInput, {color: data.text_color}]}
             multiline
             scrollEnabled={false}

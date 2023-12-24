@@ -30,6 +30,10 @@ export interface Schedule {
   screenDisable?: boolean
 }
 
+export interface ScheduleDisable {
+  schedule_id: number
+}
+
 export interface ScheduleComplete {
   schedule_id: number
   schedule_complete_id?: number

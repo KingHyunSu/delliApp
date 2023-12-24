@@ -18,8 +18,6 @@ import SettingIcon from '@/assets/icons/setting.svg'
 import CancleIcon from '@/assets/icons/cancle.svg'
 import EditIcon from '@/assets/icons/edit3.svg'
 
-import {Shadow} from 'react-native-shadow-2'
-
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
 import {
@@ -38,8 +36,6 @@ import {useQuery} from '@tanstack/react-query'
 
 import {getDayOfWeekKey} from '@/utils/helper'
 import {format} from 'date-fns'
-
-import {trigger} from 'react-native-haptic-feedback'
 
 import {Schedule} from '@/types/schedule'
 import {HomeNavigationProps} from '@/types/navigation'
@@ -81,6 +77,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
         const date = format(scheduleDate, 'yyyy-MM-dd')
 
         const param = {
+          timetable_category_id: activeTimeTableCategory.timetable_category_id,
           date,
           mon: '',
           tue: '',
@@ -89,7 +86,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           fri: '',
           sat: '',
           sun: '',
-          timetable_category_id: activeTimeTableCategory.timetable_category_id
+          disable: '0'
         }
         const dayOfWeek = getDayOfWeekKey(scheduleDate.getDay())
 
@@ -115,6 +112,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
   const openEditScheduleBottomSheet = (value?: Schedule) => {
     if (value) {
+      console.log('value', value)
       setSchedule(value)
     }
 
@@ -152,16 +150,22 @@ const Home = ({navigation}: HomeNavigationProps) => {
     }).start()
   }
 
+  const resetEditForm = () => {
+    resetSchedule()
+    setEditStartAngle(0)
+    setEditEndAngle(90)
+  }
+
   React.useEffect(() => {
     if (isEdit) {
       translateAnimation(headerTranslateY, -200, 350)
       translateAnimation(timaTableTranslateY, -100)
     } else {
-      resetSchedule()
+      resetEditForm()
       translateAnimation(headerTranslateY, 0, 350)
       translateAnimation(timaTableTranslateY, 0)
     }
-  }, [isEdit, headerTranslateY, timaTableTranslateY, resetSchedule])
+  }, [isEdit, headerTranslateY, timaTableTranslateY])
 
   return (
     <View style={homeStyles.container}>
@@ -243,7 +247,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
       )}
 
       {/* bottom sheet */}
-      <EditMenuBottomSheet />
+      <EditMenuBottomSheet refetchScheduleList={refetchScheduleList} />
       <TimetableCategoryBottomSheet />
       <StyleBottomSheet />
       <ColorPickerBottomSheet />

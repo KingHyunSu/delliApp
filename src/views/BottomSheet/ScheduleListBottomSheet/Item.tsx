@@ -1,8 +1,6 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
 
-import DoneIcon from '@/assets/icons/done.svg'
-
 import {getTimeOfMinute} from '@/utils/helper'
 import {useRecoilState} from 'recoil'
 import {scheduleListState} from '@/store/schedule'
