@@ -54,7 +54,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = React.useState(false)
   const [activeAlarmPanel, setActiveAlarmPanel] = React.useState(false)
   const [timeFlag, setTimeFlag] = React.useState(0)
-  const [dateFlag, setDateFlag] = React.useState(0)
+  const [dateFlag, setDateFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
   const [alarmWheelIndex, setAlarmWheelIndex] = React.useState(1)
 
   const startTime = React.useMemo(() => {
@@ -79,7 +79,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   const alarmPanelHeight = useSharedValue(defaultPanelHeight)
   const timeStartPanelHeight = useSharedValue(defaultFullTimeItemPanelHeight)
   const timeEndPanelHeight = useSharedValue(defaultItemPanelHeight)
-  const dateStartPanelHeight = useSharedValue(defaultFullDateItemPanelHeight)
+  const dateStartPanelHeight = useSharedValue(defaultItemPanelHeight)
   const dateEndPanelHeight = useSharedValue(defaultItemPanelHeight)
 
   const timePanelHeightAnimatedStyle = useAnimatedStyle(() => ({
@@ -147,16 +147,14 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   }
 
   const handleStartDatePanel = () => {
-    setDateFlag(0)
+    if (schedule.schedule_id) {
+      return
+    }
 
-    dateEndPanelHeight.value = withTiming(defaultItemPanelHeight)
-    dateStartPanelHeight.value = withTiming(defaultFullDateItemPanelHeight)
+    setDateFlag(RANGE_FLAG.START)
   }
   const handleEndDatePanel = () => {
-    setDateFlag(1)
-
-    dateStartPanelHeight.value = withTiming(defaultItemPanelHeight)
-    dateEndPanelHeight.value = withTiming(defaultFullDateItemPanelHeight)
+    setDateFlag(RANGE_FLAG.END)
   }
 
   const focusTitleInput = () => {
@@ -364,6 +362,22 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   }, [activeTimePanel, activeDatePanel, activeDayOfWeekPanel, activeAlarmPanel])
 
   React.useEffect(() => {
+    if (schedule.schedule_id) {
+      setDateFlag(RANGE_FLAG.END)
+    }
+  }, [schedule.schedule_id])
+
+  React.useEffect(() => {
+    if (dateFlag === RANGE_FLAG.END) {
+      dateStartPanelHeight.value = withTiming(defaultItemPanelHeight)
+      dateEndPanelHeight.value = withTiming(defaultFullDateItemPanelHeight)
+    } else if (dateFlag === RANGE_FLAG.START) {
+      dateStartPanelHeight.value = withTiming(defaultFullDateItemPanelHeight)
+      dateEndPanelHeight.value = withTiming(defaultItemPanelHeight)
+    }
+  }, [dateFlag])
+
+  React.useEffect(() => {
     if (activeTimeTableCategory.timetable_category_id) {
       setSchedule(prevState => ({...prevState, timetable_category_id: activeTimeTableCategory.timetable_category_id}))
     }
@@ -478,12 +492,15 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
                 <Text style={styles.expansionPanelItemLabel}>시작일</Text>
 
                 <Pressable
-                  style={[styles.expansionPanelItemButton, dateFlag === 0 && styles.expansionPanelItemActiveButton]}
+                  style={[
+                    styles.expansionPanelItemButton,
+                    dateFlag === RANGE_FLAG.START && styles.expansionPanelItemActiveButton
+                  ]}
                   onPress={handleStartDatePanel}>
                   <Text
                     style={[
                       styles.expansionPanelItemButtonText,
-                      dateFlag === 0 && styles.expansionPanelItemActiveButtonText
+                      dateFlag === RANGE_FLAG.START && styles.expansionPanelItemActiveButtonText
                     ]}>
                     {schedule.start_date}
                   </Text>
@@ -502,18 +519,21 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
               style={[
                 dateEndPanelHeightAnimatedStyle,
                 styles.expansionPanelItemContainer,
-                dateFlag === 0 && {borderTopWidth: 1, borderTopColor: '#eeeded'}
+                dateFlag === RANGE_FLAG.START && {borderTopWidth: 1, borderTopColor: '#eeeded'}
               ]}>
               <View style={[styles.expansionPanelItemHeader, {height: defaultItemPanelHeight}]}>
                 <Text style={styles.expansionPanelItemLabel}>종료일</Text>
 
                 <Pressable
-                  style={[styles.expansionPanelItemButton, dateFlag === 1 && styles.expansionPanelItemActiveButton]}
+                  style={[
+                    styles.expansionPanelItemButton,
+                    dateFlag === RANGE_FLAG.END && styles.expansionPanelItemActiveButton
+                  ]}
                   onPress={handleEndDatePanel}>
                   <Text
                     style={[
                       styles.expansionPanelItemButtonText,
-                      dateFlag === 1 && styles.expansionPanelItemActiveButtonText
+                      dateFlag === RANGE_FLAG.END && styles.expansionPanelItemActiveButtonText
                     ]}>
                     {endDate}
                   </Text>
