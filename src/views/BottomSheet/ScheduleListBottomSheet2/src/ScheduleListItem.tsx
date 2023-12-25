@@ -29,6 +29,10 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
     return getTimeOfMinute(item.end_time)
   }, [item.end_time])
 
+  const activeAlarm = React.useMemo(() => {
+    return item.alarm !== 0
+  }, [item.alarm])
+
   // [V2] - 완료 일정
   // const completeStartTime = React.useMemo(() => {
   //   if (item.complete_start_time) {
@@ -86,7 +90,7 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
         <Pressable style={styles.contentWrapper} onPress={() => onClick(item)}>
           <Text style={styles.contentText}>{item.title}</Text>
 
-          <View style={styles.section}>
+          <View style={[styles.section, {gap: 5}]}>
             <Text style={[styles.dayOfWeekText, item.mon === '1' && styles.activeDayOfWeekText]}>월</Text>
             <Text style={[styles.dayOfWeekText, item.tue === '1' && styles.activeDayOfWeekText]}>화</Text>
             <Text style={[styles.dayOfWeekText, item.wed === '1' && styles.activeDayOfWeekText]}>수</Text>
@@ -96,9 +100,9 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
             <Text style={[styles.dayOfWeekText, item.sun === '1' && styles.activeDayOfWeekText]}>일</Text>
           </View>
 
-          <View style={styles.section}>
-            <AlarmIcon width={16} height={16} fill={'#ffbf00'} />
-            <Text style={styles.alarmText}>15분 전</Text>
+          <View style={[styles.section, {gap: 3}]}>
+            <AlarmIcon width={16} height={16} fill={activeAlarm ? '#ffbf00' : '#BABABA'} />
+            <Text style={styles.alarmText}>{activeAlarm ? `${item.alarm}분 전` : '없음'}</Text>
           </View>
         </Pressable>
 
@@ -117,7 +121,6 @@ const styles = StyleSheet.create({
   },
   section: {
     flexDirection: 'row',
-    gap: 5,
     marginTop: 10,
     alignItems: 'center'
   },
