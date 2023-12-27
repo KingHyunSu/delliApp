@@ -25,9 +25,11 @@ const WeekController = ({date, currentWeeklyDateList}: Props) => {
   const getWeekOfMonth = (value: Date) => {
     const dateOfFirstDate = setDate(value, 1)
     const dateOfFirstDayOfWeek = dateOfFirstDate.getDay()
-    // [FIXED]
-    // const weekNumber = Math.ceil(value.getDate + (7 - dateOfFirstDayOfWeek - 1)) / 7)
-    const weekNumber = Math.ceil((value.getDate() + (dateOfFirstDayOfWeek - 1)) / 7)
+    let weekNumber = Math.ceil((value.getDate() + (dateOfFirstDayOfWeek - 1)) / 7)
+
+    if (dateOfFirstDayOfWeek > THURSDAY_NUMBER) {
+      weekNumber = Math.ceil((value.getDate() - (7 - dateOfFirstDayOfWeek + 1)) / 7)
+    }
 
     return weekNumber
   }
