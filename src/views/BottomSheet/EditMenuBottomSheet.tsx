@@ -168,8 +168,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    marginVertical: 10,
-    paddingVertical: 10
+    // marginVertical: 10,
+    paddingVertical: 16
   },
   iconWrapper: {
     alignItems: 'center',

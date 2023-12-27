@@ -5,11 +5,11 @@ import {Svg, G, Text, Circle} from 'react-native-svg'
 import Background from './src/Background'
 import SchedulePie from './src/SchedulePie'
 import ScheduleText from './src/ScheduleText'
-import EditSchedulePie from './src/EditSchedulePie'
 import EditScheduleText from './src/EditScheduleText'
+import EditSchedulePieController from './src/EditSchedulePieController'
 
-import {useRecoilState, useSetRecoilState} from 'recoil'
-import {scheduleState} from '@/store/schedule'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {scheduleState, editStartAngleState, editEndAngleState} from '@/store/schedule'
 import {showStyleBottomSheetState} from '@/store/bottomSheet'
 
 import {Schedule} from '@/types/schedule'
@@ -30,6 +30,8 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
   const fullRadius = width / 2 - 36
 
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const editStartAngle = useRecoilValue(editStartAngleState)
+  const editEndAngle = useRecoilValue(editEndAngleState)
   const setIsShowStyleBottomSheet = useSetRecoilState(showStyleBottomSheetState)
 
   const radius = React.useMemo(() => {
@@ -126,14 +128,13 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
               <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={() => setIsShowStyleBottomSheet(true)} />
             </G>
 
-            <EditSchedulePie
+            <SchedulePie
               data={schedule}
-              scheduleList={data}
               x={x}
               y={y}
               radius={radius}
-              homeTopHeight={homeTopHeight}
-              onChangeSchedule={changeSchedule}
+              startAngle={editStartAngle}
+              endAngle={editEndAngle}
             />
           </Svg>
 
@@ -143,6 +144,16 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
             centerY={y}
             radius={radius}
             titleInputRef={titleInputRef}
+            onChangeSchedule={changeSchedule}
+          />
+
+          <EditSchedulePieController
+            data={schedule}
+            scheduleList={data}
+            x={x}
+            y={y}
+            radius={radius}
+            homeTopHeight={homeTopHeight}
             onChangeSchedule={changeSchedule}
           />
         </Pressable>

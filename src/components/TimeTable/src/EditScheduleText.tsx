@@ -1,13 +1,8 @@
 import React from 'react'
-import {StyleSheet, View, TextInput} from 'react-native'
-
-import {polarToCartesian} from '../util'
+import {StyleSheet, View, TextInput, NativeSyntheticEvent, TextInputContentSizeChangeEventData} from 'react-native'
 
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS} from 'react-native-reanimated'
-
-import {useRecoilValue} from 'recoil'
-import {scheduleState} from '@/store/schedule'
 
 import {Schedule} from '@/types/schedule'
 
@@ -20,25 +15,12 @@ interface Props {
   onChangeSchedule: Function
 }
 const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChangeSchedule}: Props) => {
-  const containerPadding = 20
+  const containerPadding = 0
   const wrapperPadding = 5
   const borderWidth = 1
 
-  const schedule = useRecoilValue(scheduleState)
-
   const [top, setTop] = React.useState(0)
   const [left, setLeft] = React.useState(0)
-
-  const angle = React.useMemo(() => {
-    const startAngle = data.start_time * 0.25
-    let endAngle = data.end_time * 0.25
-
-    if (endAngle < startAngle) {
-      endAngle += 360
-    }
-
-    return startAngle + (endAngle - startAngle) / 2
-  }, [data.start_time, data.end_time])
 
   const changeSchedule = (value: Object) => {
     onChangeSchedule(value)
@@ -54,7 +36,8 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
   const containerY = useSharedValue(
     Math.round(centerY - (containerPadding + wrapperPadding + borderWidth) - (radius / 100) * data.title_y)
   )
-
+  const containerWidth = useSharedValue(0)
+  const containerHeight = useSharedValue(0)
   const containerRotate = useSharedValue(data.title_rotate)
   const conatinerSavedRotate = useSharedValue(0)
 
@@ -92,44 +75,57 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
 
   const composeGesture = Gesture.Simultaneous(moveGesture, rotateGesture)
 
-  const animationStyle = useAnimatedStyle(() => {
+  const positionStyle = useAnimatedStyle(() => {
     return {
       top: containerY.value,
-      left: containerX.value,
+      left: containerX.value
+    }
+  })
+
+  const rotateStyle = useAnimatedStyle(() => {
+    return {
       transform: [{rotateZ: `${containerRotate.value}deg`}]
     }
   })
 
-  React.useEffect(() => {
-    const {x, y} = polarToCartesian(centerX, centerY - 13, radius / 3, angle)
-
-    let changedY = Math.round(y)
-    let changedX = Math.round(x)
-
-    if (data.schedule_id) {
-      changedY = Math.round(centerY - (containerPadding + wrapperPadding + borderWidth) - (radius / 100) * data.title_y)
-      changedX = Math.round(centerX - (containerPadding + wrapperPadding + borderWidth) + (radius / 100) * data.title_x)
+  const sizeStyle = useAnimatedStyle(() => {
+    return {
+      width: containerWidth.value,
+      height: containerHeight.value
     }
+  })
 
-    setLeft(changedX)
-    setTop(changedY)
+  const changeTextInputSize = (e: NativeSyntheticEvent<TextInputContentSizeChangeEventData>) => {
+    const size = e.nativeEvent.contentSize
+    console.log(size)
+    containerWidth.value = size.width
+    containerHeight.value = size.height
+  }
+
+  React.useEffect(() => {
+    setLeft(containerX.value)
+    setTop(containerY.value)
   }, [])
 
   return (
     <GestureDetector gesture={composeGesture}>
-      <Animated.View style={[animationStyle, styles.conatiner, {padding: containerPadding}]}>
-        <View style={[styles.wrapper, !schedule.title && {borderWidth: 0}, {padding: wrapperPadding}]}>
+      <Animated.View style={[styles.conatiner, {padding: containerPadding}]}>
+        <Animated.View style={[positionStyle, rotateStyle, {padding: wrapperPadding}]}>
           <TextInput
             ref={titleInputRef}
             value={data.title}
             placeholder="일정명을 입력해주세요."
+            returnKeyType="done"
+            returnKeyLabel="done"
             placeholderTextColor="#c3c5cc"
             style={[styles.textInput, {color: data.text_color}]}
+            maxLength={20}
             multiline
             scrollEnabled={false}
             onChangeText={changeTitle}
+            onContentSizeChange={changeTextInputSize}
           />
-        </View>
+        </Animated.View>
       </Animated.View>
     </GestureDetector>
   )
@@ -137,14 +133,15 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
 
 const styles = StyleSheet.create({
   conatiner: {
-    position: 'absolute'
-  },
-  wrapper: {
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: '#BABABA'
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0
+    // flex: 1
   },
   textInput: {
+    position: 'absolute',
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#000',
