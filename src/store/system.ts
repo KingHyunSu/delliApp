@@ -9,3 +9,8 @@ export const isEditState = atom({
   key: 'isEdit',
   default: false
 })
+
+export const isLoadingState = atom({
+  key: 'isLoading',
+  default: false
+})

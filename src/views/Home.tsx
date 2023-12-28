@@ -1,6 +1,8 @@
 import React from 'react'
 import {Platform, Animated, Pressable, StyleSheet, Text, View, TextInput, LayoutChangeEvent} from 'react-native'
 
+import Loading from '@/components/Loading'
+
 import AppBar from '@/components/AppBar'
 import TimeTable from '@/components/TimeTable'
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
@@ -19,7 +21,7 @@ import CancleIcon from '@/assets/icons/cancle.svg'
 import EditIcon from '@/assets/icons/edit3.svg'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
-import {isEditState} from '@/store/system'
+import {isEditState, isLoadingState} from '@/store/system'
 import {
   scheduleDateState,
   scheduleState,
@@ -43,6 +45,7 @@ import {HomeNavigationProps} from '@/types/navigation'
 const Home = ({navigation}: HomeNavigationProps) => {
   const titleInputRef = React.useRef<TextInput>(null)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
+  const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
@@ -73,6 +76,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const {refetch: refetchScheduleList} = useQuery({
     queryKey: ['scheduleList', scheduleDate],
     queryFn: async () => {
+      setIsLoading(true)
       if (activeTimeTableCategory.timetable_category_id) {
         const date = format(scheduleDate, 'yyyy-MM-dd')
 
@@ -101,6 +105,9 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
         setScheduleList(result)
 
+        setTimeout(() => {
+          setIsLoading(false)
+        }, 300)
         return result
       }
 
@@ -215,7 +222,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
         </View>
       </Animated.View>
 
-      <Animated.View style={[{transform: [{translateY: timaTableTranslateY}]}]}>
+      <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
         <TimeTable
           data={scheduleList}
           homeTopHeight={homeTopHeight}
@@ -254,6 +261,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
       {/* modal */}
       <ScheduleCompleteModal />
+
+      <Loading />
     </View>
   )
 }
