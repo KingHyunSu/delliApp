@@ -4,7 +4,9 @@ import AppBar from '@/components/AppBar'
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import {useSetRecoilState} from 'recoil'
+import {useSetRecoilState, useResetRecoilState} from 'recoil'
+import {scheduleDateState, scheduleListState} from '@/store/schedule'
+import {activeTimeTableCategoryState} from '@/store/timetable'
 import {loginState} from '@/store/system'
 
 import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
@@ -14,11 +16,16 @@ import {SettingNavigationProps} from '@/types/navigation'
 
 const Setting = ({navigation}: SettingNavigationProps) => {
   const setIsLogin = useSetRecoilState(loginState)
+  const resetScheduleDate = useResetRecoilState(scheduleDateState)
+  const resetScheduleList = useResetRecoilState(scheduleListState)
+  const resetActiveTimeTableCategoryState = useResetRecoilState(activeTimeTableCategoryState)
 
   const doLogout = async () => {
     try {
+      resetScheduleDate()
+      resetScheduleList()
+      resetActiveTimeTableCategoryState()
       await AsyncStorage.setItem('token', '')
-
       setIsLogin(false)
     } catch (e) {
       console.error(e)

@@ -1,8 +1,7 @@
 import React from 'react'
-import {Platform, Animated, Pressable, StyleSheet, Text, View, TextInput, LayoutChangeEvent} from 'react-native'
+import {Platform, Animated, Pressable, StyleSheet, View, TextInput, LayoutChangeEvent} from 'react-native'
 
 import Loading from '@/components/Loading'
-
 import AppBar from '@/components/AppBar'
 import TimeTable from '@/components/TimeTable'
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
