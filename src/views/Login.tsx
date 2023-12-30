@@ -2,14 +2,15 @@ import React from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
 
 // utils
-import {LOGIN_TYPE} from '@/utils/types'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
+import {LOGIN_TYPE} from '@/utils/types'
 import {useSetRecoilState} from 'recoil'
 import {loginState} from '@/store/system'
 
 // provider
 import {login as kakaoLogin} from '@react-native-seoul/kakao-login'
+import {appleAuth} from '@invertase/react-native-apple-authentication'
 
 import AppleLogoIcon from '@/assets/icons/appleLogo.svg'
 import KakaoLogoIcon from '@/assets/icons/kakaoLogo.svg'
@@ -20,22 +21,55 @@ import {login} from '@/apis/auth'
 const Login = () => {
   const setIsLogin = useSetRecoilState(loginState)
 
-  const signInWithKakao = async (): Promise<void> => {
+  const handleLogin = async (params: LoginParam) => {
     try {
-      const {accessToken} = await kakaoLogin()
-
-      const params = {
-        token: accessToken,
-        type: LOGIN_TYPE.KAKAO
-      }
-
       const result = await login(params)
+
       if (result.data.token) {
         await AsyncStorage.setItem('token', result.data.token)
         setIsLogin(true)
       }
     } catch (e) {
+      throw e
+    }
+  }
+
+  const signInWithKakao = async (): Promise<void> => {
+    try {
+      const {accessToken} = await kakaoLogin()
+
+      const params: LoginParam = {
+        token: accessToken,
+        type: LOGIN_TYPE.KAKAO
+      }
+
+      await handleLogin(params)
+    } catch (e) {
       console.error(e)
+    }
+  }
+
+  const singInWithApple = async () => {
+    try {
+      const appleAuthRequestResponse = await appleAuth.performRequest({
+        requestedOperation: appleAuth.Operation.LOGIN,
+        requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL]
+      })
+
+      const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user)
+
+      if (credentialState === appleAuth.State.AUTHORIZED && appleAuthRequestResponse.identityToken) {
+        const params: LoginParam = {
+          token: appleAuthRequestResponse.identityToken,
+          type: LOGIN_TYPE.APPLE
+        }
+
+        await handleLogin(params)
+      }
+    } catch (e: any) {
+      if (e.code !== appleAuth.Error.CANCELED) {
+        console.error(e)
+      }
     }
   }
 
@@ -55,7 +89,7 @@ const Login = () => {
           <Text style={styles.kakaoLoginButtonText}>카카오로 시작하기</Text>
         </Pressable>
 
-        <Pressable style={styles.appleLoginButton}>
+        <Pressable style={styles.appleLoginButton} onPress={singInWithApple}>
           <AppleLogoIcon />
           <Text style={styles.appleLoginButtonText}>Apple로 시작하기</Text>
         </Pressable>

@@ -1,5 +1,6 @@
 export const LOGIN_TYPE = {
-  KAKAO: '1'
+  KAKAO: '1',
+  APPLE: '2'
 }
 
 export type COLOR_TYPE = 'background' | 'text'

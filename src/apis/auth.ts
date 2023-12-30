@@ -1,10 +1,9 @@
 import http from '@/utils/http'
-import {joinResponse, loginRequest, loginResponse} from './type'
 
 export const join = () => {
   return http.post<joinResponse>('auth/join')
 }
 
-export const login = (data: loginRequest) => {
+export const login = (data: LoginParam) => {
   return http.post<loginResponse>('auth/login', data)
 }

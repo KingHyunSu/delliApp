@@ -2,12 +2,29 @@ import React from 'react'
 import {StyleSheet, ScrollView, Pressable, View, Text} from 'react-native'
 import AppBar from '@/components/AppBar'
 
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
+import {useSetRecoilState} from 'recoil'
+import {loginState} from '@/store/system'
+
 import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
 
 import {SettingNavigationProps} from '@/types/navigation'
 
 const Setting = ({navigation}: SettingNavigationProps) => {
+  const setIsLogin = useSetRecoilState(loginState)
+
+  const doLogout = async () => {
+    try {
+      await AsyncStorage.setItem('token', '')
+
+      setIsLogin(false)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
   return (
     <View style={styles.container}>
       <AppBar>
@@ -41,7 +58,7 @@ const Setting = ({navigation}: SettingNavigationProps) => {
             <Text style={styles.contentText}>1.0.0</Text>
           </View>
 
-          <Pressable style={styles.item}>
+          <Pressable style={styles.item} onPress={doLogout}>
             <Text style={styles.contentText}>로그아웃</Text>
           </Pressable>
         </View>
