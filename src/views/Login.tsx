@@ -1,12 +1,13 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
+import Loading from '@/components/Loading'
 
 // utils
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 import {LOGIN_TYPE} from '@/utils/types'
 import {useSetRecoilState} from 'recoil'
-import {loginState} from '@/store/system'
+import {loginState, isLoadingState} from '@/store/system'
 
 // provider
 import {login as kakaoLogin} from '@react-native-seoul/kakao-login'
@@ -19,10 +20,13 @@ import KakaoLogoIcon from '@/assets/icons/kakaoLogo.svg'
 import {login} from '@/apis/auth'
 
 const Login = () => {
+  const setIsLoading = useSetRecoilState(isLoadingState)
   const setIsLogin = useSetRecoilState(loginState)
 
-  const handleLogin = async (params: LoginParam) => {
+  const doLogin = async (params: LoginParam) => {
     try {
+      setIsLoading(true)
+
       const result = await login(params)
 
       if (result.data.token) {
@@ -31,6 +35,8 @@ const Login = () => {
       }
     } catch (e) {
       throw e
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -43,7 +49,7 @@ const Login = () => {
         type: LOGIN_TYPE.KAKAO
       }
 
-      await handleLogin(params)
+      await doLogin(params)
     } catch (e) {
       console.error(e)
     }
@@ -64,7 +70,7 @@ const Login = () => {
           type: LOGIN_TYPE.APPLE
         }
 
-        await handleLogin(params)
+        await doLogin(params)
       }
     } catch (e: any) {
       if (e.code !== appleAuth.Error.CANCELED) {
@@ -94,6 +100,8 @@ const Login = () => {
           <Text style={styles.appleLoginButtonText}>Apple로 시작하기</Text>
         </Pressable>
       </View>
+
+      <Loading />
     </View>
   )
 }
