@@ -28,17 +28,22 @@ const ColorItem = ({item, wrapperSize, activeColor, changeColor}: ColorItemProps
 const ColorPickerBottomSheet = () => {
   const defaultColorList = [
     '#ffffff',
-    '#e53935',
-    '#ffb74d',
-    '#ffee58',
-    '#388e5a',
-    '#42a5f5',
-    '#8756d5',
-    '#494e6a',
-    '#000000'
-    // '#1d1e3a',
-    // '#343845',
+    '#f0c1ca',
+    '#f6d3c0',
+    '#fff29e',
+    '#c2e6da',
+    '#cdf0ea',
+    '#9bf6ff',
+    '#bbcbf4',
+    '#c7c7f0'
   ]
+  // '#79a2f7',
+  // '#388e5a'
+  // '#cdf0ea',
+  // '#beaee2',
+  // '#ffee58',
+  // '#9997ef'
+
   const {width} = useWindowDimensions()
 
   const colorType = useRecoilValue(colorTypeState)

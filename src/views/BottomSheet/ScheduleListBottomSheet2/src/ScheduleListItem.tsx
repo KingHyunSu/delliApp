@@ -132,7 +132,6 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 8,
-    // borderWidth: 1,
     borderColor: '#f5f6f8',
     backgroundColor: '#BABABA'
   },
@@ -142,7 +141,6 @@ const styles = StyleSheet.create({
   },
 
   contentContainer: {
-    // paddingVertical: 3,
     flex: 1
   },
   contentWrapper: {
@@ -161,12 +159,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#424242'
   },
-  // strikeThroughText: {
-  //   textDecorationLine: 'line-through',
-  //   textDecorationStyle: 'solid',
-  //   textDecorationColor: '#424242',
-  //   color: '#7c8698'
-  // },
   contentText: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,

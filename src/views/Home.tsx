@@ -98,16 +98,14 @@ const Home = ({navigation}: HomeNavigationProps) => {
         }
 
         const response = await getScheduleList(param)
-        const result = response.data.map(item => {
-          return {...item, screenDisable: false}
-        })
 
-        setScheduleList(result)
+        setScheduleList(response.data)
 
         setTimeout(() => {
           setIsLoading(false)
         }, 300)
-        return result
+
+        return response.data
       }
 
       return []
@@ -118,7 +116,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
   const openEditScheduleBottomSheet = (value?: Schedule) => {
     if (value) {
-      console.log('value', value)
       setSchedule(value)
     }
 
@@ -134,7 +131,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
   const closeEditScheduleBottomSheet = () => {
     const list = scheduleList.map(item => {
-      return {...item, screenDisable: false}
+      return {...item, disable: '0'}
     })
 
     setScheduleList(list)
@@ -311,7 +308,7 @@ const homeStyles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: '#64c2eb',
+    backgroundColor: '#1E90FF',
     justifyContent: 'center',
     alignItems: 'center',
 

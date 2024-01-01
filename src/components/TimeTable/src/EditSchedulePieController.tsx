@@ -26,7 +26,7 @@ const EditSchedulePieController = ({data, homeTopHeight, scheduleList, x, y, rad
 
   const [editStartAngle, setEditStartAngle] = useRecoilState(editStartAngleState)
   const [editEndAngle, setEditEndAngle] = useRecoilState(editEndAngleState)
-  const setScheduleListState = useSetRecoilState(scheduleListState)
+  const setScheduleList = useSetRecoilState(scheduleListState)
 
   const dragStartBtnCoordinate = polarToCartesian(x, y, radius, editStartAngle)
   const dragEndBtnCoordinate = polarToCartesian(x, y, radius, editEndAngle)
@@ -38,36 +38,36 @@ const EditSchedulePieController = ({data, homeTopHeight, scheduleList, x, y, rad
     })
   }, [editStartAngle, editEndAngle])
 
-  // React.useEffect(() => {
-  //   const list = scheduleList.map(item => {
-  //     const start_time = data.start_time
-  //     const end_time = data.end_time
+  React.useEffect(() => {
+    const start_time = data.start_time
+    const end_time = data.end_time
 
-  //     const isOverlapAll =
-  //       item.start_time >= start_time &&
-  //       item.start_time < end_time &&
-  //       item.end_time <= end_time &&
-  //       item.end_time > start_time
+    const list = scheduleList.map(item => {
+      const isOverlapAll =
+        item.start_time >= start_time &&
+        item.start_time < end_time &&
+        item.end_time <= end_time &&
+        item.end_time > start_time
 
-  //     const isOverlapLeft = item.start_time >= start_time && item.end_time > end_time && item.start_time < end_time
+      const isOverlapLeft = item.start_time >= start_time && item.end_time > end_time && item.start_time < end_time
 
-  //     const isOverlapRight = item.start_time < start_time && item.end_time <= end_time && item.end_time > start_time
+      const isOverlapRight = item.start_time < start_time && item.end_time <= end_time && item.end_time > start_time
 
-  //     const isOverlapCenter =
-  //       item.start_time < start_time &&
-  //       item.end_time > end_time &&
-  //       item.start_time < end_time &&
-  //       item.end_time > start_time
+      const isOverlapCenter =
+        item.start_time < start_time &&
+        item.end_time > end_time &&
+        item.start_time < end_time &&
+        item.end_time > start_time
 
-  //     if (isOverlapAll || isOverlapLeft || isOverlapRight || isOverlapCenter) {
-  //       return {...item, screenDisable: true}
-  //     } else {
-  //       return {...item, screenDisable: false}
-  //     }
-  //   })
+      if (isOverlapAll || isOverlapLeft || isOverlapRight || isOverlapCenter) {
+        return {...item, disable: '1'}
+      }
 
-  //   setScheduleListState(list)
-  // }, [data.start_time, data.end_time])
+      return {...item, disable: '0'}
+    })
+
+    setScheduleList(list)
+  }, [data.start_time, data.end_time])
 
   const getCalcTotalMinute = (angle: number) => {
     const MINUTE_INTERVAL = 5

@@ -27,7 +27,6 @@ export interface Schedule {
   alarm: number
 
   display_type?: string
-  screenDisable?: boolean
 }
 
 export interface ScheduleDisable {

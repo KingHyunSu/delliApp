@@ -44,14 +44,6 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
     return result
   }, [fullRadius, y])
 
-  const list = React.useMemo(() => {
-    return data.filter(item => item.disable === '0')
-  }, [data])
-
-  const opacity = React.useMemo(() => {
-    return isEdit ? 0.5 : 1
-  }, [isEdit])
-
   const handleClick = (value: Schedule) => {
     onClick(value)
   }
@@ -75,49 +67,36 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
   return (
     <View>
       <Svg>
-        <G>
-          <Background x={x} y={y} radius={radius} />
+        <Background x={x} y={y} radius={radius} />
 
-          <G opacity={opacity}>
-            {list.length > 0 ? (
-              list.map((item, index) => {
-                const startAngle = item.start_time * 0.25
-                const endAngle = item.end_time * 0.25
+        {data.length > 0 ? (
+          data.map((item, index) => {
+            const startAngle = item.start_time * 0.25
+            const endAngle = item.end_time * 0.25
 
-                return (
-                  <SchedulePie
-                    key={index}
-                    data={item}
-                    x={x}
-                    y={y}
-                    radius={radius}
-                    startAngle={startAngle}
-                    endAngle={endAngle}
-                    onClick={handleClick}
-                  />
-                )
-              })
-            ) : (
-              <Text x={x} y={y} fontSize={18} fill={'#BABABA'} fontFamily={'Pretendard-Bold'} textAnchor="middle">
-                터치하여 일정 추가하기
-              </Text>
-            )}
-          </G>
-        </G>
+            return (
+              <SchedulePie
+                key={index}
+                data={item}
+                x={x}
+                y={y}
+                radius={radius}
+                startAngle={startAngle}
+                endAngle={endAngle}
+                isEdit={isEdit}
+                onClick={handleClick}
+              />
+            )
+          })
+        ) : (
+          <Text x={x} y={y} fontSize={18} fill={'#BABABA'} fontFamily={'Pretendard-Bold'} textAnchor="middle">
+            터치하여 일정 추가하기
+          </Text>
+        )}
       </Svg>
 
-      {list.map((item, index) => {
-        return (
-          <ScheduleText
-            key={index}
-            data={item}
-            centerX={x}
-            centerY={y}
-            radius={radius}
-            opacity={opacity}
-            onClick={handleClick}
-          />
-        )
+      {data.map((item, index) => {
+        return <ScheduleText key={index} data={item} centerX={x} centerY={y} radius={radius} onClick={handleClick} />
       })}
 
       {isEdit && (
@@ -135,6 +114,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
               radius={radius}
               startAngle={editStartAngle}
               endAngle={editEndAngle}
+              isEdit={isEdit}
             />
           </Svg>
 

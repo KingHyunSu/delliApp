@@ -8,10 +8,9 @@ interface Props {
   centerX: number
   centerY: number
   radius: number
-  opacity: number
   onClick: (value: Schedule) => void
 }
-const ScheduleText = ({data, centerX, centerY, radius, opacity, onClick}: Props) => {
+const ScheduleText = ({data, centerX, centerY, radius, onClick}: Props) => {
   const {top, left} = React.useMemo(() => {
     return {
       top: Math.round(centerY - (radius / 100) * data.title_y),
@@ -20,7 +19,7 @@ const ScheduleText = ({data, centerX, centerY, radius, opacity, onClick}: Props)
   }, [data.title_x, data.title_y, centerX, centerY, radius])
 
   return (
-    <View style={[styles.container, {opacity, top, left, transform: [{rotateZ: `${data.title_rotate}deg`}]}]}>
+    <View style={[styles.container, {top, left, transform: [{rotateZ: `${data.title_rotate}deg`}]}]}>
       <TextInput
         value={data.title}
         style={[styles.textInput, {color: data.text_color}]}
