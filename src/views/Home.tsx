@@ -209,7 +209,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           <View />
 
           <Pressable style={homeStyles.appBarRightButton} onPress={() => navigation.navigate('Setting')}>
-            <SettingIcon stroke="#242933" />
+            <SettingIcon fill="#babfc5" />
           </Pressable>
         </AppBar>
 
@@ -297,7 +297,7 @@ const homeStyles = StyleSheet.create({
   appBarRightButton: {
     width: 36,
     height: 36,
-    paddingRight: 16,
+    marginRight: 16,
     justifyContent: 'center',
     alignItems: 'flex-end'
   },
