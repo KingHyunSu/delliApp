@@ -13,6 +13,7 @@ interface TimePosition {
   y: number
   hour: number
   angle: number
+  dot: Boolean
 }
 const Background = ({x, y, radius}: Props) => {
   const [hourPositionList, setHourPositionList] = React.useState<TimePosition[]>([])
@@ -25,7 +26,12 @@ const Background = ({x, y, radius}: Props) => {
       const cartesian = polarToCartesian(x, y, radius + 10, angle)
       let hour = i > 12 ? i % 12 : i
       hour = hour === 0 ? 12 : hour
-      list.push({...cartesian, hour, angle})
+
+      if (hour % 6 === 0) {
+        list.push({...cartesian, hour, angle, dot: false})
+      } else {
+        list.push({...cartesian, hour, angle, dot: true})
+      }
     }
 
     setHourPositionList(list)
@@ -37,9 +43,13 @@ const Background = ({x, y, radius}: Props) => {
       {hourPositionList.map((hourPosition, index) => {
         return (
           <G key={index} x={hourPosition.x} y={hourPosition.y} rotation={hourPosition.angle}>
-            <Text textAnchor="middle" fontSize={12} fill="#b2b2b2" fontFamily="Pretendard-Medium">
-              {hourPosition.hour}
-            </Text>
+            {hourPosition.dot ? (
+              <Circle r={1} fill="#b2b2b2" />
+            ) : (
+              <Text textAnchor="middle" fontSize={10} fill="#b2b2b2" fontFamily="Pretendard-Medium">
+                {hourPosition.hour}
+              </Text>
+            )}
           </G>
         )
       })}
