@@ -172,7 +172,7 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
 
   return (
     <GestureDetector gesture={panGesture}>
-      <Animated.View style={[animatedStyle, {height: dayOfWeekSize}]}>{elementList}</Animated.View>
+      <Animated.View style={[animatedStyle, {height: dayOfWeekSize + 5}]}>{elementList}</Animated.View>
     </GestureDetector>
   )
 }
