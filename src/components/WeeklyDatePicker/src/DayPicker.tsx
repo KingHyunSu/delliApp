@@ -27,6 +27,26 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
   const [isLoading, setLoading] = React.useState(false)
   const [weeklyDateList, setWeeklyDateList] = React.useState<DataListItem[]>([])
 
+  const getDayOfWeekStr = (index: number) => {
+    switch (index) {
+      case 0:
+        return '월'
+      case 1:
+        return '화'
+      case 2:
+        return '수'
+      case 3:
+        return '목'
+      case 4:
+        return '금'
+      case 5:
+        return '토'
+      case 6:
+        return '일'
+      default:
+        ''
+    }
+  }
   const isActive = React.useCallback(
     (item: Date) => {
       return isSameYear(item, date) && isSameMonth(item, date) && isSameDay(item, date)
@@ -144,29 +164,15 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
         <View key={listIndex} style={[styles.section, {transform: [{translateX: dataList.x}]}]}>
           {dataList.data.map((item, index) => {
             return (
-              <View key={index} style={styles.wrapper}>
-                {isPrevMonthInfo(item) && (
-                  <View style={styles.infoWrapper}>
-                    <ArrowTailLeftIcon stroke="#555" />
-                    <Text style={styles.infoText}>{item.getMonth() + 1}월</Text>
-                  </View>
-                )}
-                {isNextMonthInfo(item) && (
-                  <View style={styles.infoWrapper}>
-                    <Text style={styles.infoText}>{item.getMonth() + 1}월</Text>
-                    <ArrowTailRightIcon stroke="#555" />
-                  </View>
-                )}
-                <Pressable
-                  style={[
-                    styles.item,
-                    isActive(item) && styles.activeItem,
-                    {width: dayOfWeekSize, height: dayOfWeekSize, borderRadius: dayOfWeekSize}
-                  ]}
-                  onPress={() => handleDateChanged(item)}>
-                  <Text style={[styles.text, isActive(item) && styles.activeText]}>{item.getDate()}</Text>
-                </Pressable>
-              </View>
+              <Pressable
+                key={index}
+                style={[styles.item, {width: dayOfWeekSize, height: dayOfWeekSize}]}
+                onPress={() => handleDateChanged(item)}>
+                <Text style={[styles.dayOfWeekText, isActive(item) && styles.activeText]}>
+                  {getDayOfWeekStr(index)}
+                </Text>
+                <Text style={[styles.text, isActive(item) && styles.activeText]}>{item.getDate()}</Text>
+              </Pressable>
             )
           })}
         </View>
@@ -191,9 +197,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0
   },
-  wrapper: {
-    position: 'relative'
-  },
   infoWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -207,32 +210,24 @@ const styles = StyleSheet.create({
     color: '#555'
   },
   item: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f6f8',
-
-    ...Platform.select({
-      ios: {
-        shadowColor: '#555',
-        shadowOffset: {width: 0, height: 1},
-        shadowOpacity: 0.2,
-        shadowRadius: 2
-      },
-      android: {
-        elevation: 3
-      }
-    })
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   activeItem: {
-    backgroundColor: '#1E90FF'
+    color: '#1E90FF'
+  },
+  dayOfWeekText: {
+    fontFamily: 'Pretendard-Midium',
+    fontSize: 12,
+    color: '#b2b2b2'
   },
   text: {
-    fontFamily: 'Pretendard-Bold',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 14,
     color: '#7c8698'
   },
   activeText: {
-    color: '#fff'
+    color: '#1E90FF'
   }
 })
 
