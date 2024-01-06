@@ -62,7 +62,7 @@ const WeekController = ({date, currentWeeklyDateList}: Props) => {
   }, [date, currentWeeklyDateList])
 
   return (
-    <View style={[styles.wrapper, {marginBottom: 15}]}>
+    <View style={[styles.wrapper, {marginBottom: 10}]}>
       <Pressable onPress={() => setDatePickerBottomSheet(true)}>
         <Text style={styles.text}>{`${screenYear}년 ${screenMonth}월 ${screenWeek}주차`}</Text>
       </Pressable>
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Pretendard-Bold',
     fontSize: 18,
-    color: '#000'
+    color: '#424242'
   }
 })
 

@@ -1,13 +1,10 @@
 import React from 'react'
-import {useWindowDimensions, Platform, StyleSheet, View, Pressable, Text} from 'react-native'
-
-import ArrowTailLeftIcon from '@/assets/icons/arrow_tail_left.svg'
-import ArrowTailRightIcon from '@/assets/icons/arrow_tail_right.svg'
+import {useWindowDimensions, StyleSheet, View, Pressable, Text} from 'react-native'
 
 import {GestureDetector, Gesture} from 'react-native-gesture-handler'
 import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 
-import {isSameDay, isSameMonth, isSameYear, isFirstDayOfMonth, isLastDayOfMonth, addDays} from 'date-fns'
+import {isSameDay, isSameMonth, isSameYear, addDays} from 'date-fns'
 import {getWeeklyDateList} from '../util'
 import {trigger} from 'react-native-haptic-feedback'
 
@@ -53,13 +50,6 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
     },
     [date]
   )
-
-  const isPrevMonthInfo = (item: Date) => {
-    return item.getDay() !== 0 && isLastDayOfMonth(item)
-  }
-  const isNextMonthInfo = (item: Date) => {
-    return item.getDay() !== 1 && isFirstDayOfMonth(item)
-  }
 
   const handlePrev = () => {
     const changeDate = addDays(date, -7)
@@ -166,7 +156,7 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
             return (
               <Pressable
                 key={index}
-                style={[styles.item, {width: dayOfWeekSize, height: dayOfWeekSize}]}
+                style={[styles.item, {width: dayOfWeekSize, height: dayOfWeekSize + 5}]}
                 onPress={() => handleDateChanged(item)}>
                 <Text style={[styles.dayOfWeekText, isActive(item) && styles.activeText]}>
                   {getDayOfWeekStr(index)}
@@ -197,18 +187,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0
   },
-  infoWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'absolute',
-    gap: 3,
-    top: -17
-  },
-  infoText: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 10,
-    color: '#555'
-  },
   item: {
     justifyContent: 'space-between',
     alignItems: 'center'
@@ -217,14 +195,14 @@ const styles = StyleSheet.create({
     color: '#1E90FF'
   },
   dayOfWeekText: {
-    fontFamily: 'Pretendard-Midium',
+    fontFamily: 'Pretendard-Regular',
     fontSize: 12,
-    color: '#b2b2b2'
+    color: '#7c8698'
   },
   text: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 14,
-    color: '#7c8698'
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 16,
+    color: '#424242'
   },
   activeText: {
     color: '#1E90FF'
