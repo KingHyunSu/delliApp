@@ -398,7 +398,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
           {schedule.title ? (
             <Text style={styles.titleText}>{schedule.title}</Text>
           ) : (
-            <Text style={[styles.titleText, styles.titlePlaceHoldText]}>일정명을 입력해주세요.</Text>
+            <Text style={[styles.titleText, styles.titlePlaceHoldText]}>일정명을 입력해주세요</Text>
           )}
         </Pressable>
 

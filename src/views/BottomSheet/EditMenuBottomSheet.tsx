@@ -9,15 +9,15 @@ import {updateScheduleDisable, updateScheduleComplete} from '@/apis/schedule'
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
 import {scheduleState, scheduleDateState} from '@/store/schedule'
-import {showScheduleCompleteModalState} from '@/store/modal'
+import {showScheduleCompleteModalState, showEditTodoModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
 import {format} from 'date-fns'
 import {trigger} from 'react-native-haptic-feedback'
 
-import CheckIcon from '@/assets/icons/check.svg'
 import EditIcon from '@/assets/icons/edit3.svg'
 import DeleteIcon from '@/assets/icons/trash.svg'
+import TodoIcon from '@/assets/icons/priority.svg'
 
 import {Schedule, ScheduleDisable, ScheduleComplete} from '@/types/schedule'
 
@@ -27,6 +27,7 @@ interface Props {
 const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const setShowScheduleCompleteModal = useSetRecoilState(showScheduleCompleteModalState)
+  const setShowEditTodoModalState = useSetRecoilState(showEditTodoModalState)
   const setIsEdit = useSetRecoilState(isEditState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const schedule = useRecoilValue(scheduleState)
@@ -72,6 +73,11 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
     // [V2] - 완료하기 모달 열기
     // haptic('impactLight')
     // setShowScheduleCompleteModal(true)
+  }
+
+  const openEditTodoModal = () => {
+    haptic('impactLight')
+    setShowEditTodoModalState(true)
   }
 
   const updateScheduleDisableMutation = useMutation({
@@ -126,19 +132,14 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
           <Text style={styles.titleText}>{schedule.title}</Text>
         </View>
 
-        <Pressable style={styles.section} onPress={openScheduleCompleteModal}>
+        <Pressable style={styles.section} onPress={openEditTodoModal}>
           <View style={[styles.iconWrapper, {backgroundColor: '#76d672'}]}>
-            <CheckIcon width={14} height={14} stroke="#fff" strokeWidth={3} />
+            <TodoIcon width={14} height={14} fill="#fff" />
           </View>
 
-          <Text style={styles.text}>완료하기</Text>
-
-          {/* <View style={styles.completeTimeBox}>
-            <Text style={styles.completeTime}>오전 1시 00분</Text>
-            <Text style={styles.completeTime}>-</Text>
-            <Text style={styles.completeTime}>오전 6시 10분</Text>
-          </View> */}
+          <Text style={styles.text}>할 일 추가하기</Text>
         </Pressable>
+
         <Pressable style={styles.section} onPress={openEditScheduleBottomSheet}>
           <View style={[styles.iconWrapper, {backgroundColor: '#1E90FF'}]}>
             <EditIcon width={12} height={12} stroke="#fff" fill="#fff" />
@@ -168,7 +169,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    // marginVertical: 10,
     paddingVertical: 16
   },
   iconWrapper: {
@@ -177,21 +177,6 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12
-  },
-  completeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end'
-  },
-  completeTimeBox: {
-    flexDirection: 'row',
-    gap: 5
-  },
-  completeTime: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 14,
-    // color: '#1A7BDB'
-    color: '#1E90FF'
   },
   titleContainer: {
     height: 50

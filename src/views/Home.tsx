@@ -12,7 +12,8 @@ import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
 import ColorPickerBottomSheet from '@/views/BottomSheet/ColorPickerBottomSheet'
-import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
+import EditTodoModal from '@/views/Modal/EditTodoModal'
+// import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
@@ -254,7 +255,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
       <ColorPickerBottomSheet />
 
       {/* modal */}
-      <ScheduleCompleteModal />
+      {/* <ScheduleCompleteModal /> */}
+      <EditTodoModal />
 
       <Loading />
     </View>
