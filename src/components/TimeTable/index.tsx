@@ -18,12 +18,11 @@ import PaletteIcon from '@/assets/icons/palette.svg'
 
 interface Props {
   data: Schedule[]
-  homeTopHeight: number
   isEdit: boolean
   titleInputRef: React.RefObject<TextInput>
   onClick: Function
 }
-const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props) => {
+const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
   const {width, height} = useWindowDimensions()
   const x = width / 2
   const y = height * 0.28
@@ -89,7 +88,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
             )
           })
         ) : (
-          <Text x={x} y={y} fontSize={18} fill={'#BABABA'} fontFamily={'Pretendard-Bold'} textAnchor="middle">
+          <Text x={x} y={y} fontSize={18} fill={'#babfc5'} fontFamily={'Pretendard-Bold'} textAnchor="middle">
             터치하여 일정 추가하기
           </Text>
         )}
@@ -103,7 +102,7 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
         <Pressable style={styles.editContainer} onPress={clickBackground}>
           <Svg>
             <G x={20} y={y + radius - 10}>
-              <PaletteIcon width={32} height={32} fill="#BABABA" />
+              <PaletteIcon width={32} height={32} fill="#babfc5" />
               <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={() => setIsShowStyleBottomSheet(true)} />
             </G>
 
@@ -133,7 +132,6 @@ const TimeTable = ({data, homeTopHeight, isEdit, onClick, titleInputRef}: Props)
             x={x}
             y={y}
             radius={radius}
-            homeTopHeight={homeTopHeight}
             onChangeSchedule={changeSchedule}
           />
         </Pressable>

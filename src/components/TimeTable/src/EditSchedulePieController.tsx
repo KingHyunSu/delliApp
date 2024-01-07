@@ -6,7 +6,8 @@ import {polarToCartesian} from '../util'
 import {getStatusBarHeight} from 'react-native-status-bar-height'
 import {trigger} from 'react-native-haptic-feedback'
 
-import {useRecoilState, useSetRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {homeHeaderHeightState} from '@/store/system'
 import {scheduleListState, editStartAngleState, editEndAngleState} from '@/store/schedule'
 
 import {Schedule} from '@/types/schedule'
@@ -17,13 +18,13 @@ interface Props {
   x: number
   y: number
   radius: number
-  homeTopHeight: number
   onChangeSchedule: Function
 }
 
-const EditSchedulePieController = ({data, homeTopHeight, scheduleList, x, y, radius, onChangeSchedule}: Props) => {
+const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSchedule}: Props) => {
   const statusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
 
+  const homeHeaderHeight = useRecoilValue(homeHeaderHeightState)
   const [editStartAngle, setEditStartAngle] = useRecoilState(editStartAngleState)
   const [editEndAngle, setEditEndAngle] = useRecoilState(editEndAngleState)
   const setScheduleList = useSetRecoilState(scheduleListState)
@@ -85,7 +86,7 @@ const EditSchedulePieController = ({data, homeTopHeight, scheduleList, x, y, rad
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + (homeTopHeight + statusBarHeight - 100))
+        const moveY = gestureState.moveY - (y + (homeHeaderHeight + statusBarHeight - 100))
         const moveX = gestureState.moveX - x
 
         let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
@@ -99,7 +100,7 @@ const EditSchedulePieController = ({data, homeTopHeight, scheduleList, x, y, rad
         setEditStartAngle(calcTotalMinute * 0.25)
       },
       onPanResponderRelease: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + (homeTopHeight + statusBarHeight - 100))
+        const moveY = gestureState.moveY - (y + (homeHeaderHeight + statusBarHeight - 100))
         const moveX = gestureState.moveX - x
 
         let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
@@ -119,7 +120,8 @@ const EditSchedulePieController = ({data, homeTopHeight, scheduleList, x, y, rad
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + homeTopHeight + statusBarHeight - 100)
+        console.log('statusBarHeight', statusBarHeight)
+        const moveY = gestureState.moveY - (y + homeHeaderHeight + statusBarHeight - 100)
         const moveX = gestureState.moveX - x
 
         let move = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
@@ -136,7 +138,7 @@ const EditSchedulePieController = ({data, homeTopHeight, scheduleList, x, y, rad
         setEditEndAngle(calcTotalMinute * 0.25)
       },
       onPanResponderRelease: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + homeTopHeight + statusBarHeight - 100)
+        const moveY = gestureState.moveY - (y + homeHeaderHeight + statusBarHeight - 100)
         const moveX = gestureState.moveX - x
 
         let move = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90

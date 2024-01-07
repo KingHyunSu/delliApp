@@ -1,8 +1,8 @@
 import React from 'react'
 import {StyleSheet, Pressable, View, Text} from 'react-native'
 import ScheduleTimeBox from './ScheduleTimeBox'
+import ScheduleTodoList from './ScheduleTodoList'
 import AlarmIcon from '@/assets/icons/alarm.svg'
-import {Shadow} from 'react-native-shadow-2'
 
 import {Schedule} from '@/types/schedule'
 
@@ -33,21 +33,17 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
     )
   }
   return (
-    <View style={styles.container}>
+    <View>
       <ScheduleTimeBox time={item.start_time} />
 
-      <Shadow
-        style={styles.headerContainer}
-        containerStyle={styles.headerWrapper}
-        distance={5}
-        startColor="#fff"
-        // startColor="#f9f9f9"
-        endColor="#fff">
-        <Pressable onPress={() => onClick(item)}>
+      <View style={styles.container}>
+        <Pressable style={styles.headerContainer} onPress={() => onClick(item)}>
+          <Text style={styles.contentText}>{item.title}</Text>
+
           <View style={styles.section}>
-            <View style={{flexDirection: 'row', alignItems: 'center', gap: 5}}>
-              <AlarmIcon width={14} height={14} fill={activeAlarm ? '#ffbf00' : '#BABABA'} />
-              <Text style={{fontSize: 11}}>15분 전</Text>
+            <View style={styles.alarmBox}>
+              <AlarmIcon width={14} height={14} fill={activeAlarm ? '#ffbf00' : '#babfc5'} />
+              <Text style={styles.alarmText}>{activeAlarm ? `${item.alarm}분 전` : '없음'}</Text>
             </View>
 
             <View style={styles.dayOfWeekContainer}>
@@ -59,56 +55,37 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
               <Text style={[styles.dayOfWeekText, item.sat === '1' && styles.activeDayOfWeekText]}>토</Text>
               <Text style={[styles.dayOfWeekText, item.sun === '1' && styles.activeDayOfWeekText]}>일</Text>
             </View>
-
-            {/* <View style={{marginLeft: 5}}>
-            <AlarmIcon width={12} height={12} fill={activeAlarm ? '#ffbf00' : '#BABABA'} />
-          </View> */}
           </View>
-
-          <Text style={styles.contentText}>{item.title}</Text>
-
-          {/* <AlarmIcon width={14} height={14} fill={activeAlarm ? '#ffbf00' : '#BABABA'} /> */}
         </Pressable>
-      </Shadow>
 
-      <View style={{gap: 15, marginBottom: 15}}>
-        <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-          <View style={{width: 24, height: 24, borderWidth: 1, borderColor: '#eeeded', borderRadius: 7}} />
-          <Text>todo 1</Text>
-        </View>
-        <View style={{flexDirection: 'row', gap: 10, alignItems: 'center'}}>
-          <View style={{width: 24, height: 24, borderWidth: 1, borderColor: '#eeeded', borderRadius: 7}} />
-          <Text>todo 2</Text>
-        </View>
+        <ScheduleTodoList />
       </View>
+
       {!isContinueSchedule && <ScheduleTimeBox time={item.end_time} />}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {},
+  container: {
+    paddingVertical: 20,
+    gap: 15
+  },
   headerContainer: {
-    width: '100%',
     padding: 16,
     borderRadius: 10,
-    // borderWidth: 1,
-    // borderColor: '#eeeded',
-    backgroundColor: '#f9f9f9'
-  },
-  headerWrapper: {
-    marginVertical: 15
+    backgroundColor: '#f9f9f9',
+    gap: 10
   },
   section: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10
+    justifyContent: 'space-between'
   },
   contentText: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    color: '#000'
+    color: '#424242'
   },
   dayOfWeekContainer: {
     flexDirection: 'row',
@@ -117,27 +94,31 @@ const styles = StyleSheet.create({
   dayOfWeekText: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 11,
-    color: '#BABABA'
+    color: '#babfc5'
   },
   activeDayOfWeekText: {
-    color: '#1A7BDB'
+    color: '#1E90FF'
+  },
+  alarmBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5
   },
   alarmText: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 11,
     color: '#7c8698'
   },
 
   gapButton: {
-    height: 52,
     justifyContent: 'center',
     marginVertical: 15,
-    paddingHorizontal: 20,
+    padding: 16,
     borderRadius: 10,
     backgroundColor: '#dceafe'
   },
   gapButtonText: {
-    fontFamily: 'Pretendard-SemiBold',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 14,
     color: '#1E90FF'
   }

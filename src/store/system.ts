@@ -1,4 +1,4 @@
-import {atom} from 'recoil'
+import {atom, selector} from 'recoil'
 
 export const loginState = atom({
   key: 'loginState',
@@ -13,4 +13,9 @@ export const isEditState = atom({
 export const isLoadingState = atom({
   key: 'isLoading',
   default: false
+})
+
+export const homeHeaderHeightState = atom({
+  key: 'homeHeaderHeightState',
+  default: 0
 })

@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     gap: 16
   },
   text: {
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 14,
     color: '#424242'
   },

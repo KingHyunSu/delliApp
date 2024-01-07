@@ -20,7 +20,7 @@ import CancleIcon from '@/assets/icons/cancle.svg'
 import EditIcon from '@/assets/icons/edit3.svg'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
-import {isEditState, isLoadingState} from '@/store/system'
+import {isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
 import {
   scheduleDateState,
   scheduleState,
@@ -50,13 +50,12 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
 
   const isShowColorPickerBottomSheetState = useRecoilValue(showColorPickerBottomSheetState)
+  const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
   const setSchedule = useSetRecoilState(scheduleState)
   const setEditStartAngle = useSetRecoilState(editStartAngleState)
   const setEditEndAngle = useSetRecoilState(editEndAngleState)
   const resetSchedule = useResetRecoilState(scheduleState)
-
-  const [homeTopHeight, setHomeTopHeight] = React.useState(0)
 
   useQuery({
     queryKey: ['timetableCategoryList'],
@@ -139,7 +138,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   }
 
   const handleTopLayout = (layout: LayoutChangeEvent) => {
-    setHomeTopHeight(layout.nativeEvent.layout.height)
+    setHomeHeaderHeight(layout.nativeEvent.layout.height)
   }
 
   const headerTranslateY = React.useRef(new Animated.Value(0)).current
@@ -221,7 +220,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
       <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
         <TimeTable
           data={scheduleList}
-          homeTopHeight={homeTopHeight}
           isEdit={isEdit}
           titleInputRef={titleInputRef}
           onClick={openEditMenuBottomSheet}
