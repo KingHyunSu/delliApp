@@ -8,7 +8,7 @@ import {updateScheduleDisable, updateScheduleComplete} from '@/apis/schedule'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
-import {scheduleState, scheduleDateState} from '@/store/schedule'
+import {scheduleState, scheduleDateState, scheduleTodoState} from '@/store/schedule'
 import {showScheduleCompleteModalState, showEditTodoModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
@@ -18,8 +18,6 @@ import {trigger} from 'react-native-haptic-feedback'
 import EditIcon from '@/assets/icons/edit3.svg'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import TodoIcon from '@/assets/icons/priority.svg'
-
-import {Schedule, ScheduleDisable, ScheduleComplete} from '@/types/schedule'
 
 interface Props {
   refetchScheduleList: Function
@@ -32,6 +30,7 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const schedule = useRecoilValue(scheduleState)
   const resetSchedule = useResetRecoilState(scheduleState)
+  const changeScheduleTodo = useSetRecoilState(scheduleTodoState)
 
   const editInfoBottomSheetRef = React.useRef<BottomSheetModal>(null)
 
@@ -76,8 +75,16 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
   }
 
   const openEditTodoModal = () => {
-    haptic('impactLight')
-    setShowEditTodoModalState(true)
+    if (schedule.schedule_id) {
+      haptic('impactLight')
+
+      changeScheduleTodo(prevState => ({
+        ...prevState,
+        schedule_id: schedule.schedule_id
+      }))
+
+      setShowEditTodoModalState(true)
+    }
   }
 
   const updateScheduleDisableMutation = useMutation({

@@ -1,4 +1,16 @@
-export interface Schedule {
+declare interface Todo {
+  schedule_id?: number | null
+  todo_id?: number | null
+  todo_title: string
+  todo_start_date: string
+  todo_end_date: string
+}
+
+declare interface Todos {
+  todoList: Todos[]
+}
+
+declare interface Schedule {
   schedule_id: number | null
   timetable_category_id: number | null
   start_date: string
@@ -25,15 +37,16 @@ export interface Schedule {
   complete_start_time?: number
   complete_end_time?: number
   alarm: number
+  todo_list: Todo[]
 
   display_type?: string
 }
 
-export interface ScheduleDisable {
+declare interface ScheduleDisable {
   schedule_id: number
 }
 
-export interface ScheduleComplete {
+declare interface ScheduleComplete {
   schedule_id: number
   schedule_complete_id?: number
   complete_date: string

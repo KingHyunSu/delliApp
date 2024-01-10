@@ -4,8 +4,6 @@ import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 import ScheduleListItem from './ScheduleListItem'
 
-import {Schedule} from '@/types/schedule'
-
 interface Props {
   data: Schedule[]
   openEditScheduleBottomSheet: (value?: Schedule) => void

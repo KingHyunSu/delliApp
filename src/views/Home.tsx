@@ -39,7 +39,6 @@ import {useQuery} from '@tanstack/react-query'
 import {getDayOfWeekKey} from '@/utils/helper'
 import {format} from 'date-fns'
 
-import {Schedule} from '@/types/schedule'
 import {HomeNavigationProps} from '@/types/navigation'
 
 const Home = ({navigation}: HomeNavigationProps) => {
@@ -72,7 +71,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
     }
   })
 
-  const {refetch: refetchScheduleList} = useQuery({
+  const {refetch: refetchScheduleList, isError} = useQuery({
     queryKey: ['scheduleList', scheduleDate],
     queryFn: async () => {
       setIsLoading(true)
@@ -98,7 +97,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
         }
 
         const response = await getScheduleList(param)
-
         setScheduleList(response.data)
 
         setTimeout(() => {
@@ -169,6 +167,12 @@ const Home = ({navigation}: HomeNavigationProps) => {
       translateAnimation(timaTableTranslateY, 0)
     }
   }, [isEdit, headerTranslateY, timaTableTranslateY])
+
+  React.useEffect(() => {
+    if (isError) {
+      setIsLoading(false)
+    }
+  }, [isError])
 
   return (
     <View style={homeStyles.container}>

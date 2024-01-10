@@ -4,8 +4,6 @@ import ScheduleTimeBox from './ScheduleTimeBox'
 import ScheduleTodoList from './ScheduleTodoList'
 import AlarmIcon from '@/assets/icons/alarm.svg'
 
-import {Schedule} from '@/types/schedule'
-
 interface Props {
   index: number
   item: Schedule

@@ -12,8 +12,6 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {scheduleState, editStartAngleState, editEndAngleState} from '@/store/schedule'
 import {showStyleBottomSheetState} from '@/store/bottomSheet'
 
-import {Schedule} from '@/types/schedule'
-
 import PaletteIcon from '@/assets/icons/palette.svg'
 
 interface Props {

@@ -4,8 +4,6 @@ import AlarmIcon from '@/assets/icons/alarm.svg'
 
 import {getTimeOfMinute} from '@/utils/helper'
 
-import {Schedule} from '@/types/schedule'
-
 interface Props {
   index: number
   item: Schedule

@@ -10,8 +10,6 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {homeHeaderHeightState} from '@/store/system'
 import {scheduleListState, editStartAngleState, editEndAngleState} from '@/store/schedule'
 
-import {Schedule} from '@/types/schedule'
-
 interface Props {
   data: Schedule
   scheduleList: Schedule[]

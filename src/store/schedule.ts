@@ -1,6 +1,5 @@
 import {atom} from 'recoil'
 
-import {Schedule} from '@/types/schedule'
 import {COLOR_TYPE, RANGE_FLAG} from '@/utils/types'
 
 export const scheduleDateState = atom<Date>({
@@ -37,8 +36,20 @@ export const scheduleState = atom<Schedule>({
     title_y: 45,
     title_rotate: 0,
     alarm: 0,
+    todo_list: [],
     background_color: '#ffffff',
     text_color: '#000000'
+  }
+})
+
+export const scheduleTodoState = atom<Todo>({
+  key: 'scheduleTodoState',
+  default: {
+    schedule_id: null,
+    todo_id: null,
+    todo_title: '',
+    todo_start_date: '',
+    todo_end_date: ''
   }
 })
 

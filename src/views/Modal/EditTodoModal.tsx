@@ -4,8 +4,14 @@ import Switch from '@/components/Swtich'
 
 import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 
-import {useRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
 import {showEditTodoModalState} from '@/store/modal'
+import {scheduleDateState, scheduleTodoState} from '@/store/schedule'
+
+import {format} from 'date-fns'
+
+import {useMutation} from '@tanstack/react-query'
+import {setScheduleTodo} from '@/apis/schedule'
 
 const EditTodoModal = () => {
   const {height} = useWindowDimensions()
@@ -14,6 +20,8 @@ const EditTodoModal = () => {
   const [isRepeat, setIsRepeat] = React.useState(false)
 
   const [showEditTodoModal, setShowEditTodoModal] = useRecoilState(showEditTodoModalState)
+  const scheduleDate = useRecoilValue(scheduleDateState)
+  const [scheduleTodo, changeScheduleTodo] = useRecoilState(scheduleTodoState)
 
   const translateY = useSharedValue(containerHeight * -1)
   const opacity = useSharedValue(0)
@@ -35,6 +43,32 @@ const EditTodoModal = () => {
     })
   }
 
+  const changeTitle = (value: string) => {
+    changeScheduleTodo(prevState => ({
+      ...prevState,
+      todo_title: value
+    }))
+  }
+
+  const setScheduleTodoMutation = useMutation({
+    mutationFn: async (data: Todo) => {
+      setScheduleTodo(data)
+    }
+  })
+
+  const handleSubmit = () => {
+    let params = scheduleTodo
+
+    if (!scheduleTodo.todo_id) {
+      params = {
+        ...params,
+        todo_start_date: format(scheduleDate, 'yyyy-MM-dd')
+      }
+    }
+    console.log('123')
+    setScheduleTodoMutation.mutate(params)
+  }
+
   React.useEffect(() => {
     if (showEditTodoModal) {
       opacity.value = withTiming(1)
@@ -52,7 +86,12 @@ const EditTodoModal = () => {
         <SafeAreaView>
           <View style={styles.wrapper}>
             <View style={styles.formContainer}>
-              <TextInput style={styles.title} placeholder="할 일을 입력해주세요" placeholderTextColor="#c3c5cc" />
+              <TextInput
+                style={styles.title}
+                placeholder="할 일을 입력해주세요"
+                placeholderTextColor="#c3c5cc"
+                onChangeText={changeTitle}
+              />
 
               <View>
                 <View style={styles.repeatContainer}>
@@ -67,7 +106,7 @@ const EditTodoModal = () => {
               <Pressable style={[styles.button, styles.closeButton]} onPress={handleClose}>
                 <Text style={styles.buttonText}>닫기</Text>
               </Pressable>
-              <Pressable style={[styles.button, styles.editButton]}>
+              <Pressable style={[styles.button, styles.editButton]} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>추가하기</Text>
               </Pressable>
             </View>

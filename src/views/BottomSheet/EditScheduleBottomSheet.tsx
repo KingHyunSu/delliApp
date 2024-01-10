@@ -22,7 +22,6 @@ import {getTimeOfMinute} from '@/utils/helper'
 import {format} from 'date-fns'
 
 import {RANGE_FLAG} from '@/utils/types'
-import {Schedule} from '@/types/schedule'
 import {DAY_OF_WEEK} from '@/types/common'
 
 interface Props {

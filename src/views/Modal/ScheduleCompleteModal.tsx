@@ -18,8 +18,6 @@ import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import {useMutation} from '@tanstack/react-query'
 import {updateScheduleComplete} from '@/apis/schedule'
 
-import {Schedule, ScheduleComplete} from '@/types/schedule'
-
 const ScheduleCompleteModal = () => {
   const containerHeight = 600
 
