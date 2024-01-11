@@ -1,5 +1,10 @@
 import React from 'react'
 import {StyleSheet, FlatList, Pressable, View, Text} from 'react-native'
+
+import {useSetRecoilState} from 'recoil'
+import {scheduleTodoState} from '@/store/schedule'
+import {showEditTodoModalState} from '@/store/modal'
+
 import MoreIcon from '@/assets/icons/more_horiz.svg'
 
 interface Props {
@@ -7,8 +12,9 @@ interface Props {
 }
 interface ItemProps {
   item: Todo
+  showEditModal: Function
 }
-const ScheduleTodo = ({item}: ItemProps) => {
+const ScheduleTodo = ({item, showEditModal}: ItemProps) => {
   return (
     <View style={styles.itemContainer}>
       <View style={styles.itemWrapper}>
@@ -18,7 +24,7 @@ const ScheduleTodo = ({item}: ItemProps) => {
         <Text style={styles.text}>{item.title}</Text>
       </View>
 
-      <Pressable style={styles.moreButton}>
+      <Pressable style={styles.moreButton} onPress={() => showEditModal(item)}>
         <MoreIcon width={18} height={18} fill="#babfc5" />
       </Pressable>
     </View>
@@ -26,12 +32,20 @@ const ScheduleTodo = ({item}: ItemProps) => {
 }
 
 const ScheduleTodoList = ({data}: Props) => {
+  const scheduleTodo = useSetRecoilState(scheduleTodoState)
+  const setShowEditTodoModal = useSetRecoilState(showEditTodoModalState)
+
+  const showEditModal = (item: Todo) => {
+    scheduleTodo(item)
+    setShowEditTodoModal(true)
+  }
+
   return (
     <FlatList
       data={data}
       keyExtractor={(_, index) => String(index)}
       style={styles.container}
-      renderItem={ScheduleTodo}
+      renderItem={({item}) => <ScheduleTodo item={item} showEditModal={showEditModal} />}
     />
   )
 }
