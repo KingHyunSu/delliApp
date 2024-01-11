@@ -231,21 +231,16 @@ const Home = ({navigation}: HomeNavigationProps) => {
         />
       </Animated.View>
 
-      {isEdit ? (
-        <EditScheduleBottomSheet
-          scheduleList={scheduleList}
-          refetchScheduleList={refetchScheduleList}
-          setIsEdit={setIsEdit}
-          titleInputRef={titleInputRef}
-        />
-      ) : (
-        <ScheduleListBottomSheet
-          data={scheduleList}
-          openEditScheduleBottomSheet={openEditScheduleBottomSheet}
-          onClick={openEditMenuBottomSheet}
-        />
-      )}
-
+      <ScheduleListBottomSheet
+        data={scheduleList}
+        openEditScheduleBottomSheet={openEditScheduleBottomSheet}
+        onClick={openEditMenuBottomSheet}
+      />
+      <EditScheduleBottomSheet
+        scheduleList={scheduleList}
+        refetchScheduleList={refetchScheduleList}
+        titleInputRef={titleInputRef}
+      />
       {!isEdit && (
         <Pressable style={homeStyles.fabContainer} onPress={() => openEditScheduleBottomSheet()}>
           <EditIcon stroke="#fff" width={18} height={18} />

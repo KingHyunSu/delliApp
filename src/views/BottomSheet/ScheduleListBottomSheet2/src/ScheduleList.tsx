@@ -4,12 +4,17 @@ import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 import ScheduleListItem from './ScheduleListItem'
 
+import {useRecoilValue} from 'recoil'
+import {isEditState} from '@/store/system'
+
 interface Props {
   data: Schedule[]
   openEditScheduleBottomSheet: (value?: Schedule) => void
   onClick: (value: Schedule) => void
 }
 const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
+  const isEdit = useRecoilValue(isEditState)
+
   const bottomSheetRef = React.useRef<BottomSheet>(null)
 
   const list = React.useMemo(() => {
@@ -58,7 +63,8 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
           alarm: 0,
           background_color: '#ffffff',
           text_color: '#000000',
-          display_type: SCHEDULE_DISPLAY_TYPE.GAP
+          display_type: SCHEDULE_DISPLAY_TYPE.GAP,
+          todo_list: []
         }
 
         result.push(schedule)
@@ -70,6 +76,16 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
 
     return result
   }, [data])
+
+  React.useEffect(() => {
+    if (bottomSheetRef.current) {
+      if (isEdit) {
+        bottomSheetRef.current.close()
+      } else {
+        bottomSheetRef.current.snapToIndex(0)
+      }
+    }
+  }, [isEdit])
 
   return (
     <BottomSheet ref={bottomSheetRef} index={0} snapPoints={['20%', '77%']} handleComponent={BottomSheetShadowHandler}>

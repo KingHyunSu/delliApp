@@ -11,6 +11,7 @@ import {useMutation} from '@tanstack/react-query'
 import * as API from '@/apis/schedule'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
+import {isEditState} from '@/store/system'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {scheduleDateState, scheduleState, editStartAngleState, editEndAngleState} from '@/store/schedule'
 
@@ -21,7 +22,6 @@ import {format, getTime, startOfToday, setMinutes} from 'date-fns'
 import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 
-import {Schedule} from '@/types/schedule'
 import {RANGE_FLAG} from '@/utils/types'
 import {DAY_OF_WEEK} from '@/types/common'
 
@@ -30,10 +30,9 @@ import notifee, {TimestampTrigger, TriggerType, RepeatFrequency} from '@notifee/
 interface Props {
   scheduleList: Schedule[]
   refetchScheduleList: Function
-  setIsEdit: Function
   titleInputRef: React.RefObject<TextInput>
 }
-const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, titleInputRef}: Props) => {
+const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, titleInputRef}: Props) => {
   const defaultPanelHeight = 74
   const defaultItemPanelHeight = 56
   const defaultFullTimeItemPanelHeight = 216
@@ -43,6 +42,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
 
+  const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const activeTimeTableCategory = useRecoilValue(activeTimeTableCategoryState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [editStartAngle, setEditStartAngle] = useRecoilState(editStartAngleState)
@@ -324,6 +324,16 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   }
 
   React.useEffect(() => {
+    if (bottomSheetRef.current) {
+      if (isEdit) {
+        bottomSheetRef.current.snapToIndex(0)
+      } else {
+        bottomSheetRef.current.close()
+      }
+    }
+  }, [isEdit])
+
+  React.useEffect(() => {
     if (schedule.alarm > 0) {
       setAlarmWheelIndex(schedule.alarm / 5 - 1)
     }
@@ -391,7 +401,7 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, setIsEdit, 
   }, [schedule.schedule_id, scheduleDate, setSchedule])
 
   return (
-    <BottomSheet ref={bottomSheetRef} index={0} snapPoints={['35%', '93%']} handleComponent={BottomSheetShadowHandler}>
+    <BottomSheet ref={bottomSheetRef} index={-1} snapPoints={['35%', '93%']} handleComponent={BottomSheetShadowHandler}>
       <BottomSheetScrollView contentContainerStyle={styles.container}>
         {/* 일정명 */}
         <Pressable style={styles.titleButton} onPress={focusTitleInput}>
