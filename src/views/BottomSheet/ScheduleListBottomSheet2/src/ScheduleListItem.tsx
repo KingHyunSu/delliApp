@@ -56,7 +56,7 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
           </View>
         </Pressable>
 
-        <ScheduleTodoList />
+        {item.todo_list.length > 0 && <ScheduleTodoList data={item.todo_list} />}
       </View>
 
       {!isContinueSchedule && <ScheduleTimeBox time={item.end_time} />}

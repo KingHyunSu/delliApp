@@ -4,8 +4,9 @@ import Switch from '@/components/Swtich'
 
 import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 
-import {useRecoilState, useRecoilValue} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {showEditTodoModalState} from '@/store/modal'
+import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {scheduleDateState, scheduleTodoState} from '@/store/schedule'
 
 import {format} from 'date-fns'
@@ -13,15 +14,23 @@ import {format} from 'date-fns'
 import {useMutation} from '@tanstack/react-query'
 import {setScheduleTodo} from '@/apis/schedule'
 
-const EditTodoModal = () => {
+import DeleteIcon from '@/assets/icons/trash.svg'
+
+interface Props {
+  refetchScheduleList: Function
+}
+const EditTodoModal = ({refetchScheduleList}: Props) => {
   const {height} = useWindowDimensions()
   const containerHeight = height * 0.65
-
-  const [isRepeat, setIsRepeat] = React.useState(false)
-
   const [showEditTodoModal, setShowEditTodoModal] = useRecoilState(showEditTodoModalState)
+  const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
+
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [scheduleTodo, changeScheduleTodo] = useRecoilState(scheduleTodoState)
+
+  const isEdit = React.useMemo(() => {
+    return !!scheduleTodo.todo_id
+  }, [scheduleTodo.todo_id])
 
   const translateY = useSharedValue(containerHeight * -1)
   const opacity = useSharedValue(0)
@@ -46,26 +55,47 @@ const EditTodoModal = () => {
   const changeTitle = (value: string) => {
     changeScheduleTodo(prevState => ({
       ...prevState,
-      todo_title: value
+      title: value
+    }))
+  }
+
+  const changeEndDate = (value: boolean) => {
+    let end_date: string | null = null
+
+    if (!value) {
+      end_date = format(scheduleDate, 'yyyy-MM-dd')
+    }
+
+    changeScheduleTodo(prevState => ({
+      ...prevState,
+      end_date
     }))
   }
 
   const setScheduleTodoMutation = useMutation({
     mutationFn: async (data: Todo) => {
       setScheduleTodo(data)
+    },
+    onSuccess: async () => {
+      await refetchScheduleList()
+
+      handleClose()
+      setShowEditMenuBottomSheet(false)
     }
   })
+
+  const handleDelete = () => {}
 
   const handleSubmit = () => {
     let params = scheduleTodo
 
-    if (!scheduleTodo.todo_id) {
+    if (!isEdit) {
       params = {
         ...params,
-        todo_start_date: format(scheduleDate, 'yyyy-MM-dd')
+        start_date: format(scheduleDate, 'yyyy-MM-dd')
       }
     }
-    console.log('123')
+
     setScheduleTodoMutation.mutate(params)
   }
 
@@ -87,6 +117,7 @@ const EditTodoModal = () => {
           <View style={styles.wrapper}>
             <View style={styles.formContainer}>
               <TextInput
+                value={scheduleTodo.title}
                 style={styles.title}
                 placeholder="할 일을 입력해주세요"
                 placeholderTextColor="#c3c5cc"
@@ -97,17 +128,19 @@ const EditTodoModal = () => {
                 <View style={styles.repeatContainer}>
                   <Text style={styles.repeatHeaderLabel}>반복</Text>
 
-                  <Switch value={isRepeat} onChange={() => setIsRepeat(!isRepeat)} />
+                  <Switch value={!scheduleTodo.end_date} onChange={changeEndDate} />
                 </View>
               </View>
             </View>
 
             <View style={styles.buttonContainer}>
-              <Pressable style={[styles.button, styles.closeButton]} onPress={handleClose}>
-                <Text style={styles.buttonText}>닫기</Text>
-              </Pressable>
+              {isEdit && (
+                <Pressable style={[styles.button, styles.closeButton]} onPress={handleDelete}>
+                  <DeleteIcon fill="#EC6682" />
+                </Pressable>
+              )}
               <Pressable style={[styles.button, styles.editButton]} onPress={handleSubmit}>
-                <Text style={styles.buttonText}>추가하기</Text>
+                <Text style={styles.buttonText}>{isEdit ? '수정하기' : '추가하기'}</Text>
               </Pressable>
             </View>
           </View>
@@ -134,7 +167,7 @@ const styles = StyleSheet.create({
   wrapper: {
     paddingHorizontal: 16,
     paddingTop: 40,
-    paddingBottom: 20,
+    paddingBottom: 30,
     height: '100%',
     justifyContent: 'space-between'
   },
@@ -160,7 +193,7 @@ const styles = StyleSheet.create({
     borderColor: '#eeeded',
     borderRadius: 10,
     paddingHorizontal: 16,
-    paddingVertical: 20
+    paddingVertical: 15
   },
   repeatHeaderLabel: {
     fontSize: 16,
@@ -173,17 +206,17 @@ const styles = StyleSheet.create({
     gap: 10
   },
   button: {
-    height: 56,
+    height: 48,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10
   },
   closeButton: {
     flex: 1,
-    backgroundColor: '#bababa'
+    backgroundColor: '#FDEEF1'
   },
   editButton: {
-    flex: 2,
+    flex: 3,
     backgroundColor: '#1E90FF'
   },
   buttonText: {

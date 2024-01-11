@@ -1,9 +1,9 @@
 declare interface Todo {
   schedule_id?: number | null
   todo_id?: number | null
-  todo_title: string
-  todo_start_date: string
-  todo_end_date: string
+  title: string
+  start_date: string
+  end_date: string | null
 }
 
 declare interface Todos {

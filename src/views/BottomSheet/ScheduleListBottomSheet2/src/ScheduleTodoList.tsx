@@ -2,11 +2,11 @@ import React from 'react'
 import {StyleSheet, FlatList, Pressable, View, Text} from 'react-native'
 import MoreIcon from '@/assets/icons/more_horiz.svg'
 
-const tempList = [{title: 'todo 1'}, {title: 'todo 2'}]
-
-interface Props {}
+interface Props {
+  data: Todo[]
+}
 interface ItemProps {
-  item: {title: string}
+  item: Todo
 }
 const ScheduleTodo = ({item}: ItemProps) => {
   return (
@@ -25,10 +25,10 @@ const ScheduleTodo = ({item}: ItemProps) => {
   )
 }
 
-const ScheduleTodoList = () => {
+const ScheduleTodoList = ({data}: Props) => {
   return (
     <FlatList
-      data={tempList}
+      data={data}
       keyExtractor={(_, index) => String(index)}
       style={styles.container}
       renderItem={ScheduleTodo}
