@@ -29,7 +29,7 @@ export const updateScheduleDisable = (data: ScheduleDisable) => {
 }
 
 export const setScheduleTodo = (data: Todo) => {
-  return http.post<any>('schedule/todo', data)
+  return http.post<Todo>('schedule/todo', data)
 }
 
 export const updateScheduleComplete = (data: ScheduleComplete) => {

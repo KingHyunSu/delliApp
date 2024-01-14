@@ -255,7 +255,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
       {/* modal */}
       {/* <ScheduleCompleteModal /> */}
-      <EditTodoModal refetchScheduleList={refetchScheduleList} />
+      <EditTodoModal />
 
       <Loading />
     </View>

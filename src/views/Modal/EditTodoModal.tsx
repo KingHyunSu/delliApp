@@ -4,10 +4,10 @@ import Switch from '@/components/Swtich'
 
 import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {showEditTodoModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
-import {scheduleDateState, scheduleTodoState} from '@/store/schedule'
+import {scheduleDateState, scheduleListState, scheduleTodoState} from '@/store/schedule'
 
 import {format} from 'date-fns'
 
@@ -16,17 +16,16 @@ import {setScheduleTodo} from '@/apis/schedule'
 
 import DeleteIcon from '@/assets/icons/trash.svg'
 
-interface Props {
-  refetchScheduleList: Function
-}
-const EditTodoModal = ({refetchScheduleList}: Props) => {
+const EditTodoModal = () => {
   const {height} = useWindowDimensions()
   const containerHeight = height * 0.65
   const [showEditTodoModal, setShowEditTodoModal] = useRecoilState(showEditTodoModalState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
   const scheduleDate = useRecoilValue(scheduleDateState)
+  const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [scheduleTodo, changeScheduleTodo] = useRecoilState(scheduleTodoState)
+  const resetScheduleTodo = useResetRecoilState(scheduleTodoState)
 
   const isEdit = React.useMemo(() => {
     return !!scheduleTodo.todo_id
@@ -47,6 +46,7 @@ const EditTodoModal = ({refetchScheduleList}: Props) => {
 
     translateY.value = withTiming(containerHeight * -1, {duration: 300}, isFinish => {
       if (isFinish) {
+        runOnJS(resetScheduleTodo)()
         runOnJS(setShowEditTodoModal)(false)
       }
     })
@@ -74,11 +74,32 @@ const EditTodoModal = ({refetchScheduleList}: Props) => {
 
   const setScheduleTodoMutation = useMutation({
     mutationFn: async (data: Todo) => {
-      setScheduleTodo(data)
+      return setScheduleTodo(data)
     },
-    onSuccess: async () => {
-      await refetchScheduleList()
+    onSuccess: response => {
+      const result = response.data
 
+      const newScheduleList = scheduleList.map(item => {
+        if (item.schedule_id === result.schedule_id) {
+          let todo_list = [...item.todo_list]
+
+          const updateTodoIndex = todo_list.findIndex(todoItem => todoItem.todo_id === result.todo_id)
+          if (updateTodoIndex === -1) {
+            todo_list.push(result)
+          } else {
+            todo_list[updateTodoIndex] = result
+          }
+
+          return {
+            ...item,
+            todo_list
+          }
+        }
+
+        return item
+      })
+
+      setScheduleList(newScheduleList)
       handleClose()
       setShowEditMenuBottomSheet(false)
     }
