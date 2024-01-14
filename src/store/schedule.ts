@@ -49,7 +49,9 @@ export const scheduleTodoState = atom<Todo>({
     todo_id: null,
     title: '',
     start_date: '',
-    end_date: null
+    end_date: null,
+    complete_id: null,
+    complete_date: null
   }
 })
 

@@ -81,18 +81,18 @@ const EditTodoModal = () => {
 
       const newScheduleList = scheduleList.map(item => {
         if (item.schedule_id === result.schedule_id) {
-          let todo_list = [...item.todo_list]
+          let newTodoList = [...item.todo_list]
 
-          const updateTodoIndex = todo_list.findIndex(todoItem => todoItem.todo_id === result.todo_id)
+          const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.todo_id === result.todo_id)
           if (updateTodoIndex === -1) {
-            todo_list.push(result)
+            newTodoList.push(result)
           } else {
-            todo_list[updateTodoIndex] = result
+            newTodoList[updateTodoIndex] = result
           }
 
           return {
             ...item,
-            todo_list
+            todo_list: newTodoList
           }
         }
 

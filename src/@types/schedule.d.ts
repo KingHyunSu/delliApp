@@ -4,6 +4,8 @@ declare interface Todo {
   title: string
   start_date: string
   end_date: string | null
+  complete_id: number | null
+  complete_date: string | null
 }
 
 declare interface Todos {
