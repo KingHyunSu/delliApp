@@ -157,16 +157,14 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
   return (
     <>
       <Svg style={{position: 'absolute'}}>
-        <G>
-          <Circle cx={dragStartBtnCoordinate.x} cy={dragStartBtnCoordinate.y} r={10} fill="#1E90FF" />
-          <Circle
-            {...startPanResponders.panHandlers}
-            cx={dragStartBtnCoordinate.x}
-            cy={dragStartBtnCoordinate.y}
-            r={38}
-            fill={'transparent'}
-          />
-        </G>
+        <Circle cx={dragStartBtnCoordinate.x} cy={dragStartBtnCoordinate.y} r={10} fill="#1E90FF" />
+        <Circle
+          {...startPanResponders.panHandlers}
+          cx={dragStartBtnCoordinate.x}
+          cy={dragStartBtnCoordinate.y}
+          r={38}
+          fill={'transparent'}
+        />
       </Svg>
 
       <Svg style={{position: 'absolute'}}>

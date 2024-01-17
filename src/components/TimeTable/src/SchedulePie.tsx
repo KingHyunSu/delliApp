@@ -53,30 +53,12 @@ const SchedulePie = ({data, x, y, radius, startAngle, endAngle, opacity = 1, isE
   }, [endAngle])
 
   return (
-    <G>
-      <Path
-        d={path}
-        fill={data.disable === '1' ? '#faf0f0' : data.background_color}
-        fillOpacity={opacity}
-        onPress={handleClick}
-      />
-
-      {isEdit && (
-        <G opacity={data.disable === '1' ? 0.2 : 1}>
-          <G x={startTextPosition.x} y={startTextPosition.y} rotation={startAngle - 90}>
-            <Text x={25} y={14} fontSize={12} fill="#555555" textAnchor="middle" fontWeight={200}>
-              {`${startTime.hour}:${startTime.minute}`}
-            </Text>
-          </G>
-
-          <G x={endTextPosition.x} y={endTextPosition.y} rotation={endAngle - 90}>
-            <Text x={25} y={14} fontSize={12} fill="#555555" textAnchor="middle" fontWeight={200}>
-              {`${endTime.hour}:${endTime.minute}`}
-            </Text>
-          </G>
-        </G>
-      )}
-    </G>
+    <Path
+      d={path}
+      fill={data.disable === '1' ? '#faf0f0' : data.background_color}
+      fillOpacity={opacity}
+      onPress={handleClick}
+    />
   )
 }
 
