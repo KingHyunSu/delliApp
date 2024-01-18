@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import {StyleSheet, SafeAreaView, Text} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 
@@ -15,7 +15,7 @@ import SettingScreen from '@/views/Setting'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import {useRecoilState} from 'recoil'
+import {useRecoilState, useRecoilSnapshot} from 'recoil'
 import {loginState} from '@/store/system'
 
 import {useQuery} from '@tanstack/react-query'
@@ -51,6 +51,19 @@ function App(): JSX.Element {
     // reset()
   }, [])
 
+  // recoil debug
+  function RecoilDebugObserver(): React.ReactNode {
+    const recoilSnapshot = useRecoilSnapshot()
+    useEffect(() => {
+      for (const node of recoilSnapshot.getNodes_UNSTABLE({isModified: true})) {
+        // console.debug(node.key, recoilSnapshot.getLoadable(node))
+        console.debug('recoil update : ', node.key)
+      }
+    }, [recoilSnapshot])
+
+    return null
+  }
+
   if (isLoading) {
     return (
       <SafeAreaView style={{flex: 1}}>
@@ -60,6 +73,7 @@ function App(): JSX.Element {
   }
   return (
     <GestureHandlerRootView style={{flex: 1}}>
+      <RecoilDebugObserver />
       <BottomSheetModalProvider>
         <SafeAreaView style={styles.container}>
           <NavigationContainer>
