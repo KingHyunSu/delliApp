@@ -10,14 +10,13 @@ import WheelPicker from 'react-native-wheely'
 import {useMutation} from '@tanstack/react-query'
 import * as API from '@/apis/schedule'
 
-import {useRecoilState, useRecoilValue} from 'recoil'
+import {useRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
-import {activeTimeTableCategoryState} from '@/store/timetable'
-import {scheduleDateState, scheduleState, editStartAngleState, editEndAngleState} from '@/store/schedule'
+import {scheduleState, editStartAngleState, editEndAngleState} from '@/store/schedule'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
-import {format, getTime, startOfToday, setMinutes} from 'date-fns'
+import {getTime, startOfToday, setMinutes} from 'date-fns'
 
 import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
@@ -43,8 +42,6 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, titleInputR
   const bottomSheetRef = React.useRef<BottomSheet>(null)
 
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
-  const activeTimeTableCategory = useRecoilValue(activeTimeTableCategoryState)
-  const scheduleDate = useRecoilValue(scheduleDateState)
   const [editStartAngle, setEditStartAngle] = useRecoilState(editStartAngleState)
   const [editEndAngle, setEditEndAngle] = useRecoilState(editEndAngleState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
@@ -386,19 +383,6 @@ const EditScheduleBottomSheet = ({scheduleList, refetchScheduleList, titleInputR
       dateEndPanelHeight.value = withTiming(defaultItemPanelHeight)
     }
   }, [dateFlag])
-
-  React.useEffect(() => {
-    if (activeTimeTableCategory.timetable_category_id) {
-      setSchedule(prevState => ({...prevState, timetable_category_id: activeTimeTableCategory.timetable_category_id}))
-    }
-  }, [activeTimeTableCategory.timetable_category_id, setSchedule])
-
-  React.useEffect(() => {
-    if (!schedule.schedule_id) {
-      const date = format(scheduleDate, 'yyyy-MM-dd')
-      setSchedule(prevState => ({...prevState, ...{start_date: date}}))
-    }
-  }, [schedule.schedule_id, scheduleDate, setSchedule])
 
   return (
     <BottomSheet ref={bottomSheetRef} index={-1} snapPoints={['35%', '93%']} handleComponent={BottomSheetShadowHandler}>

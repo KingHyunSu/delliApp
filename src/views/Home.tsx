@@ -115,6 +115,14 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const openEditScheduleBottomSheet = (value?: Schedule) => {
     if (value) {
       setSchedule(value)
+    } else {
+      setSchedule(prevState => {
+        return {
+          ...prevState,
+          timetable_category_id: activeTimeTableCategory.timetable_category_id,
+          start_date: format(scheduleDate, 'yyyy-MM-dd')
+        }
+      })
     }
 
     setIsEdit(true)

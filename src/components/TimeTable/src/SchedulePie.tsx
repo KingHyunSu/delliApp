@@ -1,10 +1,7 @@
 import React from 'react'
-import {G, Path, Text} from 'react-native-svg'
+import {Path} from 'react-native-svg'
 
-import {polarToCartesian, describeArc} from '../util'
-import {getTimeOfMinute} from '@/utils/helper'
-
-import {Schedule} from '@/types/schedule'
+import {describeArc} from '../util'
 
 interface Props {
   data: Schedule
@@ -14,10 +11,9 @@ interface Props {
   startAngle: number
   endAngle: number
   opacity?: number
-  isEdit: Boolean
   onClick?: (value: Schedule) => void
 }
-const SchedulePie = ({data, x, y, radius, startAngle, endAngle, opacity = 1, isEdit, onClick}: Props) => {
+const SchedulePie = ({data, x, y, radius, startAngle, endAngle, opacity = 1, onClick}: Props) => {
   const STROK_WIDTH = 1
 
   const handleClick = () => {
@@ -35,22 +31,6 @@ const SchedulePie = ({data, x, y, radius, startAngle, endAngle, opacity = 1, isE
       endAngle
     })
   }, [x, y, radius, startAngle, endAngle])
-
-  const startTextPosition = React.useMemo(() => {
-    return polarToCartesian(x, y, radius - 52, startAngle)
-  }, [x, y, radius, startAngle])
-
-  const endTextPosition = React.useMemo(() => {
-    return polarToCartesian(x, y, radius - 52, endAngle - 8.5)
-  }, [x, y, radius, endAngle])
-
-  const startTime = React.useMemo(() => {
-    return getTimeOfMinute(startAngle * 4)
-  }, [startAngle])
-
-  const endTime = React.useMemo(() => {
-    return getTimeOfMinute(endAngle * 4)
-  }, [endAngle])
 
   return (
     <Path

@@ -80,7 +80,6 @@ const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
                 radius={radius}
                 startAngle={startAngle}
                 endAngle={endAngle}
-                isEdit={isEdit}
                 onClick={handleClick}
               />
             )
@@ -111,7 +110,6 @@ const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
               radius={radius}
               startAngle={editStartAngle}
               endAngle={editEndAngle}
-              isEdit={isEdit}
             />
           </Svg>
 
