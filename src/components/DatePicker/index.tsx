@@ -9,12 +9,15 @@ import {getDateList, getRemainPrevDateList, getRemainNextvDateList} from './util
 import {Item} from './type'
 import {dateItemStyles} from './style'
 
+interface DateItemParams {
+  item: Item
+}
 interface Props {
   value: string
   hasNull?: boolean
   onChange: Function
 }
-const DatePicker = ({value, hasNull = false, onChange}: Props) => {
+const DatePicker = React.memo(({value: datePickerValue, hasNull = false, onChange}: Props) => {
   // 요일
   const weekdays = ['월', '화', '수', '목', '금', '토', '일']
 
@@ -22,9 +25,13 @@ const DatePicker = ({value, hasNull = false, onChange}: Props) => {
   const [currentDate, setCurrentDate] = React.useState<Date | null>(null)
   const [dayList, setDateList] = React.useState<Item[]>([])
 
+  const weekStyle = React.useMemo(() => {
+    return [dateItemStyles.text, styles.dayOfWeekText]
+  }, [])
+
   React.useEffect(() => {
-    setDate(value)
-  }, [value])
+    setDate(datePickerValue)
+  }, [datePickerValue])
 
   React.useEffect(() => {
     if (date) {
@@ -47,9 +54,25 @@ const DatePicker = ({value, hasNull = false, onChange}: Props) => {
     onChange(dateStr)
   }
 
-  const changeCurrentDate = (data: Date) => {
+  const changeCurrentDate = React.useCallback((data: Date) => {
     setCurrentDate(data)
-  }
+  }, [])
+
+  const getKey = React.useCallback((item: Item, index: number) => {
+    return String(index)
+  }, [])
+
+  const renderItem = React.useCallback(({item}: DateItemParams) => {
+    return <DateItem item={item} value={date} onChange={changeDate} />
+  }, [])
+
+  const getItemLayout = React.useCallback((_, index: number) => {
+    return {
+      length: 30,
+      offset: 30 * index,
+      index
+    }
+  }, [])
 
   React.useEffect(() => {
     if (currentDate) {
@@ -63,33 +86,29 @@ const DatePicker = ({value, hasNull = false, onChange}: Props) => {
 
   return (
     <View>
-      {date && currentDate ? (
-        <>
-          <ControlBar currentDate={currentDate} onChange={changeCurrentDate} />
+      <ControlBar currentDate={currentDate} onChange={changeCurrentDate} />
 
-          <View style={styles.weekContainer}>
-            {weekdays.map(week => (
-              <View key={week} style={dateItemStyles.wrapper}>
-                <Text style={[dateItemStyles.text, styles.dayOfWeekText]}>{week}</Text>
-              </View>
-            ))}
+      <View style={styles.weekContainer}>
+        {weekdays.map(week => (
+          <View key={week} style={dateItemStyles.wrapper}>
+            <Text style={weekStyle}>{week}</Text>
           </View>
-          <FlatList
-            data={dayList}
-            keyExtractor={(_, index) => String(index)}
-            renderItem={({item}) => <DateItem item={item} value={date} onChange={changeDate} />}
-            numColumns={7}
-            showsVerticalScrollIndicator={false}
-            showsHorizontalScrollIndicator={false}
-            scrollEnabled={false}
-          />
-        </>
-      ) : (
-        <Text>loading...</Text>
-      )}
+        ))}
+      </View>
+      <FlatList
+        data={dayList}
+        keyExtractor={getKey}
+        renderItem={renderItem}
+        numColumns={7}
+        initialNumToRender={49}
+        getItemLayout={getItemLayout}
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+        scrollEnabled={false}
+      />
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   weekContainer: {

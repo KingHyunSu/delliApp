@@ -1,8 +1,6 @@
 import React from 'react'
 import {StyleSheet, View, TextInput} from 'react-native'
 
-import {Schedule} from '@/types/schedule'
-
 interface Props {
   data: Schedule
   centerX: number

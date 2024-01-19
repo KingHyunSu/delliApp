@@ -8,16 +8,20 @@ import {dateItemStyles} from '../style'
 
 interface DateItemProps {
   item: Item
-  value: string
+  value: string | null
   onChange: Function
 }
 
-const DateItem = ({item, value, onChange}: DateItemProps) => {
+const DateItem = React.memo(({item, value, onChange}: DateItemProps) => {
   const isToday = React.useMemo(() => {
     return `${item.year}${setDigit(item.month)}${setDigit(item.day)}` === format(new Date(), 'yyyyMMdd')
   }, [item])
 
   const isActive = React.useMemo(() => {
+    if (!value) {
+      return false
+    }
+
     const itemYear = item.year
     const itemMonth = item.month
     const itemDay = item.day
@@ -30,37 +34,31 @@ const DateItem = ({item, value, onChange}: DateItemProps) => {
     return itemDateStr === selectDateStr
   }, [item, value])
 
-  const getWrapperStyle = () => {
-    let style: any = {
-      width: 30,
-      height: 30,
-      borderRadius: 7,
-      justifyContent: 'center',
-      alignSelf: 'center'
-    }
+  const handleChange = React.useCallback(() => {
+    onChange(item)
+  }, [onChange, item])
 
-    if (isActive) {
-      style = {...style, backgroundColor: '#1E90FF'}
-    }
-    if (!isActive && isToday) {
-      style = {...style, backgroundColor: '#E8E8E8'}
-    }
-
-    return style
-  }
+  const textStyles = React.useMemo(() => {
+    return [dateItemStyles.text, !item.current && styles.remainDateText, isActive && styles.activeDateText]
+  }, [item, isActive])
 
   return (
-    <Pressable style={dateItemStyles.wrapper} onPress={() => onChange(item)}>
-      <View style={getWrapperStyle()}>
-        <Text style={[dateItemStyles.text, !item.current && styles.remainDateText, isActive && styles.activeDateText]}>
-          {item.day}
-        </Text>
+    <Pressable style={dateItemStyles.wrapper} onPress={handleChange}>
+      <View style={styles.item}>
+        <Text style={textStyles}>{item.day}</Text>
       </View>
     </Pressable>
   )
-}
+})
 
 const styles = StyleSheet.create({
+  item: {
+    width: 30,
+    height: 30,
+    borderRadius: 7,
+    justifyContent: 'center',
+    alignSelf: 'center'
+  },
   remainDateText: {
     color: '#D2D2D4'
   },
