@@ -764,21 +764,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: '#c3c5cc'
+    height: 36
   },
   dayofWeekText: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 14,
-    color: '#c3c5cc'
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 16,
+    color: '#babfc5'
   },
   activeDayOfWeekText: {
-    color: '#424242'
+    color: '#1E90FF'
   },
   disableDayOfWeekText: {
-    color: '#c3c5cc'
+    color: '#babfc5'
   },
   activeDayOfWeek: {
     borderColor: '#424242'
