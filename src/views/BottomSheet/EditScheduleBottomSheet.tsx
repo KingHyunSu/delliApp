@@ -12,7 +12,7 @@ import * as API from '@/apis/schedule'
 
 import {useRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
-import {scheduleState, editStartAngleState, editEndAngleState} from '@/store/schedule'
+import {scheduleState} from '@/store/schedule'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
@@ -43,8 +43,6 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
   const bottomSheetScrollViewRef = React.useRef<ScrollView>(null)
 
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
-  const [editStartAngle, setEditStartAngle] = useRecoilState(editStartAngleState)
-  const [editEndAngle, setEditEndAngle] = useRecoilState(editEndAngleState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
   const [activeTimePanel, setActiveTimePanel] = React.useState(false)
@@ -113,12 +111,12 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
     return ['35%', '93%']
   }, [])
   const startTime = React.useMemo(() => {
-    return getTimeOfMinute(editStartAngle * 4)
-  }, [editStartAngle])
+    return getTimeOfMinute(schedule.start_time)
+  }, [schedule.start_time])
 
   const endTime = React.useMemo(() => {
-    return getTimeOfMinute(editEndAngle * 4)
-  }, [editEndAngle])
+    return getTimeOfMinute(schedule.end_time)
+  }, [schedule.end_time])
 
   const endDate = React.useMemo(() => {
     return schedule.end_date !== '9999-12-31' ? schedule.end_date : '없음'
@@ -246,13 +244,11 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
         ...prevState,
         start_time: time
       }))
-      setEditStartAngle(time * 0.25)
     } else if (timeFlag === 1) {
       setSchedule(prevState => ({
         ...prevState,
         end_time: time
       }))
-      setEditEndAngle(time * 0.25)
     }
   }, [])
 

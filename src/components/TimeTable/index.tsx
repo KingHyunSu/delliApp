@@ -8,8 +8,8 @@ import ScheduleText from './src/ScheduleText'
 import EditScheduleText from './src/EditScheduleText'
 import EditSchedulePieController from './src/EditSchedulePieController'
 
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {scheduleState, editStartAngleState, editEndAngleState} from '@/store/schedule'
+import {useRecoilState, useSetRecoilState} from 'recoil'
+import {scheduleState} from '@/store/schedule'
 import {showStyleBottomSheetState} from '@/store/bottomSheet'
 
 import PaletteIcon from '@/assets/icons/palette.svg'
@@ -27,8 +27,6 @@ const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
   const fullRadius = width / 2 - 36
 
   const [schedule, setSchedule] = useRecoilState(scheduleState)
-  const editStartAngle = useRecoilValue(editStartAngleState)
-  const editEndAngle = useRecoilValue(editEndAngleState)
   const setIsShowStyleBottomSheet = useSetRecoilState(showStyleBottomSheetState)
 
   const radius = React.useMemo(() => {
@@ -68,21 +66,7 @@ const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
 
         {data.length > 0 ? (
           data.map((item, index) => {
-            const startAngle = item.start_time * 0.25
-            const endAngle = item.end_time * 0.25
-
-            return (
-              <SchedulePie
-                key={index}
-                data={item}
-                x={x}
-                y={y}
-                radius={radius}
-                startAngle={startAngle}
-                endAngle={endAngle}
-                onClick={handleClick}
-              />
-            )
+            return <SchedulePie key={index} data={item} x={x} y={y} radius={radius} onClick={handleClick} />
           })
         ) : (
           <Text x={x} y={y} fontSize={18} fill={'#babfc5'} fontFamily={'Pretendard-Bold'} textAnchor="middle">
@@ -103,14 +87,7 @@ const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
               <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={() => setIsShowStyleBottomSheet(true)} />
             </G>
 
-            <SchedulePie
-              data={schedule}
-              x={x}
-              y={y}
-              radius={radius}
-              startAngle={editStartAngle}
-              endAngle={editEndAngle}
-            />
+            <SchedulePie data={schedule} x={x} y={y} radius={radius} />
           </Svg>
 
           <EditScheduleText
@@ -123,6 +100,7 @@ const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
           />
 
           <EditSchedulePieController
+            data={schedule}
             scheduleList={data}
             x={x}
             y={y}

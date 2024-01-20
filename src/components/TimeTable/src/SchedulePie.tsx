@@ -11,20 +11,26 @@ interface Props {
   x: number
   y: number
   radius: number
-  startAngle: number
-  endAngle: number
   opacity?: number
   onClick?: (value: Schedule) => void
 }
 
 const STROK_WIDTH = 1
 
-const SchedulePie = ({data, x, y, radius, startAngle, endAngle, opacity = 1, onClick}: Props) => {
+const SchedulePie = ({data, x, y, radius, opacity, onClick}: Props) => {
   const disableScheduleIdList = useRecoilValue(disableScheduleIdListState)
 
   const isDisabled = React.useMemo(() => {
     return disableScheduleIdList.some(item => item.schedule_id === data.schedule_id)
   }, [disableScheduleIdList, data.schedule_id])
+
+  const startAngle = React.useMemo(() => {
+    return data.start_time * 0.25
+  }, [data.start_time])
+
+  const endAngle = React.useMemo(() => {
+    return data.end_time * 0.25
+  }, [data.end_time])
 
   const {path} = React.useMemo(() => {
     return describeArc({

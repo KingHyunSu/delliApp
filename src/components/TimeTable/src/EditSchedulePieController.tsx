@@ -6,16 +6,12 @@ import {polarToCartesian} from '../util'
 import {getStatusBarHeight} from 'react-native-status-bar-height'
 import {trigger} from 'react-native-haptic-feedback'
 
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {useRecoilValue, useSetRecoilState} from 'recoil'
 import {homeHeaderHeightState} from '@/store/system'
-import {
-  startDisableScheduleListState,
-  endDisableScheduleListState,
-  editStartAngleState,
-  editEndAngleState
-} from '@/store/schedule'
+import {startDisableScheduleListState, endDisableScheduleListState} from '@/store/schedule'
 
 interface Props {
+  data: Schedule
   scheduleList: Schedule[]
   x: number
   y: number
@@ -23,28 +19,34 @@ interface Props {
   onChangeSchedule: Function
 }
 
-const EditSchedulePieController = ({scheduleList, x, y, radius, onChangeSchedule}: Props) => {
+const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSchedule}: Props) => {
   const statusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
 
   const homeHeaderHeight = useRecoilValue(homeHeaderHeightState)
-  const [editStartAngle, setEditStartAngle] = useRecoilState(editStartAngleState)
-  const [editEndAngle, setEditEndAngle] = useRecoilState(editEndAngleState)
   const setStartDisableScheduleList = useSetRecoilState(startDisableScheduleListState)
   const setEndDisableScheduleList = useSetRecoilState(endDisableScheduleListState)
 
-  const dragStartBtnCoordinate = polarToCartesian(x, y, radius, editStartAngle)
-  const dragEndBtnCoordinate = polarToCartesian(x, y, radius, editEndAngle)
+  const startAngle = React.useMemo(() => {
+    return data.start_time * 0.25
+  }, [data.start_time])
+
+  const endAngle = React.useMemo(() => {
+    return data.end_time * 0.25
+  }, [data.end_time])
+
+  const dragStartBtnCoordinate = polarToCartesian(x, y, radius, startAngle)
+  const dragEndBtnCoordinate = polarToCartesian(x, y, radius, endAngle)
 
   React.useEffect(() => {
     trigger('soft', {
       enableVibrateFallback: true,
       ignoreAndroidSystemSettings: false
     })
-  }, [editStartAngle, editEndAngle])
+  }, [startAngle, endAngle])
 
   React.useEffect(() => {
-    let startTime = editStartAngle * 4
-    let endTime = editEndAngle * 4
+    let startTime = data.start_time
+    let endTime = data.end_time
 
     if (endTime < startTime) {
       endTime += 60 * 24
@@ -68,11 +70,11 @@ const EditSchedulePieController = ({scheduleList, x, y, radius, onChangeSchedule
     })
 
     setStartDisableScheduleList(disableScheduleList)
-  }, [editStartAngle])
+  }, [startAngle])
 
   React.useEffect(() => {
-    const startTime = editStartAngle * 4
-    let endTime = editEndAngle * 4
+    const startTime = data.start_time
+    let endTime = data.end_time
 
     const disableScheduleList = scheduleList.filter(item => {
       const start_time = item.start_time
@@ -92,7 +94,7 @@ const EditSchedulePieController = ({scheduleList, x, y, radius, onChangeSchedule
     })
 
     setEndDisableScheduleList(disableScheduleList)
-  }, [editEndAngle])
+  }, [endAngle])
 
   const getCalcTotalMinute = (angle: number) => {
     const MINUTE_INTERVAL = 5
@@ -121,20 +123,6 @@ const EditSchedulePieController = ({scheduleList, x, y, radius, onChangeSchedule
 
         const calcTotalMinute = getCalcTotalMinute(angle)
 
-        setEditStartAngle(calcTotalMinute * 0.25)
-      },
-      onPanResponderRelease: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + (homeHeaderHeight + statusBarHeight - 100))
-        const moveX = gestureState.moveX - x
-
-        let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
-
-        if (angle < 0) {
-          angle += 360
-        }
-
-        const calcTotalMinute = getCalcTotalMinute(angle)
-
         onChangeSchedule({start_time: calcTotalMinute})
       }
     })
@@ -149,25 +137,8 @@ const EditSchedulePieController = ({scheduleList, x, y, radius, onChangeSchedule
 
         let move = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
 
-        const moveAngle = move - editEndAngle
-        let angle = editEndAngle + moveAngle
-
-        if (angle < 0) {
-          angle += 360
-        }
-
-        const calcTotalMinute = getCalcTotalMinute(angle)
-
-        setEditEndAngle(calcTotalMinute * 0.25)
-      },
-      onPanResponderRelease: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + homeHeaderHeight + statusBarHeight - 100)
-        const moveX = gestureState.moveX - x
-
-        let move = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
-
-        const moveAngle = move - editEndAngle
-        let angle = editEndAngle + moveAngle
+        const moveAngle = move - endAngle
+        let angle = endAngle + moveAngle
 
         if (angle < 0) {
           angle += 360

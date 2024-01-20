@@ -25,8 +25,6 @@ import {
   scheduleDateState,
   scheduleState,
   scheduleListState,
-  editStartAngleState,
-  editEndAngleState,
   startDisableScheduleListState,
   endDisableScheduleListState
 } from '@/store/schedule'
@@ -54,8 +52,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
   const setSchedule = useSetRecoilState(scheduleState)
-  const setEditStartAngle = useSetRecoilState(editStartAngleState)
-  const setEditEndAngle = useSetRecoilState(editEndAngleState)
   const resetSchedule = useResetRecoilState(scheduleState)
   const resetStartDisableScheduleList = useResetRecoilState(startDisableScheduleListState)
   const resetEndDisableScheduleList = useResetRecoilState(endDisableScheduleListState)
@@ -132,8 +128,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
   }
 
   const openEditMenuBottomSheet = (value: Schedule) => {
-    setEditStartAngle(value.start_time * 0.25)
-    setEditEndAngle(value.end_time * 0.25)
     setSchedule(value)
     setShowEditMenuBottomSheet(true)
   }
@@ -161,8 +155,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
   const resetEditForm = () => {
     resetSchedule()
-    setEditStartAngle(0)
-    setEditEndAngle(90)
   }
 
   React.useEffect(() => {
