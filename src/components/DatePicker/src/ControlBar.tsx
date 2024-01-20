@@ -36,13 +36,13 @@ const ControlBar = ({currentDate, onChange}: Props) => {
   return (
     <View style={styles.container}>
       <Pressable style={styles.arrowButton} onPress={handlePrev}>
-        <LeftArrowIcon stroke="#242933" />
+        <LeftArrowIcon stroke="#424242" />
       </Pressable>
 
       <Text style={styles.text}>{dateText}</Text>
 
       <Pressable style={styles.arrowButton} onPress={handleNext}>
-        <RightArrowIcon stroke="#242933" />
+        <RightArrowIcon stroke="#424242" />
       </Pressable>
     </View>
   )
@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Pretendard-Bold',
     fontSize: 18,
-    color: '#000'
+    color: '#424242'
   }
 })
 

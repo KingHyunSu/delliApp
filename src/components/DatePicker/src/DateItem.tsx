@@ -39,8 +39,13 @@ const DateItem = React.memo(({item, value, onChange}: DateItemProps) => {
   }, [onChange, item])
 
   const textStyles = React.useMemo(() => {
-    return [dateItemStyles.text, !item.current && styles.remainDateText, isActive && styles.activeDateText]
-  }, [item, isActive])
+    return [
+      dateItemStyles.text,
+      !item.current && styles.remainDateText,
+      isToday && styles.todayDateText,
+      isActive && styles.activeDateText
+    ]
+  }, [item, isActive, isToday])
 
   return (
     <Pressable style={dateItemStyles.wrapper} onPress={handleChange}>
@@ -63,7 +68,11 @@ const styles = StyleSheet.create({
     color: '#D2D2D4'
   },
   activeDateText: {
-    color: '#fff'
+    fontFamily: 'Pretendard-Bold',
+    color: '#1E90FF'
+  },
+  todayDateText: {
+    fontFamily: 'Pretendard-Bold'
   }
 })
 

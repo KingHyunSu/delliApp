@@ -62,9 +62,12 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, onChang
     return String(index)
   }, [])
 
-  const renderItem = React.useCallback(({item}: DateItemParams) => {
-    return <DateItem item={item} value={date} onChange={changeDate} />
-  }, [])
+  const renderItem = React.useCallback(
+    ({item}: DateItemParams) => {
+      return <DateItem item={item} value={date} onChange={changeDate} />
+    },
+    [date]
+  )
 
   const getItemLayout = React.useCallback((_, index: number) => {
     return {
