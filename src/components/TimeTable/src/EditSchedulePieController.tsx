@@ -1,6 +1,6 @@
 import React from 'react'
-import {Platform, StatusBar, PanResponder} from 'react-native'
-import Svg, {G, Circle} from 'react-native-svg'
+import {StyleSheet, Platform, StatusBar, PanResponder} from 'react-native'
+import Svg, {Circle} from 'react-native-svg'
 
 import {polarToCartesian} from '../util'
 import {getStatusBarHeight} from 'react-native-status-bar-height'
@@ -8,10 +8,14 @@ import {trigger} from 'react-native-haptic-feedback'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {homeHeaderHeightState} from '@/store/system'
-import {scheduleListState, editStartAngleState, editEndAngleState} from '@/store/schedule'
+import {
+  startDisableScheduleListState,
+  endDisableScheduleListState,
+  editStartAngleState,
+  editEndAngleState
+} from '@/store/schedule'
 
 interface Props {
-  data: Schedule
   scheduleList: Schedule[]
   x: number
   y: number
@@ -19,13 +23,14 @@ interface Props {
   onChangeSchedule: Function
 }
 
-const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSchedule}: Props) => {
+const EditSchedulePieController = ({scheduleList, x, y, radius, onChangeSchedule}: Props) => {
   const statusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
 
   const homeHeaderHeight = useRecoilValue(homeHeaderHeightState)
   const [editStartAngle, setEditStartAngle] = useRecoilState(editStartAngleState)
   const [editEndAngle, setEditEndAngle] = useRecoilState(editEndAngleState)
-  const setScheduleList = useSetRecoilState(scheduleListState)
+  const setStartDisableScheduleList = useSetRecoilState(startDisableScheduleListState)
+  const setEndDisableScheduleList = useSetRecoilState(endDisableScheduleListState)
 
   const dragStartBtnCoordinate = polarToCartesian(x, y, radius, editStartAngle)
   const dragEndBtnCoordinate = polarToCartesian(x, y, radius, editEndAngle)
@@ -38,35 +43,56 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
   }, [editStartAngle, editEndAngle])
 
   React.useEffect(() => {
-    const start_time = data.start_time
-    const end_time = data.end_time
+    let startTime = editStartAngle * 4
+    let endTime = editEndAngle * 4
 
-    const list = scheduleList.map(item => {
-      const isOverlapAll =
-        item.start_time >= start_time &&
-        item.start_time < end_time &&
-        item.end_time <= end_time &&
-        item.end_time > start_time
+    if (endTime < startTime) {
+      endTime += 60 * 24
+    }
 
-      const isOverlapLeft = item.start_time >= start_time && item.end_time > end_time && item.start_time < end_time
+    const disableScheduleList = scheduleList.filter(item => {
+      const start_time = item.start_time
+      let end_time = item.end_time
 
-      const isOverlapRight = item.start_time < start_time && item.end_time <= end_time && item.end_time > start_time
-
-      const isOverlapCenter =
-        item.start_time < start_time &&
-        item.end_time > end_time &&
-        item.start_time < end_time &&
-        item.end_time > start_time
-
-      if (isOverlapAll || isOverlapLeft || isOverlapRight || isOverlapCenter) {
-        return {...item, disable: '1'}
+      if (end_time === 0) {
+        end_time = 60 * 24
       }
 
-      return {...item, disable: '0'}
+      const isOverlapAll =
+        start_time >= startTime && start_time < endTime && end_time <= endTime && end_time > startTime
+      const isOverlapCenter =
+        start_time < startTime && end_time > endTime && start_time < endTime && end_time > startTime
+      const isOverlapRight = startTime > start_time && end_time > startTime
+
+      return isOverlapAll || isOverlapRight || isOverlapCenter
     })
 
-    setScheduleList(list)
-  }, [data.start_time, data.end_time])
+    setStartDisableScheduleList(disableScheduleList)
+  }, [editStartAngle])
+
+  React.useEffect(() => {
+    const startTime = editStartAngle * 4
+    let endTime = editEndAngle * 4
+
+    const disableScheduleList = scheduleList.filter(item => {
+      const start_time = item.start_time
+      let end_time = item.end_time
+
+      if (end_time === 0) {
+        end_time = 60 * 24
+      }
+
+      const isOverlapAll =
+        start_time >= startTime && start_time < endTime && end_time <= endTime && end_time > startTime
+      const isOverlapCenter =
+        start_time < startTime && end_time > endTime && start_time < endTime && end_time > startTime
+      const isOverlapLeft = endTime > start_time && end_time > endTime
+
+      return isOverlapAll || isOverlapLeft || isOverlapCenter
+    })
+
+    setEndDisableScheduleList(disableScheduleList)
+  }, [editEndAngle])
 
   const getCalcTotalMinute = (angle: number) => {
     const MINUTE_INTERVAL = 5
@@ -118,7 +144,6 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderMove: (event, gestureState) => {
-        console.log('statusBarHeight', statusBarHeight)
         const moveY = gestureState.moveY - (y + homeHeaderHeight + statusBarHeight - 100)
         const moveX = gestureState.moveX - x
 
@@ -156,7 +181,7 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
 
   return (
     <>
-      <Svg style={{position: 'absolute'}}>
+      <Svg style={styles.item}>
         <Circle cx={dragStartBtnCoordinate.x} cy={dragStartBtnCoordinate.y} r={10} fill="#1E90FF" />
         <Circle
           {...startPanResponders.panHandlers}
@@ -167,7 +192,7 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
         />
       </Svg>
 
-      <Svg style={{position: 'absolute'}}>
+      <Svg style={styles.item}>
         <Circle cx={dragEndBtnCoordinate.x} cy={dragEndBtnCoordinate.y} r={10} fill="#1E90FF" />
         <Circle
           {...endPanResponders.panHandlers}
@@ -180,5 +205,11 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
     </>
   )
 }
+
+const styles = StyleSheet.create({
+  item: {
+    position: 'absolute'
+  }
+})
 
 export default EditSchedulePieController

@@ -123,7 +123,6 @@ const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
           />
 
           <EditSchedulePieController
-            data={schedule}
             scheduleList={data}
             x={x}
             y={y}

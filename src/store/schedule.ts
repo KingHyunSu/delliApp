@@ -1,4 +1,4 @@
-import {atom} from 'recoil'
+import {atom, selector} from 'recoil'
 
 import {COLOR_TYPE, RANGE_FLAG} from '@/utils/types'
 
@@ -10,6 +10,35 @@ export const scheduleDateState = atom<Date>({
 export const scheduleListState = atom<Schedule[]>({
   key: 'scheduleListState',
   default: []
+})
+
+export const startDisableScheduleListState = atom<Schedule[]>({
+  key: 'startDisableScheduleListState',
+  default: []
+})
+
+export const endDisableScheduleListState = atom<Schedule[]>({
+  key: 'endDisableScheduleListState',
+  default: []
+})
+
+export const disableScheduleIdListState = selector<DisableScheduleId[]>({
+  key: 'disableScheduleIdListState',
+  get: ({get}) => {
+    const startDisableScheduleList = get(startDisableScheduleListState)
+    const endDisableScheduleList = get(endDisableScheduleListState)
+    const disableScheduleList = [...startDisableScheduleList, ...endDisableScheduleList]
+
+    return disableScheduleList
+      .map(item => {
+        return {
+          schedule_id: item.schedule_id
+        }
+      })
+      .filter((item, index) => {
+        return disableScheduleList.findIndex(sItem => sItem.schedule_id === item.schedule_id) === index
+      })
+  }
 })
 
 export const scheduleState = atom<Schedule>({

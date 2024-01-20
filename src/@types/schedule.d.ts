@@ -40,12 +40,10 @@ declare interface Schedule {
   complete_end_time?: number
   alarm: number
   todo_list: Todo[]
-
-  display_type?: string
 }
 
-declare interface ScheduleDisable {
-  schedule_id: number
+declare interface DisableScheduleId {
+  schedule_id: number | null
 }
 
 declare interface ScheduleComplete {

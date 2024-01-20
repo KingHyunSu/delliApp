@@ -7,9 +7,7 @@ import TimeTable from '@/components/TimeTable'
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import EditMenuBottomSheet from '@/views/BottomSheet/EditMenuBottomSheet'
 import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet'
-// import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet2'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet2'
-// import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
 import ColorPickerBottomSheet from '@/views/BottomSheet/ColorPickerBottomSheet'
@@ -28,7 +26,9 @@ import {
   scheduleState,
   scheduleListState,
   editStartAngleState,
-  editEndAngleState
+  editEndAngleState,
+  startDisableScheduleListState,
+  endDisableScheduleListState
 } from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {showColorPickerBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
@@ -57,6 +57,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const setEditStartAngle = useSetRecoilState(editStartAngleState)
   const setEditEndAngle = useSetRecoilState(editEndAngleState)
   const resetSchedule = useResetRecoilState(scheduleState)
+  const resetStartDisableScheduleList = useResetRecoilState(startDisableScheduleListState)
+  const resetEndDisableScheduleList = useResetRecoilState(endDisableScheduleListState)
 
   useQuery({
     queryKey: ['timetableCategoryList'],
@@ -136,14 +138,11 @@ const Home = ({navigation}: HomeNavigationProps) => {
     setShowEditMenuBottomSheet(true)
   }
 
-  const closeEditScheduleBottomSheet = () => {
-    const list = scheduleList.map(item => {
-      return {...item, disable: '0'}
-    })
-
-    setScheduleList(list)
+  const closeEditScheduleBottomSheet = React.useCallback(() => {
+    resetStartDisableScheduleList()
+    resetEndDisableScheduleList()
     setIsEdit(false)
-  }
+  }, [])
 
   const handleTopLayout = (layout: LayoutChangeEvent) => {
     setHomeHeaderHeight(layout.nativeEvent.layout.height)
