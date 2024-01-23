@@ -10,9 +10,9 @@ import WheelPicker from 'react-native-wheely'
 import {useMutation} from '@tanstack/react-query'
 import * as API from '@/apis/schedule'
 
-import {useRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
 import {isEditState} from '@/store/system'
-import {scheduleState} from '@/store/schedule'
+import {scheduleState, disableScheduleIdListState} from '@/store/schedule'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
@@ -44,6 +44,7 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
 
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const disableScheduleIdList = useRecoilValue(disableScheduleIdListState)
 
   const [activeTimePanel, setActiveTimePanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
@@ -110,6 +111,7 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
   const snapPoints = React.useMemo(() => {
     return ['35%', '93%']
   }, [])
+
   const startTime = React.useMemo(() => {
     return getTimeOfMinute(schedule.start_time)
   }, [schedule.start_time])
@@ -117,6 +119,21 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
   const endTime = React.useMemo(() => {
     return getTimeOfMinute(schedule.end_time)
   }, [schedule.end_time])
+
+  const wheelStartTime = React.useMemo(() => {
+    console.log('activeTimePanel', activeTimePanel)
+    if (activeTimePanel) {
+      return schedule.start_time
+    }
+    return null
+  }, [activeTimePanel, schedule.start_time])
+
+  const wheelEndTime = React.useMemo(() => {
+    if (activeTimePanel) {
+      return schedule.end_time
+    }
+    return null
+  }, [activeTimePanel, schedule.end_time])
 
   const endDate = React.useMemo(() => {
     return schedule.end_date !== '9999-12-31' ? schedule.end_date : '없음'
@@ -151,6 +168,15 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
   const endDatePanelItemHeaderTextStyle = React.useMemo(() => {
     return [styles.panelItemButtonText, dateFlag === RANGE_FLAG.END && styles.panelItemActiveButtonText]
   }, [dateFlag])
+
+  const handleBottomSheetChanged = React.useCallback((index: number) => {
+    if (index === 0) {
+      setActiveTimePanel(false)
+      setActiveDatePanel(false)
+      setActiveDayOfWeekPanel(false)
+      setActiveAlarmPanel(false)
+    }
+  }, [])
 
   const handleTimePanel = React.useCallback(() => {
     setActiveDatePanel(false)
@@ -296,7 +322,7 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
     [alarmWheelIndex]
   )
 
-  const registNotification = async () => {
+  const registNotification = React.useCallback(async () => {
     try {
       await notifee.requestPermission()
 
@@ -338,39 +364,7 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
     } catch (e) {
       throw e
     }
-  }
-
-  const getDisableScheduleIdList = () => {
-    const {start_time, end_time} = schedule
-
-    const disableScheduleIdList: number[] = []
-
-    scheduleList.forEach(item => {
-      const isOverlapAll =
-        item.start_time >= start_time &&
-        item.start_time < end_time &&
-        item.end_time <= end_time &&
-        item.end_time > start_time
-
-      const isOverlapLeft = item.start_time >= start_time && item.end_time > end_time && item.start_time < end_time
-
-      const isOverlapRight = item.start_time < start_time && item.end_time <= end_time && item.end_time > start_time
-
-      const isOverlapCenter =
-        item.start_time < start_time &&
-        item.end_time > end_time &&
-        item.start_time < end_time &&
-        item.end_time > start_time
-
-      if (isOverlapAll || isOverlapLeft || isOverlapRight || isOverlapCenter) {
-        if (item.schedule_id && item.schedule_id !== schedule.schedule_id) {
-          disableScheduleIdList.push(item.schedule_id)
-        }
-      }
-    })
-
-    return disableScheduleIdList
-  }
+  }, [schedule.alarm, schedule.schedule_id, schedule.start_time, schedule.title])
 
   const setScheduleMutation = useMutation({
     mutationFn: async (params: API.SetScheduleParam) => {
@@ -392,14 +386,14 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
 
       const params = {
         schedule,
-        disableScheduleIdList: getDisableScheduleIdList()
+        disableScheduleIdList: disableScheduleIdList
       }
 
       setScheduleMutation.mutateAsync(params)
     } catch (e) {
       console.error('e', e)
     }
-  }, [])
+  }, [isActiveAlarm, schedule, disableScheduleIdList, registNotification, setScheduleMutation])
 
   const changeStartDate = React.useCallback((date: string) => {
     changeDate(date, RANGE_FLAG.START)
@@ -480,7 +474,12 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
   }, [dateFlag])
 
   return (
-    <BottomSheet ref={bottomSheetRef} index={-1} snapPoints={snapPoints} handleComponent={BottomSheetShadowHandler}>
+    <BottomSheet
+      ref={bottomSheetRef}
+      index={-1}
+      snapPoints={snapPoints}
+      handleComponent={BottomSheetShadowHandler}
+      onChange={handleBottomSheetChanged}>
       <BottomSheetScrollView ref={bottomSheetScrollViewRef} contentContainerStyle={styles.container}>
         {/* 일정명 */}
         <Pressable style={styles.titleButton} onPress={focusTitleInput}>
@@ -517,7 +516,7 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
               </View>
 
               <View style={timePanelItemContentsStyle}>
-                <TimeWheelPicker initValue={schedule.start_time} visibleRest={1} onChange={changeTime} />
+                <TimeWheelPicker initValue={wheelStartTime} visibleRest={1} onChange={changeTime} />
               </View>
             </Animated.View>
 
@@ -533,7 +532,7 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
               </View>
 
               <View style={timePanelItemContentsStyle}>
-                <TimeWheelPicker initValue={schedule.end_time} visibleRest={1} onChange={changeTime} />
+                <TimeWheelPicker initValue={wheelEndTime} visibleRest={1} onChange={changeTime} />
               </View>
             </Animated.View>
           </View>

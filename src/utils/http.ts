@@ -1,6 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Axios from 'axios'
 
+import {useSetRecoilState} from 'recoil'
+import {loginState} from '@/store/system'
+
 const instance = Axios.create({
   // baseURL: 'http://localhost:8080',
   baseURL: 'https://api.delli.info',
@@ -30,12 +33,19 @@ instance.interceptors.response.use(
   },
   async error => {
     const statusCode = error.response.status
+
     switch (statusCode) {
-      case 401:
+      case 401: {
         return Promise.reject(error)
-      case 403:
+      }
+      case 403: {
         await AsyncStorage.setItem('token', '')
+
+        const setIsLogin = useSetRecoilState(loginState)
+        setIsLogin(false)
+
         return Promise.reject(error)
+      }
     }
     return Promise.reject(error)
   }

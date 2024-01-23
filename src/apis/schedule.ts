@@ -17,15 +17,11 @@ export const getScheduleList = (data: ScheduleListParam) => {
 
 export interface SetScheduleParam {
   schedule: Schedule
-  disableScheduleIdList: number[]
+  disableScheduleIdList: DisableScheduleId[]
 }
 
 export const setSchedule = (data: SetScheduleParam) => {
   return http.post<any>('schedule', data)
-}
-
-export const updateScheduleDisable = (data: ScheduleDisable) => {
-  return http.post<any>('schedule/disable', data)
 }
 
 export const setScheduleTodo = (data: Todo) => {

@@ -1,117 +1,128 @@
 import React from 'react'
 import {StyleSheet, View} from 'react-native'
-import WheelPicker from 'react-native-wheely'
+import WheelPicker from '@/components/WheelPicker'
 
 type FlexAlignType = 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline'
 
 interface Props {
-  initValue: number
+  initValue: number | null
   visibleRest?: number
   align?: FlexAlignType
   onChange: Function
 }
-const TimeWheelPicker = ({initValue, visibleRest = 2, align = 'flex-start', onChange}: Props) => {
-  // prettier-ignore
-  const hourList = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
-  // prettier-ignore
-  const minuteList = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59']
 
-  const [meridiemIndex, setMeridiemIndex] = React.useState(-1)
-  const [hourIndex, setHourIndex] = React.useState(-1)
-  const [minuteIndex, setMinuteIndex] = React.useState(-1)
+const meridiemList = ['오전', '오후']
+// prettier-ignore
+const hourList = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+// prettier-ignore
+const minuteList = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59']
 
-  const isShow = React.useMemo(() => {
-    return meridiemIndex > -1 && hourIndex > -1 && minuteIndex > -1
-  }, [meridiemIndex, hourIndex, minuteIndex])
+const TimeWheelPicker = React.memo(({initValue, visibleRest = 2, align = 'flex-start', onChange}: Props) => {
+  const meridiemRef = React.useRef<TimeWheelRefs>(null)
+  const hourRef = React.useRef<TimeWheelRefs>(null)
+  const minuteRef = React.useRef<TimeWheelRefs>(null)
 
-  const handleMeridiemChanged = (index: number) => {
-    setMeridiemIndex(index)
+  const [meridiemIndex, setMeridiemIndex] = React.useState(0)
+  const [hourIndex, setHourIndex] = React.useState(0)
+  const [minuteIndex, setMinuteIndex] = React.useState(0)
 
-    const hourToMinute = (hourIndex + index * 12) * 60
-    const result = hourToMinute + minuteIndex
+  const containerStyle = React.useMemo(() => {
+    return [styles.container, {alignItems: align}]
+  }, [align])
 
-    onChange(result)
-  }
+  const handleMeridiemChanged = React.useCallback(
+    (index: number) => {
+      setMeridiemIndex(index)
 
-  const handleHourChanged = (index: number) => {
-    setHourIndex(index)
+      const hourToMinute = (hourIndex + index * 12) * 60
+      const result = hourToMinute + minuteIndex
 
-    const hourToMinute = (index + meridiemIndex * 12) * 60
-    const result = hourToMinute + minuteIndex
+      onChange(result)
+    },
+    [hourIndex, minuteIndex, onChange]
+  )
 
-    onChange(result)
-  }
+  const handleHourChanged = React.useCallback(
+    (index: number) => {
+      setHourIndex(index)
 
-  const handleMinuteChanged = (index: number) => {
-    setMinuteIndex(index)
+      const hourToMinute = (index + meridiemIndex * 12) * 60
+      const result = hourToMinute + minuteIndex
 
-    const hourToMinute = (hourIndex + meridiemIndex * 12) * 60
-    const result = hourToMinute + index
+      onChange(result)
+    },
+    [meridiemIndex, minuteIndex, onChange]
+  )
 
-    onChange(result)
-  }
+  const handleMinuteChanged = React.useCallback(
+    (index: number) => {
+      setMinuteIndex(index)
+
+      const hourToMinute = (hourIndex + meridiemIndex * 12) * 60
+      const result = hourToMinute + index
+
+      onChange(result)
+    },
+    [hourIndex, meridiemIndex, onChange]
+  )
 
   React.useEffect(() => {
-    let totalMinute = initValue
+    if (initValue) {
+      let meridie = 0
+      let hour = Math.floor(initValue / 60)
+      const minute = initValue % 60
 
-    let meridie = 0
-    let hour = Math.floor(totalMinute / 60)
-    const minute = totalMinute % 60
+      if (initValue >= 720) {
+        meridie = 1
+        hour -= 12
+      }
 
-    if (totalMinute > 720) {
-      meridie = 1
-      hour -= 12
+      meridiemRef.current?.scrollToIndex(meridie)
+      hourRef.current?.scrollToIndex(hour)
+      minuteRef.current?.scrollToIndex(minute)
     }
-
-    setMeridiemIndex(meridie)
-    setHourIndex(hour)
-    setMinuteIndex(minute)
   }, [initValue])
 
   return (
-    <View style={styles.container}>
-      {isShow && (
-        <View style={[styles.contents, {alignItems: align}]}>
-          <WheelPicker
-            options={['오전', '오후']}
-            selectedIndex={meridiemIndex}
-            visibleRest={visibleRest}
-            containerStyle={styles.wheelContainer}
-            selectedIndicatorStyle={[styles.wheelWrapper, styles.leftWheelWrapper]}
-            itemTextStyle={styles.wheelItemText}
-            onChange={handleMeridiemChanged}
-          />
-          <WheelPicker
-            options={hourList}
-            selectedIndex={hourIndex}
-            visibleRest={visibleRest}
-            containerStyle={styles.wheelContainer}
-            selectedIndicatorStyle={styles.wheelWrapper}
-            itemTextStyle={styles.wheelItemText}
-            onChange={handleHourChanged}
-          />
-          <WheelPicker
-            options={minuteList}
-            selectedIndex={minuteIndex}
-            visibleRest={visibleRest}
-            containerStyle={styles.wheelContainer}
-            selectedIndicatorStyle={[styles.wheelWrapper, styles.rightWheelWrapper]}
-            itemTextStyle={styles.wheelItemText}
-            onChange={handleMinuteChanged}
-          />
-        </View>
-      )}
+    <View style={containerStyle}>
+      <WheelPicker
+        ref={meridiemRef}
+        options={meridiemList}
+        selectedIndex={meridiemIndex}
+        visibleRest={visibleRest}
+        containerStyle={styles.wheelContainer}
+        selectedIndicatorStyle={leftWheelWrapperStyle}
+        itemTextStyle={styles.wheelItemText}
+        onChange={handleMeridiemChanged}
+      />
+      <WheelPicker
+        ref={hourRef}
+        options={hourList}
+        selectedIndex={hourIndex}
+        visibleRest={visibleRest}
+        containerStyle={styles.wheelContainer}
+        selectedIndicatorStyle={styles.wheelWrapper}
+        itemTextStyle={styles.wheelItemText}
+        onChange={handleHourChanged}
+      />
+      <WheelPicker
+        ref={minuteRef}
+        options={minuteList}
+        selectedIndex={minuteIndex}
+        visibleRest={visibleRest}
+        containerStyle={styles.wheelContainer}
+        selectedIndicatorStyle={rightWheelWrapperStyle}
+        itemTextStyle={styles.wheelItemText}
+        onChange={handleMinuteChanged}
+      />
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 16
-  },
-  contents: {
-    flex: 1,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     justifyContent: 'center'
   },
@@ -136,5 +147,8 @@ const styles = StyleSheet.create({
     color: '#7c8698'
   }
 })
+
+const leftWheelWrapperStyle = StyleSheet.compose(styles.wheelWrapper, styles.leftWheelWrapper)
+const rightWheelWrapperStyle = StyleSheet.compose(styles.wheelWrapper, styles.rightWheelWrapper)
 
 export default TimeWheelPicker
