@@ -19,12 +19,17 @@ interface Props {
   onChangeSchedule: Function
 }
 
+const MINUTE_INTERVAL = 5
+
 const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSchedule}: Props) => {
   const statusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
 
   const homeHeaderHeight = useRecoilValue(homeHeaderHeightState)
   const setStartDisableScheduleList = useSetRecoilState(startDisableScheduleListState)
   const setEndDisableScheduleList = useSetRecoilState(endDisableScheduleListState)
+
+  const newStartTime = React.useRef(data.start_time)
+  const newEndTime = React.useRef(data.end_time)
 
   const startAngle = React.useMemo(() => {
     return data.start_time * 0.25
@@ -97,8 +102,6 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
   }, [endAngle])
 
   const getCalcTotalMinute = (angle: number) => {
-    const MINUTE_INTERVAL = 5
-
     const totalMinute = angle / 0.25
     const minuteInterval = Math.round(totalMinute / MINUTE_INTERVAL) * MINUTE_INTERVAL
 
@@ -123,7 +126,11 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
 
         const calcTotalMinute = getCalcTotalMinute(angle)
 
-        onChangeSchedule({start_time: calcTotalMinute})
+        if (newStartTime.current !== calcTotalMinute) {
+          newStartTime.current = calcTotalMinute
+
+          onChangeSchedule({start_time: calcTotalMinute})
+        }
       }
     })
   ).current
@@ -145,7 +152,11 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
         }
         const calcTotalMinute = getCalcTotalMinute(angle)
 
-        onChangeSchedule({end_time: calcTotalMinute})
+        if (newEndTime.current !== calcTotalMinute) {
+          newEndTime.current = calcTotalMinute
+
+          onChangeSchedule({end_time: calcTotalMinute})
+        }
       }
     })
   ).current
