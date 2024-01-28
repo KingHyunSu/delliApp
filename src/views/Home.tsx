@@ -7,7 +7,7 @@ import TimeTable from '@/components/TimeTable'
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import EditMenuBottomSheet from '@/views/BottomSheet/EditMenuBottomSheet'
 import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet'
-import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet2'
+import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
 import ColorPickerBottomSheet from '@/views/BottomSheet/ColorPickerBottomSheet'
@@ -223,12 +223,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
       </Animated.View>
 
       <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
-        <TimeTable
-          data={scheduleList}
-          isEdit={isEdit}
-          titleInputRef={titleInputRef}
-          onClick={openEditMenuBottomSheet}
-        />
+        <TimeTable data={scheduleList} isEdit={isEdit} titleInputRef={titleInputRef} />
       </Animated.View>
 
       <ScheduleListBottomSheet
