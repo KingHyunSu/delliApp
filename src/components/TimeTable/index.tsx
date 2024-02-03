@@ -18,9 +18,8 @@ interface Props {
   data: Schedule[]
   isEdit: boolean
   titleInputRef: React.RefObject<TextInput>
-  onClick: Function
 }
-const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
+const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
   const {width, height} = useWindowDimensions()
   const x = width / 2
   const y = height * 0.28
@@ -39,15 +38,19 @@ const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
     return result
   }, [fullRadius, y])
 
-  const handleClick = (value: Schedule) => {
-    onClick(value)
+  const handleClick = () => {
+    // [todo] 12시간 <-> 24시간 시간표 변경 기능
   }
 
-  const clickBackground = () => {
+  const showStyleBottomSheet = React.useCallback(() => {
+    setIsShowStyleBottomSheet(true)
+  }, [])
+
+  const clickBackground = React.useCallback(() => {
     if (titleInputRef && titleInputRef.current) {
       titleInputRef.current.blur()
     }
-  }
+  }, [titleInputRef])
 
   const changeSchedule = React.useCallback(
     (data: Object) => {
@@ -66,7 +69,7 @@ const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
 
         {data.length > 0 ? (
           data.map((item, index) => {
-            return <SchedulePie key={index} data={item} x={x} y={y} radius={radius} onClick={handleClick} />
+            return <SchedulePie key={index} data={item} x={x} y={y} radius={radius} />
           })
         ) : (
           <Text x={x} y={y} fontSize={18} fill={'#babfc5'} fontFamily={'Pretendard-Bold'} textAnchor="middle">
@@ -84,7 +87,7 @@ const TimeTable = ({data, isEdit, onClick, titleInputRef}: Props) => {
           <Svg>
             <G x={20} y={y + radius - 10}>
               <PaletteIcon width={32} height={32} fill="#babfc5" />
-              <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={() => setIsShowStyleBottomSheet(true)} />
+              <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={showStyleBottomSheet} />
             </G>
 
             <SchedulePie data={schedule} x={x} y={y} radius={radius} />

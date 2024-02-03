@@ -40,10 +40,8 @@ declare interface Schedule {
   complete_end_time?: number
   alarm: number
   todo_list: Todo[]
-}
 
-declare interface DisableScheduleId {
-  schedule_id: number | null
+  display_type: 'continue' | 'gap'
 }
 
 declare interface ScheduleComplete {
@@ -52,4 +50,20 @@ declare interface ScheduleComplete {
   complete_date: string
   complete_start_time: number
   complete_end_time: number
+}
+
+declare interface ExistSchedule {
+  schedule_id: number
+  title: string
+  start_time: number
+  end_time: number
+  start_date: string
+  end_date: string
+  mon: string
+  tue: string
+  wed: string
+  thu: string
+  fri: string
+  sat: string
+  sun: string
 }

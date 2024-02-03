@@ -10,6 +10,7 @@ const AppBar = ({children}: Props) => {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#fff',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

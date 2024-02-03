@@ -8,23 +8,23 @@ import DatePicker from '@/components/DatePicker'
 import WheelPicker from 'react-native-wheely'
 
 import {useMutation} from '@tanstack/react-query'
-import * as API from '@/apis/schedule'
+import * as scheduleApi from '@/apis/schedule'
 
-import {useRecoilState, useRecoilValue} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
-import {scheduleState, disableScheduleIdListState} from '@/store/schedule'
+import {showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
+import {scheduleState, disableScheduleListState, existScheduleListState} from '@/store/schedule'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
-import {getTime, startOfToday, setMinutes} from 'date-fns'
+// import {getTime, startOfToday, setMinutes} from 'date-fns'
+// import notifee, {TimestampTrigger, TriggerType, RepeatFrequency} from '@notifee/react-native'
 
 import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 
 import {RANGE_FLAG} from '@/utils/types'
 import {DAY_OF_WEEK} from '@/types/common'
-
-import notifee, {TimestampTrigger, TriggerType, RepeatFrequency} from '@notifee/react-native'
 
 interface Props {
   scheduleList: Schedule[]
@@ -44,7 +44,9 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
 
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
-  const disableScheduleIdList = useRecoilValue(disableScheduleIdListState)
+  const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
+  const disableScheduleList = useRecoilValue(disableScheduleListState)
+  const setExistScheduleList = useSetRecoilState(existScheduleListState)
 
   const [activeTimePanel, setActiveTimePanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
@@ -121,7 +123,6 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
   }, [schedule.end_time])
 
   const wheelStartTime = React.useMemo(() => {
-    console.log('activeTimePanel', activeTimePanel)
     if (activeTimePanel) {
       return schedule.start_time
     }
@@ -322,53 +323,142 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
     [alarmWheelIndex]
   )
 
-  const registNotification = React.useCallback(async () => {
-    try {
-      await notifee.requestPermission()
+  // const setDailyNotification = async (data: Schedule) => {
+  //   let time = getTime(setMinutes(startOfToday(), schedule.start_time - schedule.alarm))
+  //   const currentTime = new Date().getTime()
 
-      const isChannel = await notifee.getChannel('schedule')
+  //   if (time < currentTime) {
+  //     time += 1000 * 60 * 60 * 24 // 1 day after
+  //   }
 
-      if (!isChannel) {
-        await notifee.createChannel({
-          id: 'schedule',
-          name: 'schedule'
-        })
+  //   const trigger: TimestampTrigger = {
+  //     type: TriggerType.TIMESTAMP,
+  //     timestamp: time,
+  //     repeatFrequency: RepeatFrequency.DAILY
+  //   }
+
+  //   await notifee.createTriggerNotification(
+  //     {
+  //       id: `${data.schedule_id}`,
+  //       title: '델리',
+  //       body: data.title,
+  //       android: {
+  //         channelId: 'schedule'
+  //       }
+  //     },
+  //     trigger
+  //   )
+  // }
+
+  // const setWeeklyNotification = async (data: Schedule, alarmList: string[]) => {
+  //   const time = getTime(setMinutes(startOfToday(), schedule.start_time - schedule.alarm))
+
+  //   let today = new Date().getDay() - 1
+  //   if (today === -1) {
+  //     // 일요일
+  //     today = 6
+  //   }
+
+  //   const day = 1000 * 60 * 60 * 24
+
+  //   await Promise.all(
+  //     alarmList
+  //       .filter(item => item === '1')
+  //       .map(async (item, index) => {
+  //         let newTime = time
+
+  //         if (index < today) {
+  //           newTime += day * 7
+  //         } else if (index > today) {
+  //           newTime += (index - today) * day
+  //         }
+
+  //         const trigger: TimestampTrigger = {
+  //           type: TriggerType.TIMESTAMP,
+  //           timestamp: newTime,
+  //           repeatFrequency: RepeatFrequency.WEEKLY
+  //         }
+
+  //         await notifee.createTriggerNotification(
+  //           {
+  //             id: `${data.schedule_id}-${index}`,
+  //             title: '델리',
+  //             body: data.title,
+  //             android: {
+  //               channelId: 'schedule'
+  //             }
+  //           },
+  //           trigger
+  //         )
+  //       })
+  //   )
+  // }
+
+  // const handleNotification = React.useCallback(async () => {
+  //   try {
+  //     await notifee.requestPermission()
+
+  //     const isChannel = await notifee.getChannel('schedule')
+
+  //     if (!isChannel) {
+  //       await notifee.createChannel({
+  //         id: 'schedule',
+  //         name: 'schedule'
+  //       })
+  //     }
+
+  //     const alarmList = [
+  //       schedule.mon,
+  //       schedule.thu,
+  //       schedule.wed,
+  //       schedule.thu,
+  //       schedule.fri,
+  //       schedule.sat,
+  //       schedule.sun
+  //     ]
+
+  //     let triggerNotificationIds = await notifee.getTriggerNotificationIds()
+  //     triggerNotificationIds.filter(item => item.includes(String(schedule.schedule_id)))
+
+  //     const isWeekly = alarmList.some(item => item === '0')
+
+  //     if (isWeekly) {
+  //       await setWeeklyNotification(schedule, alarmList)
+  //     } else {
+  //       await setDailyNotification(schedule)
+  //     }
+  //   } catch (e) {
+  //     throw e
+  //   }
+  // }, [
+  //   schedule.alarm,
+  //   schedule.schedule_id,
+  //   schedule.start_time,
+  //   schedule.title,
+  //   setDailyNotification,
+  //   setWeeklyNotification
+  // ])
+
+  const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
+    mutationFn: async () => {
+      const params = {
+        ...schedule
       }
 
-      let alarmTime = getTime(setMinutes(startOfToday(), schedule.start_time - schedule.alarm))
-      const currentTime = new Date().getTime()
+      const result = await scheduleApi.getExistScheduleList(params)
 
-      if (alarmTime < currentTime) {
-        alarmTime += 1000 * 60 * 60 * 24 // 1 day after
-      }
-
-      const trigger: TimestampTrigger = {
-        type: TriggerType.TIMESTAMP,
-        timestamp: alarmTime,
-        repeatFrequency: RepeatFrequency.DAILY
-      }
-
-      if (schedule.schedule_id) {
-        await notifee.createTriggerNotification(
-          {
-            id: String(schedule.schedule_id),
-            title: '델리',
-            body: schedule.title,
-            android: {
-              channelId: 'schedule'
-            }
-          },
-          trigger
-        )
-      }
-    } catch (e) {
-      throw e
+      return result.data
     }
-  }, [schedule.alarm, schedule.schedule_id, schedule.start_time, schedule.title])
+  })
 
-  const setScheduleMutation = useMutation({
-    mutationFn: async (params: API.SetScheduleParam) => {
-      return await API.setSchedule(params)
+  const {mutate: setScheduleMutate} = useMutation({
+    mutationFn: async () => {
+      const params = {
+        schedule,
+        disableScheduleIdList: []
+      }
+
+      return await scheduleApi.setSchedule(params)
     },
     onSuccess: async () => {
       await refetchScheduleList()
@@ -377,23 +467,51 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
   })
 
   const handleSubmit = React.useCallback(async () => {
-    try {
-      if (isActiveAlarm) {
-        await registNotification()
-      } else {
-        await notifee.cancelNotification(String(schedule.schedule_id))
-      }
+    const existScheduleList = await getExistScheduleListMutateAsync()
 
-      const params = {
-        schedule,
-        disableScheduleIdList: disableScheduleIdList
-      }
+    setExistScheduleList(existScheduleList)
 
-      setScheduleMutation.mutateAsync(params)
-    } catch (e) {
-      console.error('e', e)
+    if (existScheduleList.length > 0 || disableScheduleList.length > 0) {
+      setShowEditScheduleCheckBottomSheet(true)
+      return
     }
-  }, [isActiveAlarm, schedule, disableScheduleIdList, registNotification, setScheduleMutation])
+
+    setScheduleMutate()
+  }, [
+    getExistScheduleListMutateAsync,
+    setScheduleMutate,
+    setExistScheduleList,
+    setShowEditScheduleCheckBottomSheet,
+    disableScheduleList.length
+  ])
+
+  // const setScheduleMutation = useMutation({
+  //   mutationFn: async (params: SetScheduleRequest) => {
+  //     return await scheduleApi.setSchedule(params)
+  //   }
+  // })
+
+  // const handleSubmit = React.useCallback(async () => {
+  //   try {
+  //     // if (isActiveAlarm) {
+  //     //   await handleNotification()
+  //     // } else {
+  //     //   await notifee.cancelNotification(String(schedule.schedule_id))
+  //     // }
+
+  //     const params = {
+  //       schedule,
+  //       disableScheduleList
+  //     }
+
+  //     await setScheduleMutation.mutateAsync(params)
+
+  //     await refetchScheduleList()
+  //     setIsEdit(false)
+  //   } catch (e) {
+  //     console.error('e', e)
+  //   }
+  // }, [schedule, disableScheduleList, setScheduleMutation])
 
   const changeStartDate = React.useCallback((date: string) => {
     changeDate(date, RANGE_FLAG.START)
@@ -800,7 +918,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10,
     backgroundColor: '#1E90FF'
-    // backgroundColor: '#2d8cec'
   },
   submitText: {
     fontFamily: 'Pretendard-Bold',

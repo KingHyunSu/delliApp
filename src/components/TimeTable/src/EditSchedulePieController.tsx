@@ -8,7 +8,7 @@ import {trigger} from 'react-native-haptic-feedback'
 
 import {useRecoilValue, useSetRecoilState} from 'recoil'
 import {homeHeaderHeightState} from '@/store/system'
-import {startDisableScheduleListState, endDisableScheduleListState} from '@/store/schedule'
+import {disableScheduleListState} from '@/store/schedule'
 
 interface Props {
   data: Schedule
@@ -25,8 +25,7 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
   const statusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
 
   const homeHeaderHeight = useRecoilValue(homeHeaderHeightState)
-  const setStartDisableScheduleList = useSetRecoilState(startDisableScheduleListState)
-  const setEndDisableScheduleList = useSetRecoilState(endDisableScheduleListState)
+  const setDisableScheduleListState = useSetRecoilState(disableScheduleListState)
 
   const newStartTime = React.useRef(data.start_time)
   const newEndTime = React.useRef(data.end_time)
@@ -50,56 +49,51 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
   }, [startAngle, endAngle])
 
   React.useEffect(() => {
-    let startTime = data.start_time
-    let endTime = data.end_time
-
-    if (endTime < startTime) {
-      endTime += 60 * 24
-    }
-
-    const disableScheduleList = scheduleList.filter(item => {
-      const start_time = item.start_time
-      let end_time = item.end_time
-
-      if (end_time === 0) {
-        end_time = 60 * 24
-      }
-
-      const isOverlapAll =
-        start_time >= startTime && start_time < endTime && end_time <= endTime && end_time > startTime
-      const isOverlapCenter =
-        start_time < startTime && end_time > endTime && start_time < endTime && end_time > startTime
-      const isOverlapRight = startTime > start_time && end_time > startTime
-
-      return isOverlapAll || isOverlapRight || isOverlapCenter
-    })
-
-    setStartDisableScheduleList(disableScheduleList)
-  }, [startAngle])
-
-  React.useEffect(() => {
     const startTime = data.start_time
     let endTime = data.end_time
 
-    const disableScheduleList = scheduleList.filter(item => {
-      const start_time = item.start_time
-      let end_time = item.end_time
+    const disableScheduleList = scheduleList
+      .filter(item => {
+        if (data.schedule_id === item.schedule_id) {
+          return false
+        }
 
-      if (end_time === 0) {
-        end_time = 60 * 24
-      }
+        const start_time = item.start_time
+        let end_time = item.end_time
 
-      const isOverlapAll =
-        start_time >= startTime && start_time < endTime && end_time <= endTime && end_time > startTime
-      const isOverlapCenter =
-        start_time < startTime && end_time > endTime && start_time < endTime && end_time > startTime
-      const isOverlapLeft = endTime > start_time && end_time > endTime
+        if (end_time === 0) {
+          end_time = 60 * 24
+        }
 
-      return isOverlapAll || isOverlapLeft || isOverlapCenter
-    })
+        const isOverlapRight = start_time < startTime && end_time > startTime
+        const isOverlapLeft = start_time < endTime && end_time > endTime
+        const isOverlapCenter =
+          start_time < startTime && start_time < endTime && end_time > endTime && end_time > startTime
+        const isOverlapAll =
+          start_time >= startTime && start_time < endTime && end_time <= endTime && end_time > startTime
 
-    setEndDisableScheduleList(disableScheduleList)
-  }, [endAngle])
+        return isOverlapRight || isOverlapLeft || isOverlapAll || isOverlapCenter
+      })
+      .map(item => {
+        return {
+          schedule_id: item.schedule_id,
+          title: item.title,
+          start_time: item.start_time,
+          end_time: item.end_time,
+          start_date: item.start_date,
+          end_date: item.end_date,
+          mon: item.mon,
+          tue: item.tue,
+          wed: item.wed,
+          thu: item.thu,
+          fri: item.fri,
+          sat: item.sat,
+          sun: item.sun
+        }
+      })
+
+    setDisableScheduleListState(disableScheduleList)
+  }, [data.start_time, data.end_time])
 
   const getCalcTotalMinute = (angle: number) => {
     const totalMinute = angle / 0.25

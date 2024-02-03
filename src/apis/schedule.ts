@@ -1,26 +1,14 @@
 import http from '@/utils/http'
 
-export interface ScheduleListParam {
-  timetable_category_id: number
-  date: string
-  mon?: string
-  tue?: string
-  wed?: string
-  thu?: string
-  fri?: string
-  sat?: string
-  sun?: string
-}
-export const getScheduleList = (data: ScheduleListParam) => {
+export const getScheduleList = (data: GetScheduleListRequest) => {
   return http.post<Schedule[]>('schedule/list', data)
 }
 
-export interface SetScheduleParam {
-  schedule: Schedule
-  disableScheduleIdList: DisableScheduleId[]
+export const getExistScheduleList = (data: GetExistScheduleListRequest) => {
+  return http.post<ExistSchedule[]>('schedule/exist/list', data)
 }
 
-export const setSchedule = (data: SetScheduleParam) => {
+export const setSchedule = (data: SetScheduleRequest) => {
   return http.post<any>('schedule', data)
 }
 

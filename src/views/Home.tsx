@@ -7,6 +7,7 @@ import TimeTable from '@/components/TimeTable'
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import EditMenuBottomSheet from '@/views/BottomSheet/EditMenuBottomSheet'
 import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet'
+import EditScheduleCheckBottomSheet from '@/views/BottomSheet/EditScheduleCheckBottomSheet'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
@@ -21,13 +22,7 @@ import EditIcon from '@/assets/icons/edit3.svg'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
-import {
-  scheduleDateState,
-  scheduleState,
-  scheduleListState,
-  startDisableScheduleListState,
-  endDisableScheduleListState
-} from '@/store/schedule'
+import {scheduleDateState, scheduleState, scheduleListState, disableScheduleListState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {showColorPickerBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
@@ -53,8 +48,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
   const setSchedule = useSetRecoilState(scheduleState)
   const resetSchedule = useResetRecoilState(scheduleState)
-  const resetStartDisableScheduleList = useResetRecoilState(startDisableScheduleListState)
-  const resetEndDisableScheduleList = useResetRecoilState(endDisableScheduleListState)
+  const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
 
   useQuery({
     queryKey: ['timetableCategoryList'],
@@ -133,8 +127,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   }
 
   const closeEditScheduleBottomSheet = React.useCallback(() => {
-    resetStartDisableScheduleList()
-    resetEndDisableScheduleList()
+    resetDisableScheduleList()
     setIsEdit(false)
   }, [])
 
@@ -236,6 +229,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
         refetchScheduleList={refetchScheduleList}
         titleInputRef={titleInputRef}
       />
+      <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
       {!isEdit && (
         <Pressable style={homeStyles.fabContainer} onPress={() => openEditScheduleBottomSheet()}>
           <EditIcon stroke="#fff" width={18} height={18} />

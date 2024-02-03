@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import {useSetRecoilState, useResetRecoilState} from 'recoil'
 import {scheduleDateState, scheduleListState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
-import {loginState} from '@/store/system'
+import {isEditState, loginState} from '@/store/system'
 
 import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
@@ -15,12 +15,18 @@ import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
 import {SettingNavigationProps} from '@/types/navigation'
 
 const Setting = ({navigation}: SettingNavigationProps) => {
+  const setIsEdit = useSetRecoilState(isEditState)
   const setIsLogin = useSetRecoilState(loginState)
   const resetScheduleDate = useResetRecoilState(scheduleDateState)
   const resetScheduleList = useResetRecoilState(scheduleListState)
   const resetActiveTimeTableCategoryState = useResetRecoilState(activeTimeTableCategoryState)
 
-  const doLogout = async () => {
+  const handleMove = React.useCallback(() => {
+    navigation.navigate('Home')
+    setIsEdit(true)
+  }, [])
+
+  const doLogout = React.useCallback(async () => {
     try {
       resetScheduleDate()
       resetScheduleList()
@@ -30,25 +36,31 @@ const Setting = ({navigation}: SettingNavigationProps) => {
     } catch (e) {
       console.error(e)
     }
-  }
+  }, [resetScheduleDate, resetScheduleList, resetActiveTimeTableCategoryState, setIsLogin])
 
   return (
     <View style={styles.container}>
       <AppBar>
-        <View style={{flex: 1}}>
+        <View style={headerStyles.section}>
           <Pressable style={styles.backButton} onPress={navigation.goBack}>
             <ArrowLeftIcon stroke="#242933" />
           </Pressable>
         </View>
 
-        <View style={{flex: 1, alignItems: 'center'}}>
+        <View style={headerStyles.titleSection}>
           <Text style={styles.appBarTitle}>설정</Text>
         </View>
 
-        <View style={{flex: 1}} />
+        <View style={headerStyles.section} />
       </AppBar>
 
-      <ScrollView style={styles.contents}>
+      <ScrollView style={styles.scrollContainer}>
+        {/* <Pressable style={styles.item} onPress={handleMove}>
+          <Text style={styles.contentText}>휴지통</Text>
+        </Pressable>
+
+        <View style={styles.blank} /> */}
+
         <Pressable style={styles.item}>
           <Text style={styles.contentText}>서비스 이용 약관</Text>
           <ArrowRightIcon stroke="#242933" />
@@ -58,6 +70,8 @@ const Setting = ({navigation}: SettingNavigationProps) => {
           <Text style={styles.contentText}>개인정보 처리방침</Text>
           <ArrowRightIcon stroke="#242933" />
         </Pressable>
+
+        <View style={styles.blank} />
 
         <View style={styles.footer}>
           <View style={styles.item}>
@@ -79,11 +93,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff'
   },
-  contents: {
+  scrollContainer: {
+    flex: 1,
     paddingVertical: 20
   },
   footer: {
     marginTop: 20
+  },
+  blank: {
+    height: 20,
+    backgroundColor: '#efefef'
   },
   item: {
     flexDirection: 'row',
@@ -100,13 +119,23 @@ const styles = StyleSheet.create({
   contentText: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    color: '#000'
+    color: '#424242'
   },
   backButton: {
     width: 40,
     height: 48,
     alignItems: 'center',
     justifyContent: 'center'
+  }
+})
+
+const headerStyles = StyleSheet.create({
+  section: {
+    flex: 1
+  },
+  titleSection: {
+    flex: 1,
+    alignItems: 'center'
   }
 })
 
