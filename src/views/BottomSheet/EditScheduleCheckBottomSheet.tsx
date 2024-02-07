@@ -144,7 +144,8 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
-    paddingHorizontal: 16
+    paddingHorizontal: 16,
+    paddingVertical: 20
   },
   title: {
     fontFamily: 'Pretendard-SemiBold',
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
   submitBtn: {
     height: 48,
     marginHorizontal: 16,
-    marginBottom: 20,
+    marginBottom: 40,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,

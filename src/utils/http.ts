@@ -1,8 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Axios from 'axios'
 
-import {useSetRecoilState} from 'recoil'
-import {loginState} from '@/store/system'
+import * as navigation from '@/utils/navigation'
+
+import {getNewToken} from '@/apis/auth'
 
 const instance = Axios.create({
   // baseURL: 'http://localhost:8080',
@@ -15,7 +16,7 @@ const instance = Axios.create({
 instance.interceptors.request.use(
   async config => {
     const token = await AsyncStorage.getItem('token')
-
+    // console.log('token',token)
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
@@ -36,15 +37,21 @@ instance.interceptors.response.use(
 
     switch (statusCode) {
       case 401: {
-        return Promise.reject(error)
+        const token = await AsyncStorage.getItem('token')
+
+        if (token) {
+          const result = await getNewToken({token})
+          const newToken = result.data.token
+          await AsyncStorage.setItem('token', newToken)
+        }
+
+        return instance(error.config)
       }
       case 403: {
         await AsyncStorage.setItem('token', '')
 
-        const setIsLogin = useSetRecoilState(loginState)
-        setIsLogin(false)
-
-        return Promise.reject(error)
+        navigation.navigate('Logout')
+        break
       }
     }
     return Promise.reject(error)

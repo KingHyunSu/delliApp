@@ -2,7 +2,16 @@ declare interface joinResponse {
   token: string
 }
 
-declare interface loginResponse {
+declare interface LoginRequest {
+  token: string
+  type: string
+}
+
+declare interface ReissueRequest {
+  token: string
+}
+
+declare interface LoginResponse {
   token: string
 }
 

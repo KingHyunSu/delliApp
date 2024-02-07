@@ -4,6 +4,7 @@ export type RootStackParamList = {
   Login: undefined
   Home: undefined
   Setting: undefined
+  Logout: undefined
 }
 
 export type HomeNavigationProps = StackScreenProps<RootStackParamList, 'Home'>

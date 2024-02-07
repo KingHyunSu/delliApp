@@ -28,6 +28,13 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const setIsShowStyleBottomSheet = useSetRecoilState(showStyleBottomSheetState)
 
+  const list = React.useMemo(() => {
+    if (isEdit && schedule.schedule_id) {
+      return data.filter(item => item.schedule_id !== schedule.schedule_id)
+    }
+    return data
+  }, [isEdit, data, schedule.schedule_id])
+
   const radius = React.useMemo(() => {
     let result = fullRadius - (20 - (y - fullRadius - 20))
 
@@ -67,8 +74,8 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
       <Svg>
         <Background x={x} y={y} radius={radius} />
 
-        {data.length > 0 ? (
-          data.map((item, index) => {
+        {list.length > 0 ? (
+          list.map((item, index) => {
             return <SchedulePie key={index} data={item} x={x} y={y} radius={radius} />
           })
         ) : (
@@ -78,7 +85,7 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
         )}
       </Svg>
 
-      {data.map((item, index) => {
+      {list.map((item, index) => {
         return <ScheduleText key={index} data={item} centerX={x} centerY={y} radius={radius} onClick={handleClick} />
       })}
 

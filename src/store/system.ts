@@ -5,6 +5,11 @@ export const loginState = atom({
   default: false
 })
 
+export const isLunchState = atom({
+  key: 'isLunchState',
+  default: false
+})
+
 export const isEditState = atom({
   key: 'isEdit',
   default: false

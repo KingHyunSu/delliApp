@@ -23,7 +23,7 @@ const Login = () => {
   const setIsLoading = useSetRecoilState(isLoadingState)
   const setIsLogin = useSetRecoilState(loginState)
 
-  const doLogin = async (params: LoginParam) => {
+  const doLogin = async (params: LoginRequest) => {
     try {
       setIsLoading(true)
 
@@ -44,7 +44,7 @@ const Login = () => {
     try {
       const {accessToken} = await kakaoLogin()
 
-      const params: LoginParam = {
+      const params: LoginRequest = {
         token: accessToken,
         type: LOGIN_TYPE.KAKAO
       }
@@ -65,7 +65,7 @@ const Login = () => {
       const credentialState = await appleAuth.getCredentialStateForUser(appleAuthRequestResponse.user)
 
       if (credentialState === appleAuth.State.AUTHORIZED && appleAuthRequestResponse.identityToken) {
-        const params: LoginParam = {
+        const params: LoginRequest = {
           token: appleAuthRequestResponse.identityToken,
           type: LOGIN_TYPE.APPLE
         }
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     paddingBottom: 40
   },
   textContainer: {
-    flex: 1,
+    marginTop: 120,
     gap: 20,
     justifyContent: 'center'
   },
@@ -126,7 +126,8 @@ const styles = StyleSheet.create({
   },
   subText: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 26
+    fontSize: 26,
+    color: '#000'
   },
   mainText: {
     fontFamily: 'Pretendard-Bold',

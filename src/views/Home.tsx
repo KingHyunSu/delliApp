@@ -21,7 +21,7 @@ import CancleIcon from '@/assets/icons/cancle.svg'
 import EditIcon from '@/assets/icons/edit3.svg'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
-import {isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
+import {isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
 import {scheduleDateState, scheduleState, scheduleListState, disableScheduleListState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {showColorPickerBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
@@ -37,6 +37,7 @@ import {HomeNavigationProps} from '@/types/navigation'
 
 const Home = ({navigation}: HomeNavigationProps) => {
   const titleInputRef = React.useRef<TextInput>(null)
+  const setIsLunch = useSetRecoilState(isLunchState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const scheduleDate = useRecoilValue(scheduleDateState)
@@ -50,7 +51,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const resetSchedule = useResetRecoilState(scheduleState)
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
 
-  useQuery({
+  const {isError} = useQuery({
     queryKey: ['timetableCategoryList'],
     queryFn: async () => {
       const response = await getTimetableCategoryList()
@@ -64,7 +65,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
     }
   })
 
-  const {refetch: refetchScheduleList, isError} = useQuery({
+  const {refetch: refetchScheduleList} = useQuery({
     queryKey: ['scheduleList', scheduleDate],
     queryFn: async () => {
       setIsLoading(true)
@@ -91,6 +92,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
         const response = await getScheduleList(param)
         setScheduleList(response.data)
+
+        setIsLunch(true)
 
         setTimeout(() => {
           setIsLoading(false)

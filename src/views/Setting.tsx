@@ -101,8 +101,8 @@ const styles = StyleSheet.create({
     marginTop: 20
   },
   blank: {
-    height: 20,
-    backgroundColor: '#efefef'
+    height: 10,
+    backgroundColor: '#f5f6f8'
   },
   item: {
     flexDirection: 'row',
