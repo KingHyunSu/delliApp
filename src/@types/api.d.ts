@@ -50,6 +50,11 @@ declare interface SetScheduleRequest {
   disableScheduleIdList: disableScheduleId[]
 }
 
+// schedule todo
+declare interface DeleteScheduleTodoReqeust {
+  todo_id: number
+}
+
 declare interface SetScheduleTodoCompleteRequest {
   todo_id: number
   complete_date: string

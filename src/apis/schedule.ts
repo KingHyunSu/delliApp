@@ -16,8 +16,8 @@ export const setScheduleTodo = (data: Todo) => {
   return http.post<Todo>('schedule/todo', data)
 }
 
-export const deleteScheduleTodo = (data: Todo) => {
-  return http.post<Todo>('schedule/todo', data)
+export const deleteScheduleTodo = (data: DeleteScheduleTodoReqeust) => {
+  return http.post<Todo>('schedule/todo/delete', data)
 }
 
 export const setScheduleTodoComplete = (data: SetScheduleTodoCompleteRequest) => {

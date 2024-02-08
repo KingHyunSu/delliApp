@@ -12,7 +12,7 @@ import {scheduleDateState, scheduleListState, scheduleTodoState} from '@/store/s
 import {format} from 'date-fns'
 
 import {useMutation} from '@tanstack/react-query'
-import {setScheduleTodo} from '@/apis/schedule'
+import {setScheduleTodo, deleteScheduleTodo} from '@/apis/schedule'
 
 import DeleteIcon from '@/assets/icons/trash.svg'
 
@@ -27,10 +27,6 @@ const EditTodoModal = () => {
   const [scheduleTodo, changeScheduleTodo] = useRecoilState(scheduleTodoState)
   const resetScheduleTodo = useResetRecoilState(scheduleTodoState)
 
-  const isEdit = React.useMemo(() => {
-    return !!scheduleTodo.todo_id
-  }, [scheduleTodo.todo_id])
-
   const translateY = useSharedValue(containerHeight * -1)
   const opacity = useSharedValue(0)
 
@@ -41,7 +37,19 @@ const EditTodoModal = () => {
     opacity: opacity.value
   }))
 
-  const handleClose = () => {
+  const isEdit = React.useMemo(() => {
+    return !!scheduleTodo.todo_id
+  }, [scheduleTodo.todo_id])
+
+  const backgroundStyle = React.useMemo(() => {
+    return [overlayAnimatedStyle, styles.background]
+  }, [overlayAnimatedStyle])
+
+  const containerStyle = React.useMemo(() => {
+    return [containerAnimatedStyle, styles.container, {height: containerHeight}]
+  }, [containerAnimatedStyle, containerHeight])
+
+  const handleClose = React.useCallback(() => {
     opacity.value = withTiming(0)
 
     translateY.value = withTiming(containerHeight * -1, {duration: 300}, isFinish => {
@@ -50,27 +58,33 @@ const EditTodoModal = () => {
         runOnJS(setShowEditTodoModal)(false)
       }
     })
-  }
+  }, [containerHeight, resetScheduleTodo, setShowEditTodoModal])
 
-  const changeTitle = (value: string) => {
-    changeScheduleTodo(prevState => ({
-      ...prevState,
-      title: value
-    }))
-  }
+  const changeTitle = React.useCallback(
+    (value: string) => {
+      changeScheduleTodo(prevState => ({
+        ...prevState,
+        title: value
+      }))
+    },
+    [changeScheduleTodo]
+  )
 
-  const changeEndDate = (value: boolean) => {
-    let end_date: string | null = null
+  const changeEndDate = React.useCallback(
+    (value: boolean) => {
+      let end_date: string | null = null
 
-    if (!value) {
-      end_date = format(scheduleDate, 'yyyy-MM-dd')
-    }
+      if (!value) {
+        end_date = format(scheduleDate, 'yyyy-MM-dd')
+      }
 
-    changeScheduleTodo(prevState => ({
-      ...prevState,
-      end_date
-    }))
-  }
+      changeScheduleTodo(prevState => ({
+        ...prevState,
+        end_date
+      }))
+    },
+    [changeScheduleTodo, scheduleDate]
+  )
 
   const setScheduleTodoMutation = useMutation({
     mutationFn: async (data: Todo) => {
@@ -84,6 +98,7 @@ const EditTodoModal = () => {
           let newTodoList = [...item.todo_list]
 
           const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.todo_id === result.todo_id)
+
           if (updateTodoIndex === -1) {
             newTodoList.push(result)
           } else {
@@ -105,9 +120,40 @@ const EditTodoModal = () => {
     }
   })
 
-  const handleDelete = () => {}
+  const deleteScheduleTodoMutation = useMutation({
+    mutationFn: async (data: DeleteScheduleTodoReqeust) => {
+      return deleteScheduleTodo(data)
+    },
+    onSuccess: response => {
+      const result = response.data
 
-  const handleSubmit = () => {
+      const newScheduleList = scheduleList.map(item => {
+        const newTodoList = item.todo_list.filter(todoItem => todoItem.todo_id !== result.todo_id)
+
+        return {
+          ...item,
+          todo_list: newTodoList
+        }
+      })
+
+      setScheduleList(newScheduleList)
+      handleClose()
+      setShowEditMenuBottomSheet(false)
+    }
+  })
+
+  const handleDelete = React.useCallback(() => {
+    if (scheduleTodo.todo_id) {
+      const params = {
+        todo_id: scheduleTodo.todo_id
+      }
+
+      console.log('params', params)
+      deleteScheduleTodoMutation.mutate(params)
+    }
+  }, [deleteScheduleTodoMutation, scheduleTodo.todo_id])
+
+  const handleSubmit = React.useCallback(() => {
     let params = scheduleTodo
 
     if (!isEdit) {
@@ -118,7 +164,7 @@ const EditTodoModal = () => {
     }
 
     setScheduleTodoMutation.mutate(params)
-  }
+  }, [isEdit, scheduleDate, scheduleTodo, setScheduleTodoMutation])
 
   React.useEffect(() => {
     if (showEditTodoModal) {
@@ -129,11 +175,11 @@ const EditTodoModal = () => {
 
   return (
     <Modal visible={showEditTodoModal} transparent statusBarTranslucent>
-      <Animated.View style={[overlayAnimatedStyle, styles.background]}>
+      <Animated.View style={backgroundStyle}>
         <Pressable style={styles.overlay} onPress={handleClose} />
       </Animated.View>
 
-      <Animated.View style={[containerAnimatedStyle, styles.container, {height: containerHeight}]}>
+      <Animated.View style={containerStyle}>
         <SafeAreaView>
           <View style={styles.wrapper}>
             <View style={styles.formContainer}>
@@ -156,11 +202,11 @@ const EditTodoModal = () => {
 
             <View style={styles.buttonContainer}>
               {isEdit && (
-                <Pressable style={[styles.button, styles.closeButton]} onPress={handleDelete}>
+                <Pressable style={deleteButton} onPress={handleDelete}>
                   <DeleteIcon fill="#EC6682" />
                 </Pressable>
               )}
-              <Pressable style={[styles.button, styles.editButton]} onPress={handleSubmit}>
+              <Pressable style={editButton} onPress={handleSubmit}>
                 <Text style={styles.buttonText}>{isEdit ? '수정하기' : '추가하기'}</Text>
               </Pressable>
             </View>
@@ -232,7 +278,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 10
   },
-  closeButton: {
+  deleteButton: {
     flex: 1,
     backgroundColor: '#FDEEF1'
   },
@@ -246,5 +292,8 @@ const styles = StyleSheet.create({
     color: '#fff'
   }
 })
+
+const deleteButton = StyleSheet.compose(styles.button, styles.deleteButton)
+const editButton = StyleSheet.compose(styles.button, styles.editButton)
 
 export default EditTodoModal
