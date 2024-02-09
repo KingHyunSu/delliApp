@@ -1,10 +1,13 @@
 import React from 'react'
-import {StyleSheet} from 'react-native'
-import BottomSheet, {BottomSheetFlatList} from '@gorhom/bottom-sheet'
+import {StyleSheet, View, Text} from 'react-native'
+import BottomSheet, {BottomSheetFlatList, BottomSheetFlatListMethods} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 import ScheduleListItem from './ScheduleListItem'
 
+import LottieView from 'lottie-react-native'
+
 import {useRecoilValue} from 'recoil'
+import {scheduleDateState} from '@/store/schedule'
 import {isEditState} from '@/store/system'
 
 interface Props {
@@ -13,9 +16,11 @@ interface Props {
   onClick: (value: Schedule) => void
 }
 const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
+  const scheduleDate = useRecoilValue(scheduleDateState)
   const isEdit = useRecoilValue(isEditState)
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
+  const bottomSheetFlatListRef = React.useRef<BottomSheetFlatListMethods>(null)
 
   const list = React.useMemo(() => {
     const SCHEDULE_DISPLAY_TYPE = {CONTINUE: 'continue', GAP: 'gap'}
@@ -87,23 +92,35 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
     }
   }, [isEdit])
 
+  React.useEffect(() => {
+    bottomSheetFlatListRef.current?.scrollToIndex({index: 0})
+  }, [scheduleDate, isEdit])
+
   return (
     <BottomSheet ref={bottomSheetRef} index={0} snapPoints={['20%', '77%']} handleComponent={BottomSheetShadowHandler}>
-      <BottomSheetFlatList
-        data={list}
-        keyExtractor={(_, index) => String(index)}
-        contentContainerStyle={styles.container}
-        renderItem={({item, index}) => {
-          return (
-            <ScheduleListItem
-              item={item}
-              index={index}
-              openEditScheduleBottomSheet={openEditScheduleBottomSheet}
-              onClick={onClick}
-            />
-          )
-        }}
-      />
+      {list && list.length > 0 ? (
+        <BottomSheetFlatList
+          ref={bottomSheetFlatListRef}
+          data={list}
+          keyExtractor={(_, index) => String(index)}
+          contentContainerStyle={styles.container}
+          renderItem={({item, index}) => {
+            return (
+              <ScheduleListItem
+                item={item}
+                index={index}
+                openEditScheduleBottomSheet={openEditScheduleBottomSheet}
+                onClick={onClick}
+              />
+            )
+          }}
+        />
+      ) : (
+        <View style={styles.emptyContainer}>
+          <LottieView style={styles.emptyIcon} source={require('@/assets/lottie/empty.json')} autoPlay loop />
+          <Text style={styles.emptyText}>일정이 없어요</Text>
+        </View>
+      )}
     </BottomSheet>
   )
 }
@@ -112,6 +129,18 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 20
+  },
+  emptyContainer: {
+    flex: 1
+  },
+  emptyIcon: {
+    height: '20%'
+  },
+  emptyText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 18,
+    color: '#babfc5',
+    textAlign: 'center'
   }
 })
 

@@ -117,6 +117,10 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
                   <View style={styles.item}>
                     <Text style={styles.itemTitle}>{item.title}</Text>
 
+                    <Text style={styles.dateText}>
+                      {`${item.start_date} ~ ${item.end_date === '9999-12-31' ? '없음' : item.end_date}`}
+                    </Text>
+
                     <View style={styles.dayOfWeekContainer}>
                       <Text style={getDayOfWeekTextStyle(item.mon)}>월</Text>
                       <Text style={getDayOfWeekTextStyle(item.tue)}>화</Text>
@@ -135,7 +139,7 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
       </BottomSheetScrollView>
 
       <Pressable style={styles.submitBtn} onPress={handleSubmit}>
-        <Text style={styles.submitText}>확인</Text>
+        <Text style={styles.submitText}>등록하기</Text>
       </Pressable>
     </BottomSheetModal>
   )
@@ -173,6 +177,12 @@ const styles = StyleSheet.create({
   itemTitle: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
+    color: '#424242'
+  },
+
+  dateText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 12,
     color: '#424242'
   },
 

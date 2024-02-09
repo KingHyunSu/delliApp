@@ -18,7 +18,8 @@ import EditTodoModal from '@/views/Modal/EditTodoModal'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
 import CancleIcon from '@/assets/icons/cancle.svg'
-import EditIcon from '@/assets/icons/edit3.svg'
+// import EditIcon from '@/assets/icons/edit3.svg'
+import PlusIcon from '@/assets/icons/plus.svg'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
@@ -132,7 +133,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const closeEditScheduleBottomSheet = React.useCallback(() => {
     resetDisableScheduleList()
     setIsEdit(false)
-  }, [])
+  }, [resetDisableScheduleList, setIsEdit])
 
   const handleTopLayout = (layout: LayoutChangeEvent) => {
     setHomeHeaderHeight(layout.nativeEvent.layout.height)
@@ -149,26 +150,22 @@ const Home = ({navigation}: HomeNavigationProps) => {
     }).start()
   }
 
-  const resetEditForm = () => {
-    resetSchedule()
-  }
-
   React.useEffect(() => {
     if (isEdit) {
       translateAnimation(headerTranslateY, -200, 350)
       translateAnimation(timaTableTranslateY, -100)
     } else {
-      resetEditForm()
+      resetSchedule()
       translateAnimation(headerTranslateY, 0, 350)
       translateAnimation(timaTableTranslateY, 0)
     }
-  }, [isEdit, headerTranslateY, timaTableTranslateY])
+  }, [isEdit, headerTranslateY, timaTableTranslateY, resetSchedule])
 
   React.useEffect(() => {
     if (isError) {
       setIsLoading(false)
     }
-  }, [isError])
+  }, [isError, setIsLoading])
 
   return (
     <View style={homeStyles.container}>
@@ -233,9 +230,10 @@ const Home = ({navigation}: HomeNavigationProps) => {
         titleInputRef={titleInputRef}
       />
       <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
+
       {!isEdit && (
         <Pressable style={homeStyles.fabContainer} onPress={() => openEditScheduleBottomSheet()}>
-          <EditIcon stroke="#fff" width={18} height={18} />
+          <PlusIcon stroke="#fff" />
         </Pressable>
       )}
 

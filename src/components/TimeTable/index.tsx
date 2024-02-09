@@ -79,8 +79,8 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
             return <SchedulePie key={index} data={item} x={x} y={y} radius={radius} />
           })
         ) : (
-          <Text x={x} y={y} fontSize={18} fill={'#babfc5'} fontFamily={'Pretendard-Bold'} textAnchor="middle">
-            터치하여 일정 추가하기
+          <Text x={x} y={y} fontSize={18} fill={'#babfc5'} fontFamily={'Pretendard-SemiBold'} textAnchor="middle">
+            일정을 추가해주세요
           </Text>
         )}
       </Svg>

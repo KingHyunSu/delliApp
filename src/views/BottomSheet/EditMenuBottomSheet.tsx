@@ -1,18 +1,17 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
-import {BottomSheetModal} from '@gorhom/bottom-sheet'
+import {BottomSheetModal, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 
 import {useMutation} from '@tanstack/react-query'
-import {updateScheduleDisable, updateScheduleComplete} from '@/apis/schedule'
+import {updateScheduleDisable} from '@/apis/schedule'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
-import {scheduleState, scheduleDateState, scheduleTodoState} from '@/store/schedule'
-import {showScheduleCompleteModalState, showEditTodoModalState} from '@/store/modal'
+import {scheduleState, scheduleTodoState} from '@/store/schedule'
+import {showEditTodoModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
-import {format} from 'date-fns'
 import {trigger} from 'react-native-haptic-feedback'
 
 import EditIcon from '@/assets/icons/edit3.svg'
@@ -24,57 +23,28 @@ interface Props {
 }
 const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
-  const setShowScheduleCompleteModal = useSetRecoilState(showScheduleCompleteModalState)
   const setShowEditTodoModalState = useSetRecoilState(showEditTodoModalState)
   const setIsEdit = useSetRecoilState(isEditState)
-  const scheduleDate = useRecoilValue(scheduleDateState)
   const schedule = useRecoilValue(scheduleState)
   const resetSchedule = useResetRecoilState(scheduleState)
   const changeScheduleTodo = useSetRecoilState(scheduleTodoState)
 
   const editInfoBottomSheetRef = React.useRef<BottomSheetModal>(null)
 
-  const options = {
-    enableVibrateFallback: true,
-    ignoreAndroidSystemSettings: false
-  }
-  const haptic = (hapticName: string) => {
+  const snapPoints = React.useMemo(() => {
+    return [350]
+  }, [])
+
+  const haptic = React.useCallback((hapticName: string) => {
+    const options = {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false
+    }
+
     trigger(hapticName, options)
-  }
+  }, [])
 
-  const updateScheduleCompleteMutation = useMutation({
-    mutationFn: async (data: Schedule) => {
-      if (data.schedule_id) {
-        const params: ScheduleComplete = {
-          schedule_id: data.schedule_id,
-          schedule_complete_id: data.schedule_complete_id,
-          complete_date: format(scheduleDate, 'yyyy-MM-dd'),
-          complete_start_time: data.start_time,
-          complete_end_time: data.end_time
-        }
-        return await updateScheduleComplete(params)
-      }
-    },
-    onSuccess: async () => {
-      haptic('notificationSuccess')
-      await refetchScheduleList()
-      setShowEditMenuBottomSheet(false)
-    }
-  })
-
-  const openScheduleCompleteModal = () => {
-    if (schedule.complete_start_time) {
-      setShowEditMenuBottomSheet(false)
-      return
-    }
-
-    updateScheduleCompleteMutation.mutate(schedule)
-    // [V2] - 완료하기 모달 열기
-    // haptic('impactLight')
-    // setShowScheduleCompleteModal(true)
-  }
-
-  const openEditTodoModal = () => {
+  const openEditTodoModal = React.useCallback(() => {
     if (schedule.schedule_id) {
       haptic('impactLight')
 
@@ -85,16 +55,11 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
 
       setShowEditTodoModalState(true)
     }
-  }
+  }, [schedule.schedule_id, haptic, changeScheduleTodo, setShowEditTodoModalState])
 
   const updateScheduleDisableMutation = useMutation({
-    mutationFn: async (data: Schedule) => {
-      if (data.schedule_id) {
-        const params: ScheduleDisable = {
-          schedule_id: data.schedule_id
-        }
-        return await updateScheduleDisable(params)
-      }
+    mutationFn: async (data: ScheduleDisableReqeust) => {
+      return await updateScheduleDisable(data)
     },
     onSuccess: async () => {
       haptic('rigid')
@@ -103,14 +68,24 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
     }
   })
 
-  const deleteSchedule = () => {
-    updateScheduleDisableMutation.mutate(schedule)
-  }
+  const deleteSchedule = React.useCallback(() => {
+    if (schedule.schedule_id) {
+      const params = {
+        schedule_id: schedule.schedule_id
+      }
 
-  const openEditScheduleBottomSheet = () => {
+      updateScheduleDisableMutation.mutate(params)
+    }
+  }, [schedule.schedule_id, updateScheduleDisableMutation])
+
+  const openEditScheduleBottomSheet = React.useCallback(() => {
     setShowEditMenuBottomSheet(false)
     setIsEdit(true)
-  }
+  }, [setShowEditMenuBottomSheet, setIsEdit])
+
+  const closeEditMenuBottomSheet = React.useCallback(() => {
+    setShowEditMenuBottomSheet(false)
+  }, [setShowEditMenuBottomSheet])
 
   React.useEffect(() => {
     if (showEditMenuBottomSheet) {
@@ -119,18 +94,27 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
     } else {
       editInfoBottomSheetRef.current?.dismiss()
     }
-  }, [showEditMenuBottomSheet])
+  }, [showEditMenuBottomSheet, haptic])
+
+  const handleReset = React.useCallback(() => {
+    resetSchedule()
+  }, [resetSchedule])
+
+  const backdropComponent = React.useCallback(
+    (props: BottomSheetBackdropProps) => {
+      return <BottomSheetBackdrop props={props} onPress={handleReset} />
+    },
+    [handleReset]
+  )
 
   return (
     <BottomSheetModal
       name="editMenu"
       ref={editInfoBottomSheetRef}
-      backdropComponent={props => {
-        return <BottomSheetBackdrop props={props} onPress={() => resetSchedule()} />
-      }}
+      backdropComponent={backdropComponent}
       index={0}
-      snapPoints={[350]}
-      onDismiss={() => setShowEditMenuBottomSheet(false)}>
+      snapPoints={snapPoints}
+      onDismiss={closeEditMenuBottomSheet}>
       <View style={styles.container}>
         <View style={styles.titleContainer}>
           {/* <Text style={styles.titleText}>
@@ -140,7 +124,7 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
         </View>
 
         <Pressable style={styles.section} onPress={openEditTodoModal}>
-          <View style={[styles.iconWrapper, {backgroundColor: '#76d672'}]}>
+          <View style={todoButton}>
             <TodoIcon width={14} height={14} fill="#fff" />
           </View>
 
@@ -148,14 +132,14 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
         </Pressable>
 
         <Pressable style={styles.section} onPress={openEditScheduleBottomSheet}>
-          <View style={[styles.iconWrapper, {backgroundColor: '#1E90FF'}]}>
+          <View style={updateButton}>
             <EditIcon width={12} height={12} stroke="#fff" fill="#fff" />
           </View>
 
           <Text style={styles.text}>수정하기</Text>
         </Pressable>
         <Pressable style={styles.section} onPress={deleteSchedule}>
-          <View style={[styles.iconWrapper, {backgroundColor: '#FD4672'}]}>
+          <View style={deleteButton}>
             <DeleteIcon width={14} height={14} fill="#fff" />
           </View>
 
@@ -198,5 +182,9 @@ const styles = StyleSheet.create({
     color: '#424242'
   }
 })
+
+const todoButton = StyleSheet.compose(styles.iconWrapper, {backgroundColor: '#76d672'})
+const updateButton = StyleSheet.compose(styles.iconWrapper, {backgroundColor: '#1E90FF'})
+const deleteButton = StyleSheet.compose(styles.iconWrapper, {backgroundColor: '#FD4672'})
 
 export default EditMenuBottomSheet

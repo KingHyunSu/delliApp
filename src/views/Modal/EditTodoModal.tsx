@@ -7,7 +7,7 @@ import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'r
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {showEditTodoModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
-import {scheduleDateState, scheduleListState, scheduleTodoState} from '@/store/schedule'
+import {scheduleDateState, scheduleListState, scheduleState, scheduleTodoState} from '@/store/schedule'
 
 import {format} from 'date-fns'
 
@@ -25,6 +25,7 @@ const EditTodoModal = () => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [scheduleTodo, changeScheduleTodo] = useRecoilState(scheduleTodoState)
+  const resetSchedule = useResetRecoilState(scheduleState)
   const resetScheduleTodo = useResetRecoilState(scheduleTodoState)
 
   const translateY = useSharedValue(containerHeight * -1)
@@ -115,6 +116,7 @@ const EditTodoModal = () => {
       })
 
       setScheduleList(newScheduleList)
+      resetSchedule()
       handleClose()
       setShowEditMenuBottomSheet(false)
     }
@@ -137,6 +139,7 @@ const EditTodoModal = () => {
       })
 
       setScheduleList(newScheduleList)
+      resetSchedule
       handleClose()
       setShowEditMenuBottomSheet(false)
     }
@@ -148,7 +151,6 @@ const EditTodoModal = () => {
         todo_id: scheduleTodo.todo_id
       }
 
-      console.log('params', params)
       deleteScheduleTodoMutation.mutate(params)
     }
   }, [deleteScheduleTodoMutation, scheduleTodo.todo_id])
@@ -185,6 +187,7 @@ const EditTodoModal = () => {
             <View style={styles.formContainer}>
               <TextInput
                 value={scheduleTodo.title}
+                autoFocus
                 style={styles.title}
                 placeholder="할 일을 입력해주세요"
                 placeholderTextColor="#c3c5cc"

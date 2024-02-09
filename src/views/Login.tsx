@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, View, Text, Pressable} from 'react-native'
+import {Platform, StyleSheet, View, Text, Pressable} from 'react-native'
 import Loading from '@/components/Loading'
 
 // utils
@@ -95,10 +95,12 @@ const Login = () => {
           <Text style={styles.kakaoLoginButtonText}>카카오로 시작하기</Text>
         </Pressable>
 
-        <Pressable style={styles.appleLoginButton} onPress={singInWithApple}>
-          <AppleLogoIcon />
-          <Text style={styles.appleLoginButtonText}>Apple로 시작하기</Text>
-        </Pressable>
+        {Platform.OS === 'ios' && (
+          <Pressable style={styles.appleLoginButton} onPress={singInWithApple}>
+            <AppleLogoIcon />
+            <Text style={styles.appleLoginButtonText}>Apple로 시작하기</Text>
+          </Pressable>
+        )}
       </View>
 
       <Loading />

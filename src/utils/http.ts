@@ -6,8 +6,8 @@ import * as navigation from '@/utils/navigation'
 import {getNewToken} from '@/apis/auth'
 
 const instance = Axios.create({
-  // baseURL: 'http://localhost:8080',
-  baseURL: 'https://api.delli.info',
+  baseURL: 'http://localhost:8080',
+  // baseURL: 'https://api.delli.info',
   headers: {
     // 'Content-Type:': 'application/json;charset=UTF-8'
     // 'content-type:': 'application/json;charset=UTF-8'
@@ -21,6 +21,8 @@ instance.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`
     }
 
+    console.log('config', config.data)
+
     return config
   },
   error => {
@@ -33,6 +35,7 @@ instance.interceptors.response.use(
     return response
   },
   async error => {
+    console.error('http error', error)
     const statusCode = error.response.status
 
     switch (statusCode) {

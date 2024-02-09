@@ -38,11 +38,15 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
         <Pressable style={styles.headerContainer} onPress={() => onClick(item)}>
           <Text style={styles.contentText}>{item.title}</Text>
 
+          <Text style={styles.dateText}>
+            {`${item.start_date} ~ ${item.end_date === '9999-12-31' ? '없음' : item.end_date}`}
+          </Text>
+
           <View style={styles.section}>
-            <View style={styles.alarmBox}>
+            {/* <View style={styles.alarmBox}>
               <AlarmIcon width={14} height={14} fill={activeAlarm ? '#ffbf00' : '#babfc5'} />
               <Text style={styles.alarmText}>{activeAlarm ? `${item.alarm}분 전` : '없음'}</Text>
-            </View>
+            </View> */}
 
             <View style={styles.dayOfWeekContainer}>
               <Text style={[styles.dayOfWeekText, item.mon === '1' && styles.activeDayOfWeekText]}>월</Text>
@@ -85,6 +89,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#424242'
   },
+
+  dateText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 12,
+    color: '#424242'
+  },
+
   dayOfWeekContainer: {
     flexDirection: 'row',
     gap: 3
@@ -113,7 +124,7 @@ const styles = StyleSheet.create({
     marginVertical: 15,
     padding: 16,
     borderRadius: 10,
-    backgroundColor: '#dceafe'
+    backgroundColor: '#1e90ff1a'
   },
   gapButtonText: {
     fontFamily: 'Pretendard-Medium',

@@ -743,7 +743,7 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
         </Animated.View>
 
         {/* 알람 */}
-        <Animated.View style={alarmPanelContainerStyle}>
+        {/* <Animated.View style={alarmPanelContainerStyle}>
           <Pressable style={panelHeaderStyle} onPress={handleAlarmPanel}>
             <View style={styles.panelHeaderTextBox}>
               <Text style={styles.panelHeaderLabel}>알람</Text>
@@ -764,7 +764,7 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
               onChange={changeAlarm}
             />
           </View>
-        </Animated.View>
+        </Animated.View> */}
 
         <Pressable style={styles.submitBtn} onPress={handleSubmit}>
           <Text style={styles.submitText}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>

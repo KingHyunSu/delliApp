@@ -42,6 +42,10 @@ declare interface GetExistScheduleListRequest {
   sun: string
 }
 
+declare interface ScheduleDisableReqeust {
+  schedule_id: number
+}
+
 interface disableScheduleId {
   schedule_id: number
 }
