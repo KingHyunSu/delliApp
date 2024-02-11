@@ -28,6 +28,20 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
   const containerRotate = useSharedValue(data.title_rotate)
   const conatinerSavedRotate = useSharedValue(0)
 
+  const changeSchedule = React.useCallback(
+    (value: Object) => {
+      onChangeSchedule(value)
+    },
+    [onChangeSchedule]
+  )
+
+  const changeTitle = React.useCallback(
+    (value: string) => {
+      changeSchedule({title: value})
+    },
+    [changeSchedule]
+  )
+
   const moveGesture = Gesture.Pan()
     .enableTrackpadTwoFingerGesture(true)
     .onUpdate(e => {
@@ -81,20 +95,6 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
   const inputStyle = React.useMemo(() => {
     return [styles.textInput, {color: data.text_color}]
   }, [data.text_color])
-
-  const changeSchedule = React.useCallback(
-    (value: Object) => {
-      onChangeSchedule(value)
-    },
-    [onChangeSchedule]
-  )
-
-  const changeTitle = React.useCallback(
-    (value: string) => {
-      changeSchedule({title: value})
-    },
-    [changeSchedule]
-  )
 
   React.useEffect(() => {
     setLeft(containerX.value)
