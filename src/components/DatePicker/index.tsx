@@ -15,9 +15,10 @@ interface DateItemParams {
 interface Props {
   value: string
   hasNull?: boolean
+  disableDate?: string
   onChange: Function
 }
-const DatePicker = React.memo(({value: datePickerValue, hasNull = false, onChange}: Props) => {
+const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disableDate, onChange}: Props) => {
   // 요일
   const weekdays = ['월', '화', '수', '목', '금', '토', '일']
 
@@ -67,9 +68,9 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, onChang
 
   const renderItem = React.useCallback(
     ({item}: DateItemParams) => {
-      return <DateItem item={item} value={date} onChange={changeDate} />
+      return <DateItem item={item} value={date} disableDate={disableDate} onChange={changeDate} />
     },
-    [date, changeDate]
+    [date, disableDate, changeDate]
   )
 
   const getItemLayout = React.useCallback((_, index: number) => {

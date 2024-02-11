@@ -729,7 +729,12 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
               </View>
 
               <View style={styles.panelItemContents}>
-                <DatePicker value={schedule.end_date} hasNull onChange={changeEndDate} />
+                <DatePicker
+                  value={schedule.end_date}
+                  hasNull
+                  disableDate={schedule.start_date}
+                  onChange={changeEndDate}
+                />
               </View>
             </Animated.View>
           </View>
