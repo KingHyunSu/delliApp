@@ -43,16 +43,19 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, onChang
     }
   }, [date, hasNull])
 
-  const changeDate = (item: Item) => {
-    let dateStr = `${item.year}-${setDigit(item.month)}-${setDigit(item.day)}`
+  const changeDate = React.useCallback(
+    (item: Item) => {
+      let dateStr = `${item.year}-${setDigit(item.month)}-${setDigit(item.day)}`
 
-    if (hasNull && dateStr === date) {
-      dateStr = '9999-12-31'
-    }
+      if (hasNull && dateStr === date) {
+        dateStr = '9999-12-31'
+      }
 
-    setDate(dateStr)
-    onChange(dateStr)
-  }
+      setDate(dateStr)
+      onChange(dateStr)
+    },
+    [date, hasNull, setDate, onChange]
+  )
 
   const changeCurrentDate = React.useCallback((data: Date) => {
     setCurrentDate(data)
@@ -66,7 +69,7 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, onChang
     ({item}: DateItemParams) => {
       return <DateItem item={item} value={date} onChange={changeDate} />
     },
-    [date]
+    [date, changeDate]
   )
 
   const getItemLayout = React.useCallback((_, index: number) => {

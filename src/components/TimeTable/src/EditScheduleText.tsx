@@ -4,8 +4,6 @@ import {StyleSheet, TextInput} from 'react-native'
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS} from 'react-native-reanimated'
 
-import {Schedule} from '@/types/schedule'
-
 interface Props {
   data: Schedule
   centerX: number
@@ -20,14 +18,6 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
 
   const [top, setTop] = React.useState(0)
   const [left, setLeft] = React.useState(0)
-
-  const changeSchedule = (value: Object) => {
-    onChangeSchedule(value)
-  }
-
-  const changeTitle = (value: string) => {
-    changeSchedule({title: value})
-  }
 
   const containerX = useSharedValue(
     Math.round(centerX - (containerPadding + borderWidth) + (radius / 100) * data.title_x)
@@ -84,6 +74,28 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
     }
   })
 
+  const inputWrapperStyle = React.useMemo(() => {
+    return [positionStyle, rotateStyle, styles.conatiner, {padding: containerPadding}]
+  }, [positionStyle, rotateStyle, containerPadding])
+
+  const inputStyle = React.useMemo(() => {
+    return [styles.textInput, {color: data.text_color}]
+  }, [data.text_color])
+
+  const changeSchedule = React.useCallback(
+    (value: Object) => {
+      onChangeSchedule(value)
+    },
+    [onChangeSchedule]
+  )
+
+  const changeTitle = React.useCallback(
+    (value: string) => {
+      changeSchedule({title: value})
+    },
+    [changeSchedule]
+  )
+
   React.useEffect(() => {
     setLeft(containerX.value)
     setTop(containerY.value)
@@ -91,7 +103,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
 
   return (
     <GestureDetector gesture={composeGesture}>
-      <Animated.View style={[positionStyle, rotateStyle, styles.conatiner, {padding: containerPadding}]}>
+      <Animated.View style={inputWrapperStyle}>
         <TextInput
           ref={titleInputRef}
           value={data.title}
@@ -99,7 +111,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
           returnKeyType="done"
           returnKeyLabel="done"
           placeholderTextColor="#c3c5cc"
-          style={[styles.textInput, {color: data.text_color}]}
+          style={inputStyle}
           maxLength={20}
           multiline
           scrollEnabled={false}

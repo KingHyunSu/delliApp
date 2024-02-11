@@ -1,6 +1,6 @@
 import React from 'react'
 import {StyleSheet, View, Pressable, Text} from 'react-native'
-import {BottomSheetModal, BottomSheetScrollView} from '@gorhom/bottom-sheet'
+import {BottomSheetModal, BottomSheetScrollView, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
@@ -10,8 +10,6 @@ import {showStyleBottomSheetState, showColorPickerBottomSheetState} from '@/stor
 import {COLOR_TYPE} from '@/utils/types'
 
 const StyleBottomSheet = () => {
-  const styleBottomSheet = React.useRef<BottomSheetModal>(null)
-
   const schedule = useRecoilValue(scheduleState)
   const setColorType = useSetRecoilState(colorTypeState)
 
@@ -20,10 +18,39 @@ const StyleBottomSheet = () => {
     showColorPickerBottomSheetState
   )
 
-  const openColorPickerBottomSheet = (colorType: COLOR_TYPE) => {
-    setColorType(colorType)
-    setIsShowColorPickerBottomSheet(true)
-  }
+  const styleBottomSheet = React.useRef<BottomSheetModal>(null)
+
+  const snapPoints = React.useMemo(() => {
+    return ['35%']
+  }, [])
+
+  const backgroundColorPickStyle = React.useMemo(() => {
+    return [styles.color, {backgroundColor: schedule.background_color}]
+  }, [schedule.background_color])
+
+  const textColorPickStyle = React.useMemo(() => {
+    return [styles.color, {backgroundColor: schedule.text_color}]
+  }, [schedule.text_color])
+
+  const handleDismiss = React.useCallback(() => {
+    setIsShowStyleBottomSheet(false)
+  }, [setIsShowStyleBottomSheet])
+
+  const openColorPickerBottomSheet = React.useCallback(
+    (colorType: COLOR_TYPE) => {
+      setColorType(colorType)
+      setIsShowColorPickerBottomSheet(true)
+    },
+    [setColorType, setIsShowColorPickerBottomSheet]
+  )
+
+  const openBackgroundStyleBottomSheet = React.useCallback(() => {
+    openColorPickerBottomSheet('background')
+  }, [openColorPickerBottomSheet])
+
+  const openTextStyleBottomSheet = React.useCallback(() => {
+    openColorPickerBottomSheet('text')
+  }, [openColorPickerBottomSheet])
 
   React.useEffect(() => {
     if (isShowStyleBottomSheet) {
@@ -39,29 +66,31 @@ const StyleBottomSheet = () => {
     }
   }, [isShowColorPickerBottomSheet])
 
+  const backdropComponent = React.useCallback((props: BottomSheetBackdropProps) => {
+    return <BottomSheetBackdrop props={props} />
+  }, [])
+
   return (
     <BottomSheetModal
       name="style"
       ref={styleBottomSheet}
-      backdropComponent={props => {
-        return <BottomSheetBackdrop props={props} />
-      }}
+      backdropComponent={backdropComponent}
       index={0}
-      snapPoints={['35%']}
-      onDismiss={() => setIsShowStyleBottomSheet(false)}>
+      snapPoints={snapPoints}
+      onDismiss={handleDismiss}>
       <BottomSheetScrollView>
         <View style={styles.container}>
           <View>
-            <Text style={styles.label}>색상</Text>
+            {/* <Text style={styles.label}>색상</Text> */}
             <View style={styles.colorContainer}>
-              <Pressable style={styles.colorWrapper} onPress={() => openColorPickerBottomSheet('background')}>
+              <Pressable style={styles.colorWrapper} onPress={openBackgroundStyleBottomSheet}>
                 <Text style={styles.colorLabel}>배경색</Text>
-                <View style={[styles.color, {backgroundColor: schedule.background_color}]} />
+                <View style={backgroundColorPickStyle} />
               </Pressable>
 
-              <Pressable style={styles.colorWrapper} onPress={() => openColorPickerBottomSheet('text')}>
+              <Pressable style={styles.colorWrapper} onPress={openTextStyleBottomSheet}>
                 <Text style={styles.colorLabel}>글자색</Text>
-                <View style={[styles.color, {backgroundColor: schedule.text_color}]} />
+                <View style={textColorPickStyle} />
               </Pressable>
             </View>
           </View>
@@ -88,12 +117,13 @@ const styles = StyleSheet.create({
     gap: 20
   },
   colorWrapper: {
+    flex: 1,
     flexDirection: 'row',
     gap: 10,
     height: 52,
     paddingHorizontal: 20,
     backgroundColor: '#f5f6f8',
-    alignSelf: 'flex-start',
+    // alignSelf: 'flex-start',
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10

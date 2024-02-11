@@ -51,7 +51,7 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
 
   const showStyleBottomSheet = React.useCallback(() => {
     setIsShowStyleBottomSheet(true)
-  }, [])
+  }, [setIsShowStyleBottomSheet])
 
   const clickBackground = React.useCallback(() => {
     if (titleInputRef && titleInputRef.current) {

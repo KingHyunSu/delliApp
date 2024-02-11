@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, FlatList, Pressable, View, Text} from 'react-native'
+import {StyleSheet, FlatList, ListRenderItem, Pressable, View, Text} from 'react-native'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {scheduleDateState, scheduleListState, scheduleTodoState} from '@/store/schedule'
@@ -27,20 +27,35 @@ const ScheduleTodo = ({item, showEditModal, onChange}: ItemProps) => {
     return !!item.complete_id
   }, [item.complete_id])
 
+  const checkButton = React.useMemo(() => {
+    return [styles.checkButton, isComplete && styles.activeCheckButton]
+  }, [isComplete])
+
+  const handleChanged = React.useCallback(() => {
+    onChange(!isComplete, item)
+  }, [isComplete, item, onChange])
+
+  const handleShowEditModal = React.useCallback(() => {
+    showEditModal(item)
+  }, [showEditModal, item])
+
   return (
     <View style={styles.itemContainer}>
       <View style={styles.itemWrapper}>
-        <Pressable style={styles.checkButtonWrapper} onPress={() => onChange(!isComplete, item)}>
-          <View style={[styles.checkButton, isComplete && styles.activeCheckButton]}>
+        <Pressable style={styles.checkButtonWrapper} onPress={handleChanged}>
+          <View style={checkButton}>
             {isComplete && <CheckIcon width={16} height={16} strokeWidth={3} stroke="#fff" />}
           </View>
         </Pressable>
-        <Text style={styles.text}>{item.title}</Text>
-      </View>
 
-      <Pressable style={styles.moreButton} onPress={() => showEditModal(item)}>
-        <MoreIcon width={18} height={18} fill="#babfc5" />
-      </Pressable>
+        <Pressable style={styles.modalButtonWrapper} onPress={handleShowEditModal}>
+          <Text style={styles.text}>{item.title}</Text>
+
+          <View style={styles.moreButton}>
+            <MoreIcon width={18} height={18} fill="#babfc5" />
+          </View>
+        </Pressable>
+      </View>
     </View>
   )
 }
@@ -51,10 +66,13 @@ const ScheduleTodoList = ({data}: Props) => {
   const scheduleTodo = useSetRecoilState(scheduleTodoState)
   const setShowEditTodoModal = useSetRecoilState(showEditTodoModalState)
 
-  const showEditModal = (item: Todo) => {
-    scheduleTodo(item)
-    setShowEditTodoModal(true)
-  }
+  const showEditModal = React.useCallback(
+    (item: Todo) => {
+      scheduleTodo(item)
+      setShowEditTodoModal(true)
+    },
+    [scheduleTodo, setShowEditTodoModal]
+  )
 
   const setScheduleTodoCompleteMutation = useMutation({
     mutationFn: (params: SetScheduleTodoCompleteRequest) => {
@@ -68,102 +86,114 @@ const ScheduleTodoList = ({data}: Props) => {
     }
   })
 
-  const handleScheduleTodoComplete = async (value: boolean, item: Todo) => {
-    // [TODO] 쓰로틀링 걸어서 마지막 요청만 전송되게 수정하기
+  const handleScheduleTodoComplete = React.useCallback(
+    async (value: boolean, item: Todo) => {
+      // [TODO] 쓰로틀링 걸어서 마지막 요청만 전송되게 수정하기
 
-    if (value) {
-      if (!item.todo_id) {
-        // [TODO] error check...
-        return
-      }
+      if (value) {
+        if (!item.todo_id) {
+          // [TODO] error check...
+          return
+        }
 
-      const params: SetScheduleTodoCompleteRequest = {
-        todo_id: item.todo_id,
-        complete_date: format(new Date(scheduleDate), 'yyyy-MM-dd')
-      }
+        const params: SetScheduleTodoCompleteRequest = {
+          todo_id: item.todo_id,
+          complete_date: format(new Date(scheduleDate), 'yyyy-MM-dd')
+        }
 
-      const response = await setScheduleTodoCompleteMutation.mutateAsync(params)
+        const response = await setScheduleTodoCompleteMutation.mutateAsync(params)
 
-      trigger('notificationSuccess', {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: false
-      })
+        trigger('notificationSuccess', {
+          enableVibrateFallback: true,
+          ignoreAndroidSystemSettings: false
+        })
 
-      const result = response.data
+        const result = response.data
 
-      const newScheduleList = scheduleList.map(scheduleItem => {
-        if (item.schedule_id === scheduleItem.schedule_id) {
-          let newTodoList = [...data]
+        const newScheduleList = scheduleList.map(scheduleItem => {
+          if (item.schedule_id === scheduleItem.schedule_id) {
+            let newTodoList = [...data]
 
-          const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.todo_id === item.todo_id)
+            const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.todo_id === item.todo_id)
 
-          if (updateTodoIndex !== -1) {
-            newTodoList[updateTodoIndex] = {
-              ...newTodoList[updateTodoIndex],
-              complete_id: result.complete_id,
-              complete_date: format(new Date(scheduleDate), 'yyyy-MM-dd')
+            if (updateTodoIndex !== -1) {
+              newTodoList[updateTodoIndex] = {
+                ...newTodoList[updateTodoIndex],
+                complete_id: result.complete_id,
+                complete_date: format(new Date(scheduleDate), 'yyyy-MM-dd')
+              }
+            }
+
+            return {
+              ...scheduleItem,
+              todo_list: newTodoList
             }
           }
 
-          return {
-            ...scheduleItem,
-            todo_list: newTodoList
-          }
+          return scheduleItem
+        })
+
+        setScheduleList(newScheduleList)
+      } else {
+        if (!item.complete_id) {
+          // [TODO] error check...
+          return
         }
 
-        return scheduleItem
-      })
+        const params: DeleteScheduleTodoCompleteRequest = {
+          complete_id: item.complete_id
+        }
 
-      setScheduleList(newScheduleList)
-    } else {
-      if (!item.complete_id) {
-        // [TODO] error check...
-        return
-      }
+        await deleteScheduleTodoCompleteMutation.mutateAsync(params)
 
-      const params: DeleteScheduleTodoCompleteRequest = {
-        complete_id: item.complete_id
-      }
+        const newScheduleList = scheduleList.map(scheduleItem => {
+          if (item.schedule_id === scheduleItem.schedule_id) {
+            let newTodoList = [...data]
 
-      await deleteScheduleTodoCompleteMutation.mutateAsync(params)
+            const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.todo_id === item.todo_id)
 
-      const newScheduleList = scheduleList.map(scheduleItem => {
-        if (item.schedule_id === scheduleItem.schedule_id) {
-          let newTodoList = [...data]
+            if (updateTodoIndex !== -1) {
+              newTodoList[updateTodoIndex] = {
+                ...newTodoList[updateTodoIndex],
+                complete_id: null,
+                complete_date: null
+              }
+            }
 
-          const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.todo_id === item.todo_id)
-
-          if (updateTodoIndex !== -1) {
-            newTodoList[updateTodoIndex] = {
-              ...newTodoList[updateTodoIndex],
-              complete_id: null,
-              complete_date: null
+            return {
+              ...scheduleItem,
+              todo_list: newTodoList
             }
           }
 
-          return {
-            ...scheduleItem,
-            todo_list: newTodoList
-          }
-        }
+          return scheduleItem
+        })
 
-        return scheduleItem
-      })
-
-      setScheduleList(newScheduleList)
-    }
-  }
-
-  return (
-    <FlatList
-      data={data}
-      keyExtractor={(_, index) => String(index)}
-      style={styles.container}
-      renderItem={({item}) => (
-        <ScheduleTodo item={item} showEditModal={showEditModal} onChange={handleScheduleTodoComplete} />
-      )}
-    />
+        setScheduleList(newScheduleList)
+      }
+    },
+    [
+      data,
+      deleteScheduleTodoCompleteMutation,
+      scheduleDate,
+      scheduleList,
+      setScheduleList,
+      setScheduleTodoCompleteMutation
+    ]
   )
+
+  const keyExtractor = React.useCallback((item: Todo, index: number) => {
+    return String(index)
+  }, [])
+
+  const renderItem: ListRenderItem<Todo> = React.useCallback(
+    ({item}) => {
+      return <ScheduleTodo item={item} showEditModal={showEditModal} onChange={handleScheduleTodoComplete} />
+    },
+    [showEditModal, handleScheduleTodoComplete]
+  )
+
+  return <FlatList data={data} keyExtractor={keyExtractor} style={styles.container} renderItem={renderItem} />
 }
 
 const styles = StyleSheet.create({
@@ -178,6 +208,12 @@ const styles = StyleSheet.create({
   itemWrapper: {
     flexDirection: 'row',
     alignItems: 'center'
+  },
+  modalButtonWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
   },
   checkButtonWrapper: {
     width: 36,

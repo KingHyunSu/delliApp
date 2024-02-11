@@ -1,6 +1,6 @@
 import React from 'react'
-import {useWindowDimensions, StyleSheet, FlatList, View, Text, Pressable} from 'react-native'
-import {BottomSheetModal, BottomSheetScrollView} from '@gorhom/bottom-sheet'
+import {useWindowDimensions, StyleSheet, FlatList, ListRenderItem, View, Text, Pressable} from 'react-native'
+import {BottomSheetModal, BottomSheetScrollView, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 
@@ -15,35 +15,44 @@ interface ColorItemProps {
   changeColor: Function
 }
 const ColorItem = ({item, wrapperSize, activeColor, changeColor}: ColorItemProps) => {
+  const containerStyle = React.useMemo(() => {
+    return {width: wrapperSize}
+  }, [wrapperSize])
+
+  const buttonStyles = React.useMemo(() => {
+    return [styles.item, {backgroundColor: item}, activeColor === item && {borderColor: '#BABABA'}]
+  }, [activeColor, item])
+
+  const handleColorChanged = React.useCallback(() => {
+    changeColor(item)
+  }, [changeColor, item])
+
   return (
-    <View style={{width: wrapperSize}}>
-      <Pressable
-        style={[styles.item, {backgroundColor: item}, activeColor === item && {borderColor: '#BABABA'}]}
-        onPress={() => changeColor(item)}
-      />
+    <View style={containerStyle}>
+      <Pressable style={buttonStyles} onPress={handleColorChanged} />
     </View>
   )
 }
 
-const ColorPickerBottomSheet = () => {
-  const defaultColorList = [
-    '#ffffff',
-    '#f0c1ca',
-    '#f6d3c0',
-    '#fff29e',
-    '#c2e6da',
-    '#cdf0ea',
-    '#9bf6ff',
-    '#bbcbf4',
-    '#c7c7f0'
-  ]
-  // '#79a2f7',
-  // '#388e5a'
-  // '#cdf0ea',
-  // '#beaee2',
-  // '#ffee58',
-  // '#9997ef'
+const defaultColorList = [
+  '#ffffff',
+  '#f0c1ca',
+  '#f6d3c0',
+  '#fff29e',
+  '#c2e6da',
+  '#cdf0ea',
+  '#9bf6ff',
+  '#bbcbf4',
+  '#c7c7f0'
+]
+// '#79a2f7',
+// '#388e5a'
+// '#cdf0ea',
+// '#beaee2',
+// '#ffee58',
+// '#9997ef'
 
+const ColorPickerBottomSheet = () => {
   const {width} = useWindowDimensions()
 
   const colorType = useRecoilValue(colorTypeState)
@@ -52,6 +61,9 @@ const ColorPickerBottomSheet = () => {
 
   const colorPickerBottomSheet = React.useRef<BottomSheetModal>(null)
 
+  const snapPoints = React.useMemo(() => {
+    return ['35%']
+  }, [])
   const itemWidth = React.useMemo(() => {
     return (width - 32) / 5
   }, [width])
@@ -73,19 +85,30 @@ const ColorPickerBottomSheet = () => {
     }
   }, [colorType])
 
-  const changeColor = (color: string) => {
-    if (colorType === 'background') {
-      setSchedule(prevState => ({
-        ...prevState,
-        background_color: color
-      }))
-    } else if (colorType === 'text') {
-      setSchedule(prevState => ({
-        ...prevState,
-        text_color: color
-      }))
-    }
-  }
+  const handleDismiss = React.useCallback(() => {
+    setIsShow(false)
+  }, [setIsShow])
+
+  const changeColor = React.useCallback(
+    (color: string) => {
+      if (colorType === 'background') {
+        setSchedule(prevState => ({
+          ...prevState,
+          background_color: color
+        }))
+      } else if (colorType === 'text') {
+        setSchedule(prevState => ({
+          ...prevState,
+          text_color: color
+        }))
+      }
+    },
+    [colorType, setSchedule]
+  )
+
+  const keyExtractor = React.useCallback((item: string) => {
+    return item
+  }, [])
 
   React.useEffect(() => {
     if (isShow) {
@@ -95,28 +118,35 @@ const ColorPickerBottomSheet = () => {
     }
   }, [isShow])
 
+  const backdropComponent = React.useCallback((props: BottomSheetBackdropProps) => {
+    return <BottomSheetBackdrop props={props} opacity={0} />
+  }, [])
+
+  const renderItem: ListRenderItem<string> = React.useCallback(
+    ({item}) => {
+      return <ColorItem item={item} wrapperSize={itemWidth} activeColor={activeColor} changeColor={changeColor} />
+    },
+    [activeColor, changeColor, itemWidth]
+  )
+
   return (
     <BottomSheetModal
       name="colorPicker"
       ref={colorPickerBottomSheet}
-      backdropComponent={props => {
-        return <BottomSheetBackdrop props={props} opacity={0} />
-      }}
+      backdropComponent={backdropComponent}
       handleComponent={BottomSheetShadowHandler}
       index={0}
-      snapPoints={['35%']}
-      onDismiss={() => setIsShow(false)}>
+      snapPoints={snapPoints}
+      onDismiss={handleDismiss}>
       <BottomSheetScrollView style={styles.container} scrollEnabled={false}>
-        <Text style={styles.title}>{activeTitle}</Text>
+        {/* <Text style={styles.title}>{activeTitle}</Text> */}
         <FlatList
           data={defaultColorList}
-          keyExtractor={item => item}
+          keyExtractor={keyExtractor}
           numColumns={5}
           scrollEnabled={false}
           columnWrapperStyle={styles.columnWrapper}
-          renderItem={({item}) => (
-            <ColorItem item={item} wrapperSize={itemWidth} activeColor={activeColor} changeColor={changeColor} />
-          )}
+          renderItem={renderItem}
         />
       </BottomSheetScrollView>
     </BottomSheetModal>

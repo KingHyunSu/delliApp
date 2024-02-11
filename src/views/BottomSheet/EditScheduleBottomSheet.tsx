@@ -223,7 +223,7 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
     }
 
     setDateFlag(RANGE_FLAG.START)
-  }, [])
+  }, [schedule.schedule_id])
   const handleEndDatePanel = React.useCallback(() => {
     setDateFlag(RANGE_FLAG.END)
   }, [])
@@ -258,40 +258,68 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
     return dayOfWeekSelectButtonTextStyle
   }, [])
 
+  const activeSubmit = React.useMemo(() => {
+    const dayOfWeekList = [
+      schedule.mon,
+      schedule.tue,
+      schedule.wed,
+      schedule.thu,
+      schedule.fri,
+      schedule.sat,
+      schedule.sun
+    ]
+
+    return !!(schedule.title && dayOfWeekList.some(item => item === '1'))
+  }, [schedule.title, schedule.mon, schedule.tue, schedule.wed, schedule.thu, schedule.fri, schedule.sat, schedule.sun])
+
+  const submitButtonStyle = React.useMemo(() => {
+    return [styles.submitButton, activeSubmit && styles.activeSubmitBtn]
+  }, [activeSubmit])
+
+  const submitTextStyle = React.useMemo(() => {
+    return [styles.submitText, activeSubmit && styles.activeSubmitText]
+  }, [activeSubmit])
+
   const focusTitleInput = React.useCallback(() => {
     if (titleInputRef && titleInputRef.current && bottomSheetRef && bottomSheetRef.current) {
       bottomSheetRef.current?.collapse()
       titleInputRef.current.focus()
     }
-  }, [])
+  }, [titleInputRef])
 
-  const changeTime = React.useCallback((time: number) => {
-    if (timeFlag === 0) {
-      setSchedule(prevState => ({
-        ...prevState,
-        start_time: time
-      }))
-    } else if (timeFlag === 1) {
-      setSchedule(prevState => ({
-        ...prevState,
-        end_time: time
-      }))
-    }
-  }, [])
+  const changeTime = React.useCallback(
+    (time: number) => {
+      if (timeFlag === 0) {
+        setSchedule(prevState => ({
+          ...prevState,
+          start_time: time
+        }))
+      } else if (timeFlag === 1) {
+        setSchedule(prevState => ({
+          ...prevState,
+          end_time: time
+        }))
+      }
+    },
+    [setSchedule, timeFlag]
+  )
 
-  const changeDate = (date: string, flag: RANGE_FLAG) => {
-    if (flag === RANGE_FLAG.START) {
-      setSchedule(prevState => ({
-        ...prevState,
-        start_date: date
-      }))
-    } else if (flag === RANGE_FLAG.END) {
-      setSchedule(prevState => ({
-        ...prevState,
-        end_date: date
-      }))
-    }
-  }
+  const changeDate = React.useCallback(
+    (date: string, flag: RANGE_FLAG) => {
+      if (flag === RANGE_FLAG.START) {
+        setSchedule(prevState => ({
+          ...prevState,
+          start_date: date
+        }))
+      } else if (flag === RANGE_FLAG.END) {
+        setSchedule(prevState => ({
+          ...prevState,
+          end_date: date
+        }))
+      }
+    },
+    [setSchedule]
+  )
 
   const changeDayOfWeek = React.useCallback(
     (key: DAY_OF_WEEK) => () => {
@@ -302,9 +330,12 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
     [schedule, setSchedule]
   )
 
-  const changeAlarm = React.useCallback((index: number) => {
-    setSchedule(prevState => ({...prevState, alarm: (index + 1) * 5}))
-  }, [])
+  const changeAlarm = React.useCallback(
+    (index: number) => {
+      setSchedule(prevState => ({...prevState, alarm: (index + 1) * 5}))
+    },
+    [setSchedule]
+  )
 
   const changeAlarmSwitch = React.useCallback(
     (value: boolean) => {
@@ -513,13 +544,19 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
   //   }
   // }, [schedule, disableScheduleList, setScheduleMutation])
 
-  const changeStartDate = React.useCallback((date: string) => {
-    changeDate(date, RANGE_FLAG.START)
-  }, [])
+  const changeStartDate = React.useCallback(
+    (date: string) => {
+      changeDate(date, RANGE_FLAG.START)
+    },
+    [changeDate]
+  )
 
-  const changeEndDate = React.useCallback((date: string) => {
-    changeDate(date, RANGE_FLAG.END)
-  }, [])
+  const changeEndDate = React.useCallback(
+    (date: string) => {
+      changeDate(date, RANGE_FLAG.END)
+    },
+    [changeDate]
+  )
 
   React.useEffect(() => {
     if (bottomSheetRef.current) {
@@ -766,8 +803,8 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
           </View>
         </Animated.View> */}
 
-        <Pressable style={styles.submitBtn} onPress={handleSubmit}>
-          <Text style={styles.submitText}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
+        <Pressable style={submitButtonStyle} onPress={handleSubmit}>
+          <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
         </Pressable>
       </BottomSheetScrollView>
     </BottomSheet>
@@ -911,17 +948,23 @@ const styles = StyleSheet.create({
     color: '#7c8698'
   },
 
-  submitBtn: {
+  submitButton: {
     height: 48,
     marginTop: 80,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
-    backgroundColor: '#1E90FF'
+    backgroundColor: '#f5f6f8'
   },
   submitText: {
-    fontFamily: 'Pretendard-Bold',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 18,
+    color: '#babfc5'
+  },
+  activeSubmitBtn: {
+    backgroundColor: '#1E90FF'
+  },
+  activeSubmitText: {
     color: '#fff'
   }
 })

@@ -118,7 +118,11 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
           angle += 360
         }
 
-        const calcTotalMinute = getCalcTotalMinute(angle)
+        let calcTotalMinute = getCalcTotalMinute(angle)
+
+        if (calcTotalMinute === 1440) {
+          calcTotalMinute = 0
+        }
 
         if (newStartTime.current !== calcTotalMinute) {
           newStartTime.current = calcTotalMinute
@@ -144,7 +148,12 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
         if (angle < 0) {
           angle += 360
         }
-        const calcTotalMinute = getCalcTotalMinute(angle)
+
+        let calcTotalMinute = getCalcTotalMinute(angle)
+
+        if (calcTotalMinute === 1440) {
+          calcTotalMinute = 0
+        }
 
         if (newEndTime.current !== calcTotalMinute) {
           newEndTime.current = calcTotalMinute

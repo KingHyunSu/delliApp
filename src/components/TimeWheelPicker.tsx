@@ -77,6 +77,9 @@ const TimeWheelPicker = React.memo(({initValue, visibleRest = 2, align = 'flex-s
         hour -= 12
       }
 
+      setMeridiemIndex(meridie)
+      setHourIndex(hour)
+      setMinuteIndex(minute)
       meridiemRef.current?.scrollToIndex(meridie)
       hourRef.current?.scrollToIndex(hour)
       minuteRef.current?.scrollToIndex(minute)

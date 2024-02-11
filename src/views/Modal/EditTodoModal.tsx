@@ -42,6 +42,10 @@ const EditTodoModal = () => {
     return !!scheduleTodo.todo_id
   }, [scheduleTodo.todo_id])
 
+  const endDate = React.useMemo(() => {
+    return scheduleTodo.end_date === '9999-12-31' || !scheduleTodo.end_date
+  }, [scheduleTodo.end_date])
+
   const backgroundStyle = React.useMemo(() => {
     return [overlayAnimatedStyle, styles.background]
   }, [overlayAnimatedStyle])
@@ -198,7 +202,7 @@ const EditTodoModal = () => {
                 <View style={styles.repeatContainer}>
                   <Text style={styles.repeatHeaderLabel}>반복</Text>
 
-                  <Switch value={!scheduleTodo.end_date} onChange={changeEndDate} />
+                  <Switch value={endDate} onChange={changeEndDate} />
                 </View>
               </View>
             </View>

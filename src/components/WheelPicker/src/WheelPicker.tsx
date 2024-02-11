@@ -92,7 +92,6 @@ const WheelPicker = forwardRef<TimeWheelRefs, Props>(
     }
 
     const scrollToIndex = (index: number) => {
-      console.log('123123', index)
       flatListRef.current?.scrollToIndex({
         index: index,
         animated: false
