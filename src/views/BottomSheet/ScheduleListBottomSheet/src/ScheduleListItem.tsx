@@ -5,12 +5,13 @@ import ScheduleTodoList from './ScheduleTodoList'
 import AlarmIcon from '@/assets/icons/alarm.svg'
 
 interface Props {
-  index: number
   item: Schedule
+  index: number
+  length: number
   openEditScheduleBottomSheet: (value?: Schedule) => void
   onClick: (value: Schedule) => void
 }
-const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: Props) => {
+const ScheduleListItem = ({item, index, length, openEditScheduleBottomSheet, onClick}: Props) => {
   const isContinueSchedule = React.useMemo(() => {
     return item.display_type === 'continue'
   }, [item])
@@ -25,9 +26,12 @@ const ScheduleListItem = ({index, item, openEditScheduleBottomSheet, onClick}: P
 
   if (isGapSchedule) {
     return (
-      <Pressable style={styles.gapButton} onPress={() => openEditScheduleBottomSheet(item)}>
-        <Text style={styles.gapButtonText}>일정 추가하기</Text>
-      </Pressable>
+      <View>
+        <Pressable style={styles.gapButton} onPress={() => openEditScheduleBottomSheet(item)}>
+          <Text style={styles.gapButtonText}>일정 추가하기</Text>
+        </Pressable>
+        {length - 1 === index && <ScheduleTimeBox time={item.end_time} />}
+      </View>
     )
   }
   return (

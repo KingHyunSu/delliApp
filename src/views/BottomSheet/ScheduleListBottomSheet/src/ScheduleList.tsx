@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, View, Text} from 'react-native'
+import {StyleSheet, View, Text, ListRenderItem} from 'react-native'
 import BottomSheet, {BottomSheetFlatList, BottomSheetFlatListMethods} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 import ScheduleListItem from './ScheduleListItem'
@@ -9,6 +9,8 @@ import LottieView from 'lottie-react-native'
 import {useRecoilValue} from 'recoil'
 import {scheduleDateState} from '@/store/schedule'
 import {isEditState} from '@/store/system'
+
+import {format} from 'date-fns'
 
 interface Props {
   data: Schedule[]
@@ -22,7 +24,11 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const bottomSheetFlatListRef = React.useRef<BottomSheetFlatListMethods>(null)
 
-  const list = React.useMemo(() => {
+  const snapPoints = React.useMemo(() => {
+    return ['20%', '77%']
+  }, [])
+
+  const list: Schedule[] = React.useMemo(() => {
     const SCHEDULE_DISPLAY_TYPE = {CONTINUE: 'continue', GAP: 'gap'}
 
     if (data.length === 0) {
@@ -47,7 +53,7 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
         const schedule = {
           schedule_id: null,
           timetable_category_id: currentSchedule.timetable_category_id,
-          start_date: currentSchedule.start_date,
+          start_date: format(new Date(), 'yyyy-MM-dd'),
           end_date: '9999-12-31',
           start_time: currentSchedule.end_time,
           end_time: nextSchedule.start_time,
@@ -65,11 +71,12 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
           title_x: 0,
           title_y: 0,
           title_rotate: 0,
-          alarm: 0,
           background_color: '#ffffff',
           text_color: '#000000',
-          display_type: SCHEDULE_DISPLAY_TYPE.GAP,
-          todo_list: []
+          alarm: 0,
+          todo_list: [],
+
+          display_type: SCHEDULE_DISPLAY_TYPE.GAP
         }
 
         result.push(schedule)
@@ -78,6 +85,38 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
 
     // 마지막 일정 추가
     result.push({...data[data.length - 1], dispay_type: ''})
+
+    // 첫 일정과 마지막 일정사이에 공백 있으면 추가
+    if (data[0].start_time !== data[data.length - 1].end_time) {
+      result.push({
+        schedule_id: null,
+        timetable_category_id: data[0].timetable_category_id,
+        start_date: format(new Date(), 'yyyy-MM-dd'),
+        end_date: '9999-12-31',
+        start_time: data[data.length - 1].end_time,
+        end_time: data[0].start_time,
+        title: '',
+        mon: '1',
+        tue: '1',
+        wed: '1',
+        thu: '1',
+        fri: '1',
+        sat: '1',
+        sun: '1',
+        memo: '',
+        disable: '0',
+        state: '0',
+        title_x: 0,
+        title_y: 0,
+        title_rotate: 0,
+        alarm: 0,
+        background_color: '#ffffff',
+        text_color: '#000000',
+        todo_list: [],
+
+        display_type: SCHEDULE_DISPLAY_TYPE.GAP
+      })
+    }
 
     return result
   }, [data])
@@ -96,24 +135,34 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
     bottomSheetFlatListRef.current?.scrollToIndex({index: 0})
   }, [scheduleDate, isEdit])
 
+  const keyExtractor = React.useCallback((item: Schedule, index: number) => {
+    return String(index)
+  }, [])
+
+  const renderItem: ListRenderItem<Schedule> = React.useCallback(
+    ({item, index}) => {
+      return (
+        <ScheduleListItem
+          item={item}
+          index={index}
+          length={list.length}
+          openEditScheduleBottomSheet={openEditScheduleBottomSheet}
+          onClick={onClick}
+        />
+      )
+    },
+    [list.length, openEditScheduleBottomSheet, onClick]
+  )
+
   return (
-    <BottomSheet ref={bottomSheetRef} index={0} snapPoints={['20%', '77%']} handleComponent={BottomSheetShadowHandler}>
+    <BottomSheet ref={bottomSheetRef} index={0} snapPoints={snapPoints} handleComponent={BottomSheetShadowHandler}>
       {list && list.length > 0 ? (
         <BottomSheetFlatList
           ref={bottomSheetFlatListRef}
           data={list}
-          keyExtractor={(_, index) => String(index)}
+          keyExtractor={keyExtractor}
           contentContainerStyle={styles.container}
-          renderItem={({item, index}) => {
-            return (
-              <ScheduleListItem
-                item={item}
-                index={index}
-                openEditScheduleBottomSheet={openEditScheduleBottomSheet}
-                onClick={onClick}
-              />
-            )
-          }}
+          renderItem={renderItem}
         />
       ) : (
         <View style={styles.emptyContainer}>

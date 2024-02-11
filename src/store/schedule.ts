@@ -48,7 +48,9 @@ export const scheduleState = atom<Schedule>({
     alarm: 0,
     todo_list: [],
     background_color: '#ffffff',
-    text_color: '#000000'
+    text_color: '#000000',
+
+    display_type: ''
   }
 })
 
