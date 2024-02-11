@@ -69,8 +69,3 @@ export const activeTimeFlagState = atom<RANGE_FLAG | null>({
   key: 'activeTimeFlagState',
   default: null
 })
-
-export const colorTypeState = atom<COLOR_TYPE>({
-  key: 'colorTypeState',
-  default: 'background'
-})

@@ -11,7 +11,6 @@ import EditScheduleCheckBottomSheet from '@/views/BottomSheet/EditScheduleCheckB
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
-import ColorPickerBottomSheet from '@/views/BottomSheet/ColorPickerBottomSheet'
 import EditTodoModal from '@/views/Modal/EditTodoModal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
@@ -25,7 +24,7 @@ import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} 
 import {isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
 import {scheduleDateState, scheduleState, scheduleListState, disableScheduleListState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
-import {showColorPickerBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
+import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
 import {getScheduleList} from '@/apis/schedule'
 import {getTimetableCategoryList} from '@/apis/timetable'
@@ -45,7 +44,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
 
-  const isShowColorPickerBottomSheetState = useRecoilValue(showColorPickerBottomSheetState)
   const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
   const setSchedule = useSetRecoilState(scheduleState)
@@ -176,11 +174,9 @@ const Home = ({navigation}: HomeNavigationProps) => {
           {/* <Text style={homeStyles.timetableCategoryText}>{activeTimeTableCategory.title}</Text> */}
           <View />
 
-          {!isShowColorPickerBottomSheetState && (
-            <Pressable style={homeStyles.appBarRightButton} onPress={closeEditScheduleBottomSheet}>
-              <CancleIcon stroke="#242933" />
-            </Pressable>
-          )}
+          <Pressable style={homeStyles.appBarRightButton} onPress={closeEditScheduleBottomSheet}>
+            <CancleIcon stroke="#242933" />
+          </Pressable>
         </AppBar>
       </View>
 
@@ -241,7 +237,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
       <EditMenuBottomSheet refetchScheduleList={refetchScheduleList} />
       <TimetableCategoryBottomSheet />
       <StyleBottomSheet />
-      <ColorPickerBottomSheet />
 
       {/* modal */}
       {/* <ScheduleCompleteModal /> */}

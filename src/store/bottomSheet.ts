@@ -20,11 +20,6 @@ export const showStyleBottomSheetState = atom({
   default: false
 })
 
-export const showColorPickerBottomSheetState = atom({
-  key: 'showColorPickerBottomSheetState',
-  default: false
-})
-
 export const showEditScheduleCheckBottomSheetState = atom({
   key: 'showEditScheduleCheckBottomSheetState',
   default: false

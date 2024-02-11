@@ -886,7 +886,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     width: 115,
     borderRadius: 7,
-    backgroundColor: '#f5f6f8'
+    borderWidth: 1,
+    borderColor: '#f5f6f8'
   },
   panelItemButtonText: {
     fontFamily: 'Pretendard-Regular',
@@ -895,7 +896,8 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   panelItemActiveButton: {
-    backgroundColor: '#1E90FF'
+    backgroundColor: '#1E90FF',
+    borderWidth: 0
   },
   panelItemActiveButtonText: {
     color: '#fff'
