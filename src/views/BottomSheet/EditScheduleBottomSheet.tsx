@@ -17,6 +17,7 @@ import {scheduleState, disableScheduleListState, existScheduleListState} from '@
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
+import {isAfter} from 'date-fns'
 // import {getTime, startOfToday, setMinutes} from 'date-fns'
 // import notifee, {TimestampTrigger, TriggerType, RepeatFrequency} from '@notifee/react-native'
 
@@ -546,9 +547,12 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
 
   const changeStartDate = React.useCallback(
     (date: string) => {
+      if (isAfter(new Date(date), new Date(schedule.end_date))) {
+        changeDate('9999-12-31', RANGE_FLAG.END)
+      }
       changeDate(date, RANGE_FLAG.START)
     },
-    [changeDate]
+    [schedule.end_date, changeDate]
   )
 
   const changeEndDate = React.useCallback(
