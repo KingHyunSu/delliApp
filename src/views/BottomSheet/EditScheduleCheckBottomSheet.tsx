@@ -28,7 +28,7 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
   const editScheduleCheckBottomSheet = React.useRef<BottomSheetModal>(null)
 
   const snapPoints = React.useMemo(() => {
-    return ['95%']
+    return ['90%']
   }, [])
 
   const list = React.useMemo(() => {

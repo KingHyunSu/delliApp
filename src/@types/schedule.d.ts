@@ -41,7 +41,7 @@ declare interface Schedule {
   alarm: number
   todo_list: Todo[]
 
-  display_type: 'continue' | 'gap'
+  display_type: string
 }
 
 declare interface ScheduleComplete {

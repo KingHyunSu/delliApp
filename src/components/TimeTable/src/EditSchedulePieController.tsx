@@ -49,7 +49,7 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
   }, [startAngle, endAngle])
 
   React.useEffect(() => {
-    const startTime = data.start_time
+    let startTime = data.start_time
     let endTime = data.end_time
 
     const disableScheduleList = scheduleList
@@ -58,21 +58,22 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
           return false
         }
 
-        const start_time = item.start_time
+        let start_time = item.start_time
         let end_time = item.end_time
 
-        if (end_time === 0) {
-          end_time = 60 * 24
+        if (start_time > end_time) {
+          const isOverlapStart = startTime > start_time || startTime < end_time
+          const isOverlapEnd = endTime > start_time || endTime < end_time
+          const isOverlapAll = startTime > endTime && startTime <= start_time && endTime >= end_time
+
+          return isOverlapStart || isOverlapEnd || isOverlapAll
         }
 
-        const isOverlapRight = start_time < startTime && end_time > startTime
-        const isOverlapLeft = start_time < endTime && end_time > endTime
-        const isOverlapCenter =
-          start_time < startTime && start_time < endTime && end_time > endTime && end_time > startTime
-        const isOverlapAll =
-          start_time >= startTime && start_time < endTime && end_time <= endTime && end_time > startTime
+        const isOverlapStart = startTime > start_time && startTime < end_time
+        const isOverlapEnd = endTime > start_time && endTime < end_time
+        const isOverlapAll = start_time >= startTime && end_time <= endTime
 
-        return isOverlapRight || isOverlapLeft || isOverlapAll || isOverlapCenter
+        return isOverlapStart || isOverlapEnd || isOverlapAll
       })
       .map(item => {
         return {

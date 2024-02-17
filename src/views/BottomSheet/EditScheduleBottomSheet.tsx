@@ -17,6 +17,8 @@ import {scheduleState, disableScheduleListState, existScheduleListState} from '@
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
+import {RANGE_FLAG} from '@/utils/types'
+import {trigger} from 'react-native-haptic-feedback'
 import {isAfter} from 'date-fns'
 // import {getTime, startOfToday, setMinutes} from 'date-fns'
 // import notifee, {TimestampTrigger, TriggerType, RepeatFrequency} from '@notifee/react-native'
@@ -24,11 +26,9 @@ import {isAfter} from 'date-fns'
 import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 
-import {RANGE_FLAG} from '@/utils/types'
 import {DAY_OF_WEEK} from '@/types/common'
 
 interface Props {
-  scheduleList: Schedule[]
   refetchScheduleList: Function
   titleInputRef: React.RefObject<TextInput>
 }
@@ -39,7 +39,7 @@ const defaultFullTimeItemPanelHeight = 216
 const defaultFullDateItemPanelHeight = 426
 const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
 
-const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, titleInputRef}: Props) => {
+const EditScheduleBottomSheet = React.memo(({refetchScheduleList, titleInputRef}: Props) => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const bottomSheetScrollViewRef = React.useRef<ScrollView>(null)
 
@@ -324,6 +324,11 @@ const EditScheduleBottomSheet = React.memo(({scheduleList, refetchScheduleList, 
 
   const changeDayOfWeek = React.useCallback(
     (key: DAY_OF_WEEK) => () => {
+      trigger('impactLight', {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false
+      })
+
       const flag = schedule[key] === '1' ? '0' : '1'
 
       setSchedule(prevState => ({...prevState, [key]: flag}))

@@ -22,13 +22,21 @@ import {useRecoilState, useRecoilSnapshot} from 'recoil'
 import {loginState, isLunchState} from '@/store/system'
 
 import {RootStackParamList} from '@/types/navigation'
+import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
+import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
 
 function App(): JSX.Element {
+  const {isLoaded, isClosed, load, show} = useAppOpenAd(TestIds.APP_OPEN)
+
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
   const Stack = createStackNavigator<RootStackParamList>()
 
-  React.useEffect(() => {
+  useEffect(() => {
+    load()
+  }, [load])
+
+  useEffect(() => {
     const setToken = async () => {
       const token = await AsyncStorage.getItem('token')
 
@@ -39,8 +47,26 @@ function App(): JSX.Element {
       }
     }
 
-    setToken()
-  }, [])
+    if (isLoaded) {
+      show()
+
+      setToken()
+    }
+  }, [isLoaded, show])
+
+  // React.useEffect(() => {
+  //   const setToken = async () => {
+  //     const token = await AsyncStorage.getItem('token')
+
+  //     if (token) {
+  //       setIsLogin(true)
+  //     } else {
+  //       setIsLunch(true)
+  //     }
+  //   }
+
+  //   setToken()
+  // }, [])
 
   React.useEffect(() => {
     if (isLunch) {

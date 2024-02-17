@@ -29,6 +29,7 @@ declare interface GetScheduleListRequest {
 }
 
 declare interface GetExistScheduleListRequest {
+  schedule_id?: int
   start_date: string
   end_date: string
   start_time: number

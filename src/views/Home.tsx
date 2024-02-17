@@ -31,7 +31,7 @@ import {getTimetableCategoryList} from '@/apis/timetable'
 import {useQuery} from '@tanstack/react-query'
 
 import {getDayOfWeekKey} from '@/utils/helper'
-import {format} from 'date-fns'
+import {format, getDay} from 'date-fns'
 
 import {HomeNavigationProps} from '@/types/navigation'
 
@@ -107,21 +107,35 @@ const Home = ({navigation}: HomeNavigationProps) => {
     enabled: !!activeTimeTableCategory.timetable_category_id
   })
 
-  const openEditScheduleBottomSheet = (value?: Schedule) => {
-    if (value) {
-      setSchedule(value)
-    } else {
-      setSchedule(prevState => {
-        return {
-          ...prevState,
-          timetable_category_id: activeTimeTableCategory.timetable_category_id,
-          start_date: format(scheduleDate, 'yyyy-MM-dd')
-        }
-      })
-    }
+  const openEditScheduleBottomSheet = React.useCallback(
+    (value?: Schedule) => {
+      if (value) {
+        setSchedule(value)
+      } else {
+        const dayOfWeekKeyList = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
 
-    setIsEdit(true)
-  }
+        let currentDayOfWeekIndex = getDay(new Date(scheduleDate)) - 1
+
+        if (currentDayOfWeekIndex === -1) {
+          currentDayOfWeekIndex = 6
+        }
+
+        const dayOfWeekkey = dayOfWeekKeyList[currentDayOfWeekIndex]
+
+        setSchedule(prevState => {
+          return {
+            ...prevState,
+            timetable_category_id: activeTimeTableCategory.timetable_category_id,
+            start_date: format(scheduleDate, 'yyyy-MM-dd'),
+            [dayOfWeekkey]: '1'
+          }
+        })
+      }
+
+      setIsEdit(true)
+    },
+    [activeTimeTableCategory.timetable_category_id, scheduleDate, setIsEdit, setSchedule]
+  )
 
   const openEditMenuBottomSheet = (value: Schedule) => {
     setSchedule(value)
@@ -220,11 +234,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
         openEditScheduleBottomSheet={openEditScheduleBottomSheet}
         onClick={openEditMenuBottomSheet}
       />
-      <EditScheduleBottomSheet
-        scheduleList={scheduleList}
-        refetchScheduleList={refetchScheduleList}
-        titleInputRef={titleInputRef}
-      />
+      <EditScheduleBottomSheet refetchScheduleList={refetchScheduleList} titleInputRef={titleInputRef} />
       <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
 
       {!isEdit && (
