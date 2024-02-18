@@ -35,19 +35,28 @@ const ColorItem = ({item, wrapperSize, activeColor, changeColor}: ColorItemProps
   )
 }
 
+const redColorList = ['#FF6666', '#FF8080', '#FF9999', '#FFB2B2', '#FFCCCC']
+const orangeColorList = ['#FFA500', '#FFB366', '#FFC199', '#FFD1B3', '#FFE0CC']
+const yellowColorList = ['#FFD700', '#FFE04C', '#FFE57F', '#FFEB99', '#FFF0B3']
+const greenColorList = ['#09CE20', '#3AD347', '#62DC65', '#8CF281', '#B4F99E']
+const blueColorList = ['#0099FF', '#4DB8FF', '#66C8FF', '#7FD9FF', '#99E9FF']
+const indigoColorList = ['#001C91', '#0033A6', '#0041B5', '#0050C4', '#0060D4']
+const purpleColorList = ['#5E4E97', '#7C6DB1', '#9782C5', '#B094D9', '#C6A8ED']
+const blackColorList = ['#111111', '#222222', '#333333', '#444444', '#555555']
+// const blackColorList = ['#101B3F', '#343434']
+
 const defaultBackgroundColorList = [
-  '#ffffff',
-  '#f0c1ca',
-  '#f6d3c0',
-  '#fff29e',
-  '#c2e6da',
-  '#cdf0ea',
-  '#9bf6ff',
-  '#bbcbf4',
-  '#c7c7f0'
+  ...redColorList,
+  ...orangeColorList,
+  ...yellowColorList,
+  ...greenColorList,
+  ...blueColorList,
+  ...indigoColorList,
+  ...purpleColorList,
+  ...blackColorList
 ]
 
-const defaultTextColorList = ['#000000', '#ffffff']
+const defaultTextColorList = ['#424242', '#ffffff']
 
 const StyleBottomSheet = () => {
   const {width} = useWindowDimensions()
@@ -60,7 +69,7 @@ const StyleBottomSheet = () => {
   const styleBottomSheet = React.useRef<BottomSheetModal>(null)
 
   const snapPoints = React.useMemo(() => {
-    return ['35%', '80%']
+    return ['35%', '85%']
   }, [])
 
   const itemWidth = React.useMemo(() => {
@@ -193,7 +202,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 20,
-    gap: 30
+    gap: 50
   },
   colorContainer: {
     flexDirection: 'row',
