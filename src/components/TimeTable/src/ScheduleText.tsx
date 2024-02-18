@@ -1,14 +1,13 @@
 import React from 'react'
-import {StyleSheet, View, TextInput} from 'react-native'
+import {StyleSheet, View, Text} from 'react-native'
 
 interface Props {
   data: Schedule
   centerX: number
   centerY: number
   radius: number
-  onClick: (value: Schedule) => void
 }
-const ScheduleText = ({data, centerX, centerY, radius, onClick}: Props) => {
+const ScheduleText = ({data, centerX, centerY, radius}: Props) => {
   const {top, left} = React.useMemo(() => {
     return {
       top: Math.round(centerY - (radius / 100) * data.title_y),
@@ -16,16 +15,17 @@ const ScheduleText = ({data, centerX, centerY, radius, onClick}: Props) => {
     }
   }, [data.title_x, data.title_y, centerX, centerY, radius])
 
+  const containerStyle = React.useMemo(() => {
+    return [styles.container, {top, left, transform: [{rotateZ: `${data.title_rotate}deg`}]}]
+  }, [top, left, data.title_rotate])
+
+  const textStyle = React.useMemo(() => {
+    return [styles.text, {color: data.text_color}]
+  }, [data.text_color])
+
   return (
-    <View style={[styles.container, {top, left, transform: [{rotateZ: `${data.title_rotate}deg`}]}]}>
-      <TextInput
-        value={data.title}
-        style={[styles.textInput, {color: data.text_color}]}
-        multiline
-        scrollEnabled={false}
-        editable={false}
-        onPressIn={() => onClick(data)}
-      />
+    <View style={containerStyle}>
+      <Text style={textStyle}>{data.title}</Text>
     </View>
   )
 }
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     minWidth: 40
   },
-  textInput: {
+  text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     paddingVertical: 0

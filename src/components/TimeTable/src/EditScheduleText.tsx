@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, TextInput} from 'react-native'
+import {Pressable, StyleSheet, Text, TextInput} from 'react-native'
 
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS} from 'react-native-reanimated'
@@ -14,8 +14,9 @@ interface Props {
 }
 const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChangeSchedule}: Props) => {
   const containerPadding = 50
-  const borderWidth = 1
+  const borderWidth = 4
 
+  const [isFocus, setIsFocus] = React.useState(false)
   const [top, setTop] = React.useState(0)
   const [left, setLeft] = React.useState(0)
 
@@ -27,6 +28,18 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
   )
   const containerRotate = useSharedValue(data.title_rotate)
   const conatinerSavedRotate = useSharedValue(0)
+
+  const doFocus = React.useCallback(() => {
+    titleInputRef.current?.focus()
+  }, [titleInputRef])
+
+  const handleFocus = React.useCallback(() => {
+    setIsFocus(true)
+  }, [])
+
+  const handleBlur = React.useCallback(() => {
+    setIsFocus(false)
+  }, [])
 
   const changeSchedule = React.useCallback(
     (value: Object) => {
@@ -88,13 +101,30 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
     }
   })
 
-  const inputWrapperStyle = React.useMemo(() => {
+  const containerStyle = React.useMemo(() => {
     return [positionStyle, rotateStyle, styles.conatiner, {padding: containerPadding}]
   }, [positionStyle, rotateStyle, containerPadding])
 
-  const inputStyle = React.useMemo(() => {
-    return [styles.textInput, {color: data.text_color}]
-  }, [data.text_color])
+  const wrapperStyle = React.useMemo(() => {
+    return [styles.textWrapper, isFocus && {borderColor: '#c3c5cc'}]
+  }, [isFocus])
+
+  const textStyle = React.useMemo(() => {
+    let color = '#c3c5cc'
+
+    if (data.title) {
+      color = data.text_color
+    }
+    return [styles.text, {color}]
+  }, [data.title, data.text_color])
+
+  const title = React.useMemo(() => {
+    if (data.title) {
+      return data.title
+    }
+
+    return '일정명을 입력해주세요'
+  }, [data.title])
 
   React.useEffect(() => {
     setLeft(containerX.value)
@@ -102,21 +132,27 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
   }, [])
 
   return (
-    <GestureDetector gesture={composeGesture}>
-      <Animated.View style={inputWrapperStyle}>
-        <TextInput
-          ref={titleInputRef}
-          value={data.title}
-          placeholder="일정명을 입력해주세요."
-          placeholderTextColor="#c3c5cc"
-          style={inputStyle}
-          maxLength={20}
-          multiline
-          scrollEnabled={false}
-          onChangeText={changeTitle}
-        />
-      </Animated.View>
-    </GestureDetector>
+    <>
+      <GestureDetector gesture={composeGesture}>
+        <Animated.View style={containerStyle}>
+          <Pressable style={wrapperStyle} onPress={doFocus}>
+            <Text style={textStyle}>{title}</Text>
+          </Pressable>
+        </Animated.View>
+      </GestureDetector>
+
+      <TextInput
+        ref={titleInputRef}
+        value={data.title}
+        style={styles.textInput}
+        maxLength={20}
+        multiline
+        scrollEnabled={false}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onChangeText={changeTitle}
+      />
+    </>
   )
 }
 
@@ -124,11 +160,20 @@ const styles = StyleSheet.create({
   conatiner: {
     position: 'absolute'
   },
-  textInput: {
+  textWrapper: {
+    borderWidth: 1,
+    borderColor: 'transparent',
+    borderStyle: 'dashed',
+    borderRadius: 5
+  },
+  text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#000',
-    paddingVertical: 0
+    padding: 3
+  },
+  textInput: {
+    transform: [{scale: 0}]
   }
 })
 

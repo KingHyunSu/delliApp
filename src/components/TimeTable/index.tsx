@@ -49,15 +49,20 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
     // [todo] 12시간 <-> 24시간 시간표 변경 기능
   }
 
-  const showStyleBottomSheet = React.useCallback(() => {
-    setIsShowStyleBottomSheet(true)
-  }, [setIsShowStyleBottomSheet])
-
-  const clickBackground = React.useCallback(() => {
+  const closeKeyboard = React.useCallback(() => {
     if (titleInputRef && titleInputRef.current) {
       titleInputRef.current.blur()
     }
   }, [titleInputRef])
+
+  const showStyleBottomSheet = React.useCallback(() => {
+    closeKeyboard()
+    setIsShowStyleBottomSheet(true)
+  }, [closeKeyboard, setIsShowStyleBottomSheet])
+
+  const clickBackground = React.useCallback(() => {
+    closeKeyboard()
+  }, [closeKeyboard])
 
   const changeSchedule = React.useCallback(
     (data: Object) => {
@@ -86,7 +91,7 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
       </Svg>
 
       {list.map((item, index) => {
-        return <ScheduleText key={index} data={item} centerX={x} centerY={y} radius={radius} onClick={handleClick} />
+        return <ScheduleText key={index} data={item} centerX={x} centerY={y} radius={radius} />
       })}
 
       {isEdit && (
