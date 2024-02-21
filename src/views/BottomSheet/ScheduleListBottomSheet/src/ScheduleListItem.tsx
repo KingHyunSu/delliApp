@@ -24,10 +24,22 @@ const ScheduleListItem = ({item, index, length, openEditScheduleBottomSheet, onC
     return item.alarm !== 0
   }, [item.alarm])
 
+  const getDayOfWeekTextStyle = React.useCallback((value: string) => {
+    return [styles.dayOfWeekText, value === '1' && styles.activeDayOfWeekText]
+  }, [])
+
+  const handleEditScheduleBottomSheetOpen = React.useCallback(() => {
+    openEditScheduleBottomSheet(item)
+  }, [openEditScheduleBottomSheet, item])
+
+  const handleClick = React.useCallback(() => {
+    onClick(item)
+  }, [onClick, item])
+
   if (isGapSchedule) {
     return (
       <View>
-        <Pressable style={styles.gapButton} onPress={() => openEditScheduleBottomSheet(item)}>
+        <Pressable style={styles.gapButton} onPress={handleEditScheduleBottomSheetOpen}>
           <Text style={styles.gapButtonText}>일정 추가하기</Text>
         </Pressable>
         {length - 1 === index && <ScheduleTimeBox time={item.end_time} />}
@@ -39,7 +51,7 @@ const ScheduleListItem = ({item, index, length, openEditScheduleBottomSheet, onC
       <ScheduleTimeBox time={item.start_time} />
 
       <View style={styles.container}>
-        <Pressable style={styles.headerContainer} onPress={() => onClick(item)}>
+        <Pressable style={styles.headerContainer} onPress={handleClick}>
           <Text style={styles.contentText}>{item.title}</Text>
 
           <Text style={styles.dateText}>
@@ -53,13 +65,13 @@ const ScheduleListItem = ({item, index, length, openEditScheduleBottomSheet, onC
             </View> */}
 
             <View style={styles.dayOfWeekContainer}>
-              <Text style={[styles.dayOfWeekText, item.mon === '1' && styles.activeDayOfWeekText]}>월</Text>
-              <Text style={[styles.dayOfWeekText, item.tue === '1' && styles.activeDayOfWeekText]}>화</Text>
-              <Text style={[styles.dayOfWeekText, item.wed === '1' && styles.activeDayOfWeekText]}>수</Text>
-              <Text style={[styles.dayOfWeekText, item.thu === '1' && styles.activeDayOfWeekText]}>목</Text>
-              <Text style={[styles.dayOfWeekText, item.fri === '1' && styles.activeDayOfWeekText]}>금</Text>
-              <Text style={[styles.dayOfWeekText, item.sat === '1' && styles.activeDayOfWeekText]}>토</Text>
-              <Text style={[styles.dayOfWeekText, item.sun === '1' && styles.activeDayOfWeekText]}>일</Text>
+              <Text style={getDayOfWeekTextStyle(item.mon)}>월</Text>
+              <Text style={getDayOfWeekTextStyle(item.tue)}>화</Text>
+              <Text style={getDayOfWeekTextStyle(item.wed)}>수</Text>
+              <Text style={getDayOfWeekTextStyle(item.thu)}>목</Text>
+              <Text style={getDayOfWeekTextStyle(item.fri)}>금</Text>
+              <Text style={getDayOfWeekTextStyle(item.sat)}>토</Text>
+              <Text style={getDayOfWeekTextStyle(item.sun)}>일</Text>
             </View>
           </View>
         </Pressable>

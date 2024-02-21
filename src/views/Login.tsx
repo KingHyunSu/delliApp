@@ -23,24 +23,27 @@ const Login = () => {
   const setIsLoading = useSetRecoilState(isLoadingState)
   const setIsLogin = useSetRecoilState(loginState)
 
-  const doLogin = async (params: LoginRequest) => {
-    try {
-      setIsLoading(true)
+  const doLogin = React.useCallback(
+    async (params: LoginRequest) => {
+      try {
+        setIsLoading(true)
 
-      const result = await login(params)
+        const result = await login(params)
 
-      if (result.data.token) {
-        await AsyncStorage.setItem('token', result.data.token)
-        setIsLogin(true)
+        if (result.data.token) {
+          await AsyncStorage.setItem('token', result.data.token)
+          setIsLogin(true)
+        }
+      } catch (e) {
+        throw e
+      } finally {
+        setIsLoading(false)
       }
-    } catch (e) {
-      throw e
-    } finally {
-      setIsLoading(false)
-    }
-  }
+    },
+    [setIsLogin, setIsLoading]
+  )
 
-  const signInWithKakao = async (): Promise<void> => {
+  const signInWithKakao = React.useCallback(async (): Promise<void> => {
     try {
       const {accessToken} = await kakaoLogin()
 
@@ -53,9 +56,9 @@ const Login = () => {
     } catch (e) {
       console.error(e)
     }
-  }
+  }, [doLogin])
 
-  const singInWithApple = async () => {
+  const singInWithApple = React.useCallback(async () => {
     try {
       const appleAuthRequestResponse = await appleAuth.performRequest({
         requestedOperation: appleAuth.Operation.LOGIN,
@@ -77,7 +80,7 @@ const Login = () => {
         console.error(e)
       }
     }
-  }
+  }, [doLogin])
 
   return (
     <View style={styles.loginContainer}>
