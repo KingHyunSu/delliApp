@@ -12,11 +12,12 @@ interface Props {
   y: number
   radius: number
   opacity?: number
+  onClick?: (value: Schedule) => void
 }
 
 const STROK_WIDTH = 1
 
-const SchedulePie = ({data, x, y, radius, opacity}: Props) => {
+const SchedulePie = ({data, x, y, radius, opacity, onClick}: Props) => {
   const disableScheduleList = useRecoilValue(disableScheduleListState)
 
   const isDisabled = React.useMemo(() => {
@@ -41,12 +42,19 @@ const SchedulePie = ({data, x, y, radius, opacity}: Props) => {
     })
   }, [x, y, radius, startAngle, endAngle])
 
+  const handleClick = React.useCallback(() => {
+    if (onClick) {
+      onClick(data)
+    }
+  }, [onClick, data])
+
   return (
     <Path
       d={path}
       fill={isDisabled ? '#faf0f0' : data.background_color}
       // fill={data.background_color}
       fillOpacity={opacity}
+      onPress={handleClick}
     />
   )
 }

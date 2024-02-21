@@ -137,10 +137,13 @@ const Home = ({navigation}: HomeNavigationProps) => {
     [activeTimeTableCategory.timetable_category_id, scheduleDate, setIsEdit, setSchedule]
   )
 
-  const openEditMenuBottomSheet = (value: Schedule) => {
-    setSchedule(value)
-    setShowEditMenuBottomSheet(true)
-  }
+  const openEditMenuBottomSheet = React.useCallback(
+    (value: Schedule) => {
+      setSchedule(value)
+      setShowEditMenuBottomSheet(true)
+    },
+    [setSchedule, setShowEditMenuBottomSheet]
+  )
 
   const closeEditScheduleBottomSheet = React.useCallback(() => {
     resetDisableScheduleList()

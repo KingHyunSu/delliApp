@@ -10,7 +10,7 @@ import EditSchedulePieController from './src/EditSchedulePieController'
 
 import {useRecoilState, useSetRecoilState} from 'recoil'
 import {scheduleState} from '@/store/schedule'
-import {showStyleBottomSheetState} from '@/store/bottomSheet'
+import {showStyleBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
 import PaletteIcon from '@/assets/icons/palette.svg'
 
@@ -27,6 +27,7 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
 
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const setIsShowStyleBottomSheet = useSetRecoilState(showStyleBottomSheetState)
+  const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
   const list = React.useMemo(() => {
     if (isEdit && schedule.schedule_id) {
@@ -45,9 +46,13 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
     return result
   }, [fullRadius, y])
 
-  const handleClick = () => {
-    // [todo] 12시간 <-> 24시간 시간표 변경 기능
-  }
+  const openEditMenuBottomSheet = React.useCallback(
+    (value: Schedule) => {
+      setSchedule(value)
+      setShowEditMenuBottomSheet(true)
+    },
+    [setSchedule, setShowEditMenuBottomSheet]
+  )
 
   const closeKeyboard = React.useCallback(() => {
     if (titleInputRef && titleInputRef.current) {
@@ -81,7 +86,7 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
 
         {list.length > 0 ? (
           list.map((item, index) => {
-            return <SchedulePie key={index} data={item} x={x} y={y} radius={radius} />
+            return <SchedulePie key={index} data={item} x={x} y={y} radius={radius} onClick={openEditMenuBottomSheet} />
           })
         ) : (
           <Text x={x} y={y} fontSize={18} fill={'#babfc5'} fontFamily={'Pretendard-SemiBold'} textAnchor="middle">
@@ -91,7 +96,16 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
       </Svg>
 
       {list.map((item, index) => {
-        return <ScheduleText key={index} data={item} centerX={x} centerY={y} radius={radius} />
+        return (
+          <ScheduleText
+            key={index}
+            data={item}
+            centerX={x}
+            centerY={y}
+            radius={radius}
+            onClick={openEditMenuBottomSheet}
+          />
+        )
       })}
 
       {isEdit && (

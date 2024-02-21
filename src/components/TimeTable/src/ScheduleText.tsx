@@ -1,13 +1,14 @@
 import React from 'react'
-import {StyleSheet, View, Text} from 'react-native'
+import {StyleSheet, Pressable, Text} from 'react-native'
 
 interface Props {
   data: Schedule
   centerX: number
   centerY: number
   radius: number
+  onClick: (value: Schedule) => void
 }
-const ScheduleText = ({data, centerX, centerY, radius}: Props) => {
+const ScheduleText = ({data, centerX, centerY, radius, onClick}: Props) => {
   const {top, left} = React.useMemo(() => {
     return {
       top: Math.round(centerY - (radius / 100) * data.title_y),
@@ -23,10 +24,14 @@ const ScheduleText = ({data, centerX, centerY, radius}: Props) => {
     return [styles.text, {color: data.text_color}]
   }, [data.text_color])
 
+  const handleClick = React.useCallback(() => {
+    onClick(data)
+  }, [onClick, data])
+
   return (
-    <View style={containerStyle}>
+    <Pressable style={containerStyle} onPress={handleClick}>
       <Text style={textStyle}>{data.title}</Text>
-    </View>
+    </Pressable>
   )
 }
 
