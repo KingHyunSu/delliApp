@@ -64,6 +64,7 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
     onSuccess: async () => {
       haptic('rigid')
       await refetchScheduleList()
+      handleReset()
       setShowEditMenuBottomSheet(false)
     }
   })
