@@ -11,7 +11,7 @@ const Logout = () => {
   React.useEffect(() => {
     setIsLogin(false)
     setIsLunch(true)
-  }, [])
+  }, [setIsLogin, setIsLunch])
 
   return <View />
 }

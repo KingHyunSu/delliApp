@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react'
-import {StyleSheet, SafeAreaView} from 'react-native'
+import React from 'react'
+import {AppState, StyleSheet, SafeAreaView} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SplashScreen from 'react-native-splash-screen'
 
@@ -10,6 +10,8 @@ import {navigationRef} from '@/utils/navigation'
 
 // components
 import LoginScreen from '@/views/Login'
+import JoinTerms from '@/views/JoinTerms'
+
 import HomeScreen from '@/views/Home'
 import SettingScreen from '@/views/Setting'
 import LogoutScreen from '@/views/Logout'
@@ -25,23 +27,58 @@ import {RootStackParamList} from '@/types/navigation'
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
 import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
 
+import * as authApi from '@/apis/auth'
+
 function App(): JSX.Element {
-  const {isLoaded, isClosed, load, show} = useAppOpenAd(TestIds.APP_OPEN)
+  const {isLoaded, load, show} = useAppOpenAd(TestIds.APP_OPEN)
+  const appState = React.useRef(AppState.currentState)
+  const [isActiveApp, setIsActiveApp] = React.useState(false)
 
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
   const Stack = createStackNavigator<RootStackParamList>()
 
-  useEffect(() => {
+  const screenOptions = React.useMemo(() => {
+    return {headerShown: false}
+  }, [])
+
+  React.useEffect(() => {
+    const subscription = AppState.addEventListener('change', state => {
+      if (appState.current.match(/inactive|background/) && state === 'active') {
+        setIsActiveApp(true)
+      } else {
+        setIsActiveApp(false)
+      }
+
+      appState.current = state
+    })
+
+    return () => {
+      subscription.remove()
+    }
+  }, [])
+
+  React.useEffect(() => {
+    const updateAccess = async () => {
+      await authApi.updateAccess()
+    }
+
+    if (isActiveApp && isLogin) {
+      updateAccess()
+    }
+  }, [isActiveApp, isLogin])
+
+  React.useEffect(() => {
     load()
   }, [load])
 
-  useEffect(() => {
+  React.useEffect(() => {
     const setToken = async () => {
       const token = await AsyncStorage.getItem('token')
 
       if (token) {
         setIsLogin(true)
+        setIsActiveApp(true)
       } else {
         setIsLunch(true)
       }
@@ -49,10 +86,15 @@ function App(): JSX.Element {
 
     if (isLoaded) {
       show()
-
       setToken()
     }
-  }, [isLoaded, show])
+  }, [isLoaded, show, setIsLunch, setIsLogin])
+
+  React.useEffect(() => {
+    if (isLunch) {
+      SplashScreen.hide()
+    }
+  }, [isLunch])
 
   // React.useEffect(() => {
   //   const setToken = async () => {
@@ -68,28 +110,22 @@ function App(): JSX.Element {
   //   setToken()
   // }, [])
 
-  React.useEffect(() => {
-    if (isLunch) {
-      SplashScreen.hide()
-    }
-  }, [isLunch])
+  // React.useEffect(() => {
+  //   const reset = async () => {
+  //     try {
+  //       await AsyncStorage.setItem('token', '')
+  //     } catch (e) {
+  //       console.error('e', e)
+  //     }
+  //   }
 
-  React.useEffect(() => {
-    const reset = async () => {
-      try {
-        await AsyncStorage.setItem('token', '')
-      } catch (e) {
-        console.error('e', e)
-      }
-    }
-
-    // reset()
-  }, [])
+  //   // reset()
+  // }, [])
 
   // recoil debug
   function RecoilDebugObserver(): React.ReactNode {
     const recoilSnapshot = useRecoilSnapshot()
-    useEffect(() => {
+    React.useEffect(() => {
       for (const node of recoilSnapshot.getNodes_UNSTABLE({isModified: true})) {
         // console.debug(node.key, recoilSnapshot.getLoadable(node))
         console.debug('recoil update : ', node.key)
@@ -103,30 +139,32 @@ function App(): JSX.Element {
     <GestureHandlerRootView style={{flex: 1}}>
       <RecoilDebugObserver />
       <BottomSheetModalProvider>
-        <SafeAreaView style={styles.container}>
-          <NavigationContainer ref={navigationRef}>
-            <Stack.Navigator initialRouteName="Home" screenOptions={{headerShown: false}}>
-              {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
-              {isLogin ? (
-                <>
-                  <Stack.Screen name="Home" component={HomeScreen} />
-                  <Stack.Screen name="Setting" component={SettingScreen} />
-                  <Stack.Screen name="Logout" component={LogoutScreen} />
-                </>
-              ) : (
+        <SafeAreaView style={styles.statusBar} />
+        <NavigationContainer ref={navigationRef}>
+          <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
+            {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
+            {isLogin ? (
+              <>
+                <Stack.Screen name="Home" component={HomeScreen} />
+                <Stack.Screen name="Setting" component={SettingScreen} />
+              </>
+            ) : (
+              <>
                 <Stack.Screen name="Login" component={LoginScreen} />
-              )}
-            </Stack.Navigator>
-          </NavigationContainer>
-        </SafeAreaView>
+                <Stack.Screen name="JoinTerms" component={JoinTerms} />
+              </>
+            )}
+            <Stack.Screen name="Logout" component={LogoutScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  statusBar: {
+    flex: 0,
     backgroundColor: '#fff'
   }
 })

@@ -40,7 +40,8 @@ const TimetableCategoryBottomSheet = () => {
     queryFn: async () => {
       const response = await getTimetableCategoryList()
 
-      return response.data
+      // return response.data
+      return []
     },
     initialData: []
   })

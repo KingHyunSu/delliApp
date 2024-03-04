@@ -43,6 +43,7 @@ const blueColorList = ['#0099FF', '#4DB8FF', '#66C8FF', '#7FD9FF', '#99E9FF']
 const indigoColorList = ['#001C91', '#0033A6', '#0041B5', '#0050C4', '#0060D4']
 const purpleColorList = ['#5E4E97', '#7C6DB1', '#9782C5', '#B094D9', '#C6A8ED']
 const blackColorList = ['#111111', '#222222', '#333333', '#444444', '#555555']
+const whiteColorList = ['#ffffff']
 // const blackColorList = ['#101B3F', '#343434']
 
 const defaultBackgroundColorList = [
@@ -53,7 +54,8 @@ const defaultBackgroundColorList = [
   ...blueColorList,
   ...indigoColorList,
   ...purpleColorList,
-  ...blackColorList
+  ...blackColorList,
+  ...whiteColorList
 ]
 
 const defaultTextColorList = ['#424242', '#ffffff']

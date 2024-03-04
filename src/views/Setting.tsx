@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, ScrollView, Pressable, View, Text} from 'react-native'
+import {Linking, StyleSheet, ScrollView, Pressable, View, Text} from 'react-native'
 import AppBar from '@/components/AppBar'
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -24,6 +24,14 @@ const Setting = ({navigation}: SettingNavigationProps) => {
   const handleMove = React.useCallback(() => {
     navigation.navigate('Home')
     setIsEdit(true)
+  }, [])
+
+  const moveServiceTermsPage = React.useCallback(() => {
+    Linking.openURL('https://coherent-warbler-b91.notion.site/56c16f3a2e3a40d8a81e950ccaf00269?pvs=73')
+  }, [])
+
+  const movePrivacyPage = React.useCallback(() => {
+    Linking.openURL('https://coherent-warbler-b91.notion.site/a49ff95ec433493b86124571c6677261?pvs=73')
   }, [])
 
   const doLogout = React.useCallback(async () => {
@@ -61,12 +69,12 @@ const Setting = ({navigation}: SettingNavigationProps) => {
 
         <View style={styles.blank} /> */}
 
-        <Pressable style={styles.item}>
+        <Pressable style={styles.item} onPress={moveServiceTermsPage}>
           <Text style={styles.contentText}>서비스 이용 약관</Text>
           <ArrowRightIcon stroke="#242933" />
         </Pressable>
 
-        <Pressable style={styles.item}>
+        <Pressable style={styles.item} onPress={movePrivacyPage}>
           <Text style={styles.contentText}>개인정보 처리방침</Text>
           <ArrowRightIcon stroke="#242933" />
         </Pressable>

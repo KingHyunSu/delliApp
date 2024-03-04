@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "284062642616",
+    "project_id": "delli-e5083",
+    "storage_bucket": "delli-e5083.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:284062642616:android:64d11f00ca5b239cacdf4d",
+        "android_client_info": {
+          "package_name": "com.delli"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "284062642616-mihejkds7pt5pqr7vh11kbqnlgqpd1i4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.delli",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "284062642616-eanl2f71mnfah7lth13uneipuuc10l9t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBu9MOLpAshS7NG-5JTyfDPpy-YqDB43W8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "284062642616-eanl2f71mnfah7lth13uneipuuc10l9t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "284062642616-b7ghptq3l1s1se6iddbv3rodjaadlrft.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.delli"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

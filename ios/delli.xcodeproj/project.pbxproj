@@ -15,6 +15,7 @@
 		1971F662D04E4CBDAE82B4B3 /* Pretendard-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = B570A2503D224B7F98776731 /* Pretendard-SemiBold.otf */; };
 		20E37ADA26C741069DAC0674 /* Pretendard-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = DB1F50541BD340BBB3009FA9 /* Pretendard-Medium.otf */; };
 		20E83774125F49BCB290875A /* Pretendard-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 78E387145E0841748E4547AD /* Pretendard-Light.otf */; };
+		46D305E82B8A1D09008A3204 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 46D305E72B8A1D09008A3204 /* GoogleService-Info.plist */; };
 		520137A55B6B44839521F2D8 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 984CFCDD09EA4249ADFC26FD /* Pretendard-Regular.otf */; };
 		7699B88040F8A987B510C191 /* libPods-delli-delliTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-delli-delliTests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -46,6 +47,7 @@
 		46329EDC2A930BF000EB4B99 /* delli-Briging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "delli-Briging-Header.h"; sourceTree = "<group>"; };
 		4653F0542AEA931400A37E15 /* RNReactNativeHapticFeedback.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNReactNativeHapticFeedback.xcodeproj; path = "../node_modules/react-native-haptic-feedback/ios/RNReactNativeHapticFeedback.xcodeproj"; sourceTree = "<group>"; };
 		46D305772B3DA570008A3204 /* delli.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = delli.entitlements; path = delli/delli.entitlements; sourceTree = "<group>"; };
+		46D305E72B8A1D09008A3204 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-delli.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli.release.xcconfig"; path = "Target Support Files/Pods-delli/Pods-delli.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-delli-delliTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli-delliTests.debug.xcconfig"; path = "Target Support Files/Pods-delli-delliTests/Pods-delli-delliTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-delli.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-delli.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -99,6 +101,7 @@
 		13B07FAE1A68108700A75B9A /* delli */ = {
 			isa = PBXGroup;
 			children = (
+				46D305E72B8A1D09008A3204 /* GoogleService-Info.plist */,
 				46D305772B3DA570008A3204 /* delli.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
@@ -286,6 +289,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				46D305E82B8A1D09008A3204 /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				E6C96C1C237F4D5C9140DB0A /* Pretendard-Bold.otf in Resources */,
 				20E83774125F49BCB290875A /* Pretendard-Light.otf in Resources */,

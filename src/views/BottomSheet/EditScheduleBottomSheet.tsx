@@ -7,13 +7,9 @@ import TimeWheelPicker from '@/components/TimeWheelPicker'
 import DatePicker from '@/components/DatePicker'
 import WheelPicker from 'react-native-wheely'
 
-import {useMutation} from '@tanstack/react-query'
-import * as scheduleApi from '@/apis/schedule'
-
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
 import {isEditState} from '@/store/system'
-import {showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
-import {scheduleState, disableScheduleListState, existScheduleListState} from '@/store/schedule'
+import {scheduleState} from '@/store/schedule'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
@@ -29,7 +25,6 @@ import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import {DAY_OF_WEEK} from '@/types/common'
 
 interface Props {
-  refetchScheduleList: Function
   titleInputRef: React.RefObject<TextInput>
 }
 
@@ -39,15 +34,12 @@ const defaultFullTimeItemPanelHeight = 216
 const defaultFullDateItemPanelHeight = 426
 const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
 
-const EditScheduleBottomSheet = React.memo(({refetchScheduleList, titleInputRef}: Props) => {
+const EditScheduleBottomSheet = React.memo(({titleInputRef}: Props) => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const bottomSheetScrollViewRef = React.useRef<ScrollView>(null)
 
-  const [isEdit, setIsEdit] = useRecoilState(isEditState)
+  const isEdit = useRecoilValue(isEditState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
-  const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
-  const disableScheduleList = useRecoilValue(disableScheduleListState)
-  const setExistScheduleList = useSetRecoilState(existScheduleListState)
 
   const [activeTimePanel, setActiveTimePanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
@@ -259,28 +251,6 @@ const EditScheduleBottomSheet = React.memo(({refetchScheduleList, titleInputRef}
     return dayOfWeekSelectButtonTextStyle
   }, [])
 
-  const activeSubmit = React.useMemo(() => {
-    const dayOfWeekList = [
-      schedule.mon,
-      schedule.tue,
-      schedule.wed,
-      schedule.thu,
-      schedule.fri,
-      schedule.sat,
-      schedule.sun
-    ]
-
-    return !!(schedule.title && dayOfWeekList.some(item => item === '1'))
-  }, [schedule.title, schedule.mon, schedule.tue, schedule.wed, schedule.thu, schedule.fri, schedule.sat, schedule.sun])
-
-  const submitButtonStyle = React.useMemo(() => {
-    return [styles.submitButton, activeSubmit && styles.activeSubmitBtn]
-  }, [activeSubmit])
-
-  const submitTextStyle = React.useMemo(() => {
-    return [styles.submitText, activeSubmit && styles.activeSubmitText]
-  }, [activeSubmit])
-
   const focusTitleInput = React.useCallback(() => {
     if (titleInputRef && titleInputRef.current && bottomSheetRef && bottomSheetRef.current) {
       bottomSheetRef.current?.collapse()
@@ -475,80 +445,6 @@ const EditScheduleBottomSheet = React.memo(({refetchScheduleList, titleInputRef}
   //   setDailyNotification,
   //   setWeeklyNotification
   // ])
-
-  const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
-    mutationFn: async () => {
-      const params = {
-        ...schedule
-      }
-
-      const result = await scheduleApi.getExistScheduleList(params)
-
-      return result.data
-    }
-  })
-
-  const {mutate: setScheduleMutate} = useMutation({
-    mutationFn: async () => {
-      const params = {
-        schedule,
-        disableScheduleIdList: []
-      }
-
-      return await scheduleApi.setSchedule(params)
-    },
-    onSuccess: async () => {
-      await refetchScheduleList()
-      setIsEdit(false)
-    }
-  })
-
-  const handleSubmit = React.useCallback(async () => {
-    const existScheduleList = await getExistScheduleListMutateAsync()
-
-    setExistScheduleList(existScheduleList)
-
-    if (existScheduleList.length > 0 || disableScheduleList.length > 0) {
-      setShowEditScheduleCheckBottomSheet(true)
-      return
-    }
-
-    setScheduleMutate()
-  }, [
-    getExistScheduleListMutateAsync,
-    setScheduleMutate,
-    setExistScheduleList,
-    setShowEditScheduleCheckBottomSheet,
-    disableScheduleList.length
-  ])
-
-  // const setScheduleMutation = useMutation({
-  //   mutationFn: async (params: SetScheduleRequest) => {
-  //     return await scheduleApi.setSchedule(params)
-  //   }
-  // })
-
-  // const handleSubmit = React.useCallback(async () => {
-  //   try {
-  //     // if (isActiveAlarm) {
-  //     //   await handleNotification()
-  //     // } else {
-  //     //   await notifee.cancelNotification(String(schedule.schedule_id))
-  //     // }
-
-  //     const params = {
-  //       schedule,
-  //       disableScheduleList
-  //     }
-
-  //     await setScheduleMutation.mutateAsync(params)
-
-  //     await refetchScheduleList()
-  //     setIsEdit(false)
-  //   } catch (e) {
-  //     console.error('e', e)
-  //   }
-  // }, [schedule, disableScheduleList, setScheduleMutation])
 
   const changeStartDate = React.useCallback(
     (date: string) => {
@@ -816,10 +712,6 @@ const EditScheduleBottomSheet = React.memo(({refetchScheduleList, titleInputRef}
             />
           </View>
         </Animated.View> */}
-
-        <Pressable style={submitButtonStyle} onPress={handleSubmit}>
-          <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
-        </Pressable>
       </BottomSheetScrollView>
     </BottomSheet>
   )
@@ -962,26 +854,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Bold',
     fontSize: 16,
     color: '#7c8698'
-  },
-
-  submitButton: {
-    height: 48,
-    marginTop: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
-    backgroundColor: '#f5f6f8'
-  },
-  submitText: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 18,
-    color: '#babfc5'
-  },
-  activeSubmitBtn: {
-    backgroundColor: '#1E90FF'
-  },
-  activeSubmitText: {
-    color: '#fff'
   }
 })
 

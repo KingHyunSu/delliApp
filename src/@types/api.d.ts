@@ -1,4 +1,18 @@
-declare interface joinResponse {
+declare interface Response<T> {
+  code: String
+  data: T
+}
+
+interface TermsAgree {
+  terms_id: number
+}
+declare interface JoinReqeust {
+  token: string
+  type: string
+  terms_agree_list: TermsAgree[]
+}
+
+declare interface JoinResponse {
   token: string
 }
 
@@ -12,6 +26,10 @@ declare interface ReissueRequest {
 }
 
 declare interface LoginResponse {
+  token: string
+}
+
+declare interface GetTermsListReqeust {
   token: string
 }
 

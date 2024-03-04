@@ -1,5 +1,15 @@
 import React from 'react'
-import {Platform, Animated, Pressable, StyleSheet, View, TextInput, LayoutChangeEvent} from 'react-native'
+import {
+  Platform,
+  Animated,
+  Pressable,
+  StyleSheet,
+  SafeAreaView,
+  View,
+  Text,
+  TextInput,
+  LayoutChangeEvent
+} from 'react-native'
 
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
@@ -22,13 +32,19 @@ import PlusIcon from '@/assets/icons/plus.svg'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
-import {scheduleDateState, scheduleState, scheduleListState, disableScheduleListState} from '@/store/schedule'
+import {
+  scheduleDateState,
+  scheduleState,
+  scheduleListState,
+  disableScheduleListState,
+  existScheduleListState
+} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
-import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
+import {showEditMenuBottomSheetState, showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
 
-import {getScheduleList} from '@/apis/schedule'
+import * as scheduleApi from '@/apis/schedule'
 import {getTimetableCategoryList} from '@/apis/timetable'
-import {useQuery} from '@tanstack/react-query'
+import {useQuery, useMutation} from '@tanstack/react-query'
 
 import {getDayOfWeekKey} from '@/utils/helper'
 import {format, getDay} from 'date-fns'
@@ -43,12 +59,15 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
+  const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const disableScheduleList = useRecoilValue(disableScheduleListState)
 
   const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
-  const setSchedule = useSetRecoilState(scheduleState)
   const resetSchedule = useResetRecoilState(scheduleState)
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
+  const setExistScheduleList = useSetRecoilState(existScheduleListState)
+  const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
 
   const {isError} = useQuery({
     queryKey: ['timetableCategoryList'],
@@ -89,7 +108,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           param[dayOfWeek] = '1'
         }
 
-        const response = await getScheduleList(param)
+        const response = await scheduleApi.getScheduleList(param)
         setScheduleList(response.data)
 
         setIsLunch(true)
@@ -107,8 +126,88 @@ const Home = ({navigation}: HomeNavigationProps) => {
     enabled: !!activeTimeTableCategory.timetable_category_id
   })
 
+  const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
+    mutationFn: async () => {
+      const params = {
+        ...schedule
+      }
+
+      const result = await scheduleApi.getExistScheduleList(params)
+
+      return result.data
+    }
+  })
+
+  const {mutate: setScheduleMutate} = useMutation({
+    mutationFn: async () => {
+      const params = {
+        schedule,
+        disableScheduleIdList: []
+      }
+
+      return await scheduleApi.setSchedule(params)
+    },
+    onSuccess: async () => {
+      await refetchScheduleList()
+      setIsEdit(false)
+    }
+  })
+
+  const activeSubmit = React.useMemo(() => {
+    const dayOfWeekList = [
+      schedule.mon,
+      schedule.tue,
+      schedule.wed,
+      schedule.thu,
+      schedule.fri,
+      schedule.sat,
+      schedule.sun
+    ]
+
+    return !!(schedule.title && dayOfWeekList.some(item => item === '1'))
+  }, [schedule.title, schedule.mon, schedule.tue, schedule.wed, schedule.thu, schedule.fri, schedule.sat, schedule.sun])
+
+  const containerStyle = React.useMemo(() => {
+    let color = '#ffffff'
+
+    if (isEdit) {
+      color = activeSubmit ? '#1E90FF' : '#f5f6f8'
+    } else {
+      color = '#ffffff'
+    }
+
+    return [homeStyles.container, {backgroundColor: color}]
+  }, [activeSubmit, isEdit])
+
+  const submitButtonStyle = React.useMemo(() => {
+    return [homeStyles.submitButton, activeSubmit && homeStyles.activeSubmitBtn]
+  }, [activeSubmit])
+
+  const submitTextStyle = React.useMemo(() => {
+    return [homeStyles.submitText, activeSubmit && homeStyles.activeSubmitText]
+  }, [activeSubmit])
+
+  const handleSubmit = React.useCallback(async () => {
+    const existScheduleList = await getExistScheduleListMutateAsync()
+
+    setExistScheduleList(existScheduleList)
+
+    if (existScheduleList.length > 0 || disableScheduleList.length > 0) {
+      setShowEditScheduleCheckBottomSheet(true)
+      return
+    }
+
+    setScheduleMutate()
+  }, [
+    getExistScheduleListMutateAsync,
+    setScheduleMutate,
+    setExistScheduleList,
+    setShowEditScheduleCheckBottomSheet,
+    disableScheduleList.length
+  ])
+
   const openEditScheduleBottomSheet = React.useCallback(
-    (value?: Schedule) => {
+    (value?: Schedule) => () => {
       if (value) {
         setSchedule(value)
       } else {
@@ -150,9 +249,12 @@ const Home = ({navigation}: HomeNavigationProps) => {
     setIsEdit(false)
   }, [resetDisableScheduleList, setIsEdit])
 
-  const handleTopLayout = (layout: LayoutChangeEvent) => {
-    setHomeHeaderHeight(layout.nativeEvent.layout.height)
-  }
+  const handleTopLayout = React.useCallback(
+    (layout: LayoutChangeEvent) => {
+      setHomeHeaderHeight(layout.nativeEvent.layout.height)
+    },
+    [setHomeHeaderHeight]
+  )
 
   const headerTranslateY = React.useRef(new Animated.Value(0)).current
   const timaTableTranslateY = React.useRef(new Animated.Value(0)).current
@@ -183,27 +285,28 @@ const Home = ({navigation}: HomeNavigationProps) => {
   }, [isError, setIsLoading])
 
   return (
-    <View style={homeStyles.container}>
-      {/* insert header */}
-      <View style={homeStyles.insertHeaderContainer}>
-        <AppBar>
-          {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
-          {/* <Text style={homeStyles.timetableCategoryText}>{activeTimeTableCategory.title}</Text> */}
-          <View />
+    <SafeAreaView style={containerStyle}>
+      <View style={homeStyles.wrapper}>
+        {/* insert header */}
+        <View style={homeStyles.insertHeaderContainer}>
+          <AppBar>
+            {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
+            {/* <Text style={homeStyles.timetableCategoryText}>{activeTimeTableCategory.title}</Text> */}
+            <View />
 
-          <Pressable style={homeStyles.appBarRightButton} onPress={closeEditScheduleBottomSheet}>
-            <CancleIcon stroke="#242933" />
-          </Pressable>
-        </AppBar>
-      </View>
+            <Pressable style={homeStyles.appBarRightButton} onPress={closeEditScheduleBottomSheet}>
+              <CancleIcon stroke="#242933" />
+            </Pressable>
+          </AppBar>
+        </View>
 
-      {/* home header */}
-      <Animated.View
-        style={[homeStyles.homeHeaderContainer, {transform: [{translateY: headerTranslateY}]}]}
-        onLayout={handleTopLayout}>
-        <AppBar>
-          {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
-          {/* {activeTimeTableCategory.timetable_category_id ? (
+        {/* home header */}
+        <Animated.View
+          style={[homeStyles.homeHeaderContainer, {transform: [{translateY: headerTranslateY}]}]}
+          onLayout={handleTopLayout}>
+          <AppBar>
+            {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
+            {/* {activeTimeTableCategory.timetable_category_id ? (
             <Pressable
               style={homeStyles.timetableCategoryButton}
               onPress={() => setShowTimeTableCategoryBottomSheet(true)}>
@@ -216,52 +319,61 @@ const Home = ({navigation}: HomeNavigationProps) => {
             <View />
           )} */}
 
-          <View />
+            <View />
 
-          <Pressable style={homeStyles.appBarRightButton} onPress={() => navigation.navigate('Setting')}>
-            <SettingIcon fill="#babfc5" />
+            <Pressable style={homeStyles.appBarRightButton} onPress={() => navigation.navigate('Setting')}>
+              <SettingIcon fill="#babfc5" />
+            </Pressable>
+          </AppBar>
+
+          <View style={homeStyles.weekDatePickerSection}>
+            <WeeklyDatePicker />
+          </View>
+        </Animated.View>
+
+        <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
+          <TimeTable data={scheduleList} isEdit={isEdit} titleInputRef={titleInputRef} />
+        </Animated.View>
+
+        <ScheduleListBottomSheet
+          data={scheduleList}
+          openEditScheduleBottomSheet={openEditScheduleBottomSheet}
+          onClick={openEditMenuBottomSheet}
+        />
+        <EditScheduleBottomSheet titleInputRef={titleInputRef} />
+        <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
+
+        {isEdit ? (
+          <Pressable style={submitButtonStyle} onPress={handleSubmit}>
+            <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
           </Pressable>
-        </AppBar>
+        ) : (
+          <Pressable style={homeStyles.fabContainer} onPress={openEditScheduleBottomSheet()}>
+            <PlusIcon stroke="#fff" />
+          </Pressable>
+        )}
 
-        <View style={homeStyles.weekDatePickerSection}>
-          <WeeklyDatePicker />
-        </View>
-      </Animated.View>
+        {/* bottom sheet */}
+        <EditMenuBottomSheet refetchScheduleList={refetchScheduleList} />
+        <TimetableCategoryBottomSheet />
+        <StyleBottomSheet />
 
-      <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
-        <TimeTable data={scheduleList} isEdit={isEdit} titleInputRef={titleInputRef} />
-      </Animated.View>
+        {/* modal */}
+        {/* <ScheduleCompleteModal /> */}
+        <EditTodoModal />
 
-      <ScheduleListBottomSheet
-        data={scheduleList}
-        openEditScheduleBottomSheet={openEditScheduleBottomSheet}
-        onClick={openEditMenuBottomSheet}
-      />
-      <EditScheduleBottomSheet refetchScheduleList={refetchScheduleList} titleInputRef={titleInputRef} />
-      <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
-
-      {!isEdit && (
-        <Pressable style={homeStyles.fabContainer} onPress={() => openEditScheduleBottomSheet()}>
-          <PlusIcon stroke="#fff" />
-        </Pressable>
-      )}
-
-      {/* bottom sheet */}
-      <EditMenuBottomSheet refetchScheduleList={refetchScheduleList} />
-      <TimetableCategoryBottomSheet />
-      <StyleBottomSheet />
-
-      {/* modal */}
-      {/* <ScheduleCompleteModal /> */}
-      <EditTodoModal />
-
-      <Loading />
-    </View>
+        <Loading />
+      </View>
+    </SafeAreaView>
   )
 }
 
 const homeStyles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: '#fff'
+  },
+  wrapper: {
     flex: 1,
     backgroundColor: '#fff'
   },
@@ -320,6 +432,28 @@ const homeStyles = StyleSheet.create({
         elevation: 3
       }
     })
+  },
+
+  submitButton: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f6f8'
+  },
+  submitText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 18,
+    color: '#babfc5'
+  },
+  activeSubmitBtn: {
+    backgroundColor: '#1E90FF'
+  },
+  activeSubmitText: {
+    color: '#fff'
   }
 })
 

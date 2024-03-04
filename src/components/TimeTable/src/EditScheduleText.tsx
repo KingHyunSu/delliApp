@@ -1,5 +1,5 @@
 import React from 'react'
-import {Pressable, StyleSheet, Text, TextInput} from 'react-native'
+import {StyleSheet, View, Pressable, Text, TextInput, InputAccessoryView} from 'react-native'
 
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS} from 'react-native-reanimated'
@@ -13,6 +13,7 @@ interface Props {
   onChangeSchedule: Function
 }
 const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChangeSchedule}: Props) => {
+  const inputAccessoryViewID = 'scheduleTitle'
   const containerPadding = 50
   const borderWidth = 4
 
@@ -144,6 +145,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
       <TextInput
         ref={titleInputRef}
         value={data.title}
+        inputAccessoryViewID={inputAccessoryViewID}
         style={styles.textInput}
         maxLength={20}
         multiline
@@ -152,6 +154,18 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
         onBlur={handleBlur}
         onChangeText={changeTitle}
       />
+
+      {/* todo 2차 기능 */}
+      {/* <InputAccessoryView nativeID={inputAccessoryViewID}>
+        <View style={toolStyles.container}>
+          <Pressable style={toolStyles.item}>
+            <Text>/</Text>
+          </Pressable>
+          <Pressable style={toolStyles.item}>
+            <Text>-</Text>
+          </Pressable>
+        </View>
+      </InputAccessoryView> */}
     </>
   )
 }
@@ -174,6 +188,20 @@ const styles = StyleSheet.create({
   },
   textInput: {
     transform: [{scale: 0}]
+  }
+})
+
+const toolStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    paddingBottom: 8
+  },
+  item: {
+    paddingVertical: 8,
+    paddingHorizontal: 40,
+    textAlign: 'center',
+    backgroundColor: '#efefef'
   }
 })
 
