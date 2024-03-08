@@ -28,6 +28,7 @@ import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
 import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
 
 import * as authApi from '@/apis/auth'
+// import crashlytics from '@react-native-firebase/crashlytics'
 
 function App(): JSX.Element {
   const {isLoaded, load, show} = useAppOpenAd(TestIds.APP_OPEN)
@@ -93,6 +94,7 @@ function App(): JSX.Element {
   React.useEffect(() => {
     if (isLunch) {
       SplashScreen.hide()
+      // crashlytics().crash()
     }
   }, [isLunch])
 

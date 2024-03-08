@@ -185,7 +185,7 @@ const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
 
           {termsList.map(item => {
             return (
-              <View style={styles.checkButtonContainer}>
+              <View key={item.type} style={styles.checkButtonContainer}>
                 <View style={styles.checkButtonTextWrapper}>
                   <Text style={styles.checkButtonText}>[필수]</Text>
                   <Pressable onPress={moveTermsPage(item.url)}>

@@ -23,10 +23,6 @@ import GoogleLogoIcon from '@/assets/icons/googleLogo.svg'
 import {login} from '@/apis/auth'
 import {LoginNavigationProps} from '@/types/navigation'
 
-GoogleSignin.configure({
-  scopes: ['https://www.googleapis.com/auth/userinfo.email']
-})
-
 const Login = ({navigation}: LoginNavigationProps) => {
   const setIsLoading = useSetRecoilState(isLoadingState)
   const setIsLogin = useSetRecoilState(loginState)
@@ -111,6 +107,12 @@ const Login = ({navigation}: LoginNavigationProps) => {
       }
     } catch (e) {}
   }, [doLogin])
+
+  React.useEffect(() => {
+    GoogleSignin.configure({
+      scopes: ['https://www.googleapis.com/auth/userinfo.email']
+    })
+  }, [])
 
   return (
     <SafeAreaView style={styles.container}>

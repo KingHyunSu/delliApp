@@ -1,5 +1,15 @@
 import React from 'react'
-import {useWindowDimensions, StyleSheet, Modal, SafeAreaView, Pressable, View, Text, TextInput} from 'react-native'
+import {
+  Keyboard,
+  useWindowDimensions,
+  StyleSheet,
+  Modal,
+  SafeAreaView,
+  Pressable,
+  View,
+  Text,
+  TextInput
+} from 'react-native'
 import Switch from '@/components/Swtich'
 
 import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
@@ -172,6 +182,10 @@ const EditTodoModal = () => {
     setScheduleTodoMutation.mutate(params)
   }, [isEdit, scheduleDate, scheduleTodo, setScheduleTodoMutation])
 
+  const dismissKeyboard = React.useCallback(() => {
+    Keyboard.dismiss()
+  }, [])
+
   React.useEffect(() => {
     if (showEditTodoModal) {
       opacity.value = withTiming(1)
@@ -187,7 +201,7 @@ const EditTodoModal = () => {
 
       <Animated.View style={containerStyle}>
         <SafeAreaView>
-          <View style={styles.wrapper}>
+          <Pressable style={styles.wrapper} onPress={dismissKeyboard}>
             <View style={styles.formContainer}>
               <TextInput
                 value={scheduleTodo.title}
@@ -217,7 +231,7 @@ const EditTodoModal = () => {
                 <Text style={styles.buttonText}>{isEdit ? '수정하기' : '추가하기'}</Text>
               </Pressable>
             </View>
-          </View>
+          </Pressable>
         </SafeAreaView>
       </Animated.View>
     </Modal>
