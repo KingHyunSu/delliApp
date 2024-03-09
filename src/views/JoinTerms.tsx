@@ -11,7 +11,7 @@ import {joinInfoState} from '@/store/auth'
 import {loginState} from '@/store/system'
 
 import {useQuery, useMutation} from '@tanstack/react-query'
-import {getTermsList} from '@/apis/terms'
+import {getJoinTermsList} from '@/apis/terms'
 import {join} from '@/apis/auth'
 
 const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
@@ -24,7 +24,7 @@ const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
       const params = {
         token: route.params.token
       }
-      const response = await getTermsList(params)
+      const response = await getJoinTermsList(params)
 
       return response.data
     },
@@ -121,6 +121,8 @@ const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
         return '개인정보 수집 및 이용동의'
       case '3':
         return '만 14세 이상 확인'
+      case '4':
+        return '개인정보 수집 및 이용 동의'
       default:
         return ''
     }

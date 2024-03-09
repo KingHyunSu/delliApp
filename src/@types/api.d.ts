@@ -29,7 +29,7 @@ declare interface LoginResponse {
   token: string
 }
 
-declare interface GetTermsListReqeust {
+declare interface GetJoinTermsListReqeust {
   token: string
 }
 
