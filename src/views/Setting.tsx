@@ -9,6 +9,8 @@ import {scheduleDateState, scheduleListState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {isEditState, loginState} from '@/store/system'
 
+import * as termsApi from '@/apis/terms'
+
 import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
 
@@ -26,12 +28,19 @@ const Setting = ({navigation}: SettingNavigationProps) => {
     setIsEdit(true)
   }, [])
 
-  const moveServiceTermsPage = React.useCallback(() => {
-    Linking.openURL('https://coherent-warbler-b91.notion.site/56c16f3a2e3a40d8a81e950ccaf00269?pvs=73')
+  const getTermsUrl = async (type: string) => {
+    const response = await termsApi.getTermsUrl(type)
+    return response.data.url || ''
+  }
+
+  const moveServiceTermsPage = React.useCallback(async () => {
+    const url = await getTermsUrl('1')
+    Linking.openURL(url)
   }, [])
 
-  const movePrivacyPage = React.useCallback(() => {
-    Linking.openURL('https://coherent-warbler-b91.notion.site/a49ff95ec433493b86124571c6677261?pvs=73')
+  const movePrivacyPage = React.useCallback(async () => {
+    const url = await getTermsUrl('2')
+    Linking.openURL(url)
   }, [])
 
   const doLogout = React.useCallback(async () => {
