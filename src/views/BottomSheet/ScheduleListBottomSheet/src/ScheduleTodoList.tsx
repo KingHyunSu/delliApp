@@ -10,6 +10,7 @@ import {setScheduleTodoComplete, deleteScheduleTodoComplete} from '@/apis/schedu
 
 import {format} from 'date-fns'
 import {trigger} from 'react-native-haptic-feedback'
+import debounce from 'lodash.debounce'
 
 import CheckIcon from '@/assets/icons/check.svg'
 import MoreIcon from '@/assets/icons/more_horiz.svg'
@@ -31,9 +32,17 @@ const ScheduleTodo = ({item, showEditModal, onChange}: ItemProps) => {
     return [styles.checkButton, isComplete && styles.activeCheckButton]
   }, [isComplete])
 
+  const debounceChagned = React.useMemo(
+    () =>
+      debounce(() => {
+        onChange(!isComplete, item)
+      }, 200),
+    [isComplete, item, onChange]
+  )
+
   const handleChanged = React.useCallback(() => {
-    onChange(!isComplete, item)
-  }, [isComplete, item, onChange])
+    debounceChagned()
+  }, [debounceChagned])
 
   const handleShowEditModal = React.useCallback(() => {
     showEditModal(item)
@@ -88,8 +97,6 @@ const ScheduleTodoList = ({data}: Props) => {
 
   const handleScheduleTodoComplete = React.useCallback(
     async (value: boolean, item: Todo) => {
-      // [TODO] 쓰로틀링 걸어서 마지막 요청만 전송되게 수정하기
-
       if (value) {
         if (!item.todo_id) {
           // [TODO] error check...
