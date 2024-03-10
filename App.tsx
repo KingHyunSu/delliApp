@@ -1,5 +1,5 @@
 import React from 'react'
-import {AppState, StyleSheet, SafeAreaView} from 'react-native'
+import {Platform, AppState, StyleSheet, SafeAreaView} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SplashScreen from 'react-native-splash-screen'
 
@@ -25,13 +25,20 @@ import {loginState, isLunchState} from '@/store/system'
 
 import {RootStackParamList} from '@/types/navigation'
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
-import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
+// [20240310] 광고 스토어 배포 후 오픈 예정
+// import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
 
 import * as authApi from '@/apis/auth'
 // import crashlytics from '@react-native-firebase/crashlytics'
 
 function App(): JSX.Element {
-  const {isLoaded, load, show} = useAppOpenAd(TestIds.APP_OPEN)
+  // [20240310] 광고 스토어 배포 후 오픈 예정
+  // const {isLoaded, load, show} = useAppOpenAd(
+  //   Platform.select({
+  //     ios: 'ca-app-pub-3765315237132279/9003768148',
+  //     android: 'ca-app-pub-3765315237132279/4177449893'
+  //   }) || ''
+  // )
   const appState = React.useRef(AppState.currentState)
   const [isActiveApp, setIsActiveApp] = React.useState(false)
 
@@ -69,9 +76,10 @@ function App(): JSX.Element {
     }
   }, [isActiveApp, isLogin])
 
-  React.useEffect(() => {
-    load()
-  }, [load])
+  // [20240310] 광고 스토어 배포 후 오픈 예정
+  // React.useEffect(() => {
+  //   load()
+  // }, [load])
 
   React.useEffect(() => {
     const setToken = async () => {
@@ -85,11 +93,15 @@ function App(): JSX.Element {
       }
     }
 
-    if (isLoaded) {
-      show()
-      setToken()
-    }
-  }, [isLoaded, show, setIsLunch, setIsLogin])
+    setToken()
+
+    // [20240310] 광고 스토어 배포 후 오픈 예정
+    // if (isLoaded) {
+    //   show()
+    //   setToken()
+    // }
+    // }, [isLoaded, show, setIsLunch, setIsLogin])
+  }, [setIsLunch, setIsLogin])
 
   React.useEffect(() => {
     if (isLunch) {
@@ -97,32 +109,6 @@ function App(): JSX.Element {
       // crashlytics().crash()
     }
   }, [isLunch])
-
-  // React.useEffect(() => {
-  //   const setToken = async () => {
-  //     const token = await AsyncStorage.getItem('token')
-
-  //     if (token) {
-  //       setIsLogin(true)
-  //     } else {
-  //       setIsLunch(true)
-  //     }
-  //   }
-
-  //   setToken()
-  // }, [])
-
-  // React.useEffect(() => {
-  //   const reset = async () => {
-  //     try {
-  //       await AsyncStorage.setItem('token', '')
-  //     } catch (e) {
-  //       console.error('e', e)
-  //     }
-  //   }
-
-  //   // reset()
-  // }, [])
 
   // recoil debug
   function RecoilDebugObserver(): React.ReactNode {
@@ -139,7 +125,7 @@ function App(): JSX.Element {
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <RecoilDebugObserver />
+      {/* <RecoilDebugObserver /> */}
       <BottomSheetModalProvider>
         <SafeAreaView style={styles.statusBar} />
         <NavigationContainer ref={navigationRef}>

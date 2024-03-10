@@ -75,9 +75,6 @@ PODS:
     - PromisesSwift (~> 2.1)
   - fmt (6.2.1)
   - glog (0.3.5)
-  - Google-Mobile-Ads-SDK (10.14.0):
-    - GoogleAppMeasurement (< 11.0, >= 7.0)
-    - GoogleUserMessagingPlatform (>= 1.1)
   - GoogleAppMeasurement (10.21.0):
     - GoogleAppMeasurement/AdIdSupport (= 10.21.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.11)
@@ -106,7 +103,6 @@ PODS:
     - AppAuth (~> 1.5)
     - GTMAppAuth (< 3.0, >= 1.3)
     - GTMSessionFetcher/Core (< 4.0, >= 1.1)
-  - GoogleUserMessagingPlatform (2.1.0)
   - GoogleUtilities/AppDelegateSwizzler (7.13.0):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
@@ -603,11 +599,6 @@ PODS:
     - RNFBApp
   - RNGestureHandler (2.12.1):
     - React-Core
-  - RNGoogleMobileAds (12.10.0):
-    - Google-Mobile-Ads-SDK (= 10.14.0)
-    - GoogleUserMessagingPlatform (= 2.1.0)
-    - RCT-Folly (= 2021.07.22.00)
-    - React-Core
   - RNGoogleSignin (11.0.0):
     - GoogleSignIn (~> 7.0)
     - React-Core
@@ -708,7 +699,6 @@ DEPENDENCIES:
   - "RNFBApp (from `../node_modules/@react-native-firebase/app`)"
   - "RNFBCrashlytics (from `../node_modules/@react-native-firebase/crashlytics`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
-  - RNGoogleMobileAds (from `../node_modules/react-native-google-mobile-ads`)
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
   - "RNNotifee (from `../node_modules/@notifee/react-native`)"
   - RNPermissions (from `../node_modules/react-native-permissions`)
@@ -731,11 +721,9 @@ SPEC REPOS:
     - FirebaseInstallations
     - FirebaseSessions
     - fmt
-    - Google-Mobile-Ads-SDK
     - GoogleAppMeasurement
     - GoogleDataTransport
     - GoogleSignIn
-    - GoogleUserMessagingPlatform
     - GoogleUtilities
     - GTMAppAuth
     - GTMSessionFetcher
@@ -847,8 +835,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-firebase/crashlytics"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
-  RNGoogleMobileAds:
-    :path: "../node_modules/react-native-google-mobile-ads"
   RNGoogleSignin:
     :path: "../node_modules/@react-native-google-signin/google-signin"
   RNNotifee:
@@ -883,11 +869,9 @@ SPEC CHECKSUMS:
   FirebaseSessions: cd97fb07674f3906619c871eefbd260a1546c9d3
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
   glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
-  Google-Mobile-Ads-SDK: 8f67a72f88d057335b1ac3f501e2b68ad054116e
   GoogleAppMeasurement: a65314d316443969ed3d3709b3a187448ed6418f
   GoogleDataTransport: bed3a36c04c8552479fbb9b76326e0fc69bddcb2
   GoogleSignIn: b232380cf495a429b8095d3178a8d5855b42e842
-  GoogleUserMessagingPlatform: dce302b8f1b84d6e945812ee7a15c3f65a102cbf
   GoogleUtilities: d053d902a8edaa9904e1bd00c37535385b8ed152
   GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
   GTMSessionFetcher: 8a1b34ad97ebe6f909fb8b9b77fba99943007556
@@ -942,7 +926,6 @@ SPEC CHECKSUMS:
   RNFBApp: 495bf6662800c670fe8e9629d4de0cba72c78b0a
   RNFBCrashlytics: 6646bc280ba6c8772e0f111a38fc815d8fd3d238
   RNGestureHandler: c0d04458598fcb26052494ae23dda8f8f5162b13
-  RNGoogleMobileAds: d72f57c54308f331a235d484df3923d4f20ae358
   RNGoogleSignin: fc408799f1990a12497a32f64280c0fe353ffcc1
   RNNotifee: 8e2d3df3f0e9ce8f5d1fe4c967431138190b6175
   RNPermissions: 86aac51dd58db51ecafc4765dfa8a6a19f64eccf
@@ -953,6 +936,6 @@ SPEC CHECKSUMS:
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   Yoga: 8796b55dba14d7004f980b54bcc9833ee45b28ce
 
-PODFILE CHECKSUM: 39e742b9963df9cb97871b1b6889bae441b06905
+PODFILE CHECKSUM: 91e3f88673bb7fd7598d27b6503bc9ca912bac29
 
 COCOAPODS: 1.14.3
