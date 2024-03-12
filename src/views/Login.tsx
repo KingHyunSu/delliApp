@@ -2,6 +2,8 @@ import React from 'react'
 import {Platform, StyleSheet, SafeAreaView, View, Text, Pressable} from 'react-native'
 import Loading from '@/components/Loading'
 
+import {GOOGLE_WEB_CLIENT_ID} from '@env'
+
 // utils
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -51,7 +53,7 @@ const Login = ({navigation}: LoginNavigationProps) => {
         setIsLoading(false)
       }
     },
-    [setIsLogin, setIsLoading, navigation]
+    [setIsLogin, setIsLoading, setJoinInfo, navigation]
   )
 
   const signInWithKakao = React.useCallback(async (): Promise<void> => {
@@ -110,7 +112,9 @@ const Login = ({navigation}: LoginNavigationProps) => {
 
   React.useEffect(() => {
     GoogleSignin.configure({
-      scopes: ['https://www.googleapis.com/auth/userinfo.email']
+      scopes: ['openid', 'https://www.googleapis.com/auth/userinfo.email'],
+      webClientId: GOOGLE_WEB_CLIENT_ID,
+      offlineAccess: false
     })
   }, [])
 
