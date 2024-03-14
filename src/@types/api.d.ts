@@ -33,6 +33,11 @@ declare interface GetJoinTermsListReqeust {
   token: string
 }
 
+declare interface LeaveRequest {
+  loginType: string
+  code: string | null
+}
+
 // schedule
 declare interface GetScheduleListRequest {
   timetable_category_id: number

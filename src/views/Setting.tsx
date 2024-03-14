@@ -55,6 +55,10 @@ const Setting = ({navigation}: SettingNavigationProps) => {
     }
   }, [resetScheduleDate, resetScheduleList, resetActiveTimeTableCategoryState, setIsLogin])
 
+  const handleLeave = React.useCallback(() => {
+    navigation.navigate('Leave')
+  }, [navigation])
+
   return (
     <View style={styles.container}>
       <AppBar>
@@ -93,11 +97,15 @@ const Setting = ({navigation}: SettingNavigationProps) => {
         <View style={styles.footer}>
           <View style={styles.item}>
             <Text style={styles.contentText}>버전</Text>
-            <Text style={styles.contentText}>1.0.0</Text>
+            <Text style={styles.contentText}>1.1.0</Text>
           </View>
 
           <Pressable style={styles.item} onPress={doLogout}>
             <Text style={styles.contentText}>로그아웃</Text>
+          </Pressable>
+
+          <Pressable style={styles.item} onPress={handleLeave}>
+            <Text style={styles.contentText}>탈퇴하기</Text>
           </Pressable>
         </View>
       </ScrollView>

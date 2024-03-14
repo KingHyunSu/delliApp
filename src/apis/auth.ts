@@ -15,3 +15,11 @@ export const getNewToken = (data: ReissueRequest) => {
 export const updateAccess = () => {
   return http.post('auth/update/access')
 }
+
+export const getLoginType = () => {
+  return http.get<any, Response<LoginType>>('auth/logintype')
+}
+
+export const leave = (data: LeaveRequest) => {
+  return http.post('auth/leave', data)
+}

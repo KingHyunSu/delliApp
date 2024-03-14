@@ -5,11 +5,13 @@ export type RootStackParamList = {
   JoinTerms: {token: string}
   Home: undefined
   Setting: undefined
+  Leave: undefined
   Logout: undefined
 }
 
 export type HomeNavigationProps = StackScreenProps<RootStackParamList, 'Home'>
 export type SettingNavigationProps = StackScreenProps<RootStackParamList, 'Setting'>
+export type LeaveNavigationProps = StackScreenProps<RootStackParamList, 'Leave'>
 export type LoginNavigationProps = StackScreenProps<RootStackParamList, 'Login'>
 export type JoinTermsNavigationProps = StackScreenProps<RootStackParamList, 'JoinTerms'>
 

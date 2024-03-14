@@ -46,10 +46,11 @@ const Login = ({navigation}: LoginNavigationProps) => {
             setIsLogin(true)
           }
         }
-      } catch (e) {
-        throw e
-      } finally {
+
         setIsLoading(false)
+      } catch (e) {
+        setIsLoading(false)
+        throw e
       }
     },
     [setIsLogin, setIsLoading, setJoinInfo, navigation]
@@ -204,7 +205,7 @@ const styles = StyleSheet.create({
   kakaoLoginButtonText: {
     flex: 1,
     textAlign: 'center',
-    fontFamily: 'Roboto',
+    fontFamily: 'Pretendard-SemiBold',
     color: '#000000d9',
     fontSize: 16
   },
@@ -218,7 +219,7 @@ const styles = StyleSheet.create({
   appleLoginButtonText: {
     flex: 1,
     textAlign: 'center',
-    fontFamily: 'Roboto',
+    fontFamily: 'Pretendard-SemiBold',
     color: '#fff',
     fontSize: 16
   },
@@ -240,7 +241,7 @@ const styles = StyleSheet.create({
   goolgeLoginButtonText: {
     flex: 1,
     textAlign: 'center',
-    fontFamily: 'Roboto',
+    fontFamily: 'Pretendard-SemiBold',
     color: '#1F1F1F',
     fontSize: 16
   }
