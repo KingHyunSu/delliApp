@@ -14,6 +14,7 @@ import JoinTerms from '@/views/JoinTerms'
 
 import HomeScreen from '@/views/Home'
 import SettingScreen from '@/views/Setting'
+import LeaveScreen from '@/views/Leave'
 import LogoutScreen from '@/views/Logout'
 
 // utils
@@ -25,20 +26,19 @@ import {loginState, isLunchState} from '@/store/system'
 
 import {RootStackParamList} from '@/types/navigation'
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
-// [20240310] 광고 스토어 배포 후 오픈 예정
-// import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
+import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
 
 import * as authApi from '@/apis/auth'
 // import crashlytics from '@react-native-firebase/crashlytics'
 
 function App(): JSX.Element {
-  // [20240310] 광고 스토어 배포 후 오픈 예정
-  // const {isLoaded, load, show} = useAppOpenAd(
-  //   Platform.select({
-  //     ios: 'ca-app-pub-3765315237132279/9003768148',
-  //     android: 'ca-app-pub-3765315237132279/4177449893'
-  //   }) || ''
-  // )
+  const {isLoaded, load, show} = useAppOpenAd(
+    Platform.select({
+      // ios: TestIds.APP_OPEN,
+      ios: 'ca-app-pub-3765315237132279/9003768148',
+      android: 'ca-app-pub-3765315237132279/4177449893'
+    }) || ''
+  )
   const appState = React.useRef(AppState.currentState)
   const [isActiveApp, setIsActiveApp] = React.useState(false)
 
@@ -76,10 +76,11 @@ function App(): JSX.Element {
     }
   }, [isActiveApp, isLogin])
 
-  // [20240310] 광고 스토어 배포 후 오픈 예정
-  // React.useEffect(() => {
-  //   load()
-  // }, [load])
+  React.useEffect(() => {
+    if (isLogin) {
+      load()
+    }
+  }, [isLogin, load])
 
   React.useEffect(() => {
     const setToken = async () => {
@@ -94,14 +95,10 @@ function App(): JSX.Element {
     }
 
     setToken()
-
-    // [20240310] 광고 스토어 배포 후 오픈 예정
-    // if (isLoaded) {
-    //   show()
-    //   setToken()
-    // }
-    // }, [isLoaded, show, setIsLunch, setIsLogin])
-  }, [setIsLunch, setIsLogin])
+    if (isLogin && isLoaded) {
+      show()
+    }
+  }, [isLogin, isLoaded, show, setIsLunch, setIsLogin])
 
   React.useEffect(() => {
     if (isLunch) {
@@ -135,6 +132,7 @@ function App(): JSX.Element {
               <>
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="Setting" component={SettingScreen} />
+                <Stack.Screen name="Leave" component={LeaveScreen} />
               </>
             ) : (
               <>

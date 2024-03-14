@@ -39,7 +39,6 @@ const Login = ({navigation}: LoginNavigationProps) => {
 
         if (result.code === '4001') {
           setJoinInfo({...params, terms_agree_list: []})
-          console.log('31231312', result)
           navigation.navigate('JoinTerms', {token: result.data.token})
         } else {
           if (result.data.token) {
