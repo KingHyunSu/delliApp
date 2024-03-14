@@ -3,6 +3,9 @@ import {Linking, StyleSheet, ScrollView, Pressable, View, Text} from 'react-nati
 import AppBar from '@/components/AppBar'
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import {GoogleSignin} from '@react-native-google-signin/google-signin'
+import * as KakaoAuth from '@react-native-seoul/kakao-login'
+import {LOGIN_TYPE} from '@/utils/types'
 
 import {useSetRecoilState, useResetRecoilState} from 'recoil'
 import {scheduleDateState, scheduleListState} from '@/store/schedule'
@@ -10,6 +13,7 @@ import {activeTimeTableCategoryState} from '@/store/timetable'
 import {isEditState, loginState} from '@/store/system'
 
 import * as termsApi from '@/apis/terms'
+import * as authApi from '@/apis/auth'
 
 import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
@@ -24,8 +28,8 @@ const Setting = ({navigation}: SettingNavigationProps) => {
   const resetActiveTimeTableCategoryState = useResetRecoilState(activeTimeTableCategoryState)
 
   const handleMove = React.useCallback(() => {
-    navigation.navigate('Home')
-    setIsEdit(true)
+    // navigation.navigate('Home')
+    // setIsEdit(true)
   }, [])
 
   const getTermsUrl = async (type: string) => {
@@ -43,8 +47,22 @@ const Setting = ({navigation}: SettingNavigationProps) => {
     Linking.openURL(url)
   }, [])
 
+  const getLoginType = async () => {
+    const result = await authApi.getLoginType()
+
+    return result.data.login_type
+  }
+
   const doLogout = React.useCallback(async () => {
     try {
+      const loginType = await getLoginType()
+
+      if (loginType === LOGIN_TYPE.GOOGLE) {
+        await GoogleSignin.signOut()
+      } else if (loginType === LOGIN_TYPE.KAKAO) {
+        await KakaoAuth.logout()
+      }
+
       resetScheduleDate()
       resetScheduleList()
       resetActiveTimeTableCategoryState()

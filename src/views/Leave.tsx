@@ -10,9 +10,12 @@ import {scheduleDateState, scheduleListState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {loginState, isLoadingState} from '@/store/system'
 
-import * as authApi from '@/apis/auth'
-import {appleAuth} from '@invertase/react-native-apple-authentication'
 import {LOGIN_TYPE} from '@/utils/types'
+
+import * as authApi from '@/apis/auth'
+import * as KakaoAuth from '@react-native-seoul/kakao-login'
+import {appleAuth} from '@invertase/react-native-apple-authentication'
+import {GoogleSignin} from '@react-native-google-signin/google-signin'
 
 import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 
@@ -30,6 +33,12 @@ const Leave = ({navigation}: LeaveNavigationProps) => {
       setIsLoading(true)
 
       await authApi.leave(params)
+
+      if (params.loginType === LOGIN_TYPE.GOOGLE) {
+        await GoogleSignin.revokeAccess()
+      } else if (params.loginType === LOGIN_TYPE.KAKAO) {
+        await KakaoAuth.unlink()
+      }
 
       resetScheduleDate()
       resetScheduleList()
