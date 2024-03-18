@@ -15,24 +15,20 @@ interface Props {
 const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChangeSchedule}: Props) => {
   const inputAccessoryViewID = 'scheduleTitle'
   const containerPadding = 50
-  const borderWidth = 4
 
+  const [isInputMode, setIsInputMode] = React.useState(false)
   const [isFocus, setIsFocus] = React.useState(false)
   const [top, setTop] = React.useState(0)
   const [left, setLeft] = React.useState(0)
 
-  const containerX = useSharedValue(
-    Math.round(centerX - (containerPadding + borderWidth) + (radius / 100) * data.title_x)
-  )
-  const containerY = useSharedValue(
-    Math.round(centerY - (containerPadding + borderWidth) - (radius / 100) * data.title_y)
-  )
+  const containerX = useSharedValue(Math.round(centerX - containerPadding + (radius / 100) * data.title_x))
+  const containerY = useSharedValue(Math.round(centerY - containerPadding - (radius / 100) * data.title_y))
   const containerRotate = useSharedValue(data.title_rotate)
   const conatinerSavedRotate = useSharedValue(0)
 
-  const doFocus = React.useCallback(() => {
-    titleInputRef.current?.focus()
-  }, [titleInputRef])
+  const handleInputMode = React.useCallback(() => {
+    setIsInputMode(true)
+  }, [])
 
   const handleFocus = React.useCallback(() => {
     setIsFocus(true)
@@ -40,6 +36,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
 
   const handleBlur = React.useCallback(() => {
     setIsFocus(false)
+    setIsInputMode(false)
   }, [])
 
   const changeSchedule = React.useCallback(
@@ -136,24 +133,27 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
     <>
       <GestureDetector gesture={composeGesture}>
         <Animated.View style={containerStyle}>
-          <Pressable style={wrapperStyle} onPress={doFocus}>
-            <Text style={textStyle}>{title}</Text>
-          </Pressable>
+          {isInputMode ? (
+            <TextInput
+              ref={titleInputRef}
+              value={data.title}
+              inputAccessoryViewID={inputAccessoryViewID}
+              style={textStyle}
+              maxLength={20}
+              multiline
+              autoFocus
+              scrollEnabled={false}
+              onFocus={handleFocus}
+              onBlur={handleBlur}
+              onChangeText={changeTitle}
+            />
+          ) : (
+            <Pressable style={wrapperStyle} onPress={handleInputMode}>
+              <Text style={textStyle}>{title}</Text>
+            </Pressable>
+          )}
         </Animated.View>
       </GestureDetector>
-
-      <TextInput
-        ref={titleInputRef}
-        value={data.title}
-        inputAccessoryViewID={inputAccessoryViewID}
-        style={styles.textInput}
-        maxLength={20}
-        multiline
-        scrollEnabled={false}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onChangeText={changeTitle}
-      />
 
       {/* todo 2차 기능 */}
       {/* <InputAccessoryView nativeID={inputAccessoryViewID}>
@@ -175,19 +175,16 @@ const styles = StyleSheet.create({
     position: 'absolute'
   },
   textWrapper: {
-    borderWidth: 1,
     borderColor: 'transparent',
     borderStyle: 'dashed',
     borderRadius: 5
   },
   text: {
+    paddingTop: 0,
+    padding: 0,
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    color: '#000',
-    padding: 3
-  },
-  textInput: {
-    transform: [{scale: 0}]
+    color: '#000'
   }
 })
 
