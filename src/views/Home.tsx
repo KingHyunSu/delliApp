@@ -1,15 +1,5 @@
 import React from 'react'
-import {
-  Platform,
-  Animated,
-  Pressable,
-  StyleSheet,
-  SafeAreaView,
-  View,
-  Text,
-  TextInput,
-  LayoutChangeEvent
-} from 'react-native'
+import {Platform, Animated, Pressable, StyleSheet, SafeAreaView, View, Text, LayoutChangeEvent} from 'react-native'
 
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
@@ -52,7 +42,6 @@ import {format, getDay} from 'date-fns'
 import {HomeNavigationProps} from '@/types/navigation'
 
 const Home = ({navigation}: HomeNavigationProps) => {
-  const titleInputRef = React.useRef<TextInput>(null)
   const setIsLunch = useSetRecoilState(isLunchState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
@@ -332,7 +321,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
         </Animated.View>
 
         <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
-          <TimeTable data={scheduleList} isEdit={isEdit} titleInputRef={titleInputRef} />
+          <TimeTable data={scheduleList} isEdit={isEdit} />
         </Animated.View>
 
         <ScheduleListBottomSheet
@@ -340,7 +329,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           openEditScheduleBottomSheet={openEditScheduleBottomSheet}
           onClick={openEditMenuBottomSheet}
         />
-        <EditScheduleBottomSheet titleInputRef={titleInputRef} />
+        <EditScheduleBottomSheet />
         <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
 
         {isEdit ? (

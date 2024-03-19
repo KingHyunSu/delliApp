@@ -4,20 +4,22 @@ import {StyleSheet, View, Pressable, Text, TextInput, InputAccessoryView} from '
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS} from 'react-native-reanimated'
 
+import {useRecoilState} from 'recoil'
+import {isInputModeState} from '@/store/schedule'
+
 interface Props {
   data: Schedule
   centerX: number
   centerY: number
   radius: number
-  titleInputRef: React.RefObject<TextInput>
   onChangeSchedule: Function
 }
-const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChangeSchedule}: Props) => {
+const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Props) => {
   const inputAccessoryViewID = 'scheduleTitle'
   const containerPadding = 50
 
-  const [isInputMode, setIsInputMode] = React.useState(false)
-  const [isFocus, setIsFocus] = React.useState(false)
+  const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
+
   const [top, setTop] = React.useState(0)
   const [left, setLeft] = React.useState(0)
 
@@ -28,16 +30,13 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
 
   const handleInputMode = React.useCallback(() => {
     setIsInputMode(true)
-  }, [])
+  }, [setIsInputMode])
 
-  const handleFocus = React.useCallback(() => {
-    setIsFocus(true)
-  }, [])
+  const handleFocus = React.useCallback(() => {}, [])
 
   const handleBlur = React.useCallback(() => {
-    setIsFocus(false)
     setIsInputMode(false)
-  }, [])
+  }, [setIsInputMode])
 
   const changeSchedule = React.useCallback(
     (value: Object) => {
@@ -103,10 +102,6 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
     return [positionStyle, rotateStyle, styles.conatiner, {padding: containerPadding}]
   }, [positionStyle, rotateStyle, containerPadding])
 
-  const wrapperStyle = React.useMemo(() => {
-    return [styles.textWrapper, isFocus && {borderColor: '#c3c5cc'}]
-  }, [isFocus])
-
   const textStyle = React.useMemo(() => {
     let color = '#c3c5cc'
 
@@ -135,7 +130,6 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
         <Animated.View style={containerStyle}>
           {isInputMode ? (
             <TextInput
-              ref={titleInputRef}
               value={data.title}
               inputAccessoryViewID={inputAccessoryViewID}
               style={textStyle}
@@ -148,7 +142,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, titleInputRef, onChan
               onChangeText={changeTitle}
             />
           ) : (
-            <Pressable style={wrapperStyle} onPress={handleInputMode}>
+            <Pressable style={styles.textWrapper} onPress={handleInputMode}>
               <Text style={textStyle}>{title}</Text>
             </Pressable>
           )}
@@ -191,14 +185,18 @@ const styles = StyleSheet.create({
 const toolStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    paddingBottom: 8
+    // justifyContent: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#D2D4D9',
+    borderBottomWidth: 1,
+    borderBottomColor: '#C0C2C6',
+    backgroundColor: '#D2D4D9'
   },
   item: {
-    paddingVertical: 8,
-    paddingHorizontal: 40,
-    textAlign: 'center',
-    backgroundColor: '#efefef'
+    width: 80,
+    height: 52,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, StyleSheet, View, Pressable, TextInput} from 'react-native'
+import {useWindowDimensions, StyleSheet, View, Pressable} from 'react-native'
 import {Svg, G, Text, Circle} from 'react-native-svg'
 
 import Background from './src/Background'
@@ -9,7 +9,7 @@ import EditScheduleText from './src/EditScheduleText'
 import EditSchedulePieController from './src/EditSchedulePieController'
 
 import {useRecoilState, useSetRecoilState} from 'recoil'
-import {scheduleState} from '@/store/schedule'
+import {scheduleState, isInputModeState} from '@/store/schedule'
 import {showStyleBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
 import PaletteIcon from '@/assets/icons/palette.svg'
@@ -17,15 +17,15 @@ import PaletteIcon from '@/assets/icons/palette.svg'
 interface Props {
   data: Schedule[]
   isEdit: boolean
-  titleInputRef: React.RefObject<TextInput>
 }
-const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
+const TimeTable = ({data, isEdit}: Props) => {
   const {width, height} = useWindowDimensions()
   const x = width / 2
   const y = height * 0.28
   const fullRadius = width / 2 - 36
 
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const setIsInputMode = useSetRecoilState(isInputModeState)
   const setIsShowStyleBottomSheet = useSetRecoilState(showStyleBottomSheetState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
@@ -55,10 +55,8 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
   )
 
   const closeKeyboard = React.useCallback(() => {
-    if (titleInputRef && titleInputRef.current) {
-      titleInputRef.current.blur()
-    }
-  }, [titleInputRef])
+    setIsInputMode(false)
+  }, [setIsInputMode])
 
   const showStyleBottomSheet = React.useCallback(() => {
     closeKeyboard()
@@ -119,14 +117,7 @@ const TimeTable = ({data, isEdit, titleInputRef}: Props) => {
             <SchedulePie data={schedule} x={x} y={y} radius={radius} />
           </Svg>
 
-          <EditScheduleText
-            data={schedule}
-            centerX={x}
-            centerY={y}
-            radius={radius}
-            titleInputRef={titleInputRef}
-            onChangeSchedule={changeSchedule}
-          />
+          <EditScheduleText data={schedule} centerX={x} centerY={y} radius={radius} onChangeSchedule={changeSchedule} />
 
           <EditSchedulePieController
             data={schedule}

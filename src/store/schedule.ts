@@ -1,6 +1,6 @@
 import {atom} from 'recoil'
 
-import {COLOR_TYPE, RANGE_FLAG} from '@/utils/types'
+import {RANGE_FLAG} from '@/utils/types'
 
 export const scheduleDateState = atom<Date>({
   key: 'scheduleDateState',
@@ -70,4 +70,9 @@ export const scheduleTodoState = atom<Todo>({
 export const activeTimeFlagState = atom<RANGE_FLAG | null>({
   key: 'activeTimeFlagState',
   default: null
+})
+
+export const isInputModeState = atom<Boolean>({
+  key: 'isInputModeState',
+  default: false
 })

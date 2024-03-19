@@ -7,9 +7,9 @@ import TimeWheelPicker from '@/components/TimeWheelPicker'
 import DatePicker from '@/components/DatePicker'
 import WheelPicker from 'react-native-wheely'
 
-import {useRecoilState, useRecoilValue} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
-import {scheduleState} from '@/store/schedule'
+import {scheduleState, isInputModeState} from '@/store/schedule'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
@@ -24,22 +24,19 @@ import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 
 import {DAY_OF_WEEK} from '@/types/common'
 
-interface Props {
-  titleInputRef: React.RefObject<TextInput>
-}
-
 const defaultPanelHeight = 74
 const defaultItemPanelHeight = 56
 const defaultFullTimeItemPanelHeight = 216
 const defaultFullDateItemPanelHeight = 426
 const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
 
-const EditScheduleBottomSheet = React.memo(({titleInputRef}: Props) => {
+const EditScheduleBottomSheet = React.memo(() => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const bottomSheetScrollViewRef = React.useRef<ScrollView>(null)
 
   const isEdit = useRecoilValue(isEditState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const setIsInputMode = useSetRecoilState(isInputModeState)
 
   const [activeTimePanel, setActiveTimePanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
@@ -252,11 +249,9 @@ const EditScheduleBottomSheet = React.memo(({titleInputRef}: Props) => {
   }, [])
 
   const focusTitleInput = React.useCallback(() => {
-    if (titleInputRef && titleInputRef.current && bottomSheetRef && bottomSheetRef.current) {
-      bottomSheetRef.current?.collapse()
-      titleInputRef.current.focus()
-    }
-  }, [titleInputRef])
+    bottomSheetRef.current?.collapse()
+    setIsInputMode(true)
+  }, [setIsInputMode])
 
   const changeTime = React.useCallback(
     (time: number) => {
