@@ -27,7 +27,8 @@ import {
   scheduleState,
   scheduleListState,
   disableScheduleListState,
-  existScheduleListState
+  existScheduleListState,
+  isInputModeState
 } from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {showEditMenuBottomSheetState, showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
@@ -57,6 +58,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
+  const setIsInputMode = useSetRecoilState(isInputModeState)
 
   const {isError} = useQuery({
     queryKey: ['timetableCategoryList'],
@@ -236,7 +238,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const closeEditScheduleBottomSheet = React.useCallback(() => {
     resetDisableScheduleList()
     setIsEdit(false)
-  }, [resetDisableScheduleList, setIsEdit])
+    setIsInputMode(false)
+  }, [resetDisableScheduleList, setIsEdit, setIsInputMode])
 
   const handleTopLayout = React.useCallback(
     (layout: LayoutChangeEvent) => {

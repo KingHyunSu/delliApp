@@ -1,11 +1,25 @@
 import React from 'react'
-import {StyleSheet, View, Pressable, Text, TextInput, InputAccessoryView} from 'react-native'
+import {
+  Appearance,
+  LayoutChangeEvent,
+  StyleSheet,
+  View,
+  Pressable,
+  Text,
+  TextInput,
+  InputAccessoryView
+} from 'react-native'
 
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS} from 'react-native-reanimated'
 
 import {useRecoilState} from 'recoil'
 import {isInputModeState} from '@/store/schedule'
+import {polarToCartesian} from '../util'
+
+import TextRotationIcon1 from '@/assets/icons/text_rotation_none.svg'
+import TextRotationIcon2 from '@/assets/icons/text_rotation_angleup.svg'
+import TextRotationIcon3 from '@/assets/icons/text_rotation_down.svg'
 
 interface Props {
   data: Schedule
@@ -20,6 +34,8 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
 
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
 
+  const [containerWidth, setContainerWidth] = React.useState(0)
+  const [containerHeight, setContainerHeight] = React.useState(0)
   const [top, setTop] = React.useState(0)
   const [left, setLeft] = React.useState(0)
 
@@ -51,6 +67,67 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     },
     [changeSchedule]
   )
+
+  const handleTextRotate = React.useCallback(
+    (type: string) => () => {
+      const startTime = data.start_time * 0.25
+      const endTime = data.end_time * 0.25
+      let centerAngle = (startTime + endTime) / 2
+
+      switch (type) {
+        case 'horizon':
+          containerRotate.value = 0
+          break
+        case 'vertical':
+          containerRotate.value = 90
+          break
+        case 'topRight':
+          let textRotate = 90 - centerAngle
+
+          if ((startTime > 180 && endTime > 180) || startTime > endTime) {
+            textRotate = 180 + textRotate
+          }
+
+          containerRotate.value = textRotate * -1
+          break
+      }
+
+      if (startTime > endTime) {
+        centerAngle = (startTime + (endTime + 360)) / 2
+      }
+
+      const {x: textPositionX, y: textPositionY} = polarToCartesian(
+        centerX - containerWidth / 2,
+        centerY - containerHeight / 2,
+        radius / 2,
+        centerAngle
+      )
+
+      containerX.value = textPositionX
+      containerY.value = textPositionY
+      setTop(textPositionY)
+      setLeft(textPositionX)
+    },
+    [
+      data.start_time,
+      data.end_time,
+      centerX,
+      centerY,
+      radius,
+      containerWidth,
+      containerHeight,
+      containerRotate,
+      containerX,
+      containerY
+    ]
+  )
+
+  const handleLayout = React.useCallback((e: LayoutChangeEvent) => {
+    const {width, height} = e.nativeEvent.layout
+
+    setContainerWidth(width)
+    setContainerHeight(height)
+  }, [])
 
   const moveGesture = Gesture.Pan()
     .enableTrackpadTwoFingerGesture(true)
@@ -119,6 +196,42 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     return '일정명을 입력해주세요'
   }, [data.title])
 
+  const toolContainerStyle = React.useMemo(() => {
+    const systemColor = Appearance.getColorScheme()
+
+    let backgroundColor = '#D2D4D9'
+    let borderBottomColor = '#C0C2C6'
+
+    if (systemColor === 'dark') {
+      backgroundColor = '#6D6D6D'
+      borderBottomColor = '#757575'
+    }
+
+    return [toolStyles.container, {backgroundColor, borderBottomColor}]
+  }, [])
+
+  const toolItemStyle = React.useMemo(() => {
+    const systemColor = Appearance.getColorScheme()
+
+    let backgroundColor = '#ffffff'
+
+    if (systemColor === 'dark') {
+      backgroundColor = '#969696'
+    }
+
+    return [toolStyles.item, {backgroundColor}]
+  }, [])
+
+  const toolIconColor = React.useMemo(() => {
+    const systemColor = Appearance.getColorScheme()
+
+    if (systemColor === 'dark') {
+      return '#fcfcfc'
+    }
+
+    return '#000000'
+  }, [])
+
   React.useEffect(() => {
     setLeft(containerX.value)
     setTop(containerY.value)
@@ -127,7 +240,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
   return (
     <>
       <GestureDetector gesture={composeGesture}>
-        <Animated.View style={containerStyle}>
+        <Animated.View style={containerStyle} onLayout={handleLayout}>
           {isInputMode ? (
             <TextInput
               value={data.title}
@@ -150,23 +263,28 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
       </GestureDetector>
 
       {/* todo 2차 기능 */}
-      {/* <InputAccessoryView nativeID={inputAccessoryViewID}>
-        <View style={toolStyles.container}>
-          <Pressable style={toolStyles.item}>
-            <Text>/</Text>
+      <InputAccessoryView nativeID={inputAccessoryViewID}>
+        <View style={toolContainerStyle}>
+          <Pressable style={toolItemStyle} onPress={handleTextRotate('horizon')}>
+            <TextRotationIcon1 fill={toolIconColor} />
           </Pressable>
-          <Pressable style={toolStyles.item}>
-            <Text>-</Text>
+          <Pressable style={toolItemStyle} onPress={handleTextRotate('topRight')}>
+            <TextRotationIcon2 fill={toolIconColor} />
+          </Pressable>
+          <Pressable style={toolItemStyle} onPress={handleTextRotate('vertical')}>
+            <TextRotationIcon3 fill={toolIconColor} />
           </Pressable>
         </View>
-      </InputAccessoryView> */}
+      </InputAccessoryView>
     </>
   )
 }
 
 const styles = StyleSheet.create({
   conatiner: {
-    position: 'absolute'
+    position: 'absolute',
+    textAlign: 'center',
+    textAlignVertical: 'center'
   },
   textWrapper: {
     borderColor: 'transparent',
@@ -185,16 +303,16 @@ const styles = StyleSheet.create({
 const toolStyles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    // justifyContent: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#D2D4D9',
+    gap: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#C0C2C6',
-    backgroundColor: '#D2D4D9'
+    height: 52,
+    alignItems: 'center',
+    paddingHorizontal: 10
   },
   item: {
-    width: 80,
-    height: 52,
+    height: 38,
+    borderRadius: 8,
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
   }
