@@ -8,7 +8,7 @@ interface Props {
   item: Schedule
   index: number
   length: number
-  openEditScheduleBottomSheet: (value?: Schedule) => void
+  openEditScheduleBottomSheet: (value?: Schedule) => Function
   onClick: (value: Schedule) => void
 }
 const ScheduleListItem = ({item, index, length, openEditScheduleBottomSheet, onClick}: Props) => {
@@ -29,7 +29,7 @@ const ScheduleListItem = ({item, index, length, openEditScheduleBottomSheet, onC
   }, [])
 
   const handleEditScheduleBottomSheetOpen = React.useCallback(() => {
-    openEditScheduleBottomSheet(item)
+    openEditScheduleBottomSheet(item)()
   }, [openEditScheduleBottomSheet, item])
 
   const handleClick = React.useCallback(() => {
