@@ -33,6 +33,7 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
+gradle.properties
 
 # node.js
 #
@@ -68,3 +69,6 @@ yarn-error.log
 
 .env
 env.d.ts
+
+Podfile.lock
+package-lock.json
