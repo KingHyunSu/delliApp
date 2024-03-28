@@ -336,7 +336,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
         <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
 
         {isEdit ? (
-          <Pressable style={submitButtonStyle} onPress={handleSubmit}>
+          <Pressable style={submitButtonStyle} onPress={handleSubmit} disabled={!activeSubmit}>
             <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
           </Pressable>
         ) : (
