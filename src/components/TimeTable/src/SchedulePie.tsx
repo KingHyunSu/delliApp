@@ -1,9 +1,6 @@
 import React from 'react'
 import {Path} from 'react-native-svg'
 
-import {useRecoilValue} from 'recoil'
-import {disableScheduleListState} from '@/store/schedule'
-
 import {describeArc} from '../util'
 
 interface Props {
@@ -12,16 +9,19 @@ interface Props {
   y: number
   radius: number
   opacity?: number
+  disableScheduleList?: ExistSchedule[]
   onClick?: (value: Schedule) => void
 }
 
 const STROK_WIDTH = 1
 
-const SchedulePie = ({data, x, y, radius, opacity, onClick}: Props) => {
-  const disableScheduleList = useRecoilValue(disableScheduleListState)
-
+const SchedulePie = ({data, x, y, radius, opacity, disableScheduleList, onClick}: Props) => {
   const isDisabled = React.useMemo(() => {
-    return disableScheduleList.some(item => item.schedule_id === data.schedule_id)
+    if (disableScheduleList) {
+      return disableScheduleList.some(item => item.schedule_id === data.schedule_id)
+    }
+
+    return false
   }, [disableScheduleList, data.schedule_id])
 
   const startAngle = React.useMemo(() => {
@@ -49,13 +49,7 @@ const SchedulePie = ({data, x, y, radius, opacity, onClick}: Props) => {
   }, [onClick, data])
 
   return (
-    <Path
-      d={path}
-      fill={isDisabled ? '#faf0f0' : data.background_color}
-      // fill={data.background_color}
-      fillOpacity={opacity}
-      onPress={handleClick}
-    />
+    <Path d={path} fill={isDisabled ? '#faf0f0' : data.background_color} fillOpacity={opacity} onPress={handleClick} />
   )
 }
 

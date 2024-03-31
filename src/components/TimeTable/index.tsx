@@ -5,11 +5,12 @@ import {Svg, G, Text, Circle} from 'react-native-svg'
 import Background from './src/Background'
 import SchedulePie from './src/SchedulePie'
 import ScheduleText from './src/ScheduleText'
+import EditSchedulePie from './src/EditSchedulePie'
 import EditScheduleText from './src/EditScheduleText'
 import EditSchedulePieController from './src/EditSchedulePieController'
 
 import {useRecoilState, useSetRecoilState} from 'recoil'
-import {scheduleState, isInputModeState} from '@/store/schedule'
+import {scheduleState, disableScheduleListState, isInputModeState} from '@/store/schedule'
 import {showStyleBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
 import PaletteIcon from '@/assets/icons/palette.svg'
@@ -25,6 +26,7 @@ const TimeTable = ({data, isEdit}: Props) => {
   const fullRadius = width / 2 - 36
 
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setIsShowStyleBottomSheet = useSetRecoilState(showStyleBottomSheetState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
@@ -77,6 +79,58 @@ const TimeTable = ({data, isEdit}: Props) => {
     [setSchedule]
   )
 
+  React.useLayoutEffect(() => {
+    if (!isEdit) {
+      return
+    }
+
+    let startTime = schedule.start_time
+    let endTime = schedule.end_time
+
+    const result = data
+      .filter(item => {
+        if (schedule.schedule_id === item.schedule_id) {
+          return false
+        }
+
+        let start_time = item.start_time === 0 ? 1440 : item.start_time
+        let end_time = item.end_time
+
+        if (start_time > end_time) {
+          const isOverlapStart = startTime > start_time || startTime < end_time
+          const isOverlapEnd = endTime > start_time || endTime < end_time
+          const isOverlapAll = startTime > endTime && startTime <= start_time && endTime >= end_time
+
+          return isOverlapStart || isOverlapEnd || isOverlapAll
+        }
+
+        const isOverlapStart = startTime > start_time && startTime < end_time
+        const isOverlapEnd = endTime > start_time && endTime < end_time
+        const isOverlapAll = start_time >= startTime && end_time <= endTime
+
+        return isOverlapStart || isOverlapEnd || isOverlapAll
+      })
+      .map(item => {
+        return {
+          schedule_id: item.schedule_id,
+          title: item.title,
+          start_time: item.start_time,
+          end_time: item.end_time,
+          start_date: item.start_date,
+          end_date: item.end_date,
+          mon: item.mon,
+          tue: item.tue,
+          wed: item.wed,
+          thu: item.thu,
+          fri: item.fri,
+          sat: item.sat,
+          sun: item.sun
+        }
+      })
+
+    setDisableScheduleList(result)
+  }, [isEdit, schedule.schedule_id, schedule.start_time, schedule.end_time, data, setDisableScheduleList])
+
   return (
     <View>
       <Svg>
@@ -84,7 +138,17 @@ const TimeTable = ({data, isEdit}: Props) => {
 
         {list.length > 0 ? (
           list.map((item, index) => {
-            return <SchedulePie key={index} data={item} x={x} y={y} radius={radius} onClick={openEditMenuBottomSheet} />
+            return (
+              <SchedulePie
+                key={index}
+                data={item}
+                x={x}
+                y={y}
+                radius={radius}
+                disableScheduleList={disableScheduleList}
+                onClick={openEditMenuBottomSheet}
+              />
+            )
           })
         ) : (
           <Text x={x} y={y} fontSize={18} fill={'#babfc5'} fontFamily={'Pretendard-SemiBold'} textAnchor="middle">
@@ -114,19 +178,19 @@ const TimeTable = ({data, isEdit}: Props) => {
               <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={showStyleBottomSheet} />
             </G>
 
-            <SchedulePie data={schedule} x={x} y={y} radius={radius} />
+            <EditSchedulePie
+              data={schedule}
+              x={x}
+              y={y}
+              radius={radius}
+              scheduleList={data}
+              disableScheduleList={disableScheduleList}
+            />
           </Svg>
 
           <EditScheduleText data={schedule} centerX={x} centerY={y} radius={radius} onChangeSchedule={changeSchedule} />
 
-          <EditSchedulePieController
-            data={schedule}
-            scheduleList={data}
-            x={x}
-            y={y}
-            radius={radius}
-            onChangeSchedule={changeSchedule}
-          />
+          <EditSchedulePieController data={schedule} x={x} y={y} radius={radius} onScheduleChanged={changeSchedule} />
         </Pressable>
       )}
     </View>

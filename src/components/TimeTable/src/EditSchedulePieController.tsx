@@ -6,26 +6,23 @@ import {polarToCartesian} from '../util'
 import {getStatusBarHeight} from 'react-native-status-bar-height'
 import {trigger} from 'react-native-haptic-feedback'
 
-import {useRecoilValue, useSetRecoilState} from 'recoil'
+import {useRecoilValue} from 'recoil'
 import {homeHeaderHeightState} from '@/store/system'
-import {disableScheduleListState} from '@/store/schedule'
 
 interface Props {
   data: Schedule
-  scheduleList: Schedule[]
   x: number
   y: number
   radius: number
-  onChangeSchedule: Function
+  onScheduleChanged: Function
 }
 
 const MINUTE_INTERVAL = 5
 
-const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSchedule}: Props) => {
+const EditSchedulePieController = ({data, x, y, radius, onScheduleChanged}: Props) => {
   const statusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
 
   const homeHeaderHeight = useRecoilValue(homeHeaderHeightState)
-  const setDisableScheduleListState = useSetRecoilState(disableScheduleListState)
 
   const newStartTime = React.useRef(data.start_time)
   const newEndTime = React.useRef(data.end_time)
@@ -48,53 +45,53 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
     })
   }, [startAngle, endAngle])
 
-  React.useEffect(() => {
-    let startTime = data.start_time
-    let endTime = data.end_time
+  // React.useEffect(() => {
+  //   let startTime = data.start_time
+  //   let endTime = data.end_time
 
-    const disableScheduleList = scheduleList
-      .filter(item => {
-        if (data.schedule_id === item.schedule_id) {
-          return false
-        }
+  //   const disableScheduleList = scheduleList
+  //     .filter(item => {
+  //       if (data.schedule_id === item.schedule_id) {
+  //         return false
+  //       }
 
-        let start_time = item.start_time
-        let end_time = item.end_time
+  //       let start_time = item.start_time
+  //       let end_time = item.end_time
 
-        if (start_time > end_time) {
-          const isOverlapStart = startTime > start_time || startTime < end_time
-          const isOverlapEnd = endTime > start_time || endTime < end_time
-          const isOverlapAll = startTime > endTime && startTime <= start_time && endTime >= end_time
+  //       if (start_time > end_time) {
+  //         const isOverlapStart = startTime > start_time || startTime < end_time
+  //         const isOverlapEnd = endTime > start_time || endTime < end_time
+  //         const isOverlapAll = startTime > endTime && startTime <= start_time && endTime >= end_time
 
-          return isOverlapStart || isOverlapEnd || isOverlapAll
-        }
+  //         return isOverlapStart || isOverlapEnd || isOverlapAll
+  //       }
 
-        const isOverlapStart = startTime > start_time && startTime < end_time
-        const isOverlapEnd = endTime > start_time && endTime < end_time
-        const isOverlapAll = start_time >= startTime && end_time <= endTime
+  //       const isOverlapStart = startTime > start_time && startTime < end_time
+  //       const isOverlapEnd = endTime > start_time && endTime < end_time
+  //       const isOverlapAll = start_time >= startTime && end_time <= endTime
 
-        return isOverlapStart || isOverlapEnd || isOverlapAll
-      })
-      .map(item => {
-        return {
-          schedule_id: item.schedule_id,
-          title: item.title,
-          start_time: item.start_time,
-          end_time: item.end_time,
-          start_date: item.start_date,
-          end_date: item.end_date,
-          mon: item.mon,
-          tue: item.tue,
-          wed: item.wed,
-          thu: item.thu,
-          fri: item.fri,
-          sat: item.sat,
-          sun: item.sun
-        }
-      })
+  //       return isOverlapStart || isOverlapEnd || isOverlapAll
+  //     })
+  //     .map(item => {
+  //       return {
+  //         schedule_id: item.schedule_id,
+  //         title: item.title,
+  //         start_time: item.start_time,
+  //         end_time: item.end_time,
+  //         start_date: item.start_date,
+  //         end_date: item.end_date,
+  //         mon: item.mon,
+  //         tue: item.tue,
+  //         wed: item.wed,
+  //         thu: item.thu,
+  //         fri: item.fri,
+  //         sat: item.sat,
+  //         sun: item.sun
+  //       }
+  //     })
 
-    setDisableScheduleListState(disableScheduleList)
-  }, [data.start_time, data.end_time])
+  //   setDisableScheduleList(disableScheduleList)
+  // }, [data.schedule_id, data.start_time, data.end_time, scheduleList, setDisableScheduleList])
 
   const getCalcTotalMinute = (angle: number) => {
     const totalMinute = angle / 0.25
@@ -128,7 +125,7 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
         if (newStartTime.current !== calcTotalMinute) {
           newStartTime.current = calcTotalMinute
 
-          onChangeSchedule({start_time: calcTotalMinute})
+          onScheduleChanged({start_time: calcTotalMinute})
         }
       }
     })
@@ -159,7 +156,7 @@ const EditSchedulePieController = ({data, scheduleList, x, y, radius, onChangeSc
         if (newEndTime.current !== calcTotalMinute) {
           newEndTime.current = calcTotalMinute
 
-          onChangeSchedule({end_time: calcTotalMinute})
+          onScheduleChanged({end_time: calcTotalMinute})
         }
       }
     })
