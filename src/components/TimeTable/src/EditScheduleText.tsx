@@ -68,57 +68,83 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     [changeSchedule]
   )
 
-  const handleTextRotate = React.useCallback(
-    (type: string) => () => {
-      const startTime = data.start_time * 0.25
-      const endTime = data.end_time * 0.25
+  const setTitlePosition = React.useCallback(
+    (x: number, y: number) => {
+      const xPercentage = Math.round(((x + containerPadding - centerX) / radius) * 100)
+      const yPercentage = Math.round((((y + containerPadding - centerY) * -1) / radius) * 100)
+
+      setLeft(x)
+      setTop(y)
+
+      changeSchedule({title_x: xPercentage, title_y: yPercentage})
+    },
+    [centerX, centerY, radius, changeSchedule]
+  )
+
+  const setTitleRotate = React.useCallback(
+    (rotate: number) => {
+      conatinerSavedRotate.value = rotate
+
+      changeSchedule({title_rotate: rotate})
+    },
+    [conatinerSavedRotate, changeSchedule]
+  )
+
+  const getTitleRotateByControlType = React.useCallback((type: string, startTime: number, endTime: number) => {
+    const centerAngle = (startTime + endTime) / 2
+
+    switch (type) {
+      case 'horizon':
+        return 0
+      case 'vertical':
+        return 90
+      case 'topRight':
+        let textRotate = 90 - centerAngle
+
+        if ((startTime > 180 && endTime > 180) || startTime > endTime) {
+          textRotate = 180 + textRotate
+        }
+
+        return textRotate * -1
+      default:
+        return 0
+    }
+  }, [])
+
+  const getTitleCenterPosition = React.useCallback(
+    (startTime: number, endTime: number) => {
       let centerAngle = (startTime + endTime) / 2
-
-      switch (type) {
-        case 'horizon':
-          containerRotate.value = 0
-          break
-        case 'vertical':
-          containerRotate.value = 90
-          break
-        case 'topRight':
-          let textRotate = 90 - centerAngle
-
-          if ((startTime > 180 && endTime > 180) || startTime > endTime) {
-            textRotate = 180 + textRotate
-          }
-
-          containerRotate.value = textRotate * -1
-          break
-      }
 
       if (startTime > endTime) {
         centerAngle = (startTime + (endTime + 360)) / 2
       }
 
-      const {x: textPositionX, y: textPositionY} = polarToCartesian(
-        centerX - containerWidth / 2,
-        centerY - containerHeight / 2,
-        radius / 2,
-        centerAngle
-      )
+      return polarToCartesian(centerX - containerWidth / 2, centerY - containerHeight / 2, radius / 2, centerAngle)
+    },
+    [centerX, centerY, radius, containerWidth, containerHeight]
+  )
 
-      containerX.value = textPositionX
-      containerY.value = textPositionY
-      setTop(textPositionY)
-      setLeft(textPositionX)
+  const handleTitleControl = React.useCallback(
+    (type: string) => () => {
+      const startTime = data.start_time * 0.25
+      const endTime = data.end_time * 0.25
+
+      const titleCenterPosition = getTitleCenterPosition(startTime, endTime)
+      const titleRotate = getTitleRotateByControlType(type, startTime, endTime)
+
+      containerRotate.value = titleRotate
+
+      setTitlePosition(titleCenterPosition.x, titleCenterPosition.y)
+      setTitleRotate(titleRotate)
     },
     [
       data.start_time,
       data.end_time,
-      centerX,
-      centerY,
-      radius,
-      containerWidth,
-      containerHeight,
       containerRotate,
-      containerX,
-      containerY
+      getTitleCenterPosition,
+      getTitleRotateByControlType,
+      setTitlePosition,
+      setTitleRotate
     ]
   )
 
@@ -139,13 +165,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
       const changedX = containerX.value
       const changedY = containerY.value
 
-      const xPercentage = Math.round(((changedX + containerPadding - centerX) / radius) * 100)
-      const yPercentage = Math.round((((changedY + containerPadding - centerY) * -1) / radius) * 100)
-
-      runOnJS(setLeft)(changedX)
-      runOnJS(setTop)(changedY)
-
-      runOnJS(changeSchedule)({title_x: xPercentage, title_y: yPercentage})
+      runOnJS(setTitlePosition)(changedX, changedY)
     })
 
   const rotateGesture = Gesture.Rotation()
@@ -155,9 +175,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     .onEnd(e => {
       const chagnedRotate = (e.rotation / Math.PI) * 180
 
-      conatinerSavedRotate.value = chagnedRotate
-
-      runOnJS(changeSchedule)({title_rotate: chagnedRotate})
+      runOnJS(setTitleRotate)(chagnedRotate)
     })
 
   const composeGesture = Gesture.Simultaneous(moveGesture, rotateGesture)
@@ -265,13 +283,13 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
       {/* todo 2차 기능 */}
       <InputAccessoryView nativeID={inputAccessoryViewID}>
         <View style={toolContainerStyle}>
-          <Pressable style={toolItemStyle} onPress={handleTextRotate('horizon')}>
+          <Pressable style={toolItemStyle} onPress={handleTitleControl('horizon')}>
             <TextRotationIcon1 fill={toolIconColor} />
           </Pressable>
-          <Pressable style={toolItemStyle} onPress={handleTextRotate('topRight')}>
+          <Pressable style={toolItemStyle} onPress={handleTitleControl('topRight')}>
             <TextRotationIcon2 fill={toolIconColor} />
           </Pressable>
-          <Pressable style={toolItemStyle} onPress={handleTextRotate('vertical')}>
+          <Pressable style={toolItemStyle} onPress={handleTitleControl('vertical')}>
             <TextRotationIcon3 fill={toolIconColor} />
           </Pressable>
         </View>
@@ -287,16 +305,13 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center'
   },
   textWrapper: {
-    borderColor: 'transparent',
-    borderStyle: 'dashed',
-    borderRadius: 5
+    minWidth: 40
   },
   text: {
-    paddingTop: 0,
-    padding: 0,
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    color: '#000'
+    paddingTop: 0,
+    padding: 0
   }
 })
 
