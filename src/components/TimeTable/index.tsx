@@ -145,6 +145,7 @@ const TimeTable = ({data, isEdit}: Props) => {
                 x={x}
                 y={y}
                 radius={radius}
+                isEdit={isEdit}
                 disableScheduleList={disableScheduleList}
                 onClick={openEditMenuBottomSheet}
               />

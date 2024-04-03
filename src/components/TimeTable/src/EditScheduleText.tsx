@@ -132,6 +132,8 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
       const titleCenterPosition = getTitleCenterPosition(startTime, endTime)
       const titleRotate = getTitleRotateByControlType(type, startTime, endTime)
 
+      containerX.value = titleCenterPosition.x
+      containerY.value = titleCenterPosition.y
       containerRotate.value = titleRotate
 
       setTitlePosition(titleCenterPosition.x, titleCenterPosition.y)
@@ -140,6 +142,8 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     [
       data.start_time,
       data.end_time,
+      containerX,
+      containerY,
       containerRotate,
       getTitleCenterPosition,
       getTitleRotateByControlType,
@@ -305,7 +309,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'center'
   },
   textWrapper: {
-    minWidth: 40
+    // minWidth: 40
   },
   text: {
     fontFamily: 'Pretendard-Medium',

@@ -37,8 +37,8 @@ const ScheduleText = ({data, centerX, centerY, radius, onClick}: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    minWidth: 40
+    position: 'absolute'
+    // minWidth: 40
   },
   text: {
     fontFamily: 'Pretendard-Medium',

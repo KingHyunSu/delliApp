@@ -236,10 +236,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
   )
 
   const closeEditScheduleBottomSheet = React.useCallback(() => {
-    resetDisableScheduleList()
     setIsEdit(false)
-    setIsInputMode(false)
-  }, [resetDisableScheduleList, setIsEdit, setIsInputMode])
+  }, [setIsEdit])
 
   const handleTopLayout = React.useCallback(
     (layout: LayoutChangeEvent) => {
@@ -264,11 +262,13 @@ const Home = ({navigation}: HomeNavigationProps) => {
       translateAnimation(headerTranslateY, -200, 350)
       translateAnimation(timaTableTranslateY, -100)
     } else {
-      resetSchedule()
+      resetDisableScheduleList()
+      setIsInputMode(false)
       translateAnimation(headerTranslateY, 0, 350)
       translateAnimation(timaTableTranslateY, 0)
+      resetSchedule()
     }
-  }, [isEdit, headerTranslateY, timaTableTranslateY, resetSchedule])
+  }, [isEdit, headerTranslateY, timaTableTranslateY, resetSchedule, resetDisableScheduleList, setIsInputMode])
 
   React.useEffect(() => {
     if (isError) {

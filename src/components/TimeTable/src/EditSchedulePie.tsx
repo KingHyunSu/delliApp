@@ -49,14 +49,6 @@ const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}
     return hourText + minuteText + surffixText
   }, [])
 
-  // const startAngle = React.useMemo(() => {
-  //   return data.start_time * 0.25
-  // }, [data.start_time])
-
-  // const endAngle = React.useMemo(() => {
-  //   return data.end_time * 0.25
-  // }, [data.end_time])
-
   const nearSchedule = React.useMemo(() => {
     const list = [...scheduleList, data]
       .filter(item => {
@@ -99,24 +91,6 @@ const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}
 
     return null
   }, [disableScheduleList, scheduleList, data])
-
-  // const currentScheduleInfo = React.useMemo(() => {
-  //   const arcSweep = data.start_time > data.end_time ? -180 : 0
-  //   const totalTime = (1440 - data.start_time + data.end_time) % 1440
-
-  //   const borderPath = getRenderPath(startAngle, endAngle)
-  //   const textPath = getRenderPath((startAngle + endAngle) / 2 + arcSweep - 10, endAngle + 180, radius + 10)
-
-  //   return {
-  //     border: {
-  //       path: borderPath
-  //     },
-  //     text: {
-  //       path: textPath,
-  //       value: getTimeText(totalTime)
-  //     }
-  //   }
-  // }, [startAngle, endAngle, radius, data.start_time, data.end_time, getRenderPath, getTimeText])
 
   const prevScheduleInfo = React.useMemo(() => {
     if (nearSchedule && nearSchedule.prevSchedule) {
@@ -207,20 +181,6 @@ const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}
           </G>
         </G>
       )}
-
-      {/* <G>
-        <Path d={currentScheduleInfo.border.path} fill="none" stroke="#1E90FF" strokeWidth={2} />
-
-        <G>
-          <Defs>
-            <Path id="currentTextPath" d={currentScheduleInfo.text.path} />
-          </Defs>
-
-          <TextPath href="#currentTextPath">
-            <Text fill="#424242">{currentScheduleInfo.text.value}</Text>
-          </TextPath>
-        </G>
-      </G> */}
     </G>
   )
 }

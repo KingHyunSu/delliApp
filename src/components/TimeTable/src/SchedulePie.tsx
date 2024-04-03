@@ -9,20 +9,21 @@ interface Props {
   y: number
   radius: number
   opacity?: number
+  isEdit?: Boolean
   disableScheduleList?: ExistSchedule[]
   onClick?: (value: Schedule) => void
 }
 
 const STROK_WIDTH = 1
 
-const SchedulePie = ({data, x, y, radius, opacity, disableScheduleList, onClick}: Props) => {
+const SchedulePie = ({data, x, y, radius, opacity, isEdit = false, disableScheduleList, onClick}: Props) => {
   const isDisabled = React.useMemo(() => {
-    if (disableScheduleList) {
+    if (isEdit && disableScheduleList) {
       return disableScheduleList.some(item => item.schedule_id === data.schedule_id)
     }
 
     return false
-  }, [disableScheduleList, data.schedule_id])
+  }, [isEdit, disableScheduleList, data.schedule_id])
 
   const startAngle = React.useMemo(() => {
     return data.start_time * 0.25

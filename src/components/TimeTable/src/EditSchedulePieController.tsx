@@ -45,54 +45,6 @@ const EditSchedulePieController = ({data, x, y, radius, onScheduleChanged}: Prop
     })
   }, [startAngle, endAngle])
 
-  // React.useEffect(() => {
-  //   let startTime = data.start_time
-  //   let endTime = data.end_time
-
-  //   const disableScheduleList = scheduleList
-  //     .filter(item => {
-  //       if (data.schedule_id === item.schedule_id) {
-  //         return false
-  //       }
-
-  //       let start_time = item.start_time
-  //       let end_time = item.end_time
-
-  //       if (start_time > end_time) {
-  //         const isOverlapStart = startTime > start_time || startTime < end_time
-  //         const isOverlapEnd = endTime > start_time || endTime < end_time
-  //         const isOverlapAll = startTime > endTime && startTime <= start_time && endTime >= end_time
-
-  //         return isOverlapStart || isOverlapEnd || isOverlapAll
-  //       }
-
-  //       const isOverlapStart = startTime > start_time && startTime < end_time
-  //       const isOverlapEnd = endTime > start_time && endTime < end_time
-  //       const isOverlapAll = start_time >= startTime && end_time <= endTime
-
-  //       return isOverlapStart || isOverlapEnd || isOverlapAll
-  //     })
-  //     .map(item => {
-  //       return {
-  //         schedule_id: item.schedule_id,
-  //         title: item.title,
-  //         start_time: item.start_time,
-  //         end_time: item.end_time,
-  //         start_date: item.start_date,
-  //         end_date: item.end_date,
-  //         mon: item.mon,
-  //         tue: item.tue,
-  //         wed: item.wed,
-  //         thu: item.thu,
-  //         fri: item.fri,
-  //         sat: item.sat,
-  //         sun: item.sun
-  //       }
-  //     })
-
-  //   setDisableScheduleList(disableScheduleList)
-  // }, [data.schedule_id, data.start_time, data.end_time, scheduleList, setDisableScheduleList])
-
   const getCalcTotalMinute = (angle: number) => {
     const totalMinute = angle / 0.25
     const minuteInterval = Math.round(totalMinute / MINUTE_INTERVAL) * MINUTE_INTERVAL
