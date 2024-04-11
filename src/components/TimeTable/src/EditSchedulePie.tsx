@@ -39,6 +39,10 @@ const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}
   }, [])
 
   const getTimeText = React.useCallback((time: number) => {
+    if (time === 0) {
+      return ''
+    }
+
     const hour = Math.floor(time / 60)
     const minute = time % 60
 
@@ -52,7 +56,10 @@ const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}
   const nearSchedule = React.useMemo(() => {
     const list = [...scheduleList, data]
       .filter(item => {
-        return !disableScheduleList.some(sItem => sItem.schedule_id === item.schedule_id)
+        return (
+          !disableScheduleList.some(sItem => sItem.schedule_id === item.schedule_id) &&
+          item.schedule_id !== data.schedule_id
+        )
       })
       .sort((a, b) => {
         return a.start_time - b.start_time
@@ -75,6 +82,8 @@ const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}
         prevSchedule = list[currentScheduleIndex - 1]
       } else if (list.length > 1) {
         prevSchedule = list[list.length - 1]
+      } else {
+        prevSchedule = list[0]
       }
 
       if (list[currentScheduleIndex + 1]) {
