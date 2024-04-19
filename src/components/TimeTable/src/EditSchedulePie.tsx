@@ -54,12 +54,17 @@ const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}
   }, [])
 
   const nearSchedule = React.useMemo(() => {
-    const list = [...scheduleList, data]
+    let list = [...scheduleList]
+
+    const existSchedule = list.some(item => item.schedule_id === data.schedule_id)
+
+    if (!existSchedule) {
+      list.push(data)
+    }
+
+    list = list
       .filter(item => {
-        return (
-          !disableScheduleList.some(sItem => sItem.schedule_id === item.schedule_id) &&
-          item.schedule_id !== data.schedule_id
-        )
+        return !disableScheduleList.some(sItem => sItem.schedule_id === item.schedule_id)
       })
       .sort((a, b) => {
         return a.start_time - b.start_time
@@ -73,8 +78,7 @@ const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}
     }
 
     const currentScheduleIndex = list.findIndex(item => item.schedule_id === data.schedule_id)
-
-    if (list.length > 0) {
+    if (list.length > 0 && currentScheduleIndex !== -1) {
       let prevSchedule = null
       let nextSchedule = null
 
@@ -82,8 +86,6 @@ const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}
         prevSchedule = list[currentScheduleIndex - 1]
       } else if (list.length > 1) {
         prevSchedule = list[list.length - 1]
-      } else {
-        prevSchedule = list[0]
       }
 
       if (list[currentScheduleIndex + 1]) {
