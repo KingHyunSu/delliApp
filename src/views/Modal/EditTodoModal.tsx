@@ -48,6 +48,16 @@ const EditTodoModal = () => {
     opacity: opacity.value
   }))
 
+  const scheduleTitle = React.useMemo(() => {
+    const targetSchedule = scheduleList.find(item => item.schedule_id === scheduleTodo.schedule_id)
+
+    if (targetSchedule) {
+      return targetSchedule.title
+    }
+
+    return ''
+  }, [scheduleList, scheduleTodo.schedule_id])
+
   const isEdit = React.useMemo(() => {
     return !!scheduleTodo.todo_id
   }, [scheduleTodo.todo_id])
@@ -203,6 +213,11 @@ const EditTodoModal = () => {
         <SafeAreaView>
           <Pressable style={styles.wrapper} onPress={dismissKeyboard}>
             <View style={styles.formContainer}>
+              <View style={styles.labelContainer}>
+                <Text style={styles.label}>{scheduleTitle} </Text>
+                <Text style={styles.subLabel}>일정에 할 일 추가하기</Text>
+              </View>
+
               <TextInput
                 value={scheduleTodo.title}
                 autoFocus
@@ -254,7 +269,7 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     paddingHorizontal: 16,
-    paddingTop: 40,
+    paddingTop: 20,
     paddingBottom: 30,
     height: '100%',
     justifyContent: 'space-between'
@@ -265,11 +280,28 @@ const styles = StyleSheet.create({
   formContainer: {
     gap: 30
   },
+  labelContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    flexWrap: 'wrap'
+  },
+  label: {
+    width: 'auto',
+    fontSize: 22,
+    fontFamily: 'Pretendard-Bold',
+    color: '#424242'
+  },
+  subLabel: {
+    fontSize: 18,
+    fontFamily: 'Pretendard-Medium',
+    paddingTop: 5,
+    color: '#424242'
+  },
   title: {
-    fontSize: 24,
+    fontSize: 18,
     fontFamily: 'Pretendard-SemiBold',
     color: '#424242',
-    paddingVertical: 20,
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#eeeded'
   },
