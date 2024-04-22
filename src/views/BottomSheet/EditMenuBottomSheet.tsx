@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, View, Text, Pressable} from 'react-native'
+import {StyleSheet, Alert, View, Text, Pressable} from 'react-native'
 import {BottomSheetModal, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 
@@ -70,14 +70,29 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
   })
 
   const deleteSchedule = React.useCallback(() => {
-    if (schedule.schedule_id) {
-      const params = {
-        schedule_id: schedule.schedule_id
-      }
+    Alert.alert('일정 삭제하기', `"${schedule.title}" 일정을 삭제하시겠습니까?`, [
+      {
+        text: '취소',
+        onPress: () => {
+          return
+        },
+        style: 'cancel'
+      },
+      {
+        text: '삭제',
+        onPress: () => {
+          if (schedule.schedule_id) {
+            const params = {
+              schedule_id: schedule.schedule_id
+            }
 
-      updateScheduleDisableMutation.mutate(params)
-    }
-  }, [schedule.schedule_id, updateScheduleDisableMutation])
+            updateScheduleDisableMutation.mutate(params)
+          }
+        },
+        style: 'destructive'
+      }
+    ])
+  }, [schedule.title, schedule.schedule_id, updateScheduleDisableMutation])
 
   const openEditScheduleBottomSheet = React.useCallback(() => {
     setShowEditMenuBottomSheet(false)
