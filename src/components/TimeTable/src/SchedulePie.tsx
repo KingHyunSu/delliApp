@@ -50,7 +50,14 @@ const SchedulePie = ({data, x, y, radius, opacity, isEdit = false, disableSchedu
   }, [onClick, data])
 
   return (
-    <Path d={path} fill={isDisabled ? '#faf0f0' : data.background_color} fillOpacity={opacity} onPress={handleClick} />
+    <Path
+      d={path}
+      fill={isDisabled ? '#faf0f0' : data.background_color}
+      fillOpacity={opacity}
+      strokeWidth={0.4}
+      stroke={'#f5f6f8'}
+      onPress={handleClick}
+    />
   )
 }
 
