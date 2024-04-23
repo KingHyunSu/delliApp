@@ -1,5 +1,6 @@
 import React from 'react'
-import {Platform, AppState, StyleSheet, SafeAreaView} from 'react-native'
+import {Platform, AppState, StyleSheet, StatusBar, SafeAreaView, Alert} from 'react-native'
+import {QueryClient, QueryCache, QueryClientProvider} from '@tanstack/react-query'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SplashScreen from 'react-native-splash-screen'
 
@@ -8,7 +9,7 @@ import {NavigationContainer} from '@react-navigation/native'
 import {createStackNavigator} from '@react-navigation/stack'
 import {navigationRef} from '@/utils/navigation'
 
-// components
+// screens
 import LoginScreen from '@/views/Login'
 import JoinTerms from '@/views/JoinTerms'
 
@@ -34,21 +35,46 @@ import * as authApi from '@/apis/auth'
 function App(): JSX.Element {
   const {isLoaded, load, show} = useAppOpenAd(
     Platform.select({
-      // ios: TestIds.APP_OPEN,
-      ios: 'ca-app-pub-3765315237132279/9003768148',
-      android: 'ca-app-pub-3765315237132279/4177449893'
+      // ios: TestIds.APP_OPEN
+      // android: TestIds.APP_OPEN,
+      ios: 'ca-app-pub-3765315237132279/9003768148'
+      // android: 'ca-app-pub-3765315237132279/4177449893'
     }) || ''
   )
   const appState = React.useRef(AppState.currentState)
   const [isActiveApp, setIsActiveApp] = React.useState(false)
+  const [isServerError, setIsServerError] = React.useState(false)
 
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
+
   const Stack = createStackNavigator<RootStackParamList>()
 
   const screenOptions = React.useMemo(() => {
     return {headerShown: false}
   }, [])
+
+  const handleGlobalError = errorCode => {
+    setIsLunch(true)
+
+    if (errorCode === 500) {
+      setIsServerError(true)
+    }
+  }
+
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      mutations: {
+        onError: handleGlobalError
+      },
+      queries: {
+        retry: false
+      }
+    },
+    queryCache: new QueryCache({
+      onError: handleGlobalError
+    })
+  })
 
   React.useEffect(() => {
     const subscription = AppState.addEventListener('change', state => {
@@ -107,6 +133,20 @@ function App(): JSX.Element {
     }
   }, [isLunch])
 
+  React.useEffect(() => {
+    if (isServerError) {
+      Alert.alert('네트워크 연결 실패', '네트워크 연결이 지연되고 있습니다.\n잠시 후 다시 시도해주세요.', [
+        {
+          text: '확인',
+          onPress: () => {
+            setIsServerError(false)
+          },
+          style: 'cancel'
+        }
+      ])
+    }
+  }, [isServerError])
+
   // recoil debug
   function RecoilDebugObserver(): React.ReactNode {
     const recoilSnapshot = useRecoilSnapshot()
@@ -121,30 +161,34 @@ function App(): JSX.Element {
   }
 
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
-      {/* <RecoilDebugObserver /> */}
-      <BottomSheetModalProvider>
-        <SafeAreaView style={styles.statusBar} />
-        <NavigationContainer ref={navigationRef}>
-          <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
-            {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
-            {isLogin ? (
-              <>
-                <Stack.Screen name="Home" component={HomeScreen} />
-                <Stack.Screen name="Setting" component={SettingScreen} />
-                <Stack.Screen name="Leave" component={LeaveScreen} />
-              </>
-            ) : (
-              <>
-                <Stack.Screen name="Login" component={LoginScreen} />
-                <Stack.Screen name="JoinTerms" component={JoinTerms} />
-              </>
-            )}
-            <Stack.Screen name="Logout" component={LogoutScreen} />
-          </Stack.Navigator>
-        </NavigationContainer>
-      </BottomSheetModalProvider>
-    </GestureHandlerRootView>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView style={{flex: 1}}>
+        {/* <RecoilDebugObserver /> */}
+        <BottomSheetModalProvider>
+          <StatusBar barStyle="dark-content" />
+
+          <SafeAreaView style={styles.statusBar} />
+          <NavigationContainer ref={navigationRef}>
+            <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
+              {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
+              {isLogin ? (
+                <>
+                  <Stack.Screen name="Home" component={HomeScreen} />
+                  <Stack.Screen name="Setting" component={SettingScreen} />
+                  <Stack.Screen name="Leave" component={LeaveScreen} />
+                </>
+              ) : (
+                <>
+                  <Stack.Screen name="Login" component={LoginScreen} />
+                  <Stack.Screen name="JoinTerms" component={JoinTerms} />
+                </>
+              )}
+              <Stack.Screen name="Logout" component={LogoutScreen} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </BottomSheetModalProvider>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   )
 }
 
