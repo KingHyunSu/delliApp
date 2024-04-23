@@ -268,7 +268,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
               value={data.title}
               inputAccessoryViewID={inputAccessoryViewID}
               style={textStyle}
-              maxLength={20}
+              maxLength={200}
               multiline
               autoFocus
               scrollEnabled={false}
