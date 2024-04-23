@@ -37,7 +37,7 @@ const Background = ({x, y, radius}: Props) => {
 
   return (
     <G>
-      <Circle cx={x} cy={y} r={radius} fill={'#f5f6f8'} fillOpacity={1} />
+      <Circle cx={x} cy={y} r={radius} fill={'#f5f6f8'} fillOpacity={1} strokeWidth={0.4} stroke={'#f5f6f8'} />
       {hourPositionList.map((hourPosition, index) => {
         return (
           <G key={index} x={hourPosition.x} y={hourPosition.y} rotation={hourPosition.angle}>

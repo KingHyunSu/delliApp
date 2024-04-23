@@ -111,7 +111,7 @@ const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}
       const time = getTime(prevStartAngle, prevEndAngle)
       const moveRightAngle = 5
 
-      const borderPath = getRenderPath(prevStartAngle, prevEndAngle)
+      const borderPath = getRenderPath(prevStartAngle, prevEndAngle, radius - 1)
       const textPath = getRenderPath(prevEndAngle, prevEndAngle - moveRightAngle, radius - 15)
 
       return {
@@ -136,7 +136,7 @@ const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}
       const time = getTime(nextStartAngle, nextEndAngle)
       const moveRightAngle = 5
 
-      const borderPath = getRenderPath(nextStartAngle, nextEndAngle)
+      const borderPath = getRenderPath(nextStartAngle, nextEndAngle, radius - 1)
       const textPath = getRenderPath(nextStartAngle + moveRightAngle, nextEndAngle + 100, radius - 15)
 
       return {
