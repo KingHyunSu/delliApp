@@ -106,11 +106,14 @@ const TimeTable = ({data, isEdit}: Props) => {
 
         const isOverlapStart = startTime > start_time && startTime < end_time
         const isOverlapEnd = endTime > start_time && endTime < end_time
-        let isOverlapAll = start_time >= startTime && end_time <= endTime
 
         if (startTime > endTime) {
-          isOverlapAll = start_time >= startTime && end_time <= endTime + 1440
+          if (endTime > start_time) {
+            start_time += 1440
+          }
+          endTime += 1440
         }
+        const isOverlapAll = start_time >= startTime && end_time <= endTime
 
         return isOverlapStart || isOverlapEnd || isOverlapAll
       })
