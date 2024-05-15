@@ -96,6 +96,7 @@ const Login = ({navigation}: LoginNavigationProps) => {
   }, [doLogin])
 
   const signInWithGoogle = React.useCallback(async () => {
+    // [TODO] hasPlayServices 추가하기 (2024-03-14)
     try {
       const response = await GoogleSignin.signIn()
 

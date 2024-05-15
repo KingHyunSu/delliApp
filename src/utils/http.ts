@@ -7,6 +7,7 @@ import * as navigation from '@/utils/navigation'
 import {getNewToken} from '@/apis/auth'
 
 const instance = Axios.create({
+  // baseURL: 'http://localhost:80', // ios local
   // baseURL: 'http://localhost:8080', // ios local
   // baseURL: 'http://10.0.2.2:8080', // android local
   baseURL: API_URL,
@@ -34,8 +35,7 @@ instance.interceptors.response.use(
     return response.data
   },
   async error => {
-    console.error('http error', error)
-    const statusCode = error.response.status
+    const statusCode = error.response?.status || 500
 
     switch (statusCode) {
       case 401: {
@@ -56,7 +56,7 @@ instance.interceptors.response.use(
         break
       }
     }
-    return Promise.reject(error)
+    return Promise.reject(statusCode)
   }
 )
 
