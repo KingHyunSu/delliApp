@@ -6,7 +6,6 @@ import {scheduleDateState, scheduleListState, scheduleTodoState} from '@/store/s
 import {showEditTodoModalState} from '@/store/modal'
 
 import {useMutation} from '@tanstack/react-query'
-import {setScheduleTodoComplete, deleteScheduleTodoComplete} from '@/apis/schedule'
 
 import {format} from 'date-fns'
 import {trigger} from 'react-native-haptic-feedback'
@@ -14,6 +13,9 @@ import debounce from 'lodash.debounce'
 
 import CheckIcon from '@/assets/icons/check.svg'
 import MoreIcon from '@/assets/icons/more_horiz.svg'
+
+//repository
+import {todoCompleteRepository} from '@/repository'
 
 interface Props {
   data: Todo[]
@@ -85,13 +87,15 @@ const ScheduleTodoList = ({data}: Props) => {
 
   const setScheduleTodoCompleteMutation = useMutation({
     mutationFn: (params: SetScheduleTodoCompleteRequest) => {
-      return setScheduleTodoComplete(params)
+      // return setScheduleTodoComplete(params)
+      return todoCompleteRepository.setScheduleTodoCompleteQuery(params)
     }
   })
 
   const deleteScheduleTodoCompleteMutation = useMutation({
     mutationFn: (params: DeleteScheduleTodoCompleteRequest) => {
-      return deleteScheduleTodoComplete(params)
+      // return deleteScheduleTodoComplete(params)
+      return todoCompleteRepository.deleteScheduleTodoCompleteQuery(params)
     }
   })
 
@@ -108,14 +112,12 @@ const ScheduleTodoList = ({data}: Props) => {
           complete_date: format(new Date(scheduleDate), 'yyyy-MM-dd')
         }
 
-        const response = await setScheduleTodoCompleteMutation.mutateAsync(params)
+        const result = await setScheduleTodoCompleteMutation.mutateAsync(params)
 
         trigger('notificationSuccess', {
           enableVibrateFallback: true,
           ignoreAndroidSystemSettings: false
         })
-
-        const result = response.data
 
         const newScheduleList = scheduleList.map(scheduleItem => {
           if (item.schedule_id === scheduleItem.schedule_id) {

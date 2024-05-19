@@ -38,12 +38,14 @@ const Setting = ({navigation}: SettingNavigationProps) => {
   }
 
   const moveServiceTermsPage = React.useCallback(async () => {
-    const url = await getTermsUrl('1')
+    // const url = await getTermsUrl('1')
+    const url = 'https://coherent-warbler-b91.notion.site/56c16f3a2e3a40d8a81e950ccaf00269?pvs=4'
     Linking.openURL(url)
   }, [])
 
   const movePrivacyPage = React.useCallback(async () => {
-    const url = await getTermsUrl('2')
+    // const url = await getTermsUrl('2')
+    const url = 'https://coherent-warbler-b91.notion.site/a49ff95ec433493b86124571c6677261?pvs=4'
     Linking.openURL(url)
   }, [])
 
@@ -118,13 +120,14 @@ const Setting = ({navigation}: SettingNavigationProps) => {
             <Text style={styles.contentText}>1.1.0</Text>
           </View>
 
-          <Pressable style={styles.item} onPress={doLogout}>
+          {/* 2024-05-18 서버 제거로 인해 비활성화 */}
+          {/* <Pressable style={styles.item} onPress={doLogout}>
             <Text style={styles.contentText}>로그아웃</Text>
           </Pressable>
 
           <Pressable style={styles.item} onPress={handleLeave}>
             <Text style={styles.contentText}>탈퇴하기</Text>
-          </Pressable>
+          </Pressable> */}
         </View>
       </ScrollView>
     </View>

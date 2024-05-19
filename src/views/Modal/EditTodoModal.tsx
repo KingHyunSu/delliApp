@@ -22,9 +22,11 @@ import {scheduleDateState, scheduleListState, scheduleState, scheduleTodoState} 
 import {format} from 'date-fns'
 
 import {useMutation} from '@tanstack/react-query'
-import {setScheduleTodo, deleteScheduleTodo} from '@/apis/schedule'
 
 import DeleteIcon from '@/assets/icons/trash.svg'
+
+// repository
+import {todoRepository} from '@/repository'
 
 const EditTodoModal = () => {
   const {height} = useWindowDimensions()
@@ -113,10 +115,26 @@ const EditTodoModal = () => {
 
   const setScheduleTodoMutation = useMutation({
     mutationFn: async (data: Todo) => {
-      return setScheduleTodo(data)
+      if (!data.schedule_id) {
+        throw new Error('잘못된 일정')
+      }
+
+      const params = {
+        schedule_id: data.schedule_id,
+        todo_id: data.todo_id,
+        title: data.title,
+        start_date: data.start_date,
+        end_date: data.end_date
+      }
+
+      if (params.todo_id) {
+        return todoRepository.updateTodo(params)
+      }
+
+      return todoRepository.setTodo(params)
     },
-    onSuccess: response => {
-      const result = response.data
+    onSuccess: (response: Todo[]) => {
+      const result = response[0]
 
       const newScheduleList = scheduleList.map(item => {
         if (item.schedule_id === result.schedule_id) {
@@ -148,10 +166,10 @@ const EditTodoModal = () => {
 
   const deleteScheduleTodoMutation = useMutation({
     mutationFn: async (data: DeleteScheduleTodoReqeust) => {
-      return deleteScheduleTodo(data)
+      return todoRepository.deleteTodo(data)
     },
     onSuccess: response => {
-      const result = response.data
+      const result = response
 
       const newScheduleList = scheduleList.map(item => {
         const newTodoList = item.todo_list.filter(todoItem => todoItem.todo_id !== result.todo_id)

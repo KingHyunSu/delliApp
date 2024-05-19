@@ -4,7 +4,6 @@ import {BottomSheetModal, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 
 import {useMutation} from '@tanstack/react-query'
-import {updateScheduleDisable} from '@/apis/schedule'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
@@ -17,6 +16,9 @@ import {trigger} from 'react-native-haptic-feedback'
 import EditIcon from '@/assets/icons/edit3.svg'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import TodoIcon from '@/assets/icons/priority.svg'
+
+// repository
+import {scheduleRepository} from '@/repository'
 
 interface Props {
   refetchScheduleList: Function
@@ -59,7 +61,7 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
 
   const updateScheduleDisableMutation = useMutation({
     mutationFn: async (data: ScheduleDisableReqeust) => {
-      return await updateScheduleDisable(data)
+      await scheduleRepository.updateScheduleDisable(data)
     },
     onSuccess: async () => {
       haptic('rigid')

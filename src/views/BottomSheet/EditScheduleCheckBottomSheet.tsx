@@ -9,9 +9,9 @@ import {disableScheduleListState, existScheduleListState, scheduleState} from '@
 import {isEditState} from '@/store/system'
 
 import {useMutation} from '@tanstack/react-query'
-import {setSchedule} from '@/apis/schedule'
 
 import {getTimeOfMinute} from '@/utils/helper'
+import {scheduleRepository} from '@/repository'
 
 interface Props {
   refetchScheduleList: Function
@@ -67,8 +67,8 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
           return {schedule_id: item.schedule_id}
         })
       }
-      console.log('params', params)
-      return await setSchedule(params)
+
+      await scheduleRepository.setSchedule(params)
     },
     onSuccess: async () => {
       await refetchScheduleList()

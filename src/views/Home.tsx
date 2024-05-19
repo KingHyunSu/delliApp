@@ -33,14 +33,15 @@ import {
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {showEditMenuBottomSheetState, showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
 
-import * as scheduleApi from '@/apis/schedule'
-import {getTimetableCategoryList} from '@/apis/timetable'
 import {useQuery, useMutation} from '@tanstack/react-query'
 
 import {getDayOfWeekKey} from '@/utils/helper'
 import {format, getDay} from 'date-fns'
 
 import {HomeNavigationProps} from '@/types/navigation'
+
+// repository
+import {scheduleRepository} from '@/repository'
 
 const Home = ({navigation}: HomeNavigationProps) => {
   const setIsLunch = useSetRecoilState(isLunchState)
@@ -60,83 +61,78 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
 
-  const {isError} = useQuery({
-    queryKey: ['timetableCategoryList'],
-    queryFn: async () => {
-      const response = await getTimetableCategoryList()
-      const result = response.data
-
-      if (result.length > 0) {
-        setActiveTimeTableCategory(result[0])
-      }
-
-      return result
-    }
-  })
-
-  const {refetch: refetchScheduleList} = useQuery({
+  const {isError, refetch: refetchScheduleList} = useQuery({
     queryKey: ['scheduleList', scheduleDate],
     queryFn: async () => {
       setIsLoading(true)
-      if (activeTimeTableCategory.timetable_category_id) {
-        const date = format(scheduleDate, 'yyyy-MM-dd')
 
-        const param = {
-          timetable_category_id: activeTimeTableCategory.timetable_category_id,
-          date,
-          mon: '',
-          tue: '',
-          wed: '',
-          thu: '',
-          fri: '',
-          sat: '',
-          sun: '',
-          disable: '0'
-        }
-        const dayOfWeek = getDayOfWeekKey(scheduleDate.getDay())
-
-        if (dayOfWeek) {
-          param[dayOfWeek] = '1'
-        }
-
-        const response = await scheduleApi.getScheduleList(param)
-        setScheduleList(response.data)
-
-        setIsLunch(true)
-
-        setTimeout(() => {
-          setIsLoading(false)
-        }, 300)
-
-        return response.data
+      const date = format(scheduleDate, 'yyyy-MM-dd')
+      const dayOfWeek = getDayOfWeekKey(scheduleDate.getDay())
+      const params = {
+        date,
+        mon: '',
+        tue: '',
+        wed: '',
+        thu: '',
+        fri: '',
+        sat: '',
+        sun: '',
+        disable: '0'
       }
 
-      return []
+      if (dayOfWeek) {
+        params[dayOfWeek] = '1'
+      }
+
+      let result = await scheduleRepository.getScheduleList(params)
+
+      result = result.map(item => {
+        return {
+          ...item,
+          todo_list: JSON.parse(item.todo_list)
+        }
+      })
+      console.log('result', result)
+
+      setScheduleList(result)
+      setIsLunch(true)
+      setTimeout(() => {
+        setIsLoading(false)
+      }, 300)
+
+      return result
     },
-    initialData: [],
-    enabled: !!activeTimeTableCategory.timetable_category_id
+    initialData: []
   })
 
   const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
     mutationFn: async () => {
       const params = {
-        ...schedule
+        schedule_id: schedule.schedule_id,
+        start_time: schedule.start_time,
+        end_time: schedule.end_time,
+        mon: schedule.mon,
+        tue: schedule.tue,
+        wed: schedule.wed,
+        thu: schedule.thu,
+        fri: schedule.fri,
+        sat: schedule.sat,
+        sun: schedule.sun
       }
 
-      const result = await scheduleApi.getExistScheduleList(params)
-
-      return result.data
+      return await scheduleRepository.getExistScheduleList(params)
     }
   })
 
   const {mutate: setScheduleMutate} = useMutation({
     mutationFn: async () => {
-      const params = {
-        schedule,
-        disableScheduleIdList: []
-      }
+      const params = {schedule}
 
-      return await scheduleApi.setSchedule(params)
+      if (params.schedule.schedule_id) {
+        await scheduleRepository.updateSchedule(params)
+      } else {
+        await scheduleRepository.setSchedule(params)
+      }
     },
     onSuccess: async () => {
       await refetchScheduleList()
@@ -215,7 +211,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
         setSchedule(prevState => {
           return {
             ...prevState,
-            timetable_category_id: activeTimeTableCategory.timetable_category_id,
+            // timetable_category_id: activeTimeTableCategory.timetable_category_id,
             start_date: format(scheduleDate, 'yyyy-MM-dd'),
             [dayOfWeekkey]: '1'
           }
@@ -224,7 +220,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
       setIsEdit(true)
     },
-    [activeTimeTableCategory.timetable_category_id, scheduleDate, setIsEdit, setSchedule]
+    [scheduleDate, setIsEdit, setSchedule]
   )
 
   const openEditMenuBottomSheet = React.useCallback(

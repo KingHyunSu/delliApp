@@ -52,7 +52,7 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
       if (currentSchedule.end_time !== nextSchedule.start_time) {
         const schedule = {
           schedule_id: null,
-          timetable_category_id: currentSchedule.timetable_category_id,
+          // timetable_category_id: currentSchedule.timetable_category_id,
           start_date: format(new Date(), 'yyyy-MM-dd'),
           end_date: '9999-12-31',
           start_time: currentSchedule.end_time,
@@ -90,7 +90,7 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
     if (data[0].start_time !== data[data.length - 1].end_time) {
       result.push({
         schedule_id: null,
-        timetable_category_id: data[0].timetable_category_id,
+        // timetable_category_id: data[0].timetable_category_id,
         start_date: format(new Date(), 'yyyy-MM-dd'),
         end_date: '9999-12-31',
         start_time: data[data.length - 1].end_time,

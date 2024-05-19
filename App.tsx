@@ -9,14 +9,9 @@ import {NavigationContainer} from '@react-navigation/native'
 import {createStackNavigator} from '@react-navigation/stack'
 import {navigationRef} from '@/utils/navigation'
 
-// screens
-import LoginScreen from '@/views/Login'
-import JoinTerms from '@/views/JoinTerms'
-
 import HomeScreen from '@/views/Home'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
-import LogoutScreen from '@/views/Logout'
 
 // utils
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
@@ -29,8 +24,9 @@ import {RootStackParamList} from '@/types/navigation'
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
 import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
 
-import * as authApi from '@/apis/auth'
 // import crashlytics from '@react-native-firebase/crashlytics'
+
+import initDatabase from '@/repository/utils/init'
 
 function App(): JSX.Element {
   const {isLoaded, load, show} = useAppOpenAd(
@@ -43,6 +39,7 @@ function App(): JSX.Element {
   )
   const appState = React.useRef(AppState.currentState)
   const [isActiveApp, setIsActiveApp] = React.useState(false)
+  const [isInit, setIsInit] = React.useState(false)
   const [isServerError, setIsServerError] = React.useState(false)
 
   const [isLogin, setIsLogin] = useRecoilState(loginState)
@@ -57,9 +54,10 @@ function App(): JSX.Element {
   const handleGlobalError = errorCode => {
     setIsLunch(true)
 
-    if (errorCode === 500) {
-      setIsServerError(true)
-    }
+    // 2024-05-18 서버 제거로인해 비활성화
+    // if (errorCode === 500) {
+    //   setIsServerError(true)
+    // }
   }
 
   const queryClient = new QueryClient({
@@ -76,6 +74,83 @@ function App(): JSX.Element {
     })
   })
 
+  // 2024-05-18 서버 제거로인해 비활성화
+  // React.useEffect(() => {
+  //   const updateAccess = async () => {
+  //     await authApi.updateAccess()
+  //   }
+
+  //   if (isActiveApp && isLogin) {
+  //     updateAccess()
+  //   }
+  // }, [isActiveApp, isLogin])
+
+  // React.useEffect(() => {
+  //   if (isLogin) {
+  //     load()
+  //   }
+  // }, [isLogin, load])
+
+  // React.useEffect(() => {
+  //   const setToken = async () => {
+  //     const token = await AsyncStorage.getItem('token')
+
+  //     if (token) {
+  //       setIsLogin(true)
+  //       setIsActiveApp(true)
+  //     } else {
+  //       setIsLunch(true)
+  //     }
+  //   }
+
+  //   setToken()
+  //   if (isLogin && isLoaded) {
+  //     show()
+  //   }
+  // }, [isLogin, isLoaded, show, setIsLunch, setIsLogin])
+
+  // React.useEffect(() => {
+  //   if (isLunch) {
+  //     SplashScreen.hide()
+  //     // crashlytics().crash()
+  //   }
+  // }, [isLunch])
+
+  // React.useEffect(() => {
+  //   if (isServerError) {
+  //     Alert.alert('네트워크 연결 실패', '네트워크 연결이 지연되고 있습니다.\n잠시 후 다시 시도해주세요.', [
+  //       {
+  //         text: '확인',
+  //         onPress: () => {
+  //           setIsServerError(false)
+  //         },
+  //         style: 'cancel'
+  //       }
+  //     ])
+  //   }
+  // }, [isServerError])
+
+  React.useEffect(() => {
+    const init = async () => {
+      const isInitDatabase = await initDatabase()
+      setIsInit(isInitDatabase)
+    }
+
+    init()
+  }, [])
+
+  React.useEffect(() => {
+    // 광고 load
+    load()
+  }, [load])
+
+  React.useEffect(() => {
+    if (isInit && isLoaded) {
+      show()
+      SplashScreen.hide()
+    }
+  }, [isInit, isLoaded, show])
+
   React.useEffect(() => {
     const subscription = AppState.addEventListener('change', state => {
       if (appState.current.match(/inactive|background/) && state === 'active') {
@@ -91,61 +166,6 @@ function App(): JSX.Element {
       subscription.remove()
     }
   }, [])
-
-  React.useEffect(() => {
-    const updateAccess = async () => {
-      await authApi.updateAccess()
-    }
-
-    if (isActiveApp && isLogin) {
-      updateAccess()
-    }
-  }, [isActiveApp, isLogin])
-
-  React.useEffect(() => {
-    if (isLogin) {
-      load()
-    }
-  }, [isLogin, load])
-
-  React.useEffect(() => {
-    const setToken = async () => {
-      const token = await AsyncStorage.getItem('token')
-
-      if (token) {
-        setIsLogin(true)
-        setIsActiveApp(true)
-      } else {
-        setIsLunch(true)
-      }
-    }
-
-    setToken()
-    if (isLogin && isLoaded) {
-      show()
-    }
-  }, [isLogin, isLoaded, show, setIsLunch, setIsLogin])
-
-  React.useEffect(() => {
-    if (isLunch) {
-      SplashScreen.hide()
-      // crashlytics().crash()
-    }
-  }, [isLunch])
-
-  React.useEffect(() => {
-    if (isServerError) {
-      Alert.alert('네트워크 연결 실패', '네트워크 연결이 지연되고 있습니다.\n잠시 후 다시 시도해주세요.', [
-        {
-          text: '확인',
-          onPress: () => {
-            setIsServerError(false)
-          },
-          style: 'cancel'
-        }
-      ])
-    }
-  }, [isServerError])
 
   // recoil debug
   function RecoilDebugObserver(): React.ReactNode {
@@ -170,20 +190,9 @@ function App(): JSX.Element {
           <SafeAreaView style={styles.statusBar} />
           <NavigationContainer ref={navigationRef}>
             <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
-              {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
-              {isLogin ? (
-                <>
-                  <Stack.Screen name="Home" component={HomeScreen} />
-                  <Stack.Screen name="Setting" component={SettingScreen} />
-                  <Stack.Screen name="Leave" component={LeaveScreen} />
-                </>
-              ) : (
-                <>
-                  <Stack.Screen name="Login" component={LoginScreen} />
-                  <Stack.Screen name="JoinTerms" component={JoinTerms} />
-                </>
-              )}
-              <Stack.Screen name="Logout" component={LogoutScreen} />
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen name="Setting" component={SettingScreen} />
+              <Stack.Screen name="Leave" component={LeaveScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </BottomSheetModalProvider>

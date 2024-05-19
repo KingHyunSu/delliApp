@@ -26,7 +26,7 @@ export const scheduleState = atom<Schedule>({
   key: 'scheduleState',
   default: {
     schedule_id: null,
-    timetable_category_id: null,
+    // timetable_category_id: null,
     start_date: '',
     end_date: '9999-12-31',
     start_time: 0,
