@@ -31,9 +31,9 @@ import initDatabase from '@/repository/utils/init'
 function App(): JSX.Element {
   const {isLoaded, load, show} = useAppOpenAd(
     Platform.select({
-      // ios: TestIds.APP_OPEN
+      ios: TestIds.APP_OPEN
       // android: TestIds.APP_OPEN,
-      ios: 'ca-app-pub-3765315237132279/9003768148'
+      // ios: 'ca-app-pub-3765315237132279/9003768148'
       // android: 'ca-app-pub-3765315237132279/4177449893'
     }) || ''
   )

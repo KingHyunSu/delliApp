@@ -1,5 +1,15 @@
 import React from 'react'
-import {Platform, Animated, Pressable, StyleSheet, SafeAreaView, View, Text, LayoutChangeEvent} from 'react-native'
+import {
+  Platform,
+  Animated,
+  Pressable,
+  StyleSheet,
+  SafeAreaView,
+  View,
+  Text,
+  NativeModules,
+  LayoutChangeEvent
+} from 'react-native'
 
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
@@ -92,6 +102,9 @@ const Home = ({navigation}: HomeNavigationProps) => {
           todo_list: JSON.parse(item.todo_list)
         }
       })
+
+      const {AppStorage} = NativeModules
+      await AppStorage.set(JSON.stringify(result))
       console.log('result', result)
 
       setScheduleList(result)
