@@ -53,6 +53,8 @@ import {HomeNavigationProps} from '@/types/navigation'
 // repository
 import {scheduleRepository} from '@/repository'
 
+import svgFileGenerator from '@/components/TimeTable/svgFileGenerator'
+
 const Home = ({navigation}: HomeNavigationProps) => {
   const setIsLunch = useSetRecoilState(isLunchState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
@@ -103,8 +105,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
         }
       })
 
-      const {AppStorage} = NativeModules
-      await AppStorage.set(JSON.stringify(result))
+      // const {AppStorage} = NativeModules
+      // await AppStorage.set(JSON.stringify(result))
       console.log('result', result)
 
       setScheduleList(result)
@@ -284,6 +286,19 @@ const Home = ({navigation}: HomeNavigationProps) => {
       setIsLoading(false)
     }
   }, [isError, setIsLoading])
+
+  React.useEffect(() => {
+    const run = async () => {
+      try {
+        const options = {width: '200', height: '200'}
+        await svgFileGenerator({data: scheduleList, options})
+      } catch (e) {
+        console.error(e)
+      }
+    }
+
+    run()
+  }, [scheduleList])
 
   return (
     <SafeAreaView style={containerStyle}>

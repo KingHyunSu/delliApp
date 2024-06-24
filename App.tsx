@@ -146,7 +146,7 @@ function App(): JSX.Element {
 
   React.useEffect(() => {
     if (isInit && isLoaded) {
-      show()
+      // show()
       SplashScreen.hide()
     }
   }, [isInit, isLoaded, show])
