@@ -49,14 +49,14 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		46AA0CF42C1EE82800862503 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 8;
+			buildActionMask = 12;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
 				46AA0CF02C1EE82800862503 /* DelliWidgetExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -292,6 +292,7 @@
 			buildPhases = (
 				C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */,
 				FD10A7F022414F080027D42C /* Start Packager */,
+				46AA0CF42C1EE82800862503 /* Embed Foundation Extensions */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
@@ -301,7 +302,6 @@
 				823DBD10703C89D73AB45433 /* [CP-User] [RNFB] Core Configuration */,
 				5D5D1131635B85115268D37D /* [CP-User] [RNFB] Crashlytics Configuration */,
 				E4E685F2469AD8BEB1F699A0 /* [CP-User] [RNGoogleMobileAds] Configuration */,
-				46AA0CF42C1EE82800862503 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -711,7 +711,7 @@
 				INFOPLIST_FILE = delli/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "델리";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -746,7 +746,7 @@
 				INFOPLIST_FILE = delli/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "델리";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -790,7 +790,7 @@
 				INFOPLIST_FILE = DelliWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DelliWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -834,7 +834,7 @@
 				INFOPLIST_FILE = DelliWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DelliWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
