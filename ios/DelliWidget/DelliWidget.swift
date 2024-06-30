@@ -7,6 +7,7 @@
 
 import WidgetKit
 import SwiftUI
+import SVGKit
 
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
@@ -43,13 +44,16 @@ struct DelliWidgetEntryView : View {
     var entry: Provider.Entry
 
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
-
-            Text("Emoji:")
-            Text(entry.emoji)
-        }
+      let appGroupIdentifier = "group.delli.widget"
+      
+      if let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier:appGroupIdentifier)?.appendingPathComponent("timetable.svg"),
+         let svgImage = SVGKImage(contentsOf: url) {
+        Image(uiImage: svgImage.uiImage)
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+      } else {
+        Text("SVG Load Error")
+      }
     }
 }
 
@@ -63,8 +67,6 @@ struct DelliWidget: Widget {
                     .containerBackground(.fill.tertiary, for: .widget)
             } else {
                 DelliWidgetEntryView(entry: entry)
-                    .padding()
-                    .background()
             }
         }
         .configurationDisplayName("My Widget")
