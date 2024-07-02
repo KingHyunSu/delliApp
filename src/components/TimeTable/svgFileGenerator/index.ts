@@ -53,12 +53,10 @@ export default async ({data = [], options}: Props) => {
       </svg>
     `
 
-    console.log('path22', RNFS.DocumentDirectoryPath)
     const fileName = 'timetable.svg'
-    const path = (await AppGroupModule.getAppGroupPath()) + '/' + fileName
-    // const path =
-    //   '/Users/gimhyeonsu/Library/Developer/CoreSimulator/Devices/A9FA48E8-13C2-4D68-8A48-A2AC10581886/data/Containers'
-    console.log('path', path)
+    const appGroupPath = await AppGroupModule.getAppGroupPath()
+    const path = appGroupPath + '/' + fileName
+
     await RNFS.writeFile(path, contents, 'utf8')
   } catch (e) {
     console.error('erorrrorr', e)
