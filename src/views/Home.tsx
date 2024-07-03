@@ -10,6 +10,11 @@ import {
   NativeModules,
   LayoutChangeEvent
 } from 'react-native'
+import {captureRef} from 'react-native-view-shot'
+import RNFS from 'react-native-fs'
+import {format, getDay, getTime} from 'date-fns'
+import {useQuery, useMutation} from '@tanstack/react-query'
+import {reloadAllTimelines} from 'react-native-widgetkit'
 
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
@@ -43,10 +48,7 @@ import {
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {showEditMenuBottomSheetState, showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
 
-import {useQuery, useMutation} from '@tanstack/react-query'
-
 import {getDayOfWeekKey} from '@/utils/helper'
-import {format, getDay} from 'date-fns'
 
 import {HomeNavigationProps} from '@/types/navigation'
 
@@ -56,6 +58,10 @@ import {scheduleRepository} from '@/repository'
 import svgFileGenerator from '@/components/TimeTable/svgFileGenerator'
 
 const Home = ({navigation}: HomeNavigationProps) => {
+  const {AppGroupModule} = NativeModules
+
+  const widgetTimetableRef = React.useRef<View>(null)
+
   const setIsLunch = useSetRecoilState(isLunchState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
@@ -151,7 +157,32 @@ const Home = ({navigation}: HomeNavigationProps) => {
     },
     onSuccess: async () => {
       await refetchScheduleList()
+
+      if (widgetTimetableRef.current) {
+        const uri = await captureRef(widgetTimetableRef, {
+          format: 'png',
+          quality: 1
+        })
+
+        const fileName = 'timetable.png'
+        const appGroupPath = await AppGroupModule.getAppGroupPath()
+        const path = appGroupPath + '/' + fileName
+        console.log('path', path)
+
+        const existImage = await RNFS.exists(path)
+
+        if (existImage) {
+          await RNFS.unlink(path)
+        }
+        await RNFS.moveFile(uri, path)
+      }
+
+      reloadAllTimelines()
+
       setIsEdit(false)
+    },
+    onError: e => {
+      console.error('error', e)
     }
   })
 
@@ -359,6 +390,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
         <EditScheduleBottomSheet />
         <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
 
+        {/* bottom buttons */}
         {isEdit ? (
           <Pressable style={submitButtonStyle} onPress={handleSubmit} disabled={!activeSubmit}>
             <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
@@ -379,6 +411,11 @@ const Home = ({navigation}: HomeNavigationProps) => {
         <EditTodoModal />
 
         <Loading />
+      </View>
+
+      {/*  widget timetable */}
+      <View ref={widgetTimetableRef} style={{width: 500, height: 500, position: 'absolute', top: -1000, left: -1000}}>
+        <TimeTable data={scheduleList} isEdit={false} width={250} height={250} />
       </View>
     </SafeAreaView>
   )

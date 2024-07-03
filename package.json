@@ -45,7 +45,9 @@
     "react-native-sqlite-storage": "^6.0.1",
     "react-native-status-bar-height": "^2.6.0",
     "react-native-svg": "^13.11.0",
+    "react-native-view-shot": "^3.8.0",
     "react-native-wheely": "^0.6.0",
+    "react-native-widgetkit": "^1.0.9",
     "recoil": "^0.7.7"
   },
   "devDependencies": {

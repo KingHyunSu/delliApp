@@ -57,7 +57,7 @@ export default async ({data = [], options}: Props) => {
     const appGroupPath = await AppGroupModule.getAppGroupPath()
     const path = appGroupPath + '/' + fileName
 
-    await RNFS.writeFile(path, contents, 'utf8')
+    // await RNFS.writeFile(path, contents, 'utf8')
   } catch (e) {
     console.error('erorrrorr', e)
     return new Error('')

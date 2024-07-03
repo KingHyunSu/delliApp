@@ -18,12 +18,15 @@ import PaletteIcon from '@/assets/icons/palette.svg'
 interface Props {
   data: Schedule[]
   isEdit: boolean
+  width?: number
+  height?: number
 }
-const TimeTable = ({data, isEdit}: Props) => {
-  const {width, height} = useWindowDimensions()
-  const x = width / 2
-  const y = height * 0.28
-  const fullRadius = width / 2 - 36
+const TimeTable = ({data, isEdit, width, height}: Props) => {
+  // const {width, height} = useWindowDimensions()
+  const windowDimensions = useWindowDimensions()
+  const x = width ? width : windowDimensions.width / 2
+  const y = height ? height : windowDimensions.height * 0.28
+  const fullRadius = x - 36
 
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)

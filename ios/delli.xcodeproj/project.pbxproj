@@ -87,7 +87,6 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = delli/main.m; sourceTree = "<group>"; };
 		25239250714A0CCF0BE26611 /* Pods-DelliWidgetExtension.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-DelliWidgetExtension.debug.xcconfig"; path = "Target Support Files/Pods-DelliWidgetExtension/Pods-DelliWidgetExtension.debug.xcconfig"; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-delli.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli.debug.xcconfig"; path = "Target Support Files/Pods-delli/Pods-delli.debug.xcconfig"; sourceTree = "<group>"; };
-		46329EDC2A930BF000EB4B99 /* delli-Briging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "delli-Briging-Header.h"; sourceTree = "<group>"; };
 		4653F0542AEA931400A37E15 /* RNReactNativeHapticFeedback.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNReactNativeHapticFeedback.xcodeproj; path = "../node_modules/react-native-haptic-feedback/ios/RNReactNativeHapticFeedback.xcodeproj"; sourceTree = "<group>"; };
 		46AA0CE12C1EE82600862503 /* DelliWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DelliWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		46AA0CE22C1EE82600862503 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -107,6 +106,7 @@
 		46FE396A2C30FEA800E05EA9 /* SVGKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SVGKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		46FE39762C31439600E05EA9 /* RCTAppGroupModule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTAppGroupModule.h; sourceTree = "<group>"; };
 		46FE39772C31439600E05EA9 /* RCTAppGroupModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTAppGroupModule.m; sourceTree = "<group>"; };
+		46FE39872C358D3600E05EA9 /* delli-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "delli-Bridging-Header.h"; sourceTree = "<group>"; };
 		4F0EF563A7059F45DF83D046 /* Pods_DelliWidgetExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DelliWidgetExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5709B34CF0A7D63546082F79 /* Pods-delli.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli.release.xcconfig"; path = "Target Support Files/Pods-delli/Pods-delli.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-delli-delliTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli-delliTests.debug.xcconfig"; path = "Target Support Files/Pods-delli-delliTests/Pods-delli-delliTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -184,7 +184,7 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				46329EDC2A930BF000EB4B99 /* delli-Briging-Header.h */,
+				46FE39872C358D3600E05EA9 /* delli-Bridging-Header.h */,
 			);
 			name = delli;
 			sourceTree = "<group>";
@@ -389,7 +389,7 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						LastSwiftMigration = 1120;
+						LastSwiftMigration = 1540;
 					};
 					46AA0CE02C1EE82600862503 = {
 						CreatedOnToolsVersion = 15.4;
@@ -794,6 +794,7 @@
 				PRODUCT_NAME = delli;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "delli-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -829,6 +830,7 @@
 				PRODUCT_NAME = delli;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = "delli-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";

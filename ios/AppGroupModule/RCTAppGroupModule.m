@@ -13,9 +13,10 @@ RCT_EXPORT_MODULE();
 
 RCT_REMAP_METHOD(getAppGroupPath,
                  resolver:(RCTPromiseResolveBlock)resolve
-                 rejecter:(RCTPromiseRejectBlock)reject) {
-  NSString *appGroupIdentifier = @"group.delli.widget";
-  NSURL *containerURL = [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appGroupIdentifier];
+                 rejecter:(RCTPromiseRejectBlock)reject) 
+{
+  NSString *appGroupID = @"group.delli.widget";
+  NSURL *containerURL = [[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:appGroupID];
   
   if (containerURL != nil) {
     resolve([containerURL path]);
