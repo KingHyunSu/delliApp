@@ -9,24 +9,46 @@ import WidgetKit
 import SwiftUI
 import SVGKit
 
+public struct ScheduleModel:Codable {
+  let schedule_id: Int
+  let title: String
+}
+
 struct Provider: TimelineProvider {
   func placeholder(in context: Context) -> SimpleEntry {
-    SimpleEntry(date: Date(), emoji: "😀")
+    SimpleEntry(date: Date(), scheduleList: [])
   }
   
   func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
-    let entry = SimpleEntry(date: Date(), emoji: "😀")
+    let entry = SimpleEntry(date: Date(), scheduleList: [])
     completion(entry)
   }
   
   func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
     var entries: [SimpleEntry] = []
     
+    let appGroupID = "group.delli.widget"
+    let sharedUserDefaults = UserDefaults(suiteName: appGroupID)
+    let scheduleListJsonString = sharedUserDefaults?.string(forKey: "scheduleList")
+    var scheduleList: [ScheduleModel] = []
+    
+    do {
+      if scheduleListJsonString != nil {
+        let decodedScheduleList = Data(scheduleListJsonString?.utf8 ?? "".utf8)
+        let value = try JSONDecoder().decode([ScheduleModel].self, from: decodedScheduleList)
+        
+        scheduleList = value
+      }
+    } catch {
+      print(error)
+    }
+    
+    
     // Generate a timeline consisting of five entries an hour apart, starting from the current date.
     let currentDate = Date()
     for hourOffset in 0 ..< 5 {
       let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-      let entry = SimpleEntry(date: entryDate, emoji: "😀")
+      let entry = SimpleEntry(date: entryDate, scheduleList: scheduleList)
       entries.append(entry)
     }
     
@@ -37,7 +59,7 @@ struct Provider: TimelineProvider {
 
 struct SimpleEntry: TimelineEntry {
   let date: Date
-  let emoji: String
+  let scheduleList: [ScheduleModel]
 }
 
 struct DelliWidgetEntryView : View {
@@ -58,13 +80,30 @@ struct DelliWidgetEntryView : View {
   }
   
   
+  @Environment(\.widgetFamily) var widgetFamily: WidgetFamily
+  
   var body: some View {
-    if let image = getImage() {
-      Image(uiImage: image)
-        .resizable()
-        .aspectRatio(contentMode: .fit)
-    } else {
-      Text("이미지 없음")
+    switch self.widgetFamily {
+    case .systemSmall:
+      if let image = getImage() {
+        Image(uiImage: image)
+          .resizable()
+          .aspectRatio(contentMode: .fit)
+      } else {
+        Text("이미지 없음")
+      }
+    case .systemMedium:
+      if(entry.scheduleList.count > 0) {
+        VStack() {
+          ForEach(entry.scheduleList, id: \.self.schedule_id) { schedule in
+            Text(schedule.title)
+          }
+        }
+      } else {
+        Text("데이터 없음")
+      }
+    default:
+      Text("default")
     }
   }
   
@@ -84,6 +123,10 @@ struct DelliWidget: Widget {
     }
     .configurationDisplayName("My Widget")
     .description("This is an example widget.")
+    .supportedFamilies([
+      .systemSmall,
+      .systemMedium
+    ])
   }
 }
 
