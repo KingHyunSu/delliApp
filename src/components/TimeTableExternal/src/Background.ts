@@ -25,7 +25,7 @@ const getHourTextList = (center: number) => {
         <text 
           transform="translate(${item.x}, ${item.y}) rotate(${item.angle})" 
           text-anchor="middle" 
-          font-size="12" 
+          font-size="16" 
           fill="#7c8698" 
           font-family="Pretendard-Regular">
           ${item.hour}

@@ -31,7 +31,7 @@ export default ({data, center, radius}: Props) => {
     <text 
       transform="translate(${textX}, ${textY}) rotate(${data.title_rotate})"
       fill="${data.text_color}"
-      font-size="10"
+      font-size="18"
       font-family="Pretendard-Medium"
       dy="0">
       ${titleText}

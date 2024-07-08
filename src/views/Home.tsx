@@ -10,11 +10,9 @@ import {
   NativeModules,
   LayoutChangeEvent
 } from 'react-native'
-import {captureRef} from 'react-native-view-shot'
 import RNFS from 'react-native-fs'
 import {format, getDay, getTime} from 'date-fns'
 import {useQuery, useMutation} from '@tanstack/react-query'
-import {reloadAllTimelines} from 'react-native-widgetkit'
 
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
@@ -27,6 +25,7 @@ import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
 import EditTodoModal from '@/views/Modal/EditTodoModal'
+import TimeTableExternal, {TimeTableExternalRefs} from '@/components/TimeTableExternal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
@@ -55,12 +54,10 @@ import {HomeNavigationProps} from '@/types/navigation'
 // repository
 import {scheduleRepository} from '@/repository'
 
-import svgFileGenerator from '@/components/TimeTable/svgFileGenerator'
-
 const Home = ({navigation}: HomeNavigationProps) => {
-  const {AppGroupModule} = NativeModules
+  const {AppGroupModule, WidgetUpdaterModule} = NativeModules
 
-  const widgetTimetableRef = React.useRef<View>(null)
+  const timeTableExternalRef = React.useRef<TimeTableExternalRefs>(null)
 
   const setIsLunch = useSetRecoilState(isLunchState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
@@ -79,7 +76,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
 
-  const {isError, refetch: refetchScheduleList} = useQuery({
+  const {isError, refetch: refetchScheduleList} = useQuery<Schedule[]>({
     queryKey: ['scheduleList', scheduleDate],
     queryFn: async () => {
       setIsLoading(true)
@@ -111,8 +108,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
         }
       })
 
-      // const {AppStorage} = NativeModules
-      // await AppStorage.set(JSON.stringify(result))
       console.log('result', result)
 
       setScheduleList(result)
@@ -156,29 +151,37 @@ const Home = ({navigation}: HomeNavigationProps) => {
       }
     },
     onSuccess: async () => {
-      await refetchScheduleList()
+      const {data: newScheduleList} = await refetchScheduleList()
 
-      if (widgetTimetableRef.current) {
-        const uri = await captureRef(widgetTimetableRef, {
-          format: 'png',
-          quality: 1
-        })
+      if (timeTableExternalRef.current) {
+        const timeTableExternalImageUri = await timeTableExternalRef.current.getImage()
 
         const fileName = 'timetable.png'
         const appGroupPath = await AppGroupModule.getAppGroupPath()
         const path = appGroupPath + '/' + fileName
-        console.log('path', path)
 
         const existImage = await RNFS.exists(path)
 
         if (existImage) {
           await RNFS.unlink(path)
         }
-        await RNFS.moveFile(uri, path)
+        await RNFS.moveFile(timeTableExternalImageUri, path)
+
+        const widgetScheduleList =
+          newScheduleList?.map(item => {
+            let anchorTime = (item.start_time + item.end_time) / 2
+            let anchorDegree = anchorTime * 0.25
+
+            return {
+              ...item,
+              anchorDegree
+            }
+          }) || []
+
+        const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
+
+        WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
       }
-
-      reloadAllTimelines()
-
       setIsEdit(false)
     },
     onError: e => {
@@ -318,19 +321,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
     }
   }, [isError, setIsLoading])
 
-  React.useEffect(() => {
-    const run = async () => {
-      try {
-        const options = {width: '200', height: '200'}
-        await svgFileGenerator({data: scheduleList, options})
-      } catch (e) {
-        console.error(e)
-      }
-    }
-
-    run()
-  }, [scheduleList])
-
   return (
     <SafeAreaView style={containerStyle}>
       <View style={homeStyles.wrapper}>
@@ -413,10 +403,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
         <Loading />
       </View>
 
-      {/*  widget timetable */}
-      <View ref={widgetTimetableRef} style={{width: 500, height: 500, position: 'absolute', top: -1000, left: -1000}}>
-        <TimeTable data={scheduleList} isEdit={false} width={250} height={250} />
-      </View>
+      {/*  external timetable */}
+      <TimeTableExternal ref={timeTableExternalRef} data={scheduleList} options={{width: 400, height: 400}} />
     </SafeAreaView>
   )
 }
