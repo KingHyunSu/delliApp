@@ -67,3 +67,10 @@ declare interface ExistSchedule {
   sat: string
   sun: string
 }
+
+declare interface WidgetSchedule {
+  schedule_id: number | null
+  title: string
+  start_time: number
+  end_time: number
+}

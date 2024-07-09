@@ -19,15 +19,15 @@ func getArcSweep(startAngle: CGFloat, endAngle: CGFloat) -> Int {
 }
 
 struct ActiveScheduleBorder: View {
-  var x:CGFloat = 0
-  var y:CGFloat = 0
-  var radius:CGFloat = 0
-  var startAngle:CGFloat = 0
-  var endAngle:CGFloat = 0
+  var x: CGFloat
+  var y: CGFloat
+  var radius: CGFloat
+  var startAngle: CGFloat
+  var endAngle: CGFloat
   
   var body: some View {
     let arcSweep = getArcSweep(startAngle: startAngle, endAngle: endAngle)
-    let padding:CGFloat = 14
+    let padding:CGFloat = 0
     var path = Path()
     
     path.addArc(

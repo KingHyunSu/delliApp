@@ -11,8 +11,8 @@ import {
   LayoutChangeEvent
 } from 'react-native'
 import RNFS from 'react-native-fs'
-import {format, getDay, getTime} from 'date-fns'
-import {useQuery, useMutation} from '@tanstack/react-query'
+import { format, getDay, getTime } from 'date-fns'
+import { useQuery, useMutation } from '@tanstack/react-query'
 
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
@@ -25,7 +25,7 @@ import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
 import EditTodoModal from '@/views/Modal/EditTodoModal'
-import TimeTableExternal, {TimeTableExternalRefs} from '@/components/TimeTableExternal'
+import TimeTableExternal, { TimeTableExternalRefs } from '@/components/TimeTableExternal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
@@ -34,8 +34,8 @@ import CancleIcon from '@/assets/icons/cancle.svg'
 // import EditIcon from '@/assets/icons/edit3.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
 
-import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
-import {isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
+import { useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState } from 'recoil'
+import { isLunchState, isEditState, isLoadingState, homeHeaderHeightState } from '@/store/system'
 import {
   scheduleDateState,
   scheduleState,
@@ -44,18 +44,18 @@ import {
   existScheduleListState,
   isInputModeState
 } from '@/store/schedule'
-import {activeTimeTableCategoryState} from '@/store/timetable'
-import {showEditMenuBottomSheetState, showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
+import { activeTimeTableCategoryState } from '@/store/timetable'
+import { showEditMenuBottomSheetState, showEditScheduleCheckBottomSheetState } from '@/store/bottomSheet'
 
-import {getDayOfWeekKey} from '@/utils/helper'
+import { getDayOfWeekKey } from '@/utils/helper'
 
-import {HomeNavigationProps} from '@/types/navigation'
+import { HomeNavigationProps } from '@/types/navigation'
 
 // repository
-import {scheduleRepository} from '@/repository'
+import { scheduleRepository } from '@/repository'
 
-const Home = ({navigation}: HomeNavigationProps) => {
-  const {AppGroupModule, WidgetUpdaterModule} = NativeModules
+const Home = ({ navigation }: HomeNavigationProps) => {
+  const { AppGroupModule, WidgetUpdaterModule } = NativeModules
 
   const timeTableExternalRef = React.useRef<TimeTableExternalRefs>(null)
 
@@ -76,7 +76,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
 
-  const {isError, refetch: refetchScheduleList} = useQuery<Schedule[]>({
+  const { isError, refetch: refetchScheduleList } = useQuery<Schedule[]>({
     queryKey: ['scheduleList', scheduleDate],
     queryFn: async () => {
       setIsLoading(true)
@@ -121,7 +121,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
     initialData: []
   })
 
-  const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
+  const { mutateAsync: getExistScheduleListMutateAsync } = useMutation({
     mutationFn: async () => {
       const params = {
         schedule_id: schedule.schedule_id,
@@ -140,9 +140,9 @@ const Home = ({navigation}: HomeNavigationProps) => {
     }
   })
 
-  const {mutate: setScheduleMutate} = useMutation({
+  const { mutate: setScheduleMutate } = useMutation({
     mutationFn: async () => {
-      const params = {schedule}
+      const params = { schedule }
 
       if (params.schedule.schedule_id) {
         await scheduleRepository.updateSchedule(params)
@@ -151,7 +151,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
       }
     },
     onSuccess: async () => {
-      const {data: newScheduleList} = await refetchScheduleList()
+      const { data: newScheduleList } = await refetchScheduleList()
 
       if (timeTableExternalRef.current) {
         const timeTableExternalImageUri = await timeTableExternalRef.current.getImage()
@@ -167,17 +167,33 @@ const Home = ({navigation}: HomeNavigationProps) => {
         }
         await RNFS.moveFile(timeTableExternalImageUri, path)
 
-        const widgetScheduleList =
-          newScheduleList?.map(item => {
-            let anchorTime = (item.start_time + item.end_time) / 2
-            let anchorDegree = anchorTime * 0.25
+        let widgetScheduleList: WidgetSchedule[] = []
 
-            return {
-              ...item,
-              anchorDegree
+        if (newScheduleList && newScheduleList.length > 0) {
+          // if (newScheduleList.length === 1) {
+          //   widgetScheduleList = newScheduleList
+          // } else {
+          for (let i = 0; i < newScheduleList.length - 1; i++) {
+            const currentWidgetSchedule = newScheduleList[i]
+            const nextWidgetSchedule = newScheduleList[i + 1]
+
+            widgetScheduleList.push(currentWidgetSchedule)
+
+            if (currentWidgetSchedule.end_time !== nextWidgetSchedule.start_time) {
+              widgetScheduleList.push({
+                schedule_id: null,
+                title: '',
+                start_time: currentWidgetSchedule.end_time,
+                end_time: nextWidgetSchedule.start_time
+              })
             }
-          }) || []
+          }
 
+          widgetScheduleList.push(newScheduleList[newScheduleList.length - 1])
+          // }
+        }
+
+        console.log('widgetScheduleList', widgetScheduleList)
         const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
 
         WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
@@ -212,7 +228,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
       color = '#ffffff'
     }
 
-    return [homeStyles.container, {backgroundColor: color}]
+    return [homeStyles.container, { backgroundColor: color }]
   }, [activeSubmit, isEdit])
 
   const submitButtonStyle = React.useMemo(() => {
@@ -339,7 +355,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
         {/* home header */}
         <Animated.View
-          style={[homeStyles.homeHeaderContainer, {transform: [{translateY: headerTranslateY}]}]}
+          style={[homeStyles.homeHeaderContainer, { transform: [{ translateY: headerTranslateY }] }]}
           onLayout={handleTopLayout}>
           <AppBar>
             {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
@@ -368,7 +384,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           </View>
         </Animated.View>
 
-        <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
+        <Animated.View style={[{ transform: [{ translateY: timaTableTranslateY }], opacity: isLoading ? 0.6 : 1 }]}>
           <TimeTable data={scheduleList} isEdit={isEdit} />
         </Animated.View>
 
@@ -404,7 +420,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
       </View>
 
       {/*  external timetable */}
-      <TimeTableExternal ref={timeTableExternalRef} data={scheduleList} options={{width: 400, height: 400}} />
+      <TimeTableExternal ref={timeTableExternalRef} data={scheduleList} options={{ width: 400, height: 400 }} />
     </SafeAreaView>
   )
 }
@@ -465,7 +481,7 @@ const homeStyles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 2
       },

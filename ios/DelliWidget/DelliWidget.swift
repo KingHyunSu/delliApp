@@ -1,13 +1,11 @@
 import WidgetKit
 import SwiftUI
-import SVGKit
 
 public struct ScheduleModel:Codable {
-  let schedule_id: Int
+  let schedule_id: Int?
   let title: String
   let start_time: CGFloat
   let end_time: CGFloat
-  let anchorDegree: Double
 }
 
 extension View {
@@ -36,11 +34,10 @@ struct Provider: TimelineProvider {
       isUpdate: false,
       scheduleList: [],
       activeSchedule: ScheduleModel(
-        schedule_id: 0,
+        schedule_id: nil,
         title: "",
         start_time: 0,
-        end_time: 0,
-        anchorDegree: 0
+        end_time: 0
       )
     )
   }
@@ -51,11 +48,10 @@ struct Provider: TimelineProvider {
       isUpdate: false,
       scheduleList: [],
       activeSchedule: ScheduleModel(
-        schedule_id: 0,
+        schedule_id: nil,
         title: "",
         start_time: 0,
-        end_time: 0,
-        anchorDegree: 0
+        end_time: 0
       )
     )
     completion(entry)
@@ -84,6 +80,8 @@ struct Provider: TimelineProvider {
     // Generate a timeline consisting of five entries an hour apart, starting from the current date.
     let currentDate = Date()
     let calendar = Calendar.current
+    let startOfDay = calendar.startOfDay(for: currentDate)
+    let currentTime = calendar.dateComponents([.minute], from: startOfDay, to: currentDate).minute
     
     // 일정별 업데이트 추가
     for schedule in scheduleList {
@@ -96,11 +94,27 @@ struct Provider: TimelineProvider {
         second: 0,
         of: currentDate) {
         
+        var activeSchedule = ScheduleModel(
+          schedule_id: nil,
+          title: "",
+          start_time: 0,
+          end_time: 0
+        )
+        
+        if let currentTime = currentTime {
+          print("오늘 경과된 시간 (분): \(currentTime)")
+          print("start_time: \(Int(schedule.start_time))")
+          print("end_time: \(Int(schedule.end_time))")
+          if(currentTime < Int(schedule.end_time) && currentTime > Int(schedule.start_time)) {
+            activeSchedule = schedule
+          }
+        }
+        
         let entry = SimpleEntry(
           date: updateDate,
           isUpdate: false,
           scheduleList: scheduleList,
-          activeSchedule: schedule
+          activeSchedule: activeSchedule
         )
         entries.append(entry)
       }
@@ -113,11 +127,10 @@ struct Provider: TimelineProvider {
         isUpdate: true,
         scheduleList: [],
         activeSchedule: ScheduleModel(
-          schedule_id: 0,
+          schedule_id: nil,
           title: "",
           start_time: 0,
-          end_time: 0,
-          anchorDegree: 0
+          end_time: 0
         )
       )
       entries.append(entry)
@@ -131,20 +144,6 @@ struct Provider: TimelineProvider {
 struct DelliWidgetEntryView : View {
   var entry: Provider.Entry
   
-  func getImage() -> UIImage? {
-    let appGroupID = "group.delli.widget"
-    
-    if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupID) {
-      let imageURL = containerURL.appendingPathComponent("timetable.png")
-      
-      if FileManager.default.fileExists(atPath: imageURL.path) {
-        return UIImage(contentsOfFile: imageURL.path)
-      }
-    }
-    
-    return nil
-  }
-  
   @Environment(\.widgetFamily) var widgetFamily: WidgetFamily
   
   var body: some View {
@@ -153,40 +152,36 @@ struct DelliWidgetEntryView : View {
       
       switch self.widgetFamily {
       case .systemSmall:
-        if let image = getImage() {
-          GeometryReader { geometry in
-            let radius = min(geometry.size.width, geometry.size.height) / 2 - 2.5
-            let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
-            
-            ZStack {
-              Image(uiImage: image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-              
-              ActiveScheduleBorder(
-                x: center.x,
-                y: center.y,
-                radius: radius,
-                startAngle: entry.activeSchedule.start_time * 0.25 + 3,
-                endAngle: entry.activeSchedule.end_time * 0.25 - 3
-              )
-            }
-            .padding(14)
-          }
+        if(entry.isUpdate) {
+         Text("일정 새로고침")
+//            .widgetURL(URL(string: "myapp://widget/reload"))
         } else {
-          Text("생활계획표를 추가해주세요.")
+          TimeTable(data: entry.activeSchedule)
+            .padding(14)
         }
       case .systemMedium:
         if(entry.scheduleList.count > 0) {
-          VStack() {
-            ForEach(entry.scheduleList, id: \.self.schedule_id) { schedule in
-              HStack {
-                Text(schedule.title)
-                  .foregroundStyle(.black)
+          HStack {
+            TimeTable(data: entry.activeSchedule)
+            
+            if(entry.activeSchedule.schedule_id != nil) {
+              VStack {
                 Text(entry.activeSchedule.title)
-                  .foregroundStyle(.black)
               }
+            } else {
+              Text("일정이 없습니다.")
             }
+            
+            //            VStack() {
+            //              ForEach(entry.scheduleList, id: \.self.schedule_id) { schedule in
+            //                HStack {
+            //                  Text(schedule.title)
+            //                    .foregroundStyle(.black)
+            //                  Text(entry.activeSchedule.title)
+            //                    .foregroundStyle(.black)
+            //                }
+            //              }
+            //            }
           }
         } else {
           Text("데이터 없음")
