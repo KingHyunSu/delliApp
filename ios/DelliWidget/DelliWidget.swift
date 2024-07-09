@@ -1,10 +1,3 @@
-//
-//  DelliWidget.swift
-//  DelliWidget
-//
-//  Created by 김현수 on 6/16/24.
-//
-
 import WidgetKit
 import SwiftUI
 import SVGKit
@@ -12,7 +5,8 @@ import SVGKit
 public struct ScheduleModel:Codable {
   let schedule_id: Int
   let title: String
-  let start_time: Int
+  let start_time: CGFloat
+  let end_time: CGFloat
   let anchorDegree: Double
 }
 
@@ -45,6 +39,7 @@ struct Provider: TimelineProvider {
         schedule_id: 0,
         title: "",
         start_time: 0,
+        end_time: 0,
         anchorDegree: 0
       )
     )
@@ -59,6 +54,7 @@ struct Provider: TimelineProvider {
         schedule_id: 0,
         title: "",
         start_time: 0,
+        end_time: 0,
         anchorDegree: 0
       )
     )
@@ -88,11 +84,11 @@ struct Provider: TimelineProvider {
     // Generate a timeline consisting of five entries an hour apart, starting from the current date.
     let currentDate = Date()
     let calendar = Calendar.current
-
+    
     // 일정별 업데이트 추가
     for schedule in scheduleList {
       let hour = Int(floor(Double(schedule.start_time) / 60.0))
-      let minute = schedule.start_time % 60
+      let minute = Int(schedule.start_time) % 60
       
       if let updateDate = calendar.date(
         bySettingHour: hour,
@@ -112,18 +108,19 @@ struct Provider: TimelineProvider {
     
     // 자정 새로고침 업데이트 추가
     if let midnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: calendar.date(byAdding: .day, value: 1, to: currentDate)!) {
-        let entry = SimpleEntry(
-          date: midnight,
-          isUpdate: true,
-          scheduleList: [],
-          activeSchedule: ScheduleModel(
-            schedule_id: 0, 
-            title: "",
-            start_time: 0,
-            anchorDegree: 0
-          )
+      let entry = SimpleEntry(
+        date: midnight,
+        isUpdate: true,
+        scheduleList: [],
+        activeSchedule: ScheduleModel(
+          schedule_id: 0,
+          title: "",
+          start_time: 0,
+          end_time: 0,
+          anchorDegree: 0
         )
-        entries.append(entry)
+      )
+      entries.append(entry)
     }
     
     let timeline = Timeline(entries: entries, policy: .atEnd)
@@ -148,7 +145,6 @@ struct DelliWidgetEntryView : View {
     return nil
   }
   
-  
   @Environment(\.widgetFamily) var widgetFamily: WidgetFamily
   
   var body: some View {
@@ -159,22 +155,23 @@ struct DelliWidgetEntryView : View {
       case .systemSmall:
         if let image = getImage() {
           GeometryReader { geometry in
-            let angle: Double = (entry.activeSchedule.anchorDegree - 90) * .pi / 180.0
-            let radius = min(geometry.size.width, geometry.size.height) / 4
+            let radius = min(geometry.size.width, geometry.size.height) / 2 - 2.5
             let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
-            let x = center.x + radius * cos(angle)
-            let y = center.y + radius * sin(angle)
             
             ZStack {
               Image(uiImage: image)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-              Circle()
-                .frame(width: 7, height: 7)
-                .position(x:x, y:y)
-                .foregroundColor(Color.blue)
+              
+              ActiveScheduleBorder(
+                x: center.x,
+                y: center.y,
+                radius: radius,
+                startAngle: entry.activeSchedule.start_time * 0.25 + 3,
+                endAngle: entry.activeSchedule.end_time * 0.25 - 3
+              )
             }
-            .padding(16)
+            .padding(14)
           }
         } else {
           Text("생활계획표를 추가해주세요.")
@@ -208,11 +205,11 @@ struct DelliWidget: Widget {
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: Provider()) { entry in
       DelliWidgetEntryView(entry: entry)
-//      if #available(iOS 17.0, *) {
-//        DelliWidgetEntryView(entry: entry)
-//      } else {
-//        DelliWidgetEntryView(entry: entry)
-//      }
+      //      if #available(iOS 17.0, *) {
+      //        DelliWidgetEntryView(entry: entry)
+      //      } else {
+      //        DelliWidgetEntryView(entry: entry)
+      //      }
     }
     .configurationDisplayName("My Widget")
     .description("This is an example widget.")

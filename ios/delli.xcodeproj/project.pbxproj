@@ -21,13 +21,13 @@
 		46AA0CEC2C1EE82800862503 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46AA0CEB2C1EE82800862503 /* Assets.xcassets */; };
 		46AA0CF02C1EE82800862503 /* DelliWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 46AA0CE12C1EE82600862503 /* DelliWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		46AA0CF92C1F201400862503 /* RCTAppStroage.m in Sources */ = {isa = PBXBuildFile; fileRef = 46AA0CF82C1F201400862503 /* RCTAppStroage.m */; };
+		46B18A912C3D281E00F81180 /* ActiveScheduleBorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B18A8F2C3D1E6F00F81180 /* ActiveScheduleBorder.swift */; };
 		46D305E82B8A1D09008A3204 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 46D305E72B8A1D09008A3204 /* GoogleService-Info.plist */; };
 		46FE39642C30FE6600E05EA9 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46AA0CE22C1EE82600862503 /* WidgetKit.framework */; };
 		46FE39652C30FE6600E05EA9 /* WidgetKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 46AA0CE22C1EE82600862503 /* WidgetKit.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		46FE39782C31439600E05EA9 /* RCTAppGroupModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 46FE39772C31439600E05EA9 /* RCTAppGroupModule.m */; };
 		46FE398A2C38CF2100E05EA9 /* WidgetUpdaterModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FE39892C38CF2100E05EA9 /* WidgetUpdaterModule.swift */; };
 		46FE398C2C38CF6B00E05EA9 /* WidgetUpdaterModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 46FE398B2C38CF6B00E05EA9 /* WidgetUpdaterModule.m */; };
-		46FE398E2C3BA41800E05EA9 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46FE398D2C3BA41800E05EA9 /* ContentView.swift */; };
 		520137A55B6B44839521F2D8 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 984CFCDD09EA4249ADFC26FD /* Pretendard-Regular.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		B542F89D551893C870A383CA /* Pods_DelliWidgetExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F0EF563A7059F45DF83D046 /* Pods_DelliWidgetExtension.framework */; };
@@ -102,6 +102,7 @@
 		46AA0CF62C1EE86000862503 /* delliDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = delliDebug.entitlements; path = delli/delliDebug.entitlements; sourceTree = "<group>"; };
 		46AA0CF72C1F201400862503 /* RCTAppStroage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCTAppStroage.h; sourceTree = "<group>"; };
 		46AA0CF82C1F201400862503 /* RCTAppStroage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RCTAppStroage.m; sourceTree = "<group>"; };
+		46B18A8F2C3D1E6F00F81180 /* ActiveScheduleBorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveScheduleBorder.swift; sourceTree = "<group>"; };
 		46D305772B3DA570008A3204 /* delli.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = delli.entitlements; path = delli/delli.entitlements; sourceTree = "<group>"; };
 		46D305E72B8A1D09008A3204 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		46FE39572C30FDE700E05EA9 /* SVGKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SVGKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -112,7 +113,6 @@
 		46FE39872C358D3600E05EA9 /* delli-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "delli-Bridging-Header.h"; sourceTree = "<group>"; };
 		46FE39892C38CF2100E05EA9 /* WidgetUpdaterModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetUpdaterModule.swift; sourceTree = "<group>"; };
 		46FE398B2C38CF6B00E05EA9 /* WidgetUpdaterModule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WidgetUpdaterModule.m; sourceTree = "<group>"; };
-		46FE398D2C3BA41800E05EA9 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		4F0EF563A7059F45DF83D046 /* Pods_DelliWidgetExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DelliWidgetExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5709B34CF0A7D63546082F79 /* Pods-delli.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli.release.xcconfig"; path = "Target Support Files/Pods-delli/Pods-delli.release.xcconfig"; sourceTree = "<group>"; };
 		5B7EB9410499542E8C5724F5 /* Pods-delli-delliTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli-delliTests.debug.xcconfig"; path = "Target Support Files/Pods-delli-delliTests/Pods-delli-delliTests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -248,7 +248,7 @@
 				46AA0CE92C1EE82600862503 /* DelliWidget.swift */,
 				46AA0CEB2C1EE82800862503 /* Assets.xcassets */,
 				46AA0CED2C1EE82800862503 /* Info.plist */,
-				46FE398D2C3BA41800E05EA9 /* ContentView.swift */,
+				46B18A8F2C3D1E6F00F81180 /* ActiveScheduleBorder.swift */,
 			);
 			path = DelliWidget;
 			sourceTree = "<group>";
@@ -710,9 +710,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46B18A912C3D281E00F81180 /* ActiveScheduleBorder.swift in Sources */,
 				46AA0CEA2C1EE82600862503 /* DelliWidget.swift in Sources */,
 				46AA0CE82C1EE82600862503 /* DelliWidgetBundle.swift in Sources */,
-				46FE398E2C3BA41800E05EA9 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
