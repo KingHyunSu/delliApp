@@ -54,7 +54,7 @@ import { HomeNavigationProps } from '@/types/navigation'
 // repository
 import { scheduleRepository } from '@/repository'
 
-const Home = ({ navigation }: HomeNavigationProps) => {
+const Home = ({ navigation, route }: HomeNavigationProps) => {
   const { AppGroupModule, WidgetUpdaterModule } = NativeModules
 
   const timeTableExternalRef = React.useRef<TimeTableExternalRefs>(null)
@@ -62,7 +62,7 @@ const Home = ({ navigation }: HomeNavigationProps) => {
   const setIsLunch = useSetRecoilState(isLunchState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
-  const scheduleDate = useRecoilValue(scheduleDateState)
+  const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
@@ -75,6 +75,14 @@ const Home = ({ navigation }: HomeNavigationProps) => {
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
+
+  React.useEffect(() => {
+    const path = route.path
+
+    if (path === 'widget/reload') {
+      setScheduleDate(new Date())
+    }
+  }, [route])
 
   const { isError, refetch: refetchScheduleList } = useQuery<Schedule[]>({
     queryKey: ['scheduleList', scheduleDate],
@@ -170,9 +178,6 @@ const Home = ({ navigation }: HomeNavigationProps) => {
         let widgetScheduleList: WidgetSchedule[] = []
 
         if (newScheduleList && newScheduleList.length > 0) {
-          // if (newScheduleList.length === 1) {
-          //   widgetScheduleList = newScheduleList
-          // } else {
           for (let i = 0; i < newScheduleList.length - 1; i++) {
             const currentWidgetSchedule = newScheduleList[i]
             const nextWidgetSchedule = newScheduleList[i + 1]

@@ -154,10 +154,11 @@ struct DelliWidgetEntryView : View {
       case .systemSmall:
         if(entry.isUpdate) {
          Text("일정 새로고침")
-//            .widgetURL(URL(string: "myapp://widget/reload"))
+            .widgetURL(URL(string: "delli://widget/reload"))
         } else {
           TimeTable(data: entry.activeSchedule)
             .padding(14)
+            .widgetURL(URL(string: "delli://widget/reload"))
         }
       case .systemMedium:
         if(entry.scheduleList.count > 0) {

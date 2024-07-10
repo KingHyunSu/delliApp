@@ -1,13 +1,13 @@
 import React from 'react'
-import {View} from 'react-native'
+import { View } from 'react-native'
 
 import WeekController from './src/WeekController'
 import DayPicker from './src/DayPicker'
 
-import {useRecoilState} from 'recoil'
-import {scheduleDateState} from '@/store/schedule'
+import { useRecoilState } from 'recoil'
+import { scheduleDateState } from '@/store/schedule'
 
-import {getWeeklyDateList} from './util'
+import { getWeeklyDateList } from './util'
 
 const WeeklyDatePicker = () => {
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
@@ -18,7 +18,7 @@ const WeeklyDatePicker = () => {
 
   return (
     <View>
-      <WeekController date={scheduleDate} currentWeeklyDateList={currentWeeklyDateList} />
+      <WeekController date={scheduleDate} currentWeeklyDateList={currentWeeklyDateList} onChange={setScheduleDate} />
       <DayPicker date={scheduleDate} currentWeeklyDateList={currentWeeklyDateList} onChange={setScheduleDate} />
     </View>
   )
