@@ -855,7 +855,7 @@
 				INFOPLIST_FILE = DelliWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DelliWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -899,7 +899,7 @@
 				INFOPLIST_FILE = DelliWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DelliWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.5;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

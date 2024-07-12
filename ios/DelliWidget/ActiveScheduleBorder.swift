@@ -35,7 +35,7 @@ struct ActiveScheduleBorder: View {
       radius: radius - padding,
       startAngle: Angle(degrees: Double(startAngle - 90)),
       endAngle: Angle(degrees: Double(endAngle - 90)),
-      clockwise: arcSweep == 1
+      clockwise: false
     )
     
     return path.stroke(

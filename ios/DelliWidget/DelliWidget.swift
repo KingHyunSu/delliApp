@@ -1,11 +1,17 @@
 import WidgetKit
 import SwiftUI
 
+public struct TodoModel:Codable {
+  let todo_id: Int
+  let title: String
+}
+
 public struct ScheduleModel:Codable {
   let schedule_id: Int?
   let title: String
   let start_time: CGFloat
   let end_time: CGFloat
+//  let todo_list: [TodoModel]
 }
 
 extension View {
@@ -153,11 +159,10 @@ struct DelliWidgetEntryView : View {
       switch self.widgetFamily {
       case .systemSmall:
         if(entry.isUpdate) {
-         Text("일정 새로고침")
+          Text("일정 새로고침")
             .widgetURL(URL(string: "delli://widget/reload"))
         } else {
           TimeTable(data: entry.activeSchedule)
-            .padding(14)
             .widgetURL(URL(string: "delli://widget/reload"))
         }
       case .systemMedium:
@@ -167,8 +172,43 @@ struct DelliWidgetEntryView : View {
             
             if(entry.activeSchedule.schedule_id != nil) {
               VStack {
+                Text("진행중인 일정")
+                  .font(.system(size: 10))
+                  .foregroundStyle(Color.black)
+                  .frame(minWidth:0,
+                         maxWidth: .infinity,
+                         alignment: .leading
+                  )
+                //                  .padding(.bottom, 1)
+                
                 Text(entry.activeSchedule.title)
+                  .font(.system(size: 17))
+                  .foregroundStyle(Color.black)
+                  .frame(minWidth:0,
+                         maxWidth: .infinity,
+                         alignment: .leading
+                  )
+                
+                  .padding(.bottom, 5)
+                
+                Text("할 일")
+                  .font(.system(size: 10))
+                  .foregroundStyle(Color.black)
+                  .frame(minWidth:0,
+                         maxWidth: .infinity,
+                         alignment: .leading
+                  )
+                
               }
+              .frame(
+                minWidth: 0,
+                maxWidth: .infinity,
+                minHeight: 0,
+                maxHeight: .infinity,
+                alignment: .topLeading
+              )
+              //              .background(Color.gray.opacity(0.1))
+              
             } else {
               Text("일정이 없습니다.")
             }
@@ -191,6 +231,7 @@ struct DelliWidgetEntryView : View {
         Text("default")
       }
     }
+    .padding(14)
     .widgetBackground(.white)
   }
 }
@@ -201,11 +242,6 @@ struct DelliWidget: Widget {
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: Provider()) { entry in
       DelliWidgetEntryView(entry: entry)
-      //      if #available(iOS 17.0, *) {
-      //        DelliWidgetEntryView(entry: entry)
-      //      } else {
-      //        DelliWidgetEntryView(entry: entry)
-      //      }
     }
     .configurationDisplayName("My Widget")
     .description("This is an example widget.")
@@ -217,9 +253,25 @@ struct DelliWidget: Widget {
   }
 }
 
-//#Preview(as: .systemSmall) {
-//    DelliWidget()
-//} timeline: {
-//    SimpleEntry(date: .now, emoji: "😀")
-//    SimpleEntry(date: .now, emoji: "🤩")
-//}
+#Preview(as: .systemMedium) {
+  DelliWidget()
+} timeline: {
+  SimpleEntry(
+    date: .now,
+    isUpdate: false,
+    scheduleList: [
+      ScheduleModel(
+        schedule_id: 1,
+        title: "테스트",
+        start_time: 0,
+        end_time: 1440
+      )
+    ],
+    activeSchedule: ScheduleModel(
+      schedule_id: 1,
+      title: "테스트",
+      start_time: 0,
+      end_time: 1439
+    )
+  )
+}
