@@ -57,7 +57,6 @@ import {HomeNavigationProps} from '@/types/navigation'
 import {scheduleRepository} from '@/repository'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
-const rewardedAd = RewardedAd.createForAdRequest(adUnitId)
 
 const Home = ({navigation, route}: HomeNavigationProps) => {
   const {AppGroupModule, WidgetUpdaterModule} = NativeModules
@@ -80,15 +79,16 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
 
-  const updateWidget = React.useCallback(async () => {
+  const updateWidget = async (value?: Schedule[]) => {
     if (timeTableExternalRef.current) {
-      const newScheduleList = [...scheduleList]
+      let newScheduleList = value ? value : [...scheduleList]
+      newScheduleList.sort((a, b) => a.end_time - b.end_time)
+
       const timeTableExternalImageUri = await timeTableExternalRef.current.getImage()
 
       const fileName = 'timetable.png'
       const appGroupPath = await AppGroupModule.getAppGroupPath()
       const path = appGroupPath + '/' + fileName
-      console.log('path2', path)
       const existImage = await RNFS.exists(path)
 
       if (existImage) {
@@ -98,32 +98,44 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
       let widgetScheduleList: WidgetSchedule[] = []
 
-      if (newScheduleList && newScheduleList.length > 0) {
+      if (newScheduleList?.length > 0) {
+        // 공백 일정 추가
         for (let i = 0; i < newScheduleList.length - 1; i++) {
-          const currentWidgetSchedule = newScheduleList[i]
-          const nextWidgetSchedule = newScheduleList[i + 1]
+          const currentSchedule = newScheduleList[i]
+          const nextSchedule = newScheduleList[i + 1]
 
-          widgetScheduleList.push(currentWidgetSchedule)
+          widgetScheduleList.push(currentSchedule)
 
-          if (currentWidgetSchedule.end_time !== nextWidgetSchedule.start_time) {
+          if (currentSchedule.end_time !== nextSchedule.start_time) {
             widgetScheduleList.push({
               schedule_id: null,
               title: '',
-              start_time: currentWidgetSchedule.end_time,
-              end_time: nextWidgetSchedule.start_time
+              start_time: currentSchedule.end_time,
+              end_time: nextSchedule.start_time
             })
           }
         }
 
-        widgetScheduleList.push(newScheduleList[newScheduleList.length - 1])
+        const firstSchedule = newScheduleList[0]
+        const lastSchedule = newScheduleList[newScheduleList.length - 1]
+
+        widgetScheduleList.push(lastSchedule)
+
+        if (firstSchedule.start_time !== lastSchedule.end_time) {
+          widgetScheduleList.push({
+            schedule_id: null,
+            title: '',
+            start_time: lastSchedule.end_time,
+            end_time: firstSchedule.start_time
+          })
+        }
       }
 
-      console.log('widgetScheduleList', widgetScheduleList)
       const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
 
       WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
     }
-  },[scheduleList])
+  }
 
   const {isError, refetch: refetchScheduleList} = useQuery<Schedule[]>({
     queryKey: ['scheduleList', scheduleDate],
@@ -156,8 +168,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
           todo_list: JSON.parse(item.todo_list)
         }
       })
-
-      console.log('result', result)
 
       setScheduleList(result)
       setIsLunch(true)
@@ -200,9 +210,9 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       }
     },
     onSuccess: async () => {
-      // const {data: newScheduleList} = await refetchScheduleList()
+      await refetchScheduleList()
       const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
-      console.log('shouldWidgetReload', shouldWidgetReload)
+
       if (!shouldWidgetReload) {
         await updateWidget()
       }
@@ -327,10 +337,11 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
   }
 
   React.useEffect(() => {
-    console.log('mount', scheduleList)
     const path = route.path
+
     if (path === 'widget/reload') {
-      console.log('path', path)
+      const rewardedAd = RewardedAd.createForAdRequest(adUnitId)
+
       setScheduleDate(new Date())
 
       // 광고 로드 완료
@@ -338,9 +349,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         Alert.alert('광고 시청하고\n새로운 생활계획표 생성하기', '', [
           {
             text: '취소',
-            onPress: () => {
-              return
-            },
             style: 'cancel'
           },
           {
@@ -354,9 +362,8 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
       // 광고 시청 완료
       const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, async reward => {
-        console.log('User earned reward of ', reward)
-        console.log('reward scheduleList', scheduleList)
-        await updateWidget()
+        const {data: newScheduleList} = await refetchScheduleList()
+        await updateWidget(newScheduleList)
       })
 
       // Start loading the rewarded ad straight away
@@ -364,12 +371,11 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
       // Unsubscribe from events on unmount
       return () => {
-        console.log('unmount')
         unsubscribeLoaded()
         unsubscribeEarned()
       }
     }
-  }, [route.path])
+  }, [route])
 
   React.useEffect(() => {
     if (isEdit) {
