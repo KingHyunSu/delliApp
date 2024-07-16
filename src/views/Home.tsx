@@ -2,17 +2,19 @@ import React from 'react'
 import {
   Platform,
   Animated,
-  Pressable,
   StyleSheet,
-  SafeAreaView,
-  View,
-  Text,
   NativeModules,
-  LayoutChangeEvent
+  LayoutChangeEvent,
+  Alert,
+  SafeAreaView,
+  Pressable,
+  View,
+  Text
 } from 'react-native'
 import RNFS from 'react-native-fs'
-import { format, getDay, getTime } from 'date-fns'
-import { useQuery, useMutation } from '@tanstack/react-query'
+import {format, getDay, getTime} from 'date-fns'
+import {useQuery, useMutation} from '@tanstack/react-query'
+import {RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
 
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
@@ -25,7 +27,7 @@ import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
 import EditTodoModal from '@/views/Modal/EditTodoModal'
-import TimeTableExternal, { TimeTableExternalRefs } from '@/components/TimeTableExternal'
+import TimeTableExternal, {TimeTableExternalRefs} from '@/components/TimeTableExternal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
@@ -34,8 +36,8 @@ import CancleIcon from '@/assets/icons/cancle.svg'
 // import EditIcon from '@/assets/icons/edit3.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
 
-import { useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState } from 'recoil'
-import { isLunchState, isEditState, isLoadingState, homeHeaderHeightState } from '@/store/system'
+import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
+import {isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
 import {
   scheduleDateState,
   scheduleState,
@@ -44,19 +46,21 @@ import {
   existScheduleListState,
   isInputModeState
 } from '@/store/schedule'
-import { activeTimeTableCategoryState } from '@/store/timetable'
-import { showEditMenuBottomSheetState, showEditScheduleCheckBottomSheetState } from '@/store/bottomSheet'
+import {activeTimeTableCategoryState} from '@/store/timetable'
+import {showEditMenuBottomSheetState, showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
 
-import { getDayOfWeekKey } from '@/utils/helper'
+import {getDayOfWeekKey} from '@/utils/helper'
 
-import { HomeNavigationProps } from '@/types/navigation'
+import {HomeNavigationProps} from '@/types/navigation'
 
 // repository
-import { scheduleRepository } from '@/repository'
+import {scheduleRepository} from '@/repository'
 
-const Home = ({ navigation, route }: HomeNavigationProps) => {
-  const { AppGroupModule, WidgetUpdaterModule } = NativeModules
+const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
+const rewardedAd = RewardedAd.createForAdRequest(adUnitId)
 
+const Home = ({navigation, route}: HomeNavigationProps) => {
+  const {AppGroupModule, WidgetUpdaterModule} = NativeModules
   const timeTableExternalRef = React.useRef<TimeTableExternalRefs>(null)
 
   const setIsLunch = useSetRecoilState(isLunchState)
@@ -76,15 +80,103 @@ const Home = ({ navigation, route }: HomeNavigationProps) => {
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
 
-  React.useEffect(() => {
-    const path = route.path
+  const updateWidget = async (data: Schedule[]) => {
+    if (timeTableExternalRef.current) {
+      console.log('123123', data)
+      const timeTableExternalImageUri = await timeTableExternalRef.current.getImage()
 
-    if (path === 'widget/reload') {
-      setScheduleDate(new Date())
+      const fileName = 'timetable.png'
+      const appGroupPath = await AppGroupModule.getAppGroupPath()
+      const path = appGroupPath + '/' + fileName
+      console.log('path2', path)
+      const existImage = await RNFS.exists(path)
+
+      if (existImage) {
+        await RNFS.unlink(path)
+      }
+      await RNFS.moveFile(timeTableExternalImageUri, path)
+
+      let widgetScheduleList: WidgetSchedule[] = []
+
+      if (data && data.length > 0) {
+        for (let i = 0; i < data.length - 1; i++) {
+          const currentWidgetSchedule = data[i]
+          const nextWidgetSchedule = data[i + 1]
+
+          widgetScheduleList.push(currentWidgetSchedule)
+
+          if (currentWidgetSchedule.end_time !== nextWidgetSchedule.start_time) {
+            widgetScheduleList.push({
+              schedule_id: null,
+              title: '',
+              start_time: currentWidgetSchedule.end_time,
+              end_time: nextWidgetSchedule.start_time
+            })
+          }
+        }
+
+        widgetScheduleList.push(data[data.length - 1])
+      }
+
+      console.log('widgetScheduleList', widgetScheduleList)
+      const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
+
+      WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
     }
-  }, [route])
+  }
 
-  const { isError, refetch: refetchScheduleList } = useQuery<Schedule[]>({
+  // const {mutate: getScheduleList} = useMutation<Promise<Schedule[]>>({
+  //   mutationFn: async (value: Date) => {
+  //     setIsLoading(true)
+  //
+  //     const date = format(value, 'yyyy-MM-dd')
+  //     const dayOfWeek = getDayOfWeekKey(value.getDay())
+  //     const params = {
+  //       date,
+  //       mon: '',
+  //       tue: '',
+  //       wed: '',
+  //       thu: '',
+  //       fri: '',
+  //       sat: '',
+  //       sun: '',
+  //       disable: '0'
+  //     }
+  //
+  //     if (dayOfWeek) {
+  //       params[dayOfWeek] = '1'
+  //     }
+  //
+  //     let result: Schedule[] = await scheduleRepository.getScheduleList(params)
+  //
+  //     result = result.map(item => {
+  //       return {
+  //         ...item,
+  //         todo_list: JSON.parse(item.todo_list)
+  //       }
+  //     })
+  //
+  //     return result
+  //   },
+  //   onSuccess: result => {
+  //     const newScheduleList: Schedule[] = result.map(item => {
+  //       return {
+  //         ...item,
+  //         todo_list: JSON.parse(item.todo_list)
+  //       }
+  //     })
+  //
+  //     console.log('result', newScheduleList)
+  //
+  //     setScheduleList(newScheduleList)
+  //     setIsLunch(true)
+  //     setIsLoading(false)
+  //
+  //     return newScheduleList
+  //   }
+  // })
+
+  const {isError, refetch: refetchScheduleList} = useQuery<Schedule[]>({
     queryKey: ['scheduleList', scheduleDate],
     queryFn: async () => {
       setIsLoading(true)
@@ -129,7 +221,7 @@ const Home = ({ navigation, route }: HomeNavigationProps) => {
     initialData: []
   })
 
-  const { mutateAsync: getExistScheduleListMutateAsync } = useMutation({
+  const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
     mutationFn: async () => {
       const params = {
         schedule_id: schedule.schedule_id,
@@ -148,9 +240,9 @@ const Home = ({ navigation, route }: HomeNavigationProps) => {
     }
   })
 
-  const { mutate: setScheduleMutate } = useMutation({
+  const {mutate: setScheduleMutate} = useMutation({
     mutationFn: async () => {
-      const params = { schedule }
+      const params = {schedule}
 
       if (params.schedule.schedule_id) {
         await scheduleRepository.updateSchedule(params)
@@ -159,49 +251,11 @@ const Home = ({ navigation, route }: HomeNavigationProps) => {
       }
     },
     onSuccess: async () => {
-      const { data: newScheduleList } = await refetchScheduleList()
-
-      if (timeTableExternalRef.current) {
-        const timeTableExternalImageUri = await timeTableExternalRef.current.getImage()
-
-        const fileName = 'timetable.png'
-        const appGroupPath = await AppGroupModule.getAppGroupPath()
-        const path = appGroupPath + '/' + fileName
-
-        const existImage = await RNFS.exists(path)
-
-        if (existImage) {
-          await RNFS.unlink(path)
-        }
-        await RNFS.moveFile(timeTableExternalImageUri, path)
-
-        let widgetScheduleList: WidgetSchedule[] = []
-
-        if (newScheduleList && newScheduleList.length > 0) {
-          for (let i = 0; i < newScheduleList.length - 1; i++) {
-            const currentWidgetSchedule = newScheduleList[i]
-            const nextWidgetSchedule = newScheduleList[i + 1]
-
-            widgetScheduleList.push(currentWidgetSchedule)
-
-            if (currentWidgetSchedule.end_time !== nextWidgetSchedule.start_time) {
-              widgetScheduleList.push({
-                schedule_id: null,
-                title: '',
-                start_time: currentWidgetSchedule.end_time,
-                end_time: nextWidgetSchedule.start_time
-              })
-            }
-          }
-
-          widgetScheduleList.push(newScheduleList[newScheduleList.length - 1])
-          // }
-        }
-
-        console.log('widgetScheduleList', widgetScheduleList)
-        const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
-
-        WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
+      const {data: newScheduleList} = await refetchScheduleList()
+      const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
+      console.log('shouldWidgetReload', shouldWidgetReload)
+      if (newScheduleList && !shouldWidgetReload) {
+        await updateWidget(newScheduleList)
       }
       setIsEdit(false)
     },
@@ -233,7 +287,7 @@ const Home = ({ navigation, route }: HomeNavigationProps) => {
       color = '#ffffff'
     }
 
-    return [homeStyles.container, { backgroundColor: color }]
+    return [homeStyles.container, {backgroundColor: color}]
   }, [activeSubmit, isEdit])
 
   const submitButtonStyle = React.useMemo(() => {
@@ -324,6 +378,51 @@ const Home = ({ navigation, route }: HomeNavigationProps) => {
   }
 
   React.useEffect(() => {
+    console.log('mount', scheduleList)
+    const path = route.path
+    if (path === 'widget/reload') {
+      console.log('path', path)
+      setScheduleDate(new Date())
+
+      // 광고 로드 완료
+      const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, () => {
+        Alert.alert('광고 시청하고\n새로운 생활계획표 생성하기', '', [
+          {
+            text: '취소',
+            onPress: () => {
+              return
+            },
+            style: 'cancel'
+          },
+          {
+            text: '생성하기',
+            onPress: () => {
+              rewardedAd.show()
+            }
+          }
+        ])
+      })
+
+      // 광고 시청 완료
+      const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, async reward => {
+        console.log('User earned reward of ', reward)
+        console.log('reward scheduleList', scheduleList)
+        // await updateWidget(scheduleList)
+      })
+
+      // Start loading the rewarded ad straight away
+      rewardedAd.load()
+
+      // Unsubscribe from events on unmount
+      return () => {
+        console.log('unmount')
+        unsubscribeLoaded()
+        unsubscribeEarned()
+      }
+    }
+  }, [])
+
+  React.useEffect(() => {
     if (isEdit) {
       translateAnimation(headerTranslateY, -200, 350)
       translateAnimation(timaTableTranslateY, -100)
@@ -341,6 +440,15 @@ const Home = ({ navigation, route }: HomeNavigationProps) => {
       setIsLoading(false)
     }
   }, [isError, setIsLoading])
+
+  React.useEffect(() => {
+    const test = async () => {
+      const a = await WidgetUpdaterModule.shouldWidgetReload()
+      console.log('shouldWidgetReload', a)
+    }
+
+    test()
+  }, [])
 
   return (
     <SafeAreaView style={containerStyle}>
@@ -360,7 +468,7 @@ const Home = ({ navigation, route }: HomeNavigationProps) => {
 
         {/* home header */}
         <Animated.View
-          style={[homeStyles.homeHeaderContainer, { transform: [{ translateY: headerTranslateY }] }]}
+          style={[homeStyles.homeHeaderContainer, {transform: [{translateY: headerTranslateY}]}]}
           onLayout={handleTopLayout}>
           <AppBar>
             {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
@@ -389,7 +497,7 @@ const Home = ({ navigation, route }: HomeNavigationProps) => {
           </View>
         </Animated.View>
 
-        <Animated.View style={[{ transform: [{ translateY: timaTableTranslateY }], opacity: isLoading ? 0.6 : 1 }]}>
+        <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
           <TimeTable data={scheduleList} isEdit={isEdit} />
         </Animated.View>
 
@@ -425,7 +533,7 @@ const Home = ({ navigation, route }: HomeNavigationProps) => {
       </View>
 
       {/*  external timetable */}
-      <TimeTableExternal ref={timeTableExternalRef} data={scheduleList} options={{ width: 400, height: 400 }} />
+      <TimeTableExternal ref={timeTableExternalRef} data={scheduleList} options={{width: 400, height: 400}} />
     </SafeAreaView>
   )
 }
@@ -486,7 +594,7 @@ const homeStyles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 2
       },

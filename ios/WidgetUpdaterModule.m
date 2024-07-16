@@ -11,5 +11,6 @@
 @interface RCT_EXTERN_MODULE(WidgetUpdaterModule, NSObject)
 
 RCT_EXTERN_METHOD(updateWidget: (NSString *)data)
+RCT_EXTERN_METHOD(shouldWidgetReload: (RCTPromiseResolveBlock)resolve reject: (RCTPromiseRejectBlock)reject)
 
 @end

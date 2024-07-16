@@ -23,6 +23,11 @@
 		46AA0CF02C1EE82800862503 /* DelliWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 46AA0CE12C1EE82600862503 /* DelliWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		46AA0CF92C1F201400862503 /* RCTAppStroage.m in Sources */ = {isa = PBXBuildFile; fileRef = 46AA0CF82C1F201400862503 /* RCTAppStroage.m */; };
 		46B18A912C3D281E00F81180 /* ActiveScheduleBorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B18A8F2C3D1E6F00F81180 /* ActiveScheduleBorder.swift */; };
+		46B18A942C41697300F81180 /* Pretendard-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = C1864CAB8C5B4A7B8321FF90 /* Pretendard-Bold.otf */; };
+		46B18A962C41697C00F81180 /* Pretendard-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = DB1F50541BD340BBB3009FA9 /* Pretendard-Medium.otf */; };
+		46B18A972C41697F00F81180 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 984CFCDD09EA4249ADFC26FD /* Pretendard-Regular.otf */; };
+		46B18A982C41698200F81180 /* Pretendard-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = B570A2503D224B7F98776731 /* Pretendard-SemiBold.otf */; };
+		46B18A992C416AC000F81180 /* Pretendard-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 78E387145E0841748E4547AD /* Pretendard-Light.otf */; };
 		46D305E82B8A1D09008A3204 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 46D305E72B8A1D09008A3204 /* GoogleService-Info.plist */; };
 		46FE39642C30FE6600E05EA9 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 46AA0CE22C1EE82600862503 /* WidgetKit.framework */; };
 		46FE39652C30FE6600E05EA9 /* WidgetKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 46AA0CE22C1EE82600862503 /* WidgetKit.framework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -461,6 +466,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				46AA0CEC2C1EE82800862503 /* Assets.xcassets in Resources */,
+				46B18A972C41697F00F81180 /* Pretendard-Regular.otf in Resources */,
+				46B18A982C41698200F81180 /* Pretendard-SemiBold.otf in Resources */,
+				46B18A942C41697300F81180 /* Pretendard-Bold.otf in Resources */,
+				46B18A962C41697C00F81180 /* Pretendard-Medium.otf in Resources */,
+				46B18A992C416AC000F81180 /* Pretendard-Light.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
