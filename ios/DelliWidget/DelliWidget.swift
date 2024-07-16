@@ -110,6 +110,12 @@ struct Provider: TimelineProvider {
     let currentTime = calendar.dateComponents([.minute], from: startOfDay, to: currentDate).minute
 
     // 일정별 업데이트 추가
+    /**
+     1. 자정 전에 일정이 있을 경우 active
+     2. 자정일 경우 일정 그대로 추가
+     3. 자정 넘어서 일정이 있을 경우 자정에 업데이트용 timeline 추가
+     */
+
     for schedule in scheduleList {
       let hour = Int(floor(Double(schedule.start_time) / 60.0))
       let minute = Int(schedule.start_time) % 60
@@ -144,7 +150,12 @@ struct Provider: TimelineProvider {
     }
 
     // 자정 새로고침 업데이트 추가
-    if let midnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: calendar.date(byAdding: .day, value: 1, to: currentDate)!) {
+    if let midnight = calendar.date(
+      bySettingHour: 0,
+      minute: 0,
+      second: 0,
+      of: calendar.date(byAdding: .day, value: 1, to: currentDate)!
+    ) {
       //    if let midnight = calendar.date(
       //      bySettingHour: 17,
       //      minute: 06,

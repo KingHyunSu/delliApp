@@ -80,9 +80,9 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
 
-  const updateWidget = async (data: Schedule[]) => {
+  const updateWidget = React.useCallback(async () => {
     if (timeTableExternalRef.current) {
-      console.log('123123', data)
+      const newScheduleList = [...scheduleList]
       const timeTableExternalImageUri = await timeTableExternalRef.current.getImage()
 
       const fileName = 'timetable.png'
@@ -98,10 +98,10 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
       let widgetScheduleList: WidgetSchedule[] = []
 
-      if (data && data.length > 0) {
-        for (let i = 0; i < data.length - 1; i++) {
-          const currentWidgetSchedule = data[i]
-          const nextWidgetSchedule = data[i + 1]
+      if (newScheduleList && newScheduleList.length > 0) {
+        for (let i = 0; i < newScheduleList.length - 1; i++) {
+          const currentWidgetSchedule = newScheduleList[i]
+          const nextWidgetSchedule = newScheduleList[i + 1]
 
           widgetScheduleList.push(currentWidgetSchedule)
 
@@ -115,7 +115,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
           }
         }
 
-        widgetScheduleList.push(data[data.length - 1])
+        widgetScheduleList.push(newScheduleList[newScheduleList.length - 1])
       }
 
       console.log('widgetScheduleList', widgetScheduleList)
@@ -123,58 +123,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
       WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
     }
-  }
-
-  // const {mutate: getScheduleList} = useMutation<Promise<Schedule[]>>({
-  //   mutationFn: async (value: Date) => {
-  //     setIsLoading(true)
-  //
-  //     const date = format(value, 'yyyy-MM-dd')
-  //     const dayOfWeek = getDayOfWeekKey(value.getDay())
-  //     const params = {
-  //       date,
-  //       mon: '',
-  //       tue: '',
-  //       wed: '',
-  //       thu: '',
-  //       fri: '',
-  //       sat: '',
-  //       sun: '',
-  //       disable: '0'
-  //     }
-  //
-  //     if (dayOfWeek) {
-  //       params[dayOfWeek] = '1'
-  //     }
-  //
-  //     let result: Schedule[] = await scheduleRepository.getScheduleList(params)
-  //
-  //     result = result.map(item => {
-  //       return {
-  //         ...item,
-  //         todo_list: JSON.parse(item.todo_list)
-  //       }
-  //     })
-  //
-  //     return result
-  //   },
-  //   onSuccess: result => {
-  //     const newScheduleList: Schedule[] = result.map(item => {
-  //       return {
-  //         ...item,
-  //         todo_list: JSON.parse(item.todo_list)
-  //       }
-  //     })
-  //
-  //     console.log('result', newScheduleList)
-  //
-  //     setScheduleList(newScheduleList)
-  //     setIsLunch(true)
-  //     setIsLoading(false)
-  //
-  //     return newScheduleList
-  //   }
-  // })
+  },[scheduleList])
 
   const {isError, refetch: refetchScheduleList} = useQuery<Schedule[]>({
     queryKey: ['scheduleList', scheduleDate],
@@ -251,11 +200,11 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       }
     },
     onSuccess: async () => {
-      const {data: newScheduleList} = await refetchScheduleList()
+      // const {data: newScheduleList} = await refetchScheduleList()
       const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
       console.log('shouldWidgetReload', shouldWidgetReload)
-      if (newScheduleList && !shouldWidgetReload) {
-        await updateWidget(newScheduleList)
+      if (!shouldWidgetReload) {
+        await updateWidget()
       }
       setIsEdit(false)
     },
@@ -407,7 +356,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, async reward => {
         console.log('User earned reward of ', reward)
         console.log('reward scheduleList', scheduleList)
-        // await updateWidget(scheduleList)
+        await updateWidget()
       })
 
       // Start loading the rewarded ad straight away
@@ -420,7 +369,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         unsubscribeEarned()
       }
     }
-  }, [])
+  }, [route.path])
 
   React.useEffect(() => {
     if (isEdit) {
@@ -440,15 +389,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       setIsLoading(false)
     }
   }, [isError, setIsLoading])
-
-  React.useEffect(() => {
-    const test = async () => {
-      const a = await WidgetUpdaterModule.shouldWidgetReload()
-      console.log('shouldWidgetReload', a)
-    }
-
-    test()
-  }, [])
 
   return (
     <SafeAreaView style={containerStyle}>
