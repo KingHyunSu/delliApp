@@ -3,6 +3,7 @@ import {Platform, AppState, StyleSheet, StatusBar, SafeAreaView, Alert} from 're
 import {QueryClient, QueryCache, QueryClientProvider} from '@tanstack/react-query'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SplashScreen from 'react-native-splash-screen'
+import changeNavigationBarColor from 'react-native-navigation-bar-color'
 
 // navigations
 import {NavigationContainer} from '@react-navigation/native'
@@ -31,9 +32,9 @@ import initDatabase from '@/repository/utils/init'
 function App(): JSX.Element {
   const {isLoaded, load, show} = useAppOpenAd(
     Platform.select({
-      // ios: TestIds.APP_OPEN
-      // android: TestIds.APP_OPEN,
-      ios: 'ca-app-pub-3765315237132279/9003768148'
+      ios: TestIds.APP_OPEN,
+      android: TestIds.APP_OPEN
+      // ios: 'ca-app-pub-3765315237132279/9003768148'
       // android: 'ca-app-pub-3765315237132279/4177449893'
     }) || ''
   )
@@ -131,9 +132,15 @@ function App(): JSX.Element {
   // }, [isServerError])
 
   React.useEffect(() => {
+    changeNavigationBarColor('#ffffff', true)
+
     const init = async () => {
-      const isInitDatabase = await initDatabase()
-      setIsInit(isInitDatabase)
+      try {
+        const isInitDatabase = await initDatabase()
+        setIsInit(isInitDatabase)
+      } catch (e) {
+        console.error(e)
+      }
     }
 
     init()
@@ -185,7 +192,7 @@ function App(): JSX.Element {
       <GestureHandlerRootView style={{flex: 1}}>
         {/* <RecoilDebugObserver /> */}
         <BottomSheetModalProvider>
-          <StatusBar barStyle="dark-content" />
+          <StatusBar backgroundColor="#fff" barStyle="dark-content" />
 
           <SafeAreaView style={styles.statusBar} />
           <NavigationContainer ref={navigationRef}>
