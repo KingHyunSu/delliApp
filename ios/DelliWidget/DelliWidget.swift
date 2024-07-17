@@ -116,6 +116,9 @@ struct Provider: TimelineProvider {
      3. 자정 넘어서 일정이 있을 경우 자정에 업데이트용 timeline 추가
      */
 
+
+    // TODO - 현재 시간(current)에 맞는 active schedule 찾아야함
+
     for schedule in scheduleList {
       let hour = Int(floor(Double(schedule.start_time) / 60.0))
       let minute = Int(schedule.start_time) % 60
@@ -163,7 +166,7 @@ struct Provider: TimelineProvider {
       //      of: currentDate) {
 //    if let midnight = calendar.date(byAdding: .minute, value: 2, to: currentDate) {
       sharedUserDefaults?.set(true, forKey: "shouldWidgetReload")
-      
+
       let entry = SimpleEntry(
         date: midnight,
         isUpdate: true,
