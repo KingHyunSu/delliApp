@@ -42,7 +42,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     } else {
       textInputRef.current?.blur()
     }
-  }, [isInputMode, textInputRef])
+  }, [isInputMode, textInputRef.current])
 
   const changeSchedule = React.useCallback(
     (value: Object) => {
@@ -57,6 +57,10 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     },
     [changeSchedule]
   )
+
+  const handleFocus = React.useCallback(() => {
+    setIsInputMode(true)
+  }, [])
 
   const setTitlePosition = React.useCallback(
     (x: number, y: number) => {
@@ -116,7 +120,6 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
 
   const handleTitleControl = React.useCallback(
     (type: string) => () => {
-      console.log('12389123893')
       const startTime = data.start_time * 0.25
       const endTime = data.end_time * 0.25
 
@@ -260,9 +263,9 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
             style={textStyle}
             maxLength={200}
             multiline
-            autoFocus
             scrollEnabled={false}
             onChangeText={changeTitle}
+            onFocus={handleFocus}
             placeholder="일정명을 입력해주세요"
             placeholderTextColor="#c3c5cc"
           />

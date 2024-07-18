@@ -156,6 +156,7 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
 
           <Text style={styles.text}>수정하기</Text>
         </Pressable>
+
         <Pressable style={styles.section} onPress={deleteSchedule}>
           <View style={deleteButton}>
             <DeleteIcon width={14} height={14} fill="#fff" />

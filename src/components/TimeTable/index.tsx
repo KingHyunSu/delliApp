@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, Keyboard, StyleSheet, View, Pressable} from 'react-native'
+import {useWindowDimensions, StyleSheet, View, Pressable} from 'react-native'
 import {Svg, G, Text, Circle} from 'react-native-svg'
 
 import Background from './src/Background'
@@ -57,7 +57,6 @@ const TimeTable = ({data, isEdit}: Props) => {
   )
 
   const closeKeyboard = React.useCallback(() => {
-    // Keyboard.dismiss()
     setIsInputMode(false)
   }, [setIsInputMode])
 

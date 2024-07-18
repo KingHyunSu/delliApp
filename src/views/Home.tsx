@@ -255,6 +255,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
   React.useEffect(() => {
     if (isEdit) {
+      setIsInputMode(true)
       translateAnimation(headerTranslateY, -200, 350)
       translateAnimation(timaTableTranslateY, -100)
     } else {
