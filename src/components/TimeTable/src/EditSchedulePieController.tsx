@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, Platform, StatusBar, PanResponder} from 'react-native'
+import {StyleSheet, Platform, StatusBar, PanResponder, View} from 'react-native'
 import Svg, {Circle} from 'react-native-svg'
 
 import {polarToCartesian} from '../util'
@@ -18,6 +18,7 @@ interface Props {
 }
 
 const MINUTE_INTERVAL = 5
+const itemSize = 38
 
 const EditSchedulePieController = ({data, x, y, radius, onScheduleChanged}: Props) => {
   const statusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
@@ -38,12 +39,13 @@ const EditSchedulePieController = ({data, x, y, radius, onScheduleChanged}: Prop
   const dragStartBtnCoordinate = polarToCartesian(x, y, radius, startAngle)
   const dragEndBtnCoordinate = polarToCartesian(x, y, radius, endAngle)
 
-  React.useEffect(() => {
-    trigger('soft', {
-      enableVibrateFallback: true,
-      ignoreAndroidSystemSettings: false
-    })
-  }, [startAngle, endAngle])
+  const startItemStyle = React.useMemo(() => {
+    return [styles.item, {left: dragStartBtnCoordinate.x - itemSize / 2, top: dragStartBtnCoordinate.y - itemSize / 2}]
+  }, [dragStartBtnCoordinate.x, dragStartBtnCoordinate.y])
+
+  const endItemStyle = React.useMemo(() => {
+    return [styles.item, {left: dragEndBtnCoordinate.x - itemSize / 2, top: dragEndBtnCoordinate.y - itemSize / 2}]
+  }, [dragEndBtnCoordinate.x, dragEndBtnCoordinate.y])
 
   const getCalcTotalMinute = (angle: number) => {
     const totalMinute = angle / 0.25
@@ -114,36 +116,37 @@ const EditSchedulePieController = ({data, x, y, radius, onScheduleChanged}: Prop
     })
   ).current
 
+  React.useEffect(() => {
+    trigger('soft', {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false
+    })
+  }, [startAngle, endAngle])
+
   return (
     <>
-      <Svg style={styles.item}>
-        <Circle cx={dragStartBtnCoordinate.x} cy={dragStartBtnCoordinate.y} r={10} fill="#1E90FF" />
-        <Circle
-          {...startPanResponders.panHandlers}
-          cx={dragStartBtnCoordinate.x}
-          cy={dragStartBtnCoordinate.y}
-          r={38}
-          fill={'transparent'}
-        />
-      </Svg>
+      <View {...startPanResponders.panHandlers} style={startItemStyle}>
+        <Svg>
+          <Circle cx={itemSize / 2} cy={itemSize / 2} r={10} fill="#1E90FF" />
+        </Svg>
+      </View>
 
-      <Svg style={styles.item}>
-        <Circle cx={dragEndBtnCoordinate.x} cy={dragEndBtnCoordinate.y} r={10} fill="#1E90FF" />
-        <Circle
-          {...endPanResponders.panHandlers}
-          cx={dragEndBtnCoordinate.x}
-          cy={dragEndBtnCoordinate.y}
-          r={38}
-          fill={'transparent'}
-        />
-      </Svg>
+      <View {...endPanResponders.panHandlers} style={endItemStyle}>
+        <Svg>
+          <Circle cx={itemSize / 2} cy={itemSize / 2} r={10} fill="#1E90FF" />
+        </Svg>
+      </View>
     </>
   )
 }
 
 const styles = StyleSheet.create({
   item: {
-    position: 'absolute'
+    position: 'absolute',
+    width: itemSize,
+    height: itemSize,
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 })
 
