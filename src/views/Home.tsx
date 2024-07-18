@@ -427,10 +427,18 @@ const homeStyles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f6f8'
+    backgroundColor: '#f5f6f8',
+
+    ...Platform.select({
+      ios: {
+        height: 48
+      },
+      android: {
+        height: 52
+      }
+    })
   },
   submitText: {
     fontFamily: 'Pretendard-SemiBold',

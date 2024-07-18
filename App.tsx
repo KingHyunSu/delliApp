@@ -3,7 +3,6 @@ import {Platform, AppState, StyleSheet, StatusBar, SafeAreaView, Alert} from 're
 import {QueryClient, QueryCache, QueryClientProvider} from '@tanstack/react-query'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SplashScreen from 'react-native-splash-screen'
-import changeNavigationBarColor from 'react-native-navigation-bar-color'
 
 // navigations
 import {NavigationContainer} from '@react-navigation/native'
@@ -50,6 +49,14 @@ function App(): JSX.Element {
 
   const screenOptions = React.useMemo(() => {
     return {headerShown: false}
+  }, [])
+
+  const statusBarStyle = React.useMemo(() => {
+    return {
+      flex: 0,
+      backgroundColor: '#fff',
+      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
+    }
   }, [])
 
   const handleGlobalError = errorCode => {
@@ -132,8 +139,6 @@ function App(): JSX.Element {
   // }, [isServerError])
 
   React.useEffect(() => {
-    changeNavigationBarColor('#ffffff', true)
-
     const init = async () => {
       try {
         const isInitDatabase = await initDatabase()
@@ -153,7 +158,7 @@ function App(): JSX.Element {
 
   React.useEffect(() => {
     if (isInit && isLoaded) {
-      show()
+      // show()
       SplashScreen.hide()
     }
   }, [isInit, isLoaded, show])
@@ -192,9 +197,9 @@ function App(): JSX.Element {
       <GestureHandlerRootView style={{flex: 1}}>
         {/* <RecoilDebugObserver /> */}
         <BottomSheetModalProvider>
-          <StatusBar backgroundColor="#fff" barStyle="dark-content" />
+          <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-          <SafeAreaView style={styles.statusBar} />
+          <SafeAreaView style={statusBarStyle} />
           <NavigationContainer ref={navigationRef}>
             <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
               <Stack.Screen name="Home" component={HomeScreen} />
