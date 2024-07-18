@@ -28,15 +28,10 @@ import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
 
 import initDatabase from '@/repository/utils/init'
 
+const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
+
 function App(): JSX.Element {
-  const {isLoaded, load, show} = useAppOpenAd(
-    Platform.select({
-      ios: TestIds.APP_OPEN,
-      android: TestIds.APP_OPEN
-      // ios: 'ca-app-pub-3765315237132279/9003768148'
-      // android: 'ca-app-pub-3765315237132279/4177449893'
-    }) || ''
-  )
+  const {isLoaded, load, show} = useAppOpenAd(adUnitId)
   const appState = React.useRef(AppState.currentState)
   const [isActiveApp, setIsActiveApp] = React.useState(false)
   const [isInit, setIsInit] = React.useState(false)
@@ -152,16 +147,18 @@ function App(): JSX.Element {
   }, [])
 
   React.useEffect(() => {
-    // 광고 load
-    load()
-  }, [load])
+    if (!isLoaded) {
+      // 광고 load
+      load()
+    }
+  }, [isLoaded, load])
 
   React.useEffect(() => {
     if (isInit && isLoaded) {
       // show()
       SplashScreen.hide()
     }
-  }, [isInit, isLoaded, show])
+  }, [isInit, isLoaded])
 
   React.useEffect(() => {
     const subscription = AppState.addEventListener('change', state => {

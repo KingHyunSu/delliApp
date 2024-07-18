@@ -1,16 +1,7 @@
 import React from 'react'
-import {
-  Appearance,
-  LayoutChangeEvent,
-  StyleSheet,
-  View,
-  Pressable,
-  Text,
-  TextInput,
-  InputAccessoryView
-} from 'react-native'
+import {Appearance, LayoutChangeEvent, StyleSheet, View, Pressable, Text} from 'react-native'
 
-import {Gesture, GestureDetector} from 'react-native-gesture-handler'
+import {Gesture, GestureDetector, BaseButton, TextInput} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS} from 'react-native-reanimated'
 
 import {useRecoilState} from 'recoil'
@@ -29,10 +20,11 @@ interface Props {
   onChangeSchedule: Function
 }
 const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Props) => {
-  const inputAccessoryViewID = 'scheduleTitle'
   const containerPadding = 50
 
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
+
+  const textInputRef = React.useRef<TextInput>(null)
 
   const [containerWidth, setContainerWidth] = React.useState(0)
   const [containerHeight, setContainerHeight] = React.useState(0)
@@ -44,15 +36,13 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
   const containerRotate = useSharedValue(data.title_rotate)
   const conatinerSavedRotate = useSharedValue(0)
 
-  const handleInputMode = React.useCallback(() => {
-    setIsInputMode(true)
-  }, [setIsInputMode])
-
-  const handleFocus = React.useCallback(() => {}, [])
-
-  const handleBlur = React.useCallback(() => {
-    setIsInputMode(false)
-  }, [setIsInputMode])
+  React.useEffect(() => {
+    if (isInputMode) {
+      textInputRef.current?.focus()
+    } else {
+      textInputRef.current?.blur()
+    }
+  }, [isInputMode, textInputRef])
 
   const changeSchedule = React.useCallback(
     (value: Object) => {
@@ -126,6 +116,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
 
   const handleTitleControl = React.useCallback(
     (type: string) => () => {
+      console.log('12389123893')
       const startTime = data.start_time * 0.25
       const endTime = data.end_time * 0.25
 
@@ -263,41 +254,20 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     <>
       <GestureDetector gesture={composeGesture}>
         <Animated.View style={containerStyle} onLayout={handleLayout}>
-          {isInputMode ? (
-            <TextInput
-              value={data.title}
-              inputAccessoryViewID={inputAccessoryViewID}
-              style={textStyle}
-              maxLength={200}
-              multiline
-              autoFocus
-              scrollEnabled={false}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              onChangeText={changeTitle}
-            />
-          ) : (
-            <Pressable style={styles.textWrapper} onPress={handleInputMode}>
-              <Text style={textStyle}>{title}</Text>
-            </Pressable>
-          )}
+          <TextInput
+            ref={textInputRef}
+            value={data.title}
+            style={textStyle}
+            maxLength={200}
+            multiline
+            autoFocus
+            scrollEnabled={false}
+            onChangeText={changeTitle}
+            placeholder="일정명을 입력해주세요"
+            placeholderTextColor="#c3c5cc"
+          />
         </Animated.View>
       </GestureDetector>
-
-      {/* todo 2차 기능 */}
-      <InputAccessoryView nativeID={inputAccessoryViewID}>
-        <View style={toolContainerStyle}>
-          <Pressable style={toolItemStyle} onPress={handleTitleControl('horizon')}>
-            <TextRotationIcon1 fill={toolIconColor} />
-          </Pressable>
-          <Pressable style={toolItemStyle} onPress={handleTitleControl('topRight')}>
-            <TextRotationIcon2 fill={toolIconColor} />
-          </Pressable>
-          <Pressable style={toolItemStyle} onPress={handleTitleControl('vertical')}>
-            <TextRotationIcon3 fill={toolIconColor} />
-          </Pressable>
-        </View>
-      </InputAccessoryView>
     </>
   )
 }
