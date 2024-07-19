@@ -1,5 +1,20 @@
 import React from 'react'
-import {Platform, Animated, Pressable, StyleSheet, SafeAreaView, View, Text, LayoutChangeEvent} from 'react-native'
+import {
+  Platform,
+  Animated,
+  BackHandler,
+  LayoutChangeEvent,
+  ToastAndroid,
+  Alert,
+  Pressable,
+  StyleSheet,
+  SafeAreaView,
+  View,
+  Text
+} from 'react-native'
+import {useFocusEffect} from '@react-navigation/native'
+import {useQuery, useMutation} from '@tanstack/react-query'
+import {format, getDay} from 'date-fns'
 
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
@@ -15,9 +30,9 @@ import EditTodoModal from '@/views/Modal/EditTodoModal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
+// import EditIcon from '@/assets/icons/edit3.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
 import CancleIcon from '@/assets/icons/cancle.svg'
-// import EditIcon from '@/assets/icons/edit3.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
@@ -31,22 +46,23 @@ import {
   isInputModeState
 } from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
-import {showEditMenuBottomSheetState, showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
-
-import {useQuery, useMutation} from '@tanstack/react-query'
+import {
+  showEditMenuBottomSheetState,
+  showEditScheduleCheckBottomSheetState,
+  showDatePickerBottomSheetState
+} from '@/store/bottomSheet'
 
 import {getDayOfWeekKey} from '@/utils/helper'
-import {format, getDay} from 'date-fns'
+import {scheduleRepository} from '@/repository'
 
 import {HomeNavigationProps} from '@/types/navigation'
-
-// repository
-import {scheduleRepository} from '@/repository'
 
 const Home = ({navigation}: HomeNavigationProps) => {
   const setIsLunch = useSetRecoilState(isLunchState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
+  const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
+  const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
@@ -54,12 +70,13 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const disableScheduleList = useRecoilValue(disableScheduleListState)
 
   const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
-  const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
   const resetSchedule = useResetRecoilState(scheduleState)
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
+
+  const [backPressCount, setBackPressCount] = React.useState(0)
 
   const {isError, refetch: refetchScheduleList} = useQuery({
     queryKey: ['scheduleList', scheduleDate],
@@ -232,7 +249,17 @@ const Home = ({navigation}: HomeNavigationProps) => {
   )
 
   const closeEditScheduleBottomSheet = React.useCallback(() => {
-    setIsEdit(false)
+    Alert.alert('나가기', '작성한 내용은 저장되지 않아요.', [
+      {
+        text: '취소'
+      },
+      {
+        text: '나가기',
+        onPress: () => {
+          setIsEdit(false)
+        }
+      }
+    ])
   }, [setIsEdit])
 
   const handleTopLayout = React.useCallback(
@@ -252,6 +279,49 @@ const Home = ({navigation}: HomeNavigationProps) => {
       useNativeDriver: true
     }).start()
   }
+
+  // android 뒤로가기 제어
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        if (isEdit) {
+          // edit bottom sheet
+          closeEditScheduleBottomSheet()
+        } else if (showEditMenuBottomSheet) {
+          // edit menu bottom sheet
+          setShowEditMenuBottomSheet(false)
+        } else if (showDatePickerBottomSheet) {
+          setShowDatePickerBottomSheet(false)
+        } else {
+          // home screen
+          if (backPressCount === 1) {
+            // 앱 종료
+            return false
+          }
+
+          setBackPressCount(1)
+          ToastAndroid.show('한 번 더 누르면 종료됩니다.', ToastAndroid.SHORT)
+
+          setTimeout(() => {
+            setBackPressCount(0)
+          }, 2000)
+        }
+        return true
+      }
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress)
+
+      return () => subscription.remove()
+    }, [
+      isEdit,
+      showEditMenuBottomSheet,
+      showDatePickerBottomSheet,
+      backPressCount,
+      closeEditScheduleBottomSheet,
+      setShowEditMenuBottomSheet,
+      setShowDatePickerBottomSheet
+    ])
+  )
 
   React.useEffect(() => {
     if (isEdit) {
