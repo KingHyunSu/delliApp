@@ -8,7 +8,7 @@ import DatePicker from '@/components/DatePicker'
 import WheelPicker from 'react-native-wheely'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {isEditState} from '@/store/system'
+import {editScheduleListSnapPointState, isEditState} from '@/store/system'
 import {scheduleState, isInputModeState} from '@/store/schedule'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
@@ -34,6 +34,7 @@ const EditScheduleBottomSheet = React.memo(() => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const bottomSheetScrollViewRef = React.useRef<ScrollView>(null)
 
+  const editScheduleListSnapPoint = useRecoilValue(editScheduleListSnapPointState)
   const isEdit = useRecoilValue(isEditState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
@@ -99,10 +100,6 @@ const EditScheduleBottomSheet = React.memo(() => {
       dateFlag === RANGE_FLAG.START && {borderTopWidth: 1, borderTopColor: '#eeeded'}
     ]
   }, [dateFlag])
-
-  const snapPoints = React.useMemo(() => {
-    return ['35%', '93%']
-  }, [])
 
   const startTime = React.useMemo(() => {
     return getTimeOfMinute(schedule.start_time)
@@ -528,11 +525,14 @@ const EditScheduleBottomSheet = React.memo(() => {
     }
   }, [dateFlag])
 
+  if (editScheduleListSnapPoint.length === 0) {
+    return <></>
+  }
   return (
     <BottomSheet
       ref={bottomSheetRef}
       index={-1}
-      snapPoints={snapPoints}
+      snapPoints={editScheduleListSnapPoint}
       handleComponent={BottomSheetShadowHandler}
       onChange={handleBottomSheetChanged}>
       <BottomSheetScrollView ref={bottomSheetScrollViewRef} contentContainerStyle={styles.container}>

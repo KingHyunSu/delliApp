@@ -25,10 +25,6 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const bottomSheetFlatListRef = React.useRef<BottomSheetFlatListMethods>(null)
 
-  const snapPoints = React.useMemo(() => {
-    return ['20%', '77%']
-  }, [])
-
   const list: Schedule[] = React.useMemo(() => {
     const SCHEDULE_DISPLAY_TYPE = {CONTINUE: 'continue', GAP: 'gap'}
 

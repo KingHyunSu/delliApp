@@ -95,3 +95,24 @@ export const scheduleListSnapPointState = selector({
     return [minSnapPoint, maxSnapPoint]
   }
 })
+
+export const editScheduleListSnapPointState = selector({
+  key: 'editScheduleListSnapPointState',
+  get: ({get}) => {
+    const statusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : 0
+    const {height} = get(windowDimensionsState)
+
+    if (height === 0) {
+      return []
+    }
+
+    const homeHeaderHeight = get(homeHeaderHeightState)
+    const timetablePositionY = get(timetablePositionYState)
+    const appBarHeight = 48
+
+    const minSnapPoint = 100 + height - (statusBarHeight + homeHeaderHeight + timetablePositionY * 2)
+    const maxSnapPoint = height - (statusBarHeight + appBarHeight)
+
+    return [minSnapPoint, maxSnapPoint]
+  }
+})
