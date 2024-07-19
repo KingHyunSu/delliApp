@@ -7,19 +7,20 @@ import ScheduleListItem from './ScheduleListItem'
 import LottieView from 'lottie-react-native'
 
 import {useRecoilValue} from 'recoil'
+import {scheduleListSnapPointState, isEditState} from '@/store/system'
 import {scheduleDateState} from '@/store/schedule'
-import {isEditState} from '@/store/system'
 
 import {format} from 'date-fns'
 
 interface Props {
   data: Schedule[]
-  openEditScheduleBottomSheet: (value?: Schedule) => void
+  openEditScheduleBottomSheet: (value?: Schedule) => Function
   onClick: (value: Schedule) => void
 }
 const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
-  const scheduleDate = useRecoilValue(scheduleDateState)
+  const scheduleListSnapPoint = useRecoilValue(scheduleListSnapPointState)
   const isEdit = useRecoilValue(isEditState)
+  const scheduleDate = useRecoilValue(scheduleDateState)
 
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const bottomSheetFlatListRef = React.useRef<BottomSheetFlatListMethods>(null)
@@ -154,8 +155,16 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
     [list.length, openEditScheduleBottomSheet, onClick]
   )
 
+  if (scheduleListSnapPoint.length === 0) {
+    return <></>
+  }
+
   return (
-    <BottomSheet ref={bottomSheetRef} index={0} snapPoints={snapPoints} handleComponent={BottomSheetShadowHandler}>
+    <BottomSheet
+      ref={bottomSheetRef}
+      index={0}
+      snapPoints={scheduleListSnapPoint}
+      handleComponent={BottomSheetShadowHandler}>
       {list && list.length > 0 ? (
         <BottomSheetFlatList
           ref={bottomSheetFlatListRef}

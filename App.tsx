@@ -1,5 +1,5 @@
 import React from 'react'
-import {Platform, AppState, StyleSheet, StatusBar, SafeAreaView, Alert} from 'react-native'
+import {useWindowDimensions, Platform, AppState, StyleSheet, StatusBar, SafeAreaView, Alert} from 'react-native'
 import {QueryClient, QueryCache, QueryClientProvider} from '@tanstack/react-query'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SplashScreen from 'react-native-splash-screen'
@@ -17,8 +17,8 @@ import LeaveScreen from '@/views/Leave'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import {useRecoilState, useRecoilSnapshot} from 'recoil'
-import {loginState, isLunchState} from '@/store/system'
+import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
+import {loginState, isLunchState, windowDimensionsState} from '@/store/system'
 
 import {RootStackParamList} from '@/types/navigation'
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
@@ -31,12 +31,15 @@ import initDatabase from '@/repository/utils/init'
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
 
 function App(): JSX.Element {
+  const windowDimensions = useWindowDimensions()
+
   const {isLoaded, load, show} = useAppOpenAd(adUnitId)
   const appState = React.useRef(AppState.currentState)
   const [isActiveApp, setIsActiveApp] = React.useState(false)
   const [isInit, setIsInit] = React.useState(false)
   const [isServerError, setIsServerError] = React.useState(false)
 
+  const setWindowDimensions = useSetRecoilState(windowDimensionsState)
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
 
@@ -132,6 +135,10 @@ function App(): JSX.Element {
   //     ])
   //   }
   // }, [isServerError])
+
+  React.useEffect(() => {
+    setWindowDimensions(windowDimensions)
+  }, [setWindowDimensions, windowDimensions])
 
   React.useEffect(() => {
     const init = async () => {
