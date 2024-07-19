@@ -269,6 +269,18 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
             placeholder="일정명을 입력해주세요"
             placeholderTextColor="#c3c5cc"
           />
+
+          {/*<View style={toolContainerStyle}>*/}
+          {/*  <Pressable style={toolItemStyle} onPress={handleTitleControl('horizon')}>*/}
+          {/*    <TextRotationIcon1 fill={toolIconColor} />*/}
+          {/*  </Pressable>*/}
+          {/*  <Pressable style={toolItemStyle} onPress={handleTitleControl('topRight')}>*/}
+          {/*    <TextRotationIcon2 fill={toolIconColor} />*/}
+          {/*  </Pressable>*/}
+          {/*  <Pressable style={toolItemStyle} onPress={handleTitleControl('vertical')}>*/}
+          {/*    <TextRotationIcon3 fill={toolIconColor} />*/}
+          {/*  </Pressable>*/}
+          {/*</View>*/}
         </Animated.View>
       </GestureDetector>
     </>
