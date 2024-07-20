@@ -32,8 +32,10 @@ const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyy
 function App(): JSX.Element {
   const windowDimensions = useWindowDimensions()
 
-  const {isLoaded, load, show} = useAppOpenAd(adUnitId)
+  const {isLoaded, load, show} = useAppOpenAd(TestIds.APP_OPEN)
+
   const appState = React.useRef(AppState.currentState)
+
   const [isActiveApp, setIsActiveApp] = React.useState(false)
   const [isInit, setIsInit] = React.useState(false)
   const [isServerError, setIsServerError] = React.useState(false)
@@ -141,27 +143,22 @@ function App(): JSX.Element {
 
   React.useEffect(() => {
     const init = async () => {
-      try {
-        const isInitDatabase = await initDatabase()
-        setIsInit(isInitDatabase)
-      } catch (e) {
-        console.error(e)
-      }
+      const isInitDatabase = await initDatabase()
+      setIsInit(isInitDatabase)
     }
 
     init()
   }, [])
 
   React.useEffect(() => {
-    if (!isLoaded) {
-      // 광고 load
-      load()
-    }
-  }, [isLoaded, load])
+    // 광고 load
+    load()
+  }, [load])
 
   React.useEffect(() => {
     if (isInit && isLoaded) {
-      // show()
+      // 광고 show
+      show()
       SplashScreen.hide()
     }
   }, [isInit, isLoaded])
