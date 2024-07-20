@@ -5,7 +5,7 @@ import * as todoCompleteQueries from '../queries/todoComplete'
 export const setScheduleTodoCompleteQuery = async (params: SetScheduleTodoComplete) => {
   const query = todoCompleteQueries.setScheduleTodoCompleteQuery(params)
   const db = await openDatabase()
-  const [result] = await db.executeSql(query, [params])
+  const [result] = await db.executeSql(query)
 
   return {complete_id: result.insertId}
 }
@@ -13,5 +13,5 @@ export const setScheduleTodoCompleteQuery = async (params: SetScheduleTodoComple
 export const deleteScheduleTodoCompleteQuery = async (params: DeleteScheduleTodoComplete) => {
   const query = todoCompleteQueries.deleteScheduleTodoCompleteQuery(params)
   const db = await openDatabase()
-  await db.executeSql(query, [params])
+  await db.executeSql(query)
 }

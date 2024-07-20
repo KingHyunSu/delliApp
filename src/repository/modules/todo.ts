@@ -5,7 +5,7 @@ import * as todoQueries from '../queries/todo'
 export const getTodo = async (params: GetTodoList) => {
   const query = todoQueries.getTodoQuery(params)
   const db = await openDatabase()
-  const [result] = await db.executeSql(query, [params])
+  const [result] = await db.executeSql(query)
 
   return result.rows.raw()
 }
@@ -13,7 +13,7 @@ export const getTodo = async (params: GetTodoList) => {
 export const setTodo = async (params: SetTodo) => {
   const query = todoQueries.setTodoQuery(params)
   const db = await openDatabase()
-  const [result] = await db.executeSql(query, [params])
+  const [result] = await db.executeSql(query)
   const insertId = result.insertId
 
   return await getTodo({todo_id: insertId})
@@ -22,7 +22,7 @@ export const setTodo = async (params: SetTodo) => {
 export const updateTodo = async (params: SetTodo) => {
   const query = todoQueries.updateTodoQuery(params)
   const db = await openDatabase()
-  await db.executeSql(query, [params])
+  await db.executeSql(query)
 
   return await getTodo({todo_id: params.todo_id!})
 }
@@ -30,7 +30,7 @@ export const updateTodo = async (params: SetTodo) => {
 export const deleteTodo = async (params: DeleteTodo) => {
   const query = todoQueries.deleteTodoQuery(params)
   const db = await openDatabase()
-  await db.executeSql(query, [params])
+  await db.executeSql(query)
 
   return {todo_id: params.todo_id}
 }
