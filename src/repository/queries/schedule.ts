@@ -44,7 +44,9 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
     ON
       A.schedule_id = B.schedule_id
     AND
-      B.end_date > "${params.date}"
+      B.start_date <= "${params.date}"
+    AND
+      B.end_date >= "${params.date}"
     LEFT OUTER JOIN
       TODO_COMPLETE C
     ON

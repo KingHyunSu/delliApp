@@ -99,14 +99,17 @@ const EditTodoModal = () => {
 
   const changeEndDate = React.useCallback(
     (value: boolean) => {
+      let start_date: string | null = null
       let end_date: string | null = null
 
       if (!value) {
+        start_date = format(scheduleDate, 'yyyy-MM-dd')
         end_date = format(scheduleDate, 'yyyy-MM-dd')
       }
 
       changeScheduleTodo(prevState => ({
         ...prevState,
+        start_date: start_date ? start_date : prevState.start_date,
         end_date
       }))
     },
