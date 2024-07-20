@@ -178,7 +178,8 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 18
+    fontSize: 18,
+    color: '#000'
   },
   text: {
     fontFamily: 'Pretendard-Medium',
