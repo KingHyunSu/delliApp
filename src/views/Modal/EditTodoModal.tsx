@@ -119,12 +119,15 @@ const EditTodoModal = () => {
         throw new Error('잘못된 일정')
       }
 
+      const date = format(scheduleDate, 'yyyy-MM-dd')
+
       const params = {
         schedule_id: data.schedule_id,
         todo_id: data.todo_id,
         title: data.title,
         start_date: data.start_date,
-        end_date: data.end_date
+        end_date: data.end_date,
+        date
       }
 
       if (params.todo_id) {
@@ -147,7 +150,7 @@ const EditTodoModal = () => {
           } else {
             newTodoList[updateTodoIndex] = result
           }
-
+          console.log('newTodoList', newTodoList)
           return {
             ...item,
             todo_list: newTodoList

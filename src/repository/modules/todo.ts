@@ -16,7 +16,7 @@ export const setTodo = async (params: SetTodo) => {
   const [result] = await db.executeSql(query)
   const insertId = result.insertId
 
-  return await getTodo({todo_id: insertId})
+  return await getTodo({todo_id: insertId, date: params.date})
 }
 
 export const updateTodo = async (params: SetTodo) => {
@@ -24,7 +24,7 @@ export const updateTodo = async (params: SetTodo) => {
   const db = await openDatabase()
   await db.executeSql(query)
 
-  return await getTodo({todo_id: params.todo_id!})
+  return await getTodo({todo_id: params.todo_id!, date: params.date})
 }
 
 export const deleteTodo = async (params: DeleteTodo) => {
