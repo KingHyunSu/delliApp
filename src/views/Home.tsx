@@ -12,10 +12,12 @@ import {
   View,
   Text
 } from 'react-native'
+import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import {useQuery, useMutation} from '@tanstack/react-query'
 import {format, getDay} from 'date-fns'
 
+// components
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
 import TimeTable from '@/components/TimeTable'
@@ -29,14 +31,16 @@ import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
 import EditTodoModal from '@/views/Modal/EditTodoModal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
+// icons
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 // import EditIcon from '@/assets/icons/edit3.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
 import CancleIcon from '@/assets/icons/cancle.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
 
+// stores
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
-import {isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
+import {safeAreaInsetsState, isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
 import {
   scheduleDateState,
   scheduleState,
@@ -58,6 +62,8 @@ import {scheduleRepository} from '@/repository'
 import {HomeNavigationProps} from '@/types/navigation'
 
 const Home = ({navigation}: HomeNavigationProps) => {
+  const safeAreaInsets = useSafeAreaInsets()
+
   const setIsLunch = useSetRecoilState(isLunchState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
@@ -69,6 +75,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const disableScheduleList = useRecoilValue(disableScheduleListState)
 
+  const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
   const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
   const resetSchedule = useResetRecoilState(scheduleState)
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
@@ -322,6 +329,10 @@ const Home = ({navigation}: HomeNavigationProps) => {
       setShowDatePickerBottomSheet
     ])
   )
+
+  React.useEffect(() => {
+    setSafeAreaInsets(safeAreaInsets)
+  }, [])
 
   React.useEffect(() => {
     if (isEdit) {

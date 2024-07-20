@@ -528,6 +528,7 @@ const EditScheduleBottomSheet = React.memo(() => {
   if (editScheduleListSnapPoint.length === 0) {
     return <></>
   }
+
   return (
     <BottomSheet
       ref={bottomSheetRef}

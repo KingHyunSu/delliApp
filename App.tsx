@@ -1,30 +1,29 @@
 import React from 'react'
 import {useWindowDimensions, Platform, AppState, StyleSheet, StatusBar, SafeAreaView, Alert} from 'react-native'
-import {QueryClient, QueryCache, QueryClientProvider} from '@tanstack/react-query'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SplashScreen from 'react-native-splash-screen'
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
+import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
+import {QueryClient, QueryCache, QueryClientProvider} from '@tanstack/react-query'
+// import crashlytics from '@react-native-firebase/crashlytics'
 
 // navigations
 import {NavigationContainer} from '@react-navigation/native'
 import {createStackNavigator} from '@react-navigation/stack'
 import {navigationRef} from '@/utils/navigation'
 
+// views
 import HomeScreen from '@/views/Home'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
 
-// utils
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-
+// stores
 import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
 import {loginState, isLunchState, windowDimensionsState} from '@/store/system'
 
 import {RootStackParamList} from '@/types/navigation'
-import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
-import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
-
-// import crashlytics from '@react-native-firebase/crashlytics'
 
 import initDatabase from '@/repository/utils/init'
 
@@ -184,17 +183,17 @@ function App(): JSX.Element {
   }, [])
 
   // recoil debug
-  function RecoilDebugObserver(): React.ReactNode {
-    const recoilSnapshot = useRecoilSnapshot()
-    React.useEffect(() => {
-      for (const node of recoilSnapshot.getNodes_UNSTABLE({isModified: true})) {
-        // console.debug(node.key, recoilSnapshot.getLoadable(node))
-        console.debug('recoil update : ', node.key)
-      }
-    }, [recoilSnapshot])
-
-    return null
-  }
+  // function RecoilDebugObserver(): React.ReactNode {
+  //   const recoilSnapshot = useRecoilSnapshot()
+  //   React.useEffect(() => {
+  //     for (const node of recoilSnapshot.getNodes_UNSTABLE({isModified: true})) {
+  //       // console.debug(node.key, recoilSnapshot.getLoadable(node))
+  //       console.debug('recoil update : ', node.key)
+  //     }
+  //   }, [recoilSnapshot])
+  //
+  //   return null
+  // }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -217,10 +216,4 @@ function App(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
-  statusBar: {
-    flex: 0,
-    backgroundColor: '#fff'
-  }
-})
 export default App
