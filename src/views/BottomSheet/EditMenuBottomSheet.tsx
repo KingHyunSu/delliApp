@@ -11,8 +11,6 @@ import {scheduleState, scheduleTodoState} from '@/store/schedule'
 import {showEditTodoModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
-import {trigger} from 'react-native-haptic-feedback'
-
 import EditIcon from '@/assets/icons/edit3.svg'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import TodoIcon from '@/assets/icons/priority.svg'
@@ -37,19 +35,8 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
     return [350]
   }, [])
 
-  const haptic = React.useCallback((hapticName: string) => {
-    const options = {
-      enableVibrateFallback: true,
-      ignoreAndroidSystemSettings: false
-    }
-
-    trigger(hapticName, options)
-  }, [])
-
   const openEditTodoModal = React.useCallback(() => {
     if (schedule.schedule_id) {
-      haptic('impactLight')
-
       changeScheduleTodo(prevState => ({
         ...prevState,
         schedule_id: schedule.schedule_id
@@ -57,14 +44,13 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
 
       setShowEditTodoModalState(true)
     }
-  }, [schedule.schedule_id, haptic, changeScheduleTodo, setShowEditTodoModalState])
+  }, [schedule.schedule_id, changeScheduleTodo, setShowEditTodoModalState])
 
   const updateScheduleDisableMutation = useMutation({
     mutationFn: async (data: ScheduleDisableReqeust) => {
       await scheduleRepository.updateScheduleDisable(data)
     },
     onSuccess: async () => {
-      haptic('rigid')
       await refetchScheduleList()
       handleReset()
       setShowEditMenuBottomSheet(false)
@@ -107,12 +93,11 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
 
   React.useEffect(() => {
     if (showEditMenuBottomSheet) {
-      haptic('rigid')
       editInfoBottomSheetRef.current?.present()
     } else {
       editInfoBottomSheetRef.current?.dismiss()
     }
-  }, [showEditMenuBottomSheet, haptic])
+  }, [showEditMenuBottomSheet])
 
   const handleReset = React.useCallback(() => {
     resetSchedule()

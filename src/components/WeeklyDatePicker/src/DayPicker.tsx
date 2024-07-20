@@ -6,7 +6,6 @@ import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'r
 
 import {isSameDay, isSameMonth, isSameYear, addDays} from 'date-fns'
 import {getWeeklyDateList} from '../util'
-import {trigger} from 'react-native-haptic-feedback'
 
 interface DataListItem {
   data: Date[]
@@ -82,12 +81,6 @@ const DayPicker = ({date, currentWeeklyDateList, onChange}: Props) => {
 
   const handleDateChanged = React.useCallback(
     (item: Date) => {
-      const options = {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: false
-      }
-      trigger('impactMedium', options)
-
       onChange(item)
     },
     [onChange]

@@ -286,11 +286,6 @@ const EditScheduleBottomSheet = React.memo(() => {
 
   const changeDayOfWeek = React.useCallback(
     (key: DAY_OF_WEEK) => () => {
-      trigger('impactLight', {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: false
-      })
-
       const flag = schedule[key] === '1' ? '0' : '1'
 
       setSchedule(prevState => ({...prevState, [key]: flag}))
