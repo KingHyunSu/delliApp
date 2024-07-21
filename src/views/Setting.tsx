@@ -1,5 +1,5 @@
 import React from 'react'
-import {Linking, StyleSheet, ScrollView, Pressable, View, Text} from 'react-native'
+import {Platform, Linking, StyleSheet, ScrollView, Pressable, View, Text} from 'react-native'
 import AppBar from '@/components/AppBar'
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -36,6 +36,15 @@ const Setting = ({navigation}: SettingNavigationProps) => {
     const response = await termsApi.getTermsUrl(type)
     return response.data.url || ''
   }
+
+  const version = React.useMemo(() => {
+    if (Platform.OS === 'ios') {
+      return '1.3.0'
+    } else if (Platform.OS === 'android') {
+      return '1.0.0'
+    }
+    return ''
+  }, [Platform.OS])
 
   const moveServiceTermsPage = React.useCallback(async () => {
     // const url = await getTermsUrl('1')
@@ -117,7 +126,7 @@ const Setting = ({navigation}: SettingNavigationProps) => {
         <View style={styles.footer}>
           <View style={styles.item}>
             <Text style={styles.contentText}>버전</Text>
-            <Text style={styles.contentText}>1.1.0</Text>
+            <Text style={styles.contentText}>{version}</Text>
           </View>
 
           {/* 2024-05-18 서버 제거로 인해 비활성화 */}
