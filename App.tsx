@@ -150,18 +150,26 @@ function App(): JSX.Element {
     init()
   }, [])
 
-  React.useEffect(() => {
-    // 광고 load
-    load()
-  }, [load])
+  // TODO android v1.0.0 배포에서 제외 2024-07-21
+  // React.useEffect(() => {
+  //   // 광고 load
+  //   load()
+  // }, [load])
+
+  // TODO android v1.0.0 배포에서 제외 2024-07-21
+  // React.useEffect(() => {
+  //   if (isInit && isLoaded) {
+  //     // 광고 show
+  //     show()
+  //     SplashScreen.hide()
+  //   }
+  // }, [isInit, isLoaded])
 
   React.useEffect(() => {
-    if (isInit && isLoaded) {
-      // 광고 show
-      show()
+    if (isInit) {
       SplashScreen.hide()
     }
-  }, [isInit, isLoaded])
+  }, [isInit])
 
   React.useEffect(() => {
     const subscription = AppState.addEventListener('change', state => {
