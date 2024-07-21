@@ -28,7 +28,7 @@ const defaultPanelHeight = 74
 const defaultItemPanelHeight = 56
 const defaultFullTimeItemPanelHeight = 216
 const defaultFullDateItemPanelHeight = 426
-const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
+// const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
 
 const EditScheduleBottomSheet = React.memo(() => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
@@ -45,7 +45,7 @@ const EditScheduleBottomSheet = React.memo(() => {
   const [activeAlarmPanel, setActiveAlarmPanel] = React.useState(false)
   const [timeFlag, setTimeFlag] = React.useState(0)
   const [dateFlag, setDateFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
-  const [alarmWheelIndex, setAlarmWheelIndex] = React.useState(1)
+  // const [alarmWheelIndex, setAlarmWheelIndex] = React.useState(1)
 
   const timePanelHeight = useSharedValue(defaultPanelHeight)
   const datePanelHeight = useSharedValue(defaultPanelHeight)
@@ -68,10 +68,10 @@ const EditScheduleBottomSheet = React.memo(() => {
     ...styles.panel,
     height: dayOfWeekPanelHeight.value
   }))
-  const alarmPanelContainerStyle = useAnimatedStyle(() => ({
-    ...styles.panel,
-    height: alarmPanelHeight.value
-  }))
+  // const alarmPanelContainerStyle = useAnimatedStyle(() => ({
+  //   ...styles.panel,
+  //   height: alarmPanelHeight.value
+  // }))
   const startTimePanelItemStyle = useAnimatedStyle(() => ({
     ...styles.panelItemWrapper,
     height: timeStartPanelHeight.value
@@ -127,9 +127,9 @@ const EditScheduleBottomSheet = React.memo(() => {
     return schedule.end_date !== '9999-12-31' ? schedule.end_date : '없음'
   }, [schedule.end_date])
 
-  const isActiveAlarm = React.useMemo(() => {
-    return schedule.alarm !== 0
-  }, [schedule.alarm])
+  // const isActiveAlarm = React.useMemo(() => {
+  //   return schedule.alarm !== 0
+  // }, [schedule.alarm])
 
   const startTimePanelItemHeaderWrapperStyle = React.useMemo(() => {
     return [styles.panelItemButton, timeFlag === 0 && styles.panelItemActiveButton]
@@ -184,14 +184,14 @@ const EditScheduleBottomSheet = React.memo(() => {
     setActiveDatePanel(false)
     setActiveDayOfWeekPanel(!activeDayOfWeekPanel)
   }, [activeDayOfWeekPanel])
-  const handleAlarmPanel = React.useCallback(() => {
-    setActiveTimePanel(false)
-    setActiveDatePanel(false)
-    setActiveDayOfWeekPanel(false)
-    if (isActiveAlarm) {
-      setActiveAlarmPanel(!activeAlarmPanel)
-    }
-  }, [isActiveAlarm, activeAlarmPanel])
+  // const handleAlarmPanel = React.useCallback(() => {
+  //   setActiveTimePanel(false)
+  //   setActiveDatePanel(false)
+  //   setActiveDayOfWeekPanel(false)
+  //   if (isActiveAlarm) {
+  //     setActiveAlarmPanel(!activeAlarmPanel)
+  //   }
+  // }, [isActiveAlarm, activeAlarmPanel])
   const handleStartTimePanel = React.useCallback(() => {
     setTimeFlag(0)
 
@@ -293,29 +293,29 @@ const EditScheduleBottomSheet = React.memo(() => {
     [schedule, setSchedule]
   )
 
-  const changeAlarm = React.useCallback(
-    (index: number) => {
-      setSchedule(prevState => ({...prevState, alarm: (index + 1) * 5}))
-    },
-    [setSchedule]
-  )
-
-  const changeAlarmSwitch = React.useCallback(
-    (value: boolean) => {
-      if (value) {
-        setActiveTimePanel(false)
-        setActiveDatePanel(false)
-        setActiveDayOfWeekPanel(false)
-
-        changeAlarm(alarmWheelIndex)
-      } else {
-        setSchedule(prevState => ({...prevState, alarm: 0}))
-      }
-
-      setActiveAlarmPanel(value)
-    },
-    [alarmWheelIndex]
-  )
+  // const changeAlarm = React.useCallback(
+  //   (index: number) => {
+  //     setSchedule(prevState => ({...prevState, alarm: (index + 1) * 5}))
+  //   },
+  //   [setSchedule]
+  // )
+  //
+  // const changeAlarmSwitch = React.useCallback(
+  //   (value: boolean) => {
+  //     if (value) {
+  //       setActiveTimePanel(false)
+  //       setActiveDatePanel(false)
+  //       setActiveDayOfWeekPanel(false)
+  //
+  //       changeAlarm(alarmWheelIndex)
+  //     } else {
+  //       setSchedule(prevState => ({...prevState, alarm: 0}))
+  //     }
+  //
+  //     setActiveAlarmPanel(value)
+  //   },
+  //   [alarmWheelIndex]
+  // )
 
   // const setDailyNotification = async (data: Schedule) => {
   //   let time = getTime(setMinutes(startOfToday(), schedule.start_time - schedule.alarm))
@@ -466,11 +466,11 @@ const EditScheduleBottomSheet = React.memo(() => {
     }
   }, [isEdit])
 
-  React.useEffect(() => {
-    if (schedule.alarm > 0) {
-      setAlarmWheelIndex(schedule.alarm / 5 - 1)
-    }
-  }, [schedule.alarm])
+  // React.useEffect(() => {
+  //   if (schedule.alarm > 0) {
+  //     setAlarmWheelIndex(schedule.alarm / 5 - 1)
+  //   }
+  // }, [schedule.alarm])
 
   React.useEffect(() => {
     if (activeTimePanel) {

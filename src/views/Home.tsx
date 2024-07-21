@@ -222,22 +222,22 @@ const Home = ({navigation}: HomeNavigationProps) => {
       if (value) {
         setSchedule(value)
       } else {
-        const dayOfWeekKeyList = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-
-        let currentDayOfWeekIndex = getDay(new Date(scheduleDate)) - 1
-
-        if (currentDayOfWeekIndex === -1) {
-          currentDayOfWeekIndex = 6
-        }
-
-        const dayOfWeekkey = dayOfWeekKeyList[currentDayOfWeekIndex]
+        // const dayOfWeekKeyList = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+        //
+        // let currentDayOfWeekIndex = getDay(new Date(scheduleDate)) - 1
+        //
+        // if (currentDayOfWeekIndex === -1) {
+        //   currentDayOfWeekIndex = 6
+        // }
+        //
+        // const dayOfWeekkey = dayOfWeekKeyList[currentDayOfWeekIndex]
 
         setSchedule(prevState => {
           return {
             ...prevState,
             // timetable_category_id: activeTimeTableCategory.timetable_category_id,
-            start_date: format(scheduleDate, 'yyyy-MM-dd'),
-            [dayOfWeekkey]: '1'
+            start_date: format(scheduleDate, 'yyyy-MM-dd')
+            // [dayOfWeekkey]: '1'
           }
         })
       }
