@@ -21,6 +21,7 @@ export interface GetExistScheduleList {
   fri: string
   sat: string
   sun: string
+  date: string
 }
 
 export interface SetSchedule {

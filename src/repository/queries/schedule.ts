@@ -132,6 +132,8 @@ export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
       SCHEDULE
     WHERE
       disable = '0'
+    AND
+      end_date < ${params.date}
   `
 
   if (params.schedule_id !== null) {
@@ -215,7 +217,7 @@ export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
   query += `
     )
   `
-
+  console.log('query', query)
   return query
 }
 

@@ -131,6 +131,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
   const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
     mutationFn: async () => {
+      const date = format(scheduleDate, 'yyyy-MM-dd')
+
       const params = {
         schedule_id: schedule.schedule_id,
         start_time: schedule.start_time,
@@ -141,7 +143,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
         thu: schedule.thu,
         fri: schedule.fri,
         sat: schedule.sat,
-        sun: schedule.sun
+        sun: schedule.sun,
+        date
       }
 
       return await scheduleRepository.getExistScheduleList(params)
