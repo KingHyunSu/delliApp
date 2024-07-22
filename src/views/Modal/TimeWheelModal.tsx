@@ -147,12 +147,9 @@ const TimeWheel = () => {
 
   React.useEffect(() => {
     if (showTimeWheelModal) {
+      setActiveTab('START')
       setStartTime(schedule.start_time)
       setEndTime(schedule.end_time)
-    }
-
-    return () => {
-      setActiveTab('START')
     }
   }, [showTimeWheelModal])
 
@@ -165,7 +162,7 @@ const TimeWheel = () => {
   }, [activeTab, startTime, endTime])
 
   React.useEffect(() => {
-    if (value) {
+    if (Number.isInteger(value)) {
       let meridie = 0
       let hour = Math.floor(value / 60)
       const minute = value % 60
@@ -185,7 +182,7 @@ const TimeWheel = () => {
   }, [value])
 
   return (
-    <Modal visible={showTimeWheelModal} transparent statusBarTranslucent>
+    <Modal visible={showTimeWheelModal} hardwareAccelerated transparent statusBarTranslucent>
       <View style={styles.background}>
         <Pressable style={styles.overlay} />
 
