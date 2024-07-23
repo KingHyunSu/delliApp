@@ -299,8 +299,11 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    paddingTop: 0,
-    padding: 0
+    paddingVertical: 0,
+    padding: 0,
+    minWidth: 150,
+    minHeight: 28,
+    textAlignVertical: 'top'
   }
 })
 
