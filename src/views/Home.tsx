@@ -43,6 +43,7 @@ import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} 
 import {safeAreaInsetsState, isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
 import {
   scheduleDateState,
+  scheduleDayOfWeekIndexState,
   scheduleState,
   scheduleListState,
   disableScheduleListState,
@@ -70,6 +71,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
   const scheduleDate = useRecoilValue(scheduleDateState)
+  const scheduleDayOfWeekIndex = useRecoilValue(scheduleDayOfWeekIndexState)
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
@@ -134,12 +136,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
       let endDate = schedule.end_date
 
       if (schedule.end_date !== '9999-12-31') {
-        let currentDayOfWeekIndex = getDay(scheduleDate) - 1
         let lastActiveDayOfWeekIndex = 0
-
-        if (currentDayOfWeekIndex === -1) {
-          currentDayOfWeekIndex = 6
-        }
 
         const activeDayOfWeekList = [
           schedule.mon,
@@ -157,7 +154,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           }
         })
 
-        const addDay = lastActiveDayOfWeekIndex - currentDayOfWeekIndex
+        const addDay = lastActiveDayOfWeekIndex - scheduleDayOfWeekIndex
         endDate = format(addDays(new Date(schedule.end_date), addDay), 'yyyy-MM-dd')
       }
 
