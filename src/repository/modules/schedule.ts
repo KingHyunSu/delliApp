@@ -23,9 +23,12 @@ export const getExistScheduleList = async (params: GetExistScheduleList) => {
 export const setSchedule = async (params: SetSchedule) => {
   const query = scheduleQueries.setScheduleQuery(params.schedule)
   const db = await openDatabase()
+  let insertId = 0
 
   await db.transaction(tx => {
-    tx.executeSql(query)
+    tx.executeSql(query, undefined, (tx2, response) => {
+      insertId = response.insertId
+    })
 
     if (params.disableScheduleIdList && params.disableScheduleIdList.length > 0) {
       params.disableScheduleIdList?.forEach(item => {
@@ -33,6 +36,8 @@ export const setSchedule = async (params: SetSchedule) => {
       })
     }
   })
+
+  return insertId
 }
 
 export const updateSchedule = async (params: SetSchedule) => {
