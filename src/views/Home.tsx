@@ -15,7 +15,7 @@ import {
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import {useQuery, useMutation} from '@tanstack/react-query'
-import {format, getDay} from 'date-fns'
+import {format, addDays, getDay} from 'date-fns'
 
 // components
 import Loading from '@/components/Loading'
@@ -131,7 +131,35 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
   const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
     mutationFn: async () => {
-      const date = format(scheduleDate, 'yyyy-MM-dd')
+      let endDate = schedule.end_date
+
+      if (schedule.end_date !== '9999-12-31') {
+        let currentDayOfWeekIndex = getDay(scheduleDate) - 1
+        let lastActiveDayOfWeekIndex = 0
+
+        if (currentDayOfWeekIndex === -1) {
+          currentDayOfWeekIndex = 6
+        }
+
+        const activeDayOfWeekList = [
+          schedule.mon,
+          schedule.tue,
+          schedule.wed,
+          schedule.thu,
+          schedule.fri,
+          schedule.sat,
+          schedule.sun
+        ]
+
+        activeDayOfWeekList.forEach((item, index) => {
+          if (item === '1') {
+            lastActiveDayOfWeekIndex = index
+          }
+        })
+
+        const addDay = lastActiveDayOfWeekIndex - currentDayOfWeekIndex
+        endDate = format(addDays(new Date(schedule.end_date), addDay), 'yyyy-MM-dd')
+      }
 
       const params = {
         schedule_id: schedule.schedule_id,
@@ -144,7 +172,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
         fri: schedule.fri,
         sat: schedule.sat,
         sun: schedule.sun,
-        date
+        start_date: schedule.start_date,
+        end_date: endDate
       }
 
       return await scheduleRepository.getExistScheduleList(params)
