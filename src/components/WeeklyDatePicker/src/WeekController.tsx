@@ -4,15 +4,20 @@ import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
 
 import {setDate, format} from 'date-fns'
 
+import {useRecoilState, useSetRecoilState} from 'recoil'
+import {showDatePickerBottomSheetState} from '@/store/bottomSheet'
+import {scheduleDateState} from '@/store/schedule'
+
 interface Props {
   date: Date
   currentWeeklyDateList: Date[]
-  onChange: Function
 }
-const WeekController = ({date, currentWeeklyDateList, onChange}: Props) => {
+const WeekController = ({date, currentWeeklyDateList}: Props) => {
   const THURSDAY_NUMBER = 4
 
-  const [showDatePickerBottomSheet, setDatePickerBottomSheet] = React.useState(false)
+  const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
+  const setScheduleDate = useSetRecoilState(scheduleDateState)
+
   const screenDateStr = React.useMemo(() => format(date, 'yyyy-MM-dd'), [date])
   const screenYear = React.useMemo(() => date.getFullYear(), [date])
   const [screenMonth, setScreenMonth] = React.useState(date.getMonth() + 1)
@@ -31,7 +36,7 @@ const WeekController = ({date, currentWeeklyDateList, onChange}: Props) => {
   }
 
   const changeDate = (data: string) => {
-    onChange(new Date(data))
+    setScheduleDate(new Date(data))
   }
 
   React.useEffect(() => {
@@ -59,14 +64,14 @@ const WeekController = ({date, currentWeeklyDateList, onChange}: Props) => {
 
   return (
     <View style={[styles.wrapper, {marginBottom: 10}]}>
-      <Pressable onPress={() => setDatePickerBottomSheet(true)}>
+      <Pressable onPress={() => setShowDatePickerBottomSheet(true)}>
         <Text style={styles.text}>{`${screenYear}년 ${screenMonth}월 ${screenWeek}주차`}</Text>
       </Pressable>
 
       <DatePickerBottomSheet
         value={screenDateStr}
         isShow={showDatePickerBottomSheet}
-        onClose={() => setDatePickerBottomSheet(false)}
+        onClose={() => setShowDatePickerBottomSheet(false)}
         onChange={changeDate}
       />
     </View>

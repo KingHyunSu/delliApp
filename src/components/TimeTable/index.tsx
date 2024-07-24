@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, StyleSheet, View, Pressable} from 'react-native'
+import {StyleSheet, View, Pressable} from 'react-native'
 import {Svg, G, Text, Circle} from 'react-native-svg'
 
 import Background from './src/Background'
@@ -9,7 +9,8 @@ import EditSchedulePie from './src/EditSchedulePie'
 import EditScheduleText from './src/EditScheduleText'
 import EditSchedulePieController from './src/EditSchedulePieController'
 
-import {useRecoilState, useSetRecoilState} from 'recoil'
+import {useRecoilState, useSetRecoilState, useRecoilValue} from 'recoil'
+import {timetableSizeState, timetablePositionXState, timetablePositionYState} from '@/store/system'
 import {scheduleState, disableScheduleListState, isInputModeState} from '@/store/schedule'
 import {showStyleBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
@@ -18,16 +19,11 @@ import PaletteIcon from '@/assets/icons/palette.svg'
 interface Props {
   data: Schedule[]
   isEdit: boolean
-  width?: number
-  height?: number
 }
-const TimeTable = ({data, isEdit, width, height}: Props) => {
-  // const {width, height} = useWindowDimensions()
-  const windowDimensions = useWindowDimensions()
-  const x = width ? width : windowDimensions.width / 2
-  const y = height ? height : windowDimensions.height * 0.28
-  const fullRadius = x - 36
-
+const TimeTable = ({data, isEdit}: Props) => {
+  const timetableSize = useRecoilValue(timetableSizeState)
+  const timetablePositionX = useRecoilValue(timetablePositionXState)
+  const timetablePositionY = useRecoilValue(timetablePositionYState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
@@ -42,14 +38,8 @@ const TimeTable = ({data, isEdit, width, height}: Props) => {
   }, [isEdit, data, schedule.schedule_id])
 
   const radius = React.useMemo(() => {
-    let result = fullRadius - (20 - (y - fullRadius - 20))
-
-    if (result > fullRadius) {
-      return fullRadius
-    }
-
-    return result
-  }, [fullRadius, y])
+    return timetableSize / 2
+  }, [timetableSize])
 
   const openEditMenuBottomSheet = React.useCallback(
     (value: Schedule) => {
@@ -144,7 +134,7 @@ const TimeTable = ({data, isEdit, width, height}: Props) => {
   return (
     <View>
       <Svg>
-        <Background x={x} y={y} radius={radius} />
+        <Background x={timetablePositionX} y={timetablePositionY} radius={radius} />
 
         {list.length > 0 ? (
           list.map((item, index) => {
@@ -152,8 +142,8 @@ const TimeTable = ({data, isEdit, width, height}: Props) => {
               <SchedulePie
                 key={index}
                 data={item}
-                x={x}
-                y={y}
+                x={timetablePositionX}
+                y={timetablePositionY}
                 radius={radius}
                 isEdit={isEdit}
                 disableScheduleList={disableScheduleList}
@@ -162,7 +152,13 @@ const TimeTable = ({data, isEdit, width, height}: Props) => {
             )
           })
         ) : (
-          <Text x={x} y={y} fontSize={18} fill={'#babfc5'} fontFamily={'Pretendard-SemiBold'} textAnchor="middle">
+          <Text
+            x={timetablePositionX}
+            y={timetablePositionY}
+            fontSize={18}
+            fill={'#babfc5'}
+            fontFamily={'Pretendard-SemiBold'}
+            textAnchor="middle">
             일정을 추가해주세요
           </Text>
         )}
@@ -173,8 +169,8 @@ const TimeTable = ({data, isEdit, width, height}: Props) => {
           <ScheduleText
             key={index}
             data={item}
-            centerX={x}
-            centerY={y}
+            centerX={timetablePositionX}
+            centerY={timetablePositionY}
             radius={radius}
             onClick={openEditMenuBottomSheet}
           />
@@ -184,24 +180,36 @@ const TimeTable = ({data, isEdit, width, height}: Props) => {
       {isEdit && (
         <Pressable style={styles.editContainer} onPress={clickBackground}>
           <Svg>
-            <G x={20} y={y + radius - 10}>
+            <G x={20} y={timetablePositionY + radius - 10}>
               <PaletteIcon width={32} height={32} fill="#babfc5" />
               <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={showStyleBottomSheet} />
             </G>
 
             <EditSchedulePie
               data={schedule}
-              x={x}
-              y={y}
+              x={timetablePositionX}
+              y={timetablePositionY}
               radius={radius}
               scheduleList={data}
               disableScheduleList={disableScheduleList}
             />
           </Svg>
 
-          <EditScheduleText data={schedule} centerX={x} centerY={y} radius={radius} onChangeSchedule={changeSchedule} />
+          <EditScheduleText
+            data={schedule}
+            centerX={timetablePositionX}
+            centerY={timetablePositionY}
+            radius={radius}
+            onChangeSchedule={changeSchedule}
+          />
 
-          <EditSchedulePieController data={schedule} x={x} y={y} radius={radius} onScheduleChanged={changeSchedule} />
+          <EditSchedulePieController
+            data={schedule}
+            x={timetablePositionX}
+            y={timetablePositionY}
+            radius={radius}
+            onScheduleChanged={changeSchedule}
+          />
         </Pressable>
       )}
     </View>

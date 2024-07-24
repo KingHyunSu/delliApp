@@ -5,6 +5,8 @@ import {
   StyleSheet,
   NativeModules,
   LayoutChangeEvent,
+  BackHandler,
+  ToastAndroid,
   Alert,
   SafeAreaView,
   Pressable,
@@ -12,10 +14,13 @@ import {
   Text
 } from 'react-native'
 import RNFS from 'react-native-fs'
-import {format, getDay, getTime} from 'date-fns'
+import {useSafeAreaInsets} from 'react-native-safe-area-context'
+import {useFocusEffect} from '@react-navigation/native'
 import {useQuery, useMutation} from '@tanstack/react-query'
 import {RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
+import {format, addDays, getDay} from 'date-fns'
 
+// components
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
 import TimeTable from '@/components/TimeTable'
@@ -30,16 +35,19 @@ import EditTodoModal from '@/views/Modal/EditTodoModal'
 import TimeTableExternal, {TimeTableExternalRefs} from '@/components/TimeTableExternal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
+// icons
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
 import CancleIcon from '@/assets/icons/cancle.svg'
-// import EditIcon from '@/assets/icons/edit3.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
+// import EditIcon from '@/assets/icons/edit3.svg'
 
+// stores
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
-import {isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
+import {safeAreaInsetsState, isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
 import {
   scheduleDateState,
+  scheduleDayOfWeekIndexState,
   scheduleState,
   scheduleListState,
   disableScheduleListState,
@@ -47,37 +55,47 @@ import {
   isInputModeState
 } from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
-import {showEditMenuBottomSheetState, showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
+import {
+  showEditMenuBottomSheetState,
+  showEditScheduleCheckBottomSheetState,
+  showDatePickerBottomSheetState
+} from '@/store/bottomSheet'
 
 import {getDayOfWeekKey} from '@/utils/helper'
+import {scheduleRepository} from '@/repository'
 
 import {HomeNavigationProps} from '@/types/navigation'
-
-// repository
-import {scheduleRepository} from '@/repository'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
 
 const Home = ({navigation, route}: HomeNavigationProps) => {
   const {AppGroupModule, WidgetUpdaterModule} = NativeModules
+  const safeAreaInsets = useSafeAreaInsets()
+
   const timeTableExternalRef = React.useRef<TimeTableExternalRefs>(null)
 
-  const setIsLunch = useSetRecoilState(isLunchState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
+  const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
+  const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+
+  const scheduleDayOfWeekIndex = useRecoilValue(scheduleDayOfWeekIndexState)
   const disableScheduleList = useRecoilValue(disableScheduleListState)
 
+  const setIsLunch = useSetRecoilState(isLunchState)
+  const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
   const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
-  const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
   const resetSchedule = useResetRecoilState(scheduleState)
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
+
+  const [backPressCount, setBackPressCount] = React.useState(0)
 
   const updateWidget = async (value?: Schedule[]) => {
     if (timeTableExternalRef.current) {
@@ -168,6 +186,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
           todo_list: JSON.parse(item.todo_list)
         }
       })
+      console.log('result', result)
 
       setScheduleList(result)
       setIsLunch(true)
@@ -182,6 +201,31 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
   const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
     mutationFn: async () => {
+      let endDate = schedule.end_date
+
+      if (schedule.end_date !== '9999-12-31') {
+        let lastActiveDayOfWeekIndex = 0
+
+        const activeDayOfWeekList = [
+          schedule.mon,
+          schedule.tue,
+          schedule.wed,
+          schedule.thu,
+          schedule.fri,
+          schedule.sat,
+          schedule.sun
+        ]
+
+        activeDayOfWeekList.forEach((item, index) => {
+          if (item === '1') {
+            lastActiveDayOfWeekIndex = index
+          }
+        })
+
+        const addDay = lastActiveDayOfWeekIndex - scheduleDayOfWeekIndex
+        endDate = format(addDays(new Date(schedule.end_date), addDay), 'yyyy-MM-dd')
+      }
+
       const params = {
         schedule_id: schedule.schedule_id,
         start_time: schedule.start_time,
@@ -192,7 +236,9 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         thu: schedule.thu,
         fri: schedule.fri,
         sat: schedule.sat,
-        sun: schedule.sun
+        sun: schedule.sun,
+        start_date: schedule.start_date,
+        end_date: endDate
       }
 
       return await scheduleRepository.getExistScheduleList(params)
@@ -281,22 +327,22 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       if (value) {
         setSchedule(value)
       } else {
-        const dayOfWeekKeyList = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-
-        let currentDayOfWeekIndex = getDay(new Date(scheduleDate)) - 1
-
-        if (currentDayOfWeekIndex === -1) {
-          currentDayOfWeekIndex = 6
-        }
-
-        const dayOfWeekkey = dayOfWeekKeyList[currentDayOfWeekIndex]
+        // const dayOfWeekKeyList = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
+        //
+        // let currentDayOfWeekIndex = getDay(new Date(scheduleDate)) - 1
+        //
+        // if (currentDayOfWeekIndex === -1) {
+        //   currentDayOfWeekIndex = 6
+        // }
+        //
+        // const dayOfWeekkey = dayOfWeekKeyList[currentDayOfWeekIndex]
 
         setSchedule(prevState => {
           return {
             ...prevState,
             // timetable_category_id: activeTimeTableCategory.timetable_category_id,
-            start_date: format(scheduleDate, 'yyyy-MM-dd'),
-            [dayOfWeekkey]: '1'
+            start_date: format(scheduleDate, 'yyyy-MM-dd')
+            // [dayOfWeekkey]: '1'
           }
         })
       }
@@ -315,7 +361,17 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
   )
 
   const closeEditScheduleBottomSheet = React.useCallback(() => {
-    setIsEdit(false)
+    Alert.alert('나가기', '작성한 내용은 저장되지 않아요.', [
+      {
+        text: '취소'
+      },
+      {
+        text: '나가기',
+        onPress: () => {
+          setIsEdit(false)
+        }
+      }
+    ])
   }, [setIsEdit])
 
   const handleTopLayout = React.useCallback(
@@ -335,6 +391,53 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       useNativeDriver: true
     }).start()
   }
+
+  // android 뒤로가기 제어
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        if (isEdit) {
+          // edit bottom sheet
+          closeEditScheduleBottomSheet()
+        } else if (showEditMenuBottomSheet) {
+          // edit menu bottom sheet
+          setShowEditMenuBottomSheet(false)
+        } else if (showDatePickerBottomSheet) {
+          setShowDatePickerBottomSheet(false)
+        } else {
+          // home screen
+          if (backPressCount === 1) {
+            // 앱 종료
+            return false
+          }
+
+          setBackPressCount(1)
+          ToastAndroid.show('한 번 더 누르면 종료됩니다.', ToastAndroid.SHORT)
+
+          setTimeout(() => {
+            setBackPressCount(0)
+          }, 2000)
+        }
+        return true
+      }
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress)
+
+      return () => subscription.remove()
+    }, [
+      isEdit,
+      showEditMenuBottomSheet,
+      showDatePickerBottomSheet,
+      backPressCount,
+      closeEditScheduleBottomSheet,
+      setShowEditMenuBottomSheet,
+      setShowDatePickerBottomSheet
+    ])
+  )
+
+  React.useEffect(() => {
+    setSafeAreaInsets(safeAreaInsets)
+  }, [])
 
   React.useEffect(() => {
     const path = route.path
@@ -379,6 +482,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
   React.useEffect(() => {
     if (isEdit) {
+      setIsInputMode(true)
       translateAnimation(headerTranslateY, -200, 350)
       translateAnimation(timaTableTranslateY, -100)
     } else {
@@ -455,7 +559,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         <EditScheduleBottomSheet />
         <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
 
-        {/* bottom buttons */}
         {isEdit ? (
           <Pressable style={submitButtonStyle} onPress={handleSubmit} disabled={!activeSubmit}>
             <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
@@ -555,10 +658,18 @@ const homeStyles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    height: 48,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f5f6f8'
+    backgroundColor: '#f5f6f8',
+
+    ...Platform.select({
+      ios: {
+        height: 48
+      },
+      android: {
+        height: 52
+      }
+    })
   },
   submitText: {
     fontFamily: 'Pretendard-SemiBold',
