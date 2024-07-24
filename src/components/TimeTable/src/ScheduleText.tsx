@@ -43,7 +43,9 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    paddingVertical: 0
+    paddingVertical: 0,
+    minWidth: 150,
+    minHeight: 28
   }
 })
 

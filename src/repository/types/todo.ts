@@ -1,5 +1,6 @@
 export interface GetTodoList {
   todo_id: number
+  date: string
 }
 
 export interface SetTodo {
@@ -8,6 +9,7 @@ export interface SetTodo {
   title: string
   start_date: string
   end_date: string | null
+  date: string
 }
 
 export interface DeleteTodo {

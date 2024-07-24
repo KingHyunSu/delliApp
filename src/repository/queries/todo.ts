@@ -3,11 +3,23 @@ import {GetTodoList, SetTodo, DeleteTodo} from '../types/todo'
 export const getTodoQuery = (params: GetTodoList) => {
   let query = `
     SELECT
-      *
+      A.todo_id,
+      A.title,
+      A.start_date,
+      A.end_date,
+      A.schedule_id,
+      B.complete_id,
+      B.complete_date
     FROM
-      TODO
+      TODO A
+    LEFT OUTER JOIN 
+      TODO_COMPLETE B
+    ON
+      A.todo_id = B.todo_id
+    AND
+      B.complete_date = "${params.date}"
     WHERE
-      todo_id = ${params.todo_id}
+      A.todo_id = ${params.todo_id}
   `
 
   return query

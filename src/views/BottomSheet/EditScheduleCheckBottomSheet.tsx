@@ -61,11 +61,17 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
 
   const {mutate: setScheduleMutate} = useMutation({
     mutationFn: async () => {
+      const disableScheduleIdList = list.map(item => {
+        return {schedule_id: item.schedule_id}
+      })
+
+      if (schedule.schedule_id) {
+        disableScheduleIdList.push({schedule_id: schedule.schedule_id})
+      }
+
       const params = {
         schedule,
-        disableScheduleIdList: list.map(item => {
-          return {schedule_id: item.schedule_id}
-        })
+        disableScheduleIdList
       }
 
       await scheduleRepository.setSchedule(params)
@@ -139,7 +145,7 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
       </BottomSheetScrollView>
 
       <Pressable style={styles.submitBtn} onPress={handleSubmit}>
-        <Text style={styles.submitText}>등록하기</Text>
+        <Text style={styles.submitText}>무시하고 등록하기</Text>
       </Pressable>
     </BottomSheetModal>
   )

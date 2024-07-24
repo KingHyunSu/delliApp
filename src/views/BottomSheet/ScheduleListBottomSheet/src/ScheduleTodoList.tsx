@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, FlatList, ListRenderItem, Pressable, View, Text} from 'react-native'
+import {Platform, StyleSheet, FlatList, ListRenderItem, Pressable, View, Text} from 'react-native'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {scheduleDateState, scheduleListState, scheduleTodoState} from '@/store/schedule'
@@ -114,7 +114,9 @@ const ScheduleTodoList = ({data}: Props) => {
 
         const result = await setScheduleTodoCompleteMutation.mutateAsync(params)
 
-        trigger('notificationSuccess', {
+        const triggerType = Platform.OS === 'android' ? 'effectClick' : 'impactMedium'
+
+        trigger(triggerType, {
           enableVibrateFallback: true,
           ignoreAndroidSystemSettings: false
         })

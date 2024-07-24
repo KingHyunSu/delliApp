@@ -44,7 +44,9 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
     ON
       A.schedule_id = B.schedule_id
     AND
-      B.end_date > "${params.date}"
+      B.start_date <= "${params.date}"
+    AND
+      B.end_date >= "${params.date}"
     LEFT OUTER JOIN
       TODO_COMPLETE C
     ON
@@ -130,6 +132,10 @@ export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
       SCHEDULE
     WHERE
       disable = '0'
+    AND
+      start_date <= '${params.end_date}'
+    AND
+      end_date > '${params.start_date}'
   `
 
   if (params.schedule_id !== null) {
@@ -213,7 +219,7 @@ export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
   query += `
     )
   `
-
+  console.log('query', query)
   return query
 }
 

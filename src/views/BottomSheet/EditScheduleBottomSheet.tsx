@@ -3,62 +3,62 @@ import {StyleSheet, ViewStyle, ScrollView, TextStyle, View, Text, Pressable, Tex
 import Switch from '@/components/Swtich'
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
-import TimeWheelPicker from '@/components/TimeWheelPicker'
 import DatePicker from '@/components/DatePicker'
-import WheelPicker from 'react-native-wheely'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {isEditState} from '@/store/system'
-import {scheduleState, isInputModeState} from '@/store/schedule'
+import {editScheduleListSnapPointState, isEditState} from '@/store/system'
+import {scheduleState, scheduleDayOfWeekIndexState, isInputModeState} from '@/store/schedule'
+import {showTimeWheelModalState} from '@/store/modal'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
 import {RANGE_FLAG} from '@/utils/types'
-import {trigger} from 'react-native-haptic-feedback'
 import {isAfter} from 'date-fns'
 // import {getTime, startOfToday, setMinutes} from 'date-fns'
 // import notifee, {TimestampTrigger, TriggerType, RepeatFrequency} from '@notifee/react-native'
 
 import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
+import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
 
 import {DAY_OF_WEEK} from '@/types/common'
+import TimeWheelModal from '@/views/Modal/TimeWheelModal'
 
 const defaultPanelHeight = 74
 const defaultItemPanelHeight = 56
-const defaultFullTimeItemPanelHeight = 216
 const defaultFullDateItemPanelHeight = 426
-const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
+// const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
 
 const EditScheduleBottomSheet = React.memo(() => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const bottomSheetScrollViewRef = React.useRef<ScrollView>(null)
 
+  const editScheduleListSnapPoint = useRecoilValue(editScheduleListSnapPointState)
   const isEdit = useRecoilValue(isEditState)
+  const scheduleDayOfWeekIndex = useRecoilValue(scheduleDayOfWeekIndexState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
+  const setShowTimeWheelModal = useSetRecoilState(showTimeWheelModalState)
 
-  const [activeTimePanel, setActiveTimePanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
   const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = React.useState(false)
   const [activeAlarmPanel, setActiveAlarmPanel] = React.useState(false)
-  const [timeFlag, setTimeFlag] = React.useState(0)
   const [dateFlag, setDateFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
-  const [alarmWheelIndex, setAlarmWheelIndex] = React.useState(1)
+  // const [alarmWheelIndex, setAlarmWheelIndex] = React.useState(1)
 
   const timePanelHeight = useSharedValue(defaultPanelHeight)
   const datePanelHeight = useSharedValue(defaultPanelHeight)
   const dayOfWeekPanelHeight = useSharedValue(defaultPanelHeight)
   const alarmPanelHeight = useSharedValue(defaultPanelHeight)
-  const timeStartPanelHeight = useSharedValue(defaultFullTimeItemPanelHeight)
-  const timeEndPanelHeight = useSharedValue(defaultItemPanelHeight)
   const dateStartPanelHeight = useSharedValue(defaultItemPanelHeight)
   const dateEndPanelHeight = useSharedValue(defaultItemPanelHeight)
 
-  const timePanelContainerStyle = useAnimatedStyle(() => ({
-    ...styles.panel,
-    height: timePanelHeight.value
-  }))
+  const timePanelContainerStyle = React.useMemo(() => {
+    return {
+      ...styles.panel,
+      height: timePanelHeight.value
+    }
+  }, [])
   const datePanelContainerStyle = useAnimatedStyle(() => ({
     ...styles.panel,
     height: datePanelHeight.value
@@ -67,24 +67,10 @@ const EditScheduleBottomSheet = React.memo(() => {
     ...styles.panel,
     height: dayOfWeekPanelHeight.value
   }))
-  const alarmPanelContainerStyle = useAnimatedStyle(() => ({
-    ...styles.panel,
-    height: alarmPanelHeight.value
-  }))
-  const startTimePanelItemStyle = useAnimatedStyle(() => ({
-    ...styles.panelItemWrapper,
-    height: timeStartPanelHeight.value
-  }))
-  const endTimePanelItemHeightStyle = useAnimatedStyle(() => ({
-    height: timeEndPanelHeight.value
-  }))
-  const endTimePanelItemStyle = React.useMemo(() => {
-    return [
-      styles.panelItemWrapper,
-      endTimePanelItemHeightStyle,
-      timeFlag === 0 && {borderTopWidth: 1, borderTopColor: '#eeeded'}
-    ]
-  }, [timeFlag])
+  // const alarmPanelContainerStyle = useAnimatedStyle(() => ({
+  //   ...styles.panel,
+  //   height: alarmPanelHeight.value
+  // }))
   const startDatePanelItemStyle = useAnimatedStyle(() => ({
     ...styles.panelItemWrapper,
     height: dateStartPanelHeight.value
@@ -100,10 +86,6 @@ const EditScheduleBottomSheet = React.memo(() => {
     ]
   }, [dateFlag])
 
-  const snapPoints = React.useMemo(() => {
-    return ['35%', '93%']
-  }, [])
-
   const startTime = React.useMemo(() => {
     return getTimeOfMinute(schedule.start_time)
   }, [schedule.start_time])
@@ -112,40 +94,13 @@ const EditScheduleBottomSheet = React.memo(() => {
     return getTimeOfMinute(schedule.end_time)
   }, [schedule.end_time])
 
-  const wheelStartTime = React.useMemo(() => {
-    if (activeTimePanel) {
-      return schedule.start_time
-    }
-    return null
-  }, [activeTimePanel, schedule.start_time])
-
-  const wheelEndTime = React.useMemo(() => {
-    if (activeTimePanel) {
-      return schedule.end_time
-    }
-    return null
-  }, [activeTimePanel, schedule.end_time])
-
   const endDate = React.useMemo(() => {
     return schedule.end_date !== '9999-12-31' ? schedule.end_date : '없음'
   }, [schedule.end_date])
 
-  const isActiveAlarm = React.useMemo(() => {
-    return schedule.alarm !== 0
-  }, [schedule.alarm])
-
-  const startTimePanelItemHeaderWrapperStyle = React.useMemo(() => {
-    return [styles.panelItemButton, timeFlag === 0 && styles.panelItemActiveButton]
-  }, [timeFlag])
-  const startTimePanelItemHeaderTextStyle = React.useMemo(() => {
-    return [styles.panelItemButtonText, timeFlag === 0 && styles.panelItemActiveButtonText]
-  }, [timeFlag])
-  const endTimePanelItemHeaderWrapperStyle = React.useMemo(() => {
-    return [styles.panelItemButton, timeFlag === 1 && styles.panelItemActiveButton]
-  }, [timeFlag])
-  const endTimePanelItemHeaderTextStyle = React.useMemo(() => {
-    return [styles.panelItemButtonText, timeFlag === 1 && styles.panelItemActiveButtonText]
-  }, [timeFlag])
+  // const isActiveAlarm = React.useMemo(() => {
+  //   return schedule.alarm !== 0
+  // }, [schedule.alarm])
 
   const startDatePanelItemHeaderWrapperStyle = React.useMemo(() => {
     return [styles.panelItemButton, dateFlag === RANGE_FLAG.START && styles.panelItemActiveButton]
@@ -162,7 +117,6 @@ const EditScheduleBottomSheet = React.memo(() => {
 
   const handleBottomSheetChanged = React.useCallback((index: number) => {
     if (index === 0) {
-      setActiveTimePanel(false)
       setActiveDatePanel(false)
       setActiveDayOfWeekPanel(false)
       setActiveAlarmPanel(false)
@@ -170,43 +124,29 @@ const EditScheduleBottomSheet = React.memo(() => {
   }, [])
 
   const handleTimePanel = React.useCallback(() => {
+    setShowTimeWheelModal(true)
+
     setActiveDatePanel(false)
     setActiveDayOfWeekPanel(false)
     setActiveAlarmPanel(false)
-    setActiveTimePanel(!activeTimePanel)
-  }, [activeTimePanel])
+  }, [])
   const handleDatePanel = React.useCallback(() => {
-    setActiveTimePanel(false)
     setActiveDayOfWeekPanel(false)
     setActiveAlarmPanel(false)
     setActiveDatePanel(!activeDatePanel)
   }, [activeDatePanel])
   const handleDayOfWeekPanel = React.useCallback(() => {
-    setActiveTimePanel(false)
     setActiveAlarmPanel(false)
     setActiveDatePanel(false)
     setActiveDayOfWeekPanel(!activeDayOfWeekPanel)
   }, [activeDayOfWeekPanel])
-  const handleAlarmPanel = React.useCallback(() => {
-    setActiveTimePanel(false)
-    setActiveDatePanel(false)
-    setActiveDayOfWeekPanel(false)
-    if (isActiveAlarm) {
-      setActiveAlarmPanel(!activeAlarmPanel)
-    }
-  }, [isActiveAlarm, activeAlarmPanel])
-  const handleStartTimePanel = React.useCallback(() => {
-    setTimeFlag(0)
-
-    timeEndPanelHeight.value = withTiming(defaultItemPanelHeight)
-    timeStartPanelHeight.value = withTiming(defaultFullTimeItemPanelHeight)
-  }, [timeEndPanelHeight, timeStartPanelHeight])
-  const handleEndTimePanel = React.useCallback(() => {
-    setTimeFlag(1)
-
-    timeStartPanelHeight.value = withTiming(defaultItemPanelHeight)
-    timeEndPanelHeight.value = withTiming(defaultFullTimeItemPanelHeight)
-  }, [timeEndPanelHeight, timeStartPanelHeight])
+  // const handleAlarmPanel = React.useCallback(() => {
+  //   setActiveDatePanel(false)
+  //   setActiveDayOfWeekPanel(false)
+  //   if (isActiveAlarm) {
+  //     setActiveAlarmPanel(!activeAlarmPanel)
+  //   }
+  // }, [isActiveAlarm, activeAlarmPanel])
   const handleStartDatePanel = React.useCallback(() => {
     if (schedule.schedule_id) {
       return
@@ -238,37 +178,27 @@ const EditScheduleBottomSheet = React.memo(() => {
     return dayOfWeekSelectButtonStyle
   }, [])
 
-  const getDayOfWeekSelectButtonTextStyle = React.useCallback((flag: string) => {
-    let dayOfWeekSelectButtonTextStyle: TextStyle[] = [styles.dayofWeekText]
+  const getDayOfWeekSelectButtonTextStyle = React.useCallback(
+    (flag: string, index: number) => {
+      let dayOfWeekSelectButtonTextStyle: TextStyle[] = [styles.dayofWeekText]
 
-    if (flag === '1') {
-      dayOfWeekSelectButtonTextStyle = [...dayOfWeekSelectButtonTextStyle, styles.activeDayOfWeekText]
-    }
+      if (flag === '1') {
+        dayOfWeekSelectButtonTextStyle = [...dayOfWeekSelectButtonTextStyle, styles.activeDayOfWeekText]
+      }
 
-    return dayOfWeekSelectButtonTextStyle
-  }, [])
+      if (index === scheduleDayOfWeekIndex) {
+        dayOfWeekSelectButtonTextStyle.push({fontFamily: 'Pretendard-Bold'})
+      }
+
+      return dayOfWeekSelectButtonTextStyle
+    },
+    [scheduleDayOfWeekIndex]
+  )
 
   const focusTitleInput = React.useCallback(() => {
     bottomSheetRef.current?.collapse()
     setIsInputMode(true)
   }, [setIsInputMode])
-
-  const changeTime = React.useCallback(
-    (time: number) => {
-      if (timeFlag === 0) {
-        setSchedule(prevState => ({
-          ...prevState,
-          start_time: time
-        }))
-      } else if (timeFlag === 1) {
-        setSchedule(prevState => ({
-          ...prevState,
-          end_time: time
-        }))
-      }
-    },
-    [setSchedule, timeFlag]
-  )
 
   const changeDate = React.useCallback(
     (date: string, flag: RANGE_FLAG) => {
@@ -288,42 +218,40 @@ const EditScheduleBottomSheet = React.memo(() => {
   )
 
   const changeDayOfWeek = React.useCallback(
-    (key: DAY_OF_WEEK) => () => {
-      trigger('impactLight', {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: false
-      })
+    (key: DAY_OF_WEEK, index: number) => () => {
+      if (index === scheduleDayOfWeekIndex) {
+        return
+      }
 
       const flag = schedule[key] === '1' ? '0' : '1'
 
       setSchedule(prevState => ({...prevState, [key]: flag}))
     },
-    [schedule, setSchedule]
+    [scheduleDayOfWeekIndex, schedule, setSchedule]
   )
 
-  const changeAlarm = React.useCallback(
-    (index: number) => {
-      setSchedule(prevState => ({...prevState, alarm: (index + 1) * 5}))
-    },
-    [setSchedule]
-  )
-
-  const changeAlarmSwitch = React.useCallback(
-    (value: boolean) => {
-      if (value) {
-        setActiveTimePanel(false)
-        setActiveDatePanel(false)
-        setActiveDayOfWeekPanel(false)
-
-        changeAlarm(alarmWheelIndex)
-      } else {
-        setSchedule(prevState => ({...prevState, alarm: 0}))
-      }
-
-      setActiveAlarmPanel(value)
-    },
-    [alarmWheelIndex]
-  )
+  // const changeAlarm = React.useCallback(
+  //   (index: number) => {
+  //     setSchedule(prevState => ({...prevState, alarm: (index + 1) * 5}))
+  //   },
+  //   [setSchedule]
+  // )
+  //
+  // const changeAlarmSwitch = React.useCallback(
+  //   (value: boolean) => {
+  //     if (value) {
+  //       setActiveDatePanel(false)
+  //       setActiveDayOfWeekPanel(false)
+  //
+  //       changeAlarm(alarmWheelIndex)
+  //     } else {
+  //       setSchedule(prevState => ({...prevState, alarm: 0}))
+  //     }
+  //
+  //     setActiveAlarmPanel(value)
+  //   },
+  //   [alarmWheelIndex]
+  // )
 
   // const setDailyNotification = async (data: Schedule) => {
   //   let time = getTime(setMinutes(startOfToday(), schedule.start_time - schedule.alarm))
@@ -466,7 +394,6 @@ const EditScheduleBottomSheet = React.memo(() => {
         bottomSheetRef.current.close()
 
         bottomSheetScrollViewRef.current?.scrollTo({y: 0})
-        setActiveTimePanel(false)
         setActiveDatePanel(false)
         setActiveDayOfWeekPanel(false)
         setActiveAlarmPanel(false)
@@ -474,18 +401,13 @@ const EditScheduleBottomSheet = React.memo(() => {
     }
   }, [isEdit])
 
-  React.useEffect(() => {
-    if (schedule.alarm > 0) {
-      setAlarmWheelIndex(schedule.alarm / 5 - 1)
-    }
-  }, [schedule.alarm])
+  // React.useEffect(() => {
+  //   if (schedule.alarm > 0) {
+  //     setAlarmWheelIndex(schedule.alarm / 5 - 1)
+  //   }
+  // }, [schedule.alarm])
 
   React.useEffect(() => {
-    if (activeTimePanel) {
-      timePanelHeight.value = withTiming(
-        defaultPanelHeight + defaultItemPanelHeight + defaultFullTimeItemPanelHeight + 3
-      )
-    }
     if (activeDatePanel) {
       datePanelHeight.value = withTiming(
         defaultPanelHeight + defaultItemPanelHeight + defaultFullDateItemPanelHeight + 3
@@ -498,9 +420,6 @@ const EditScheduleBottomSheet = React.memo(() => {
       alarmPanelHeight.value = withTiming(defaultPanelHeight + 160)
     }
 
-    if (!activeTimePanel) {
-      timePanelHeight.value = withTiming(defaultPanelHeight)
-    }
     if (!activeDatePanel) {
       datePanelHeight.value = withTiming(defaultPanelHeight)
     }
@@ -510,7 +429,7 @@ const EditScheduleBottomSheet = React.memo(() => {
     if (!activeAlarmPanel) {
       alarmPanelHeight.value = withTiming(defaultPanelHeight)
     }
-  }, [activeTimePanel, activeDatePanel, activeDayOfWeekPanel, activeAlarmPanel])
+  }, [activeDatePanel, activeDayOfWeekPanel, activeAlarmPanel])
 
   React.useEffect(() => {
     if (schedule.schedule_id) {
@@ -528,11 +447,15 @@ const EditScheduleBottomSheet = React.memo(() => {
     }
   }, [dateFlag])
 
+  if (editScheduleListSnapPoint.length === 0) {
+    return <></>
+  }
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
       index={-1}
-      snapPoints={snapPoints}
+      snapPoints={editScheduleListSnapPoint}
       handleComponent={BottomSheetShadowHandler}
       onChange={handleBottomSheetChanged}>
       <BottomSheetScrollView ref={bottomSheetScrollViewRef} contentContainerStyle={styles.container}>
@@ -546,7 +469,7 @@ const EditScheduleBottomSheet = React.memo(() => {
         </Pressable>
 
         {/* 시간 */}
-        <Animated.View style={timePanelContainerStyle}>
+        <View style={timePanelContainerStyle}>
           <Pressable style={panelHeaderStyle} onPress={handleTimePanel}>
             <View style={styles.panelHeaderTextBox}>
               <Text style={styles.panelHeaderLabel}>시간</Text>
@@ -555,43 +478,9 @@ const EditScheduleBottomSheet = React.memo(() => {
               </Text>
             </View>
 
-            {activeTimePanel ? <ArrowDownIcon stroke="#424242" /> : <ArrowUpIcon stroke="#424242" />}
+            <ArrowRightIcon stroke="#424242" strokeWidth={3} width={16} height={16} />
           </Pressable>
-
-          <View style={styles.panelItemContainer}>
-            <Animated.View style={startTimePanelItemStyle}>
-              <View style={panelItemHeaderContainerStyle}>
-                <Text style={styles.panelItemLabel}>시작 시간</Text>
-
-                <Pressable style={startTimePanelItemHeaderWrapperStyle} onPress={handleStartTimePanel}>
-                  <Text style={startTimePanelItemHeaderTextStyle}>
-                    {`${startTime.meridiem} ${startTime.hour}시 ${startTime.minute}분`}
-                  </Text>
-                </Pressable>
-              </View>
-
-              <View style={timePanelItemContentsStyle}>
-                <TimeWheelPicker initValue={wheelStartTime} visibleRest={1} onChange={changeTime} />
-              </View>
-            </Animated.View>
-
-            <Animated.View style={endTimePanelItemStyle}>
-              <View style={panelItemHeaderContainerStyle}>
-                <Text style={styles.panelItemLabel}>종료 시간</Text>
-
-                <Pressable style={endTimePanelItemHeaderWrapperStyle} onPress={handleEndTimePanel}>
-                  <Text style={endTimePanelItemHeaderTextStyle}>
-                    {`${endTime.meridiem} ${endTime.hour}시 ${endTime.minute}분`}
-                  </Text>
-                </Pressable>
-              </View>
-
-              <View style={timePanelItemContentsStyle}>
-                <TimeWheelPicker initValue={wheelEndTime} visibleRest={1} onChange={changeTime} />
-              </View>
-            </Animated.View>
-          </View>
-        </Animated.View>
+        </View>
 
         {/* 기간 */}
         <Animated.View style={datePanelContainerStyle}>
@@ -660,26 +549,26 @@ const EditScheduleBottomSheet = React.memo(() => {
           </Pressable>
 
           <View style={styles.dayOfWeekContainer}>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.mon)} onPress={changeDayOfWeek('mon')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.mon)}>월</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.mon)} onPress={changeDayOfWeek('mon', 0)}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.mon, 0)}>월</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.tue)} onPress={changeDayOfWeek('tue')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.tue)}>화</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.tue)} onPress={changeDayOfWeek('tue', 1)}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.tue, 1)}>화</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.wed)} onPress={changeDayOfWeek('wed')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.wed)}>수</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.wed)} onPress={changeDayOfWeek('wed', 2)}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.wed, 2)}>수</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.thu)} onPress={changeDayOfWeek('thu')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.thu)}>목</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.thu)} onPress={changeDayOfWeek('thu', 3)}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.thu, 3)}>목</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.fri)} onPress={changeDayOfWeek('fri')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.fri)}>금</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.fri)} onPress={changeDayOfWeek('fri', 4)}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.fri, 4)}>금</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.sat)} onPress={changeDayOfWeek('sat')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.sat)}>토</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.sat)} onPress={changeDayOfWeek('sat', 5)}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.sat, 5)}>토</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.sun)} onPress={changeDayOfWeek('sun')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.sun)}>일</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.sun)} onPress={changeDayOfWeek('sun', 6)}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.sun, 6)}>일</Text>
             </Pressable>
           </View>
         </Animated.View>
@@ -708,6 +597,8 @@ const EditScheduleBottomSheet = React.memo(() => {
           </View>
         </Animated.View> */}
       </BottomSheetScrollView>
+
+      <TimeWheelModal />
     </BottomSheet>
   )
 })
@@ -855,8 +746,5 @@ const styles = StyleSheet.create({
 const titleTextStyle = StyleSheet.compose(styles.titleText, styles.titlePlaceHoldText)
 const panelHeaderStyle = StyleSheet.compose(styles.panelHeader, {height: defaultPanelHeight})
 const panelItemHeaderContainerStyle = StyleSheet.compose(styles.panelItemHeader, {height: defaultItemPanelHeight})
-const timePanelItemContentsStyle = StyleSheet.compose(styles.panelItemContents, {
-  height: defaultFullTimeItemPanelHeight
-})
 
 export default EditScheduleBottomSheet
