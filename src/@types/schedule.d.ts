@@ -27,10 +27,9 @@ declare interface Schedule {
   fri: string
   sat: string
   sun: string
-  memo: string
+  memo?: string
   disable: string
   schedule_complete_id?: number
-  state: string
   title_x: number
   title_y: number
   title_rotate: number
@@ -38,10 +37,10 @@ declare interface Schedule {
   text_color: string
   complete_start_time?: number
   complete_end_time?: number
-  alarm: number
   todo_list: Todo[]
 
-  display_type: string
+  alarm?: number | null
+  display_type?: string
 }
 
 declare interface ScheduleComplete {

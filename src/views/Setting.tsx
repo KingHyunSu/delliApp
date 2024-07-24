@@ -1,5 +1,5 @@
 import React from 'react'
-import {Linking, StyleSheet, ScrollView, Pressable, View, Text} from 'react-native'
+import {Platform, Linking, StyleSheet, ScrollView, Pressable, View, Text, Alert} from 'react-native'
 import AppBar from '@/components/AppBar'
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -7,7 +7,7 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin'
 import * as KakaoAuth from '@react-native-seoul/kakao-login'
 import {LOGIN_TYPE} from '@/utils/types'
 
-import {useSetRecoilState, useResetRecoilState} from 'recoil'
+import {useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
 import {scheduleDateState, scheduleListState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
 import {isEditState, loginState} from '@/store/system'
@@ -20,7 +20,13 @@ import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
 
 import {SettingNavigationProps} from '@/types/navigation'
 
+import {setTestData, deleteAllScheduleData} from '@/utils/test'
+import {format} from 'date-fns'
+
 const Setting = ({navigation}: SettingNavigationProps) => {
+  const scheduleDate = useRecoilValue(scheduleDateState)
+  const scheduleList = useRecoilValue(scheduleListState)
+
   const setIsEdit = useSetRecoilState(isEditState)
   const setIsLogin = useSetRecoilState(loginState)
   const resetScheduleDate = useResetRecoilState(scheduleDateState)
@@ -36,6 +42,15 @@ const Setting = ({navigation}: SettingNavigationProps) => {
     const response = await termsApi.getTermsUrl(type)
     return response.data.url || ''
   }
+
+  const version = React.useMemo(() => {
+    if (Platform.OS === 'ios') {
+      return '1.3.0'
+    } else if (Platform.OS === 'android') {
+      return '1.0.0'
+    }
+    return ''
+  }, [Platform.OS])
 
   const moveServiceTermsPage = React.useCallback(async () => {
     // const url = await getTermsUrl('1')
@@ -79,6 +94,33 @@ const Setting = ({navigation}: SettingNavigationProps) => {
     navigation.navigate('Leave')
   }, [navigation])
 
+  const setTest = React.useCallback(async () => {
+    try {
+      const date = format(scheduleDate, 'yyyy-MM-dd')
+
+      await setTestData(date, scheduleList)
+      Alert.alert('추가 완료', '', [
+        {
+          text: '확인',
+          onPress: () => {
+            navigation.navigate('Home')
+          }
+        }
+      ])
+    } catch (e) {
+      Alert.alert('추가 실패', String(e))
+    }
+  }, [navigation, scheduleDate, scheduleList])
+
+  const deleteAllSchedule = React.useCallback(async () => {
+    try {
+      await deleteAllScheduleData()
+      Alert.alert('삭제 완료')
+    } catch (e) {
+      Alert.alert('삭제 실패', String(e))
+    }
+  }, [])
+
   return (
     <View style={styles.container}>
       <AppBar>
@@ -114,10 +156,23 @@ const Setting = ({navigation}: SettingNavigationProps) => {
 
         <View style={styles.blank} />
 
+        {__DEV__ && (
+          <>
+            <Pressable style={styles.item} onPress={setTest}>
+              <Text style={styles.contentText}>테스트 데이터 삽입</Text>
+            </Pressable>
+            <Pressable style={styles.item} onPress={deleteAllSchedule}>
+              <Text style={styles.contentText}>테스트 데이터 삭제</Text>
+            </Pressable>
+
+            <View style={styles.blank} />
+          </>
+        )}
+
         <View style={styles.footer}>
           <View style={styles.item}>
             <Text style={styles.contentText}>버전</Text>
-            <Text style={styles.contentText}>1.1.0</Text>
+            <Text style={styles.contentText}>{version}</Text>
           </View>
 
           {/* 2024-05-18 서버 제거로 인해 비활성화 */}

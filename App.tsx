@@ -1,47 +1,46 @@
 import React from 'react'
-import {Platform, AppState, StyleSheet, StatusBar, SafeAreaView, Alert} from 'react-native'
-import {QueryClient, QueryCache, QueryClientProvider} from '@tanstack/react-query'
+import {useWindowDimensions, Platform, AppState, StyleSheet, StatusBar, SafeAreaView, Alert} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SplashScreen from 'react-native-splash-screen'
+import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
+import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
+import {QueryClient, QueryCache, QueryClientProvider} from '@tanstack/react-query'
+// import crashlytics from '@react-native-firebase/crashlytics'
 
 // navigations
 import {NavigationContainer} from '@react-navigation/native'
 import {createStackNavigator} from '@react-navigation/stack'
 import {navigationRef} from '@/utils/navigation'
 
+// views
 import HomeScreen from '@/views/Home'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
 
-// utils
-import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-
-import {useRecoilState, useRecoilSnapshot} from 'recoil'
-import {loginState, isLunchState} from '@/store/system'
+// stores
+import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
+import {loginState, isLunchState, windowDimensionsState} from '@/store/system'
 
 import {RootStackParamList} from '@/types/navigation'
-import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
-import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
-
-// import crashlytics from '@react-native-firebase/crashlytics'
 
 import initDatabase from '@/repository/utils/init'
 
+const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
+
 function App(): JSX.Element {
-  const {isLoaded, load, show} = useAppOpenAd(
-    Platform.select({
-      // ios: TestIds.APP_OPEN
-      // android: TestIds.APP_OPEN,
-      ios: 'ca-app-pub-3765315237132279/9003768148'
-      // android: 'ca-app-pub-3765315237132279/4177449893'
-    }) || ''
-  )
+  const windowDimensions = useWindowDimensions()
+
+  const {isLoaded, load, show} = useAppOpenAd(TestIds.APP_OPEN)
+
   const appState = React.useRef(AppState.currentState)
+
   const [isActiveApp, setIsActiveApp] = React.useState(false)
   const [isInit, setIsInit] = React.useState(false)
   const [isServerError, setIsServerError] = React.useState(false)
 
+  const setWindowDimensions = useSetRecoilState(windowDimensionsState)
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
 
@@ -49,6 +48,14 @@ function App(): JSX.Element {
 
   const screenOptions = React.useMemo(() => {
     return {headerShown: false}
+  }, [])
+
+  const statusBarStyle = React.useMemo(() => {
+    return {
+      flex: 0,
+      backgroundColor: '#fff',
+      paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
+    }
   }, [])
 
   const handleGlobalError = errorCode => {
@@ -131,6 +138,10 @@ function App(): JSX.Element {
   // }, [isServerError])
 
   React.useEffect(() => {
+    setWindowDimensions(windowDimensions)
+  }, [setWindowDimensions, windowDimensions])
+
+  React.useEffect(() => {
     const init = async () => {
       const isInitDatabase = await initDatabase()
       setIsInit(isInitDatabase)
@@ -139,17 +150,26 @@ function App(): JSX.Element {
     init()
   }, [])
 
-  React.useEffect(() => {
-    // 광고 load
-    load()
-  }, [load])
+  // TODO android v1.0.0 배포에서 제외 2024-07-21
+  // React.useEffect(() => {
+  //   // 광고 load
+  //   load()
+  // }, [load])
+
+  // TODO android v1.0.0 배포에서 제외 2024-07-21
+  // React.useEffect(() => {
+  //   if (isInit && isLoaded) {
+  //     // 광고 show
+  //     show()
+  //     SplashScreen.hide()
+  //   }
+  // }, [isInit, isLoaded])
 
   React.useEffect(() => {
-    if (isInit && isLoaded) {
-      show()
+    if (isInit) {
       SplashScreen.hide()
     }
-  }, [isInit, isLoaded, show])
+  }, [isInit])
 
   React.useEffect(() => {
     const subscription = AppState.addEventListener('change', state => {
@@ -168,26 +188,26 @@ function App(): JSX.Element {
   }, [])
 
   // recoil debug
-  function RecoilDebugObserver(): React.ReactNode {
-    const recoilSnapshot = useRecoilSnapshot()
-    React.useEffect(() => {
-      for (const node of recoilSnapshot.getNodes_UNSTABLE({isModified: true})) {
-        // console.debug(node.key, recoilSnapshot.getLoadable(node))
-        console.debug('recoil update : ', node.key)
-      }
-    }, [recoilSnapshot])
-
-    return null
-  }
+  // function RecoilDebugObserver(): React.ReactNode {
+  //   const recoilSnapshot = useRecoilSnapshot()
+  //   React.useEffect(() => {
+  //     for (const node of recoilSnapshot.getNodes_UNSTABLE({isModified: true})) {
+  //       // console.debug(node.key, recoilSnapshot.getLoadable(node))
+  //       console.debug('recoil update : ', node.key)
+  //     }
+  //   }, [recoilSnapshot])
+  //
+  //   return null
+  // }
 
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{flex: 1}}>
         {/* <RecoilDebugObserver /> */}
         <BottomSheetModalProvider>
-          <StatusBar barStyle="dark-content" />
+          <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-          <SafeAreaView style={styles.statusBar} />
+          <SafeAreaView style={statusBarStyle} />
           <NavigationContainer ref={navigationRef}>
             <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
               <Stack.Screen name="Home" component={HomeScreen} />
@@ -201,10 +221,4 @@ function App(): JSX.Element {
   )
 }
 
-const styles = StyleSheet.create({
-  statusBar: {
-    flex: 0,
-    backgroundColor: '#fff'
-  }
-})
 export default App

@@ -99,14 +99,17 @@ const EditTodoModal = () => {
 
   const changeEndDate = React.useCallback(
     (value: boolean) => {
+      let start_date: string | null = null
       let end_date: string | null = null
 
       if (!value) {
+        start_date = format(scheduleDate, 'yyyy-MM-dd')
         end_date = format(scheduleDate, 'yyyy-MM-dd')
       }
 
       changeScheduleTodo(prevState => ({
         ...prevState,
+        start_date: start_date ? start_date : prevState.start_date,
         end_date
       }))
     },
@@ -119,12 +122,15 @@ const EditTodoModal = () => {
         throw new Error('잘못된 일정')
       }
 
+      const date = format(scheduleDate, 'yyyy-MM-dd')
+
       const params = {
         schedule_id: data.schedule_id,
         todo_id: data.todo_id,
         title: data.title,
         start_date: data.start_date,
-        end_date: data.end_date
+        end_date: data.end_date,
+        date
       }
 
       if (params.todo_id) {
@@ -147,7 +153,7 @@ const EditTodoModal = () => {
           } else {
             newTodoList[updateTodoIndex] = result
           }
-
+          console.log('newTodoList', newTodoList)
           return {
             ...item,
             todo_list: newTodoList
@@ -281,6 +287,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     width: '100%',
+    paddingTop: 20,
     backgroundColor: '#fff',
     borderBottomLeftRadius: 15,
     borderBottomRightRadius: 15

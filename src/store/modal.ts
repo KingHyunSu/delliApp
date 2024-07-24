@@ -9,3 +9,8 @@ export const showEditTodoModalState = atom({
   key: 'showEditTodoModalState',
   default: false
 })
+
+export const showTimeWheelModalState = atom({
+  key: 'showTimeWheelModalState',
+  default: false
+})

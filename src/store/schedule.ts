@@ -1,10 +1,25 @@
-import {atom} from 'recoil'
+import {atom, selector} from 'recoil'
+import {getDay} from 'date-fns'
 
 import {RANGE_FLAG} from '@/utils/types'
 
 export const scheduleDateState = atom<Date>({
   key: 'scheduleDateState',
   default: new Date()
+})
+
+export const scheduleDayOfWeekIndexState = selector({
+  key: 'scheduleDayOfWeekIndexState',
+  get: ({get}) => {
+    const scheduleDate = get(scheduleDateState)
+    let dayOfWeekIndex = getDay(scheduleDate) - 1
+
+    if (dayOfWeekIndex === -1) {
+      dayOfWeekIndex = 6
+    }
+
+    return dayOfWeekIndex
+  }
 })
 
 export const scheduleListState = atom<Schedule[]>({
@@ -32,16 +47,15 @@ export const scheduleState = atom<Schedule>({
     start_time: 0,
     end_time: 360,
     title: '',
-    mon: '0',
-    tue: '0',
-    wed: '0',
-    thu: '0',
-    fri: '0',
-    sat: '0',
-    sun: '0',
+    mon: '1',
+    tue: '1',
+    wed: '1',
+    thu: '1',
+    fri: '1',
+    sat: '1',
+    sun: '1',
     memo: '',
     disable: '0',
-    state: '0',
     title_x: 10,
     title_y: 45,
     title_rotate: 0,
