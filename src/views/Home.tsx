@@ -97,8 +97,26 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
   const [backPressCount, setBackPressCount] = React.useState(0)
 
-  const updateWidget = async (value?: Schedule[]) => {
-    if (timeTableExternalRef.current) {
+  const handleWidgetUpdate = React.useCallback(
+    async (value?: Schedule[]) => {
+      if (!timeTableExternalRef.current) {
+        Alert.alert('에러', '잠시 후 다시 시도해 주세요.', [
+          {
+            text: '확인'
+          }
+        ])
+
+        return
+      }
+
+      const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
+
+      console.log('shouldWidgetReload', shouldWidgetReload)
+      // 위젯 새로고침 필요 상태
+      if (shouldWidgetReload) {
+        return
+      }
+
       let newScheduleList = value ? value : [...scheduleList]
       newScheduleList.sort((a, b) => a.end_time - b.end_time)
 
@@ -152,8 +170,9 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
 
       WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
-    }
-  }
+    },
+    [scheduleList]
+  )
 
   const {isError, refetch: refetchScheduleList} = useQuery<Schedule[]>({
     queryKey: ['scheduleList', scheduleDate],
@@ -186,7 +205,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
           todo_list: JSON.parse(item.todo_list)
         }
       })
-      console.log('result', result)
 
       setScheduleList(result)
       setIsLunch(true)
@@ -257,17 +275,23 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
     },
     onSuccess: async () => {
       await refetchScheduleList()
-      const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
+      await handleWidgetUpdate()
 
-      if (!shouldWidgetReload) {
-        await updateWidget()
-      }
       setIsEdit(false)
     },
     onError: e => {
       console.error('error', e)
     }
   })
+
+  React.useEffect(() => {
+    const test = async () => {
+      const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
+      console.log('shouldWidgetReload', shouldWidgetReload)
+    }
+
+    test()
+  }, [WidgetUpdaterModule])
 
   const activeSubmit = React.useMemo(() => {
     const dayOfWeekList = [
@@ -466,7 +490,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       // 광고 시청 완료
       const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, async reward => {
         const {data: newScheduleList} = await refetchScheduleList()
-        await updateWidget(newScheduleList)
+        await handleWidgetUpdate(newScheduleList)
       })
 
       // Start loading the rewarded ad straight away
@@ -570,7 +594,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         )}
 
         {/* bottom sheet */}
-        <EditMenuBottomSheet refetchScheduleList={refetchScheduleList} />
+        <EditMenuBottomSheet refetchScheduleList={refetchScheduleList} handleWidgetUpdate={handleWidgetUpdate} />
         <TimetableCategoryBottomSheet />
         <StyleBottomSheet />
 

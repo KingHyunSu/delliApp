@@ -41,7 +41,11 @@ struct TimeTable: View {
         }
       }
     } else {
-      Text("생활계획표를 추가해주세요.")
+      VStack {
+        Text("일정을")
+        Text("추가해주세요")
+      }
+      .font(.custom("Pretendard-Medium", size: 16))
     }
     
 //    GeometryReader { geometry in

@@ -20,8 +20,9 @@ import {scheduleRepository} from '@/repository'
 
 interface Props {
   refetchScheduleList: Function
+  handleWidgetUpdate: Function
 }
-const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
+const EditMenuBottomSheet = ({refetchScheduleList, handleWidgetUpdate}: Props) => {
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const setShowEditTodoModalState = useSetRecoilState(showEditTodoModalState)
   const setIsEdit = useSetRecoilState(isEditState)
@@ -52,7 +53,10 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
     },
     onSuccess: async () => {
       await refetchScheduleList()
+      await handleWidgetUpdate()
+
       handleReset()
+
       setShowEditMenuBottomSheet(false)
     }
   })
