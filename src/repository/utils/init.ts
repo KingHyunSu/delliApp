@@ -1,4 +1,6 @@
 import {SQLiteDatabase} from 'react-native-sqlite-storage'
+import 'react-native-get-random-values'
+import {v4 as uuidV4} from 'uuid'
 import {openDatabase} from './helper'
 
 const createTable = async (db: SQLiteDatabase) => {
@@ -6,6 +8,13 @@ const createTable = async (db: SQLiteDatabase) => {
     // tx.executeSql(`
     //   DROP TABLE SCHEDULE
     // `)
+
+    // user table
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS "USER" (
+        "user_id" TEXT NOT NULL
+      );
+    `)
 
     // schedule table
     tx.executeSql(`
@@ -72,6 +81,19 @@ const createTable = async (db: SQLiteDatabase) => {
   })
 }
 
+const initUserId = async (db: SQLiteDatabase) => {
+  const userId = uuidV4()
+
+  await db.executeSql(
+    `
+          INSERT INTO "USER" ("user_id")
+          SELECT ?
+          WHERE NOT EXISTS (SELECT 1 FROM "USER")
+        `,
+    [userId]
+  )
+}
+
 const getVersion = async (db: SQLiteDatabase) => {
   const [result] = await db.executeSql('SELECT MAX(version) as maxVersion FROM VERSION')
   const {maxVersion} = result.rows.item(0)
@@ -90,6 +112,7 @@ export default async function init() {
     const db = await openDatabase()
 
     await createTable(db)
+    await initUserId(db)
     const version = await getVersion(db)
 
     console.log('database version : ', version)

@@ -72,3 +72,5 @@ env.d.ts
 
 Podfile.lock
 package-lock.json
+
+GoogleService-Info.plist
