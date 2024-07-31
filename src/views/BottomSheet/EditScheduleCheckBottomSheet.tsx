@@ -123,6 +123,7 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
                   <View style={styles.item}>
                     <Text style={styles.itemTitle}>{item.title}</Text>
 
+                    {/* TODO 변경된 종료일 강조 */}
                     <Text style={styles.dateText}>
                       {`${item.start_date} ~ ${item.end_date === '9999-12-31' ? '없음' : item.end_date}`}
                     </Text>
