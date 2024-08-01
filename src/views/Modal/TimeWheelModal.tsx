@@ -9,18 +9,16 @@ import {scheduleState} from '@/store/schedule'
 
 import {getTimeOfMinute} from '@/utils/helper'
 
-import CancelIcon from '@/assets/icons/cancle.svg'
-
 type Tab = 'START' | 'END'
 
-const TimeWheel = () => {
-  const visibleRest = 2
-  const meridiemList = ['오전', '오후']
-  // prettier-ignore
-  const hourList = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
-  // prettier-ignore
-  const minuteList = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59']
+const visibleRest = 2
+const meridiemList = ['오전', '오후']
+// prettier-ignore
+const hourList = ['12', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11']
+// prettier-ignore
+const minuteList = ['00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33', '34', '35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49', '50', '51', '52', '53', '54', '55', '56', '57', '58', '59']
 
+const TimeWheel = () => {
   const [showTimeWheelModal, setShowTimeWheelModal] = useRecoilState(showTimeWheelModalState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
@@ -80,17 +78,20 @@ const TimeWheel = () => {
     }
   }, [activeTab])
 
-  const handleClose = () => {
+  const handleClose = React.useCallback(() => {
     setShowTimeWheelModal(false)
-  }
+  }, [setShowTimeWheelModal])
 
-  const onChange = (time: number) => {
-    if (activeTab === 'START') {
-      setStartTime(time)
-    } else if (activeTab === 'END') {
-      setEndTime(time)
-    }
-  }
+  const onChange = React.useCallback(
+    (time: number) => {
+      if (activeTab === 'START') {
+        setStartTime(time)
+      } else if (activeTab === 'END') {
+        setEndTime(time)
+      }
+    },
+    [activeTab]
+  )
 
   const changeTab = React.useCallback(
     (type: Tab) => () => {
@@ -135,7 +136,7 @@ const TimeWheel = () => {
     [hourIndex, meridiemIndex, onChange]
   )
 
-  const handleConfirm = () => {
+  const handleConfirm = React.useCallback(() => {
     setSchedule(prevState => ({
       ...prevState,
       start_time: startTime,
@@ -143,7 +144,7 @@ const TimeWheel = () => {
     }))
 
     handleClose()
-  }
+  }, [setSchedule, startTime, endTime, handleClose])
 
   React.useEffect(() => {
     if (showTimeWheelModal) {
@@ -187,12 +188,6 @@ const TimeWheel = () => {
         <Pressable style={styles.overlay} />
 
         <View style={styles.container}>
-          <View style={styles.header}>
-            <Pressable style={styles.cancelButton} onPress={handleClose}>
-              <CancelIcon stroke="#242933" />
-            </Pressable>
-          </View>
-
           <View style={styles.content}>
             <View style={styles.tabContainer}>
               <Pressable style={[styles.tabButton, activeStartTab]} onPress={changeTab('START')}>
@@ -244,9 +239,14 @@ const TimeWheel = () => {
             </View>
           </View>
 
-          <Pressable style={styles.confirmButton} onPress={handleConfirm}>
-            <Text style={styles.buttonText}>확인</Text>
-          </Pressable>
+          <View style={styles.footer}>
+            <Pressable style={styles.cancelButton} onPress={handleClose}>
+              <Text style={styles.cancelButtonText}>취소</Text>
+            </Pressable>
+            <Pressable style={styles.confirmButton} onPress={handleConfirm}>
+              <Text style={styles.confirmButtonText}>확인</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </Modal>
@@ -270,16 +270,10 @@ const styles = StyleSheet.create({
   },
   container: {
     width: '90%',
-    height: 410,
+    height: 378,
     marginHorizontal: 20,
     backgroundColor: '#fff',
     borderRadius: 15
-  },
-  header: {
-    height: 52,
-    paddingHorizontal: 16,
-    justifyContent: 'center',
-    alignItems: 'flex-end'
   },
   content: {
     flex: 1
@@ -290,7 +284,7 @@ const styles = StyleSheet.create({
   tabButton: {
     flex: 1,
     gap: 7,
-    paddingVertical: 10,
+    paddingVertical: 20,
     justifyContent: 'center',
     alignItems: 'center',
     borderBottomWidth: 2,
@@ -304,21 +298,30 @@ const styles = StyleSheet.create({
   tabTimeText: {
     color: '#babfc5'
   },
+  footer: {
+    flexDirection: 'row',
+    height: 52
+  },
   cancelButton: {
-    width: 52,
-    height: 52,
+    flex: 1,
     justifyContent: 'center',
-    alignItems: 'flex-end'
+    alignItems: 'center',
+    backgroundColor: '#f5f6f8',
+    borderBottomStartRadius: 15
+  },
+  cancelButtonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    color: '#7c8698'
   },
   confirmButton: {
-    height: 52,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1E90FF',
-    borderBottomStartRadius: 15,
     borderBottomEndRadius: 15
   },
-  buttonText: {
+  confirmButtonText: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 16,
     color: '#fff'
