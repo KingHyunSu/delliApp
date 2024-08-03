@@ -45,6 +45,7 @@
     "react-native-status-bar-height": "^2.6.0",
     "react-native-svg": "^13.11.0",
     "react-native-wheely": "^0.6.0",
+    "reanimated-color-picker": "^3.0.4",
     "recoil": "^0.7.7"
   },
   "devDependencies": {

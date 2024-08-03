@@ -2,7 +2,10 @@ import React from 'react'
 import {StyleSheet, ViewStyle, ScrollView, TextStyle, View, Text, Pressable, TextInput} from 'react-native'
 import Switch from '@/components/Swtich'
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
+import type {returnedResults} from 'reanimated-color-picker'
+
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
+import ColorPicker from '@/components/ColorPicker'
 import DatePicker from '@/components/DatePicker'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
@@ -26,6 +29,7 @@ import TimeWheelModal from '@/views/Modal/TimeWheelModal'
 
 const defaultPanelHeight = 74
 const defaultItemPanelHeight = 56
+const defaultFullColorPanelItemHeight = 320
 const defaultFullDateItemPanelHeight = 426
 // const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
 
@@ -40,37 +44,57 @@ const EditScheduleBottomSheet = React.memo(() => {
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setShowTimeWheelModal = useSetRecoilState(showTimeWheelModalState)
 
+  const [activeColorPanel, setActiveColorPanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
   const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = React.useState(false)
   const [activeAlarmPanel, setActiveAlarmPanel] = React.useState(false)
+  const [colorFlag, setColorFlag] = React.useState<'background' | 'text'>('background')
   const [dateFlag, setDateFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
+
   // const [alarmWheelIndex, setAlarmWheelIndex] = React.useState(1)
 
-  const timePanelHeight = useSharedValue(defaultPanelHeight)
+  const colorPanelHeight = useSharedValue(defaultPanelHeight)
+  const backgroundColorPanelHeight = useSharedValue(defaultItemPanelHeight)
+  const textColorPanelHeight = useSharedValue(defaultItemPanelHeight)
   const datePanelHeight = useSharedValue(defaultPanelHeight)
-  const dayOfWeekPanelHeight = useSharedValue(defaultPanelHeight)
-  const alarmPanelHeight = useSharedValue(defaultPanelHeight)
   const dateStartPanelHeight = useSharedValue(defaultItemPanelHeight)
   const dateEndPanelHeight = useSharedValue(defaultItemPanelHeight)
+  const dayOfWeekPanelHeight = useSharedValue(defaultPanelHeight)
+  const alarmPanelHeight = useSharedValue(defaultPanelHeight)
 
+  // color panel style
+  const colorPanelContainerStyle = useAnimatedStyle(() => ({
+    ...styles.panel,
+    height: colorPanelHeight.value
+  }))
+  const backgroundColorPanelItemStyle = useAnimatedStyle(() => ({
+    ...styles.panelItemWrapper,
+    height: backgroundColorPanelHeight.value
+  }))
+  const textColorPanelItemHeightStyle = useAnimatedStyle(() => ({
+    height: textColorPanelHeight.value
+  }))
+  const textColorPanelItemStyle = React.useMemo(() => {
+    return [
+      styles.panelItemWrapper,
+      textColorPanelItemHeightStyle,
+      colorFlag === 'background' && {borderTopWidth: 1, borderTopColor: '#eeeded'}
+    ]
+  }, [colorFlag])
+
+  // time panel style
   const timePanelContainerStyle = React.useMemo(() => {
     return {
       ...styles.panel,
-      height: timePanelHeight.value
+      height: defaultPanelHeight
     }
   }, [])
+
+  // date panel style
   const datePanelContainerStyle = useAnimatedStyle(() => ({
     ...styles.panel,
     height: datePanelHeight.value
   }))
-  const dayOfWeekPanelContainerStyle = useAnimatedStyle(() => ({
-    ...styles.panel,
-    height: dayOfWeekPanelHeight.value
-  }))
-  // const alarmPanelContainerStyle = useAnimatedStyle(() => ({
-  //   ...styles.panel,
-  //   height: alarmPanelHeight.value
-  // }))
   const startDatePanelItemStyle = useAnimatedStyle(() => ({
     ...styles.panelItemWrapper,
     height: dateStartPanelHeight.value
@@ -85,6 +109,16 @@ const EditScheduleBottomSheet = React.memo(() => {
       dateFlag === RANGE_FLAG.START && {borderTopWidth: 1, borderTopColor: '#eeeded'}
     ]
   }, [dateFlag])
+
+  // day of week panel style
+  const dayOfWeekPanelContainerStyle = useAnimatedStyle(() => ({
+    ...styles.panel,
+    height: dayOfWeekPanelHeight.value
+  }))
+  // const alarmPanelContainerStyle = useAnimatedStyle(() => ({
+  //   ...styles.panel,
+  //   height: alarmPanelHeight.value
+  // }))
 
   const startTime = React.useMemo(() => {
     return getTimeOfMinute(schedule.start_time)
@@ -115,31 +149,51 @@ const EditScheduleBottomSheet = React.memo(() => {
     return [styles.panelItemButtonText, dateFlag === RANGE_FLAG.END && styles.panelItemActiveButtonText]
   }, [dateFlag])
 
+  const closeAllPanel = () => {
+    setActiveColorPanel(false)
+    setActiveDatePanel(false)
+    setActiveDayOfWeekPanel(false)
+    setActiveAlarmPanel(false)
+  }
+
   const handleBottomSheetChanged = React.useCallback((index: number) => {
     if (index === 0) {
-      setActiveDatePanel(false)
-      setActiveDayOfWeekPanel(false)
-      setActiveAlarmPanel(false)
+      closeAllPanel()
     }
   }, [])
 
+  const handleColorPanel = React.useCallback(() => {
+    setActiveColorPanel(!activeColorPanel)
+    setActiveDatePanel(false)
+    setActiveDayOfWeekPanel(false)
+    setActiveAlarmPanel(false)
+  }, [activeColorPanel])
+  const handleColorPanelItem = React.useCallback(
+    (flag: 'background' | 'text') => () => {
+      setColorFlag(flag)
+    },
+    []
+  )
+
   const handleTimePanel = React.useCallback(() => {
     setShowTimeWheelModal(true)
+    closeAllPanel()
+  }, [setShowTimeWheelModal])
 
-    setActiveDatePanel(false)
-    setActiveDayOfWeekPanel(false)
-    setActiveAlarmPanel(false)
-  }, [])
   const handleDatePanel = React.useCallback(() => {
+    setActiveColorPanel(false)
     setActiveDayOfWeekPanel(false)
-    setActiveAlarmPanel(false)
     setActiveDatePanel(!activeDatePanel)
-  }, [activeDatePanel])
-  const handleDayOfWeekPanel = React.useCallback(() => {
     setActiveAlarmPanel(false)
+  }, [activeDatePanel])
+
+  const handleDayOfWeekPanel = React.useCallback(() => {
+    setActiveColorPanel(false)
     setActiveDatePanel(false)
     setActiveDayOfWeekPanel(!activeDayOfWeekPanel)
+    setActiveAlarmPanel(false)
   }, [activeDayOfWeekPanel])
+
   // const handleAlarmPanel = React.useCallback(() => {
   //   setActiveDatePanel(false)
   //   setActiveDayOfWeekPanel(false)
@@ -199,6 +253,26 @@ const EditScheduleBottomSheet = React.memo(() => {
     bottomSheetRef.current?.collapse()
     setIsInputMode(true)
   }, [setIsInputMode])
+
+  const changeBackgroundColor = React.useCallback(
+    (color: returnedResults) => {
+      setSchedule(prevState => ({
+        ...prevState,
+        background_color: color.hex
+      }))
+    },
+    [setSchedule]
+  )
+
+  const changeTextColor = React.useCallback(
+    (color: returnedResults) => {
+      setSchedule(prevState => ({
+        ...prevState,
+        text_color: color.hex
+      }))
+    },
+    [setSchedule]
+  )
 
   const changeDate = React.useCallback(
     (date: string, flag: RANGE_FLAG) => {
@@ -394,9 +468,7 @@ const EditScheduleBottomSheet = React.memo(() => {
         bottomSheetRef.current.close()
 
         bottomSheetScrollViewRef.current?.scrollTo({y: 0})
-        setActiveDatePanel(false)
-        setActiveDayOfWeekPanel(false)
-        setActiveAlarmPanel(false)
+        closeAllPanel()
       }
     }
   }, [isEdit])
@@ -408,6 +480,10 @@ const EditScheduleBottomSheet = React.memo(() => {
   // }, [schedule.alarm])
 
   React.useEffect(() => {
+    // open panel
+    if (activeColorPanel) {
+      colorPanelHeight.value = withTiming(defaultPanelHeight + defaultItemPanelHeight + defaultFullColorPanelItemHeight)
+    }
     if (activeDatePanel) {
       datePanelHeight.value = withTiming(
         defaultPanelHeight + defaultItemPanelHeight + defaultFullDateItemPanelHeight + 3
@@ -420,6 +496,10 @@ const EditScheduleBottomSheet = React.memo(() => {
       alarmPanelHeight.value = withTiming(defaultPanelHeight + 160)
     }
 
+    // close panel
+    if (!activeColorPanel) {
+      colorPanelHeight.value = withTiming(defaultPanelHeight)
+    }
     if (!activeDatePanel) {
       datePanelHeight.value = withTiming(defaultPanelHeight)
     }
@@ -429,13 +509,23 @@ const EditScheduleBottomSheet = React.memo(() => {
     if (!activeAlarmPanel) {
       alarmPanelHeight.value = withTiming(defaultPanelHeight)
     }
-  }, [activeDatePanel, activeDayOfWeekPanel, activeAlarmPanel])
+  }, [activeColorPanel, activeDatePanel, activeDayOfWeekPanel, activeAlarmPanel])
 
   React.useEffect(() => {
     if (schedule.schedule_id) {
       setDateFlag(RANGE_FLAG.END)
     }
   }, [schedule.schedule_id])
+
+  React.useEffect(() => {
+    if (colorFlag === 'background') {
+      backgroundColorPanelHeight.value = withTiming(defaultFullColorPanelItemHeight)
+      textColorPanelHeight.value = withTiming(defaultItemPanelHeight)
+    } else if (colorFlag === 'text') {
+      backgroundColorPanelHeight.value = withTiming(defaultItemPanelHeight)
+      textColorPanelHeight.value = withTiming(defaultFullColorPanelItemHeight)
+    }
+  }, [colorFlag])
 
   React.useEffect(() => {
     if (dateFlag === RANGE_FLAG.END) {
@@ -468,13 +558,45 @@ const EditScheduleBottomSheet = React.memo(() => {
           )}
         </Pressable>
 
+        {/* 색상 */}
+        <Animated.View style={colorPanelContainerStyle}>
+          <Pressable style={panelHeaderStyle} onPress={handleColorPanel}>
+            <View style={styles.panelHeaderBox}>
+              <Text style={styles.panelHeaderLabel}>색상</Text>
+              <View style={{paddingVertical: 5, paddingHorizontal: 12, borderRadius: 7, backgroundColor: '#1E90FF'}}>
+                <Text style={[styles.panelHeaderTitle, {fontFamily: 'Pretendard-Medium', color: '#fff'}]}>일정명</Text>
+              </View>
+            </View>
+
+            {activeColorPanel ? <ArrowDownIcon stroke="#424242" /> : <ArrowUpIcon stroke="#424242" />}
+          </Pressable>
+
+          <View style={styles.panelItemContainer}>
+            <Animated.View style={backgroundColorPanelItemStyle}>
+              <Pressable style={panelItemHeaderContainerStyle} onPress={handleColorPanelItem('background')}>
+                <Text style={styles.panelItemLabel}>배경색</Text>
+              </Pressable>
+
+              <ColorPicker value={schedule.background_color} onChange={changeBackgroundColor} />
+            </Animated.View>
+
+            <Animated.View style={textColorPanelItemStyle}>
+              <Pressable style={panelItemHeaderContainerStyle} onPress={handleColorPanelItem('text')}>
+                <Text style={styles.panelItemLabel}>글자색</Text>
+              </Pressable>
+
+              <ColorPicker value={schedule.text_color} onChange={changeTextColor} />
+            </Animated.View>
+          </View>
+        </Animated.View>
+
         {/* 시간 */}
         <View style={timePanelContainerStyle}>
           <Pressable style={panelHeaderStyle} onPress={handleTimePanel}>
             <View style={styles.panelHeaderTextBox}>
               <Text style={styles.panelHeaderLabel}>시간</Text>
               <Text style={styles.panelHeaderTitle}>
-                {`${startTime.meridiem} ${startTime.hour}시 ${startTime.minute}분 ~ ${endTime.meridiem} ${endTime.hour}시 ${endTime.minute}분`}{' '}
+                {`${startTime.meridiem} ${startTime.hour}시 ${startTime.minute}분 ~ ${endTime.meridiem} ${endTime.hour}시 ${endTime.minute}분`}
               </Text>
             </View>
 
@@ -636,6 +758,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16
+  },
+  panelHeaderBox: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginRight: 16
   },
   panelHeaderTextBox: {
     gap: 5
