@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, ViewStyle, ScrollView, TextStyle, View, Text, Pressable, TextInput} from 'react-native'
+import {StyleSheet, ViewStyle, ScrollView, TextStyle, View, Text, Pressable, TextInput, Platform} from 'react-native'
 import Switch from '@/components/Swtich'
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import type {returnedResults} from 'reanimated-color-picker'
@@ -29,7 +29,7 @@ import TimeWheelModal from '@/views/Modal/TimeWheelModal'
 
 const defaultPanelHeight = 74
 const defaultItemPanelHeight = 56
-const defaultFullColorPanelItemHeight = 320
+const defaultFullColorPanelItemHeight = 320 + defaultItemPanelHeight
 const defaultFullDateItemPanelHeight = 426
 // const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
 
@@ -62,6 +62,7 @@ const EditScheduleBottomSheet = React.memo(() => {
   const dayOfWeekPanelHeight = useSharedValue(defaultPanelHeight)
   const alarmPanelHeight = useSharedValue(defaultPanelHeight)
 
+  // --------------------------------panel styles start--------------------------------
   // color panel style
   const colorPanelContainerStyle = useAnimatedStyle(() => ({
     ...styles.panel,
@@ -119,6 +120,53 @@ const EditScheduleBottomSheet = React.memo(() => {
   //   ...styles.panel,
   //   height: alarmPanelHeight.value
   // }))
+  // --------------------------------panel styles end--------------------------------
+
+  // --------------------------------calculated styles start--------------------------------
+  const backgroundColor = useSharedValue(schedule.background_color)
+  const textColor = useSharedValue(schedule.text_color)
+
+  const previewColorWrapper = useAnimatedStyle(() => ({
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: '#f5f6f8',
+    backgroundColor: backgroundColor.value
+  }))
+
+  const previewColorText = useAnimatedStyle(() => ({
+    fontSize: 14,
+    fontFamily: 'Pretendard-Medium',
+    color: textColor.value
+  }))
+
+  const textColorPreview = useAnimatedStyle(() => ({
+    ...styles.previewColor,
+    backgroundColor: textColor.value
+  }))
+
+  const backgroundColorPreview = useAnimatedStyle(() => ({
+    ...styles.previewColor,
+    backgroundColor: backgroundColor.value
+  }))
+
+  const startDatePanelItemHeaderWrapperStyle = React.useMemo(() => {
+    return [styles.panelItemButton, dateFlag === RANGE_FLAG.START && styles.panelItemActiveButton]
+  }, [dateFlag])
+
+  const startDatePanelItemHeaderTextStyle = React.useMemo(() => {
+    return [styles.panelItemButtonText, dateFlag === RANGE_FLAG.START && styles.panelItemActiveButtonText]
+  }, [dateFlag])
+
+  const endDatePanelItemHeaderWrapperStyle = React.useMemo(() => {
+    return [styles.panelItemButton, dateFlag === RANGE_FLAG.END && styles.panelItemActiveButton]
+  }, [dateFlag])
+
+  const endDatePanelItemHeaderTextStyle = React.useMemo(() => {
+    return [styles.panelItemButtonText, dateFlag === RANGE_FLAG.END && styles.panelItemActiveButtonText]
+  }, [dateFlag])
+  // --------------------------------calculated styles end--------------------------------
 
   const startTime = React.useMemo(() => {
     return getTimeOfMinute(schedule.start_time)
@@ -135,19 +183,6 @@ const EditScheduleBottomSheet = React.memo(() => {
   // const isActiveAlarm = React.useMemo(() => {
   //   return schedule.alarm !== 0
   // }, [schedule.alarm])
-
-  const startDatePanelItemHeaderWrapperStyle = React.useMemo(() => {
-    return [styles.panelItemButton, dateFlag === RANGE_FLAG.START && styles.panelItemActiveButton]
-  }, [dateFlag])
-  const startDatePanelItemHeaderTextStyle = React.useMemo(() => {
-    return [styles.panelItemButtonText, dateFlag === RANGE_FLAG.START && styles.panelItemActiveButtonText]
-  }, [dateFlag])
-  const endDatePanelItemHeaderWrapperStyle = React.useMemo(() => {
-    return [styles.panelItemButton, dateFlag === RANGE_FLAG.END && styles.panelItemActiveButton]
-  }, [dateFlag])
-  const endDatePanelItemHeaderTextStyle = React.useMemo(() => {
-    return [styles.panelItemButtonText, dateFlag === RANGE_FLAG.END && styles.panelItemActiveButtonText]
-  }, [dateFlag])
 
   const closeAllPanel = () => {
     setActiveColorPanel(false)
@@ -254,7 +289,15 @@ const EditScheduleBottomSheet = React.memo(() => {
     setIsInputMode(true)
   }, [setIsInputMode])
 
-  const changeBackgroundColor = React.useCallback(
+  const changeBackgroundColor = React.useCallback((color: returnedResults) => {
+    backgroundColor.value = color.hex
+  }, [])
+
+  const changeTextColor = React.useCallback((color: returnedResults) => {
+    textColor.value = color.hex
+  }, [])
+
+  const backgroundColorChanged = React.useCallback(
     (color: returnedResults) => {
       setSchedule(prevState => ({
         ...prevState,
@@ -264,7 +307,7 @@ const EditScheduleBottomSheet = React.memo(() => {
     [setSchedule]
   )
 
-  const changeTextColor = React.useCallback(
+  const textColorChanged = React.useCallback(
     (color: returnedResults) => {
       setSchedule(prevState => ({
         ...prevState,
@@ -563,9 +606,9 @@ const EditScheduleBottomSheet = React.memo(() => {
           <Pressable style={panelHeaderStyle} onPress={handleColorPanel}>
             <View style={styles.panelHeaderBox}>
               <Text style={styles.panelHeaderLabel}>색상</Text>
-              <View style={{paddingVertical: 5, paddingHorizontal: 12, borderRadius: 7, backgroundColor: '#1E90FF'}}>
-                <Text style={[styles.panelHeaderTitle, {fontFamily: 'Pretendard-Medium', color: '#fff'}]}>일정명</Text>
-              </View>
+              <Animated.View style={previewColorWrapper}>
+                <Animated.Text style={previewColorText}>일정명</Animated.Text>
+              </Animated.View>
             </View>
 
             {activeColorPanel ? <ArrowDownIcon stroke="#424242" /> : <ArrowUpIcon stroke="#424242" />}
@@ -575,17 +618,25 @@ const EditScheduleBottomSheet = React.memo(() => {
             <Animated.View style={backgroundColorPanelItemStyle}>
               <Pressable style={panelItemHeaderContainerStyle} onPress={handleColorPanelItem('background')}>
                 <Text style={styles.panelItemLabel}>배경색</Text>
+
+                <Animated.View style={backgroundColorPreview} />
               </Pressable>
 
-              <ColorPicker value={schedule.background_color} onChange={changeBackgroundColor} />
+              <ColorPicker
+                value={backgroundColor}
+                onChange={changeBackgroundColor}
+                onComplete={backgroundColorChanged}
+              />
             </Animated.View>
 
             <Animated.View style={textColorPanelItemStyle}>
               <Pressable style={panelItemHeaderContainerStyle} onPress={handleColorPanelItem('text')}>
                 <Text style={styles.panelItemLabel}>글자색</Text>
+
+                <Animated.View style={textColorPreview} />
               </Pressable>
 
-              <ColorPicker value={schedule.text_color} onChange={changeTextColor} />
+              <ColorPicker value={textColor} onChange={changeTextColor} onComplete={textColorChanged} />
             </Animated.View>
           </View>
         </Animated.View>
@@ -824,6 +875,13 @@ const styles = StyleSheet.create({
     color: '#fff'
   },
 
+  previewColor: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#f5f6f8'
+  },
   dateOfWeekTitleContainer: {
     flexDirection: 'row',
     gap: 5
