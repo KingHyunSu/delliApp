@@ -27,7 +27,6 @@ import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet
 import EditScheduleCheckBottomSheet from '@/views/BottomSheet/EditScheduleCheckBottomSheet'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
-import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
 import EditTodoModal from '@/views/Modal/EditTodoModal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
@@ -455,7 +454,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
         {/* bottom sheet */}
         <EditMenuBottomSheet refetchScheduleList={refetchScheduleList} />
         <TimetableCategoryBottomSheet />
-        <StyleBottomSheet />
 
         {/* modal */}
         {/* <ScheduleCompleteModal /> */}
