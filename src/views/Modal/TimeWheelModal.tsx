@@ -1,5 +1,6 @@
 import React from 'react'
 import {StyleSheet, Modal, Pressable, View, Text} from 'react-native'
+import Animated, {useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
 
 import WheelPicker from '@/components/WheelPicker'
 
@@ -33,6 +34,16 @@ const TimeWheel = () => {
   const [meridiemIndex, setMeridiemIndex] = React.useState(0)
   const [hourIndex, setHourIndex] = React.useState(0)
   const [minuteIndex, setMinuteIndex] = React.useState(0)
+
+  const opacity = useSharedValue(0)
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value
+  }))
+
+  const backgroundStyle = React.useMemo(() => {
+    return [styles.background, animatedStyle]
+  }, [])
 
   const startTimeFormat = React.useMemo(() => {
     return getTimeOfMinute(startTime)
@@ -148,9 +159,12 @@ const TimeWheel = () => {
 
   React.useEffect(() => {
     if (showTimeWheelModal) {
+      opacity.value = withTiming(1, {duration: 150})
       setActiveTab('START')
       setStartTime(schedule.start_time)
       setEndTime(schedule.end_time)
+    } else {
+      opacity.value = 0
     }
   }, [showTimeWheelModal])
 
@@ -184,7 +198,7 @@ const TimeWheel = () => {
 
   return (
     <Modal visible={showTimeWheelModal} hardwareAccelerated transparent statusBarTranslucent>
-      <View style={styles.background}>
+      <Animated.View style={backgroundStyle}>
         <Pressable style={styles.overlay} />
 
         <View style={styles.container}>
@@ -248,7 +262,7 @@ const TimeWheel = () => {
             </Pressable>
           </View>
         </View>
-      </View>
+      </Animated.View>
     </Modal>
   )
 }
@@ -270,8 +284,8 @@ const styles = StyleSheet.create({
   },
   container: {
     width: '90%',
+    maxWidth: 350,
     height: 378,
-    marginHorizontal: 20,
     backgroundColor: '#fff',
     borderRadius: 15
   },
