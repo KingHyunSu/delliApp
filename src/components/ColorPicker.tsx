@@ -26,7 +26,7 @@ interface RenderItem {
 
 const shadowOffset: [number, number] = [0, 1]
 export default ({value, usedColorList, onChange, onComplete}: Props) => {
-  const modalFullHeight = 154.4
+  const modalFullHeight = 160
   const modalTranslateY = 90
   const [showColorModal, setShowColorModal] = useRecoilState(showColorModalState)
   const windowDimensions = useRecoilValue(windowDimensionsState)
@@ -51,7 +51,6 @@ export default ({value, usedColorList, onChange, onComplete}: Props) => {
     return {
       ...modalStyles.container,
       width: modalWidth.value,
-      // height: 150
       height: modalHeight.value,
       transform: [{translateY: translateY.value}]
     }
@@ -161,7 +160,12 @@ export default ({value, usedColorList, onChange, onComplete}: Props) => {
               랜덤 색 추천
             </Text>
 
-            <ScrollView horizontal nestedScrollEnabled contentContainerStyle={modalStyles.scrollInner}>
+            <ScrollView
+              contentContainerStyle={modalStyles.scrollInner}
+              horizontal
+              nestedScrollEnabled
+              bounces={false}
+              showsHorizontalScrollIndicator={false}>
               <Shadow startColor="#00000010" distance={2} offset={shadowOffset}>
                 <Pressable style={modalStyles.refreshButton} onPress={changeRandomColorList}>
                   <RefreshIcon fill="#1E90FF" width={18} height={18} />
@@ -180,11 +184,13 @@ export default ({value, usedColorList, onChange, onComplete}: Props) => {
             {usedColorList.length > 0 ? (
               <FlatList
                 data={usedColorList}
+                keyExtractor={keyExtractor}
+                renderItem={renderItem}
                 contentContainerStyle={modalStyles.scrollInner}
                 horizontal
                 nestedScrollEnabled
-                keyExtractor={keyExtractor}
-                renderItem={renderItem}
+                bounces={false}
+                showsHorizontalScrollIndicator={false}
               />
             ) : (
               <Text style={modalStyles.emptyText}>데이터 없음</Text>
