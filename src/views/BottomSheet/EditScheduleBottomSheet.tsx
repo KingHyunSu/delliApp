@@ -523,6 +523,8 @@ const EditScheduleBottomSheet = React.memo(() => {
       if (isEdit) {
         bottomSheetRef.current.snapToIndex(0)
         getColorList()
+        backgroundColor.value = schedule.background_color
+        textColor.value = schedule.text_color
       } else {
         bottomSheetRef.current.close()
 
