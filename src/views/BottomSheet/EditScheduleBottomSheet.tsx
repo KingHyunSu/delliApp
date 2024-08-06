@@ -193,8 +193,13 @@ const EditScheduleBottomSheet = React.memo(() => {
 
   const closeAllPanel = () => {
     setActiveColorPanel(false)
+    setColorFlag('background')
+
     setActiveDatePanel(false)
+    setDateFlag(RANGE_FLAG.START)
+
     setActiveDayOfWeekPanel(false)
+
     setActiveAlarmPanel(false)
   }
 
@@ -210,6 +215,7 @@ const EditScheduleBottomSheet = React.memo(() => {
     setActiveDayOfWeekPanel(false)
     setActiveAlarmPanel(false)
   }, [activeColorPanel])
+
   const handleColorPanelItem = React.useCallback(
     (flag: 'background' | 'text') => () => {
       setColorFlag(flag)
@@ -522,6 +528,7 @@ const EditScheduleBottomSheet = React.memo(() => {
     if (bottomSheetRef.current) {
       if (isEdit) {
         bottomSheetRef.current.snapToIndex(0)
+
         getColorList()
         backgroundColor.value = schedule.background_color
         textColor.value = schedule.text_color
