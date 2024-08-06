@@ -9,7 +9,7 @@ import DatePicker from '@/components/DatePicker'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {editScheduleListSnapPointState, isEditState} from '@/store/system'
-import {scheduleState, scheduleDayOfWeekIndexState, isInputModeState} from '@/store/schedule'
+import {scheduleState, isInputModeState} from '@/store/schedule'
 import {showTimeWheelModalState, showColorModalState} from '@/store/modal'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
@@ -45,7 +45,6 @@ const EditScheduleBottomSheet = React.memo(() => {
 
   const editScheduleListSnapPoint = useRecoilValue(editScheduleListSnapPointState)
   const isEdit = useRecoilValue(isEditState)
-  const scheduleDayOfWeekIndex = useRecoilValue(scheduleDayOfWeekIndexState)
 
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setShowTimeWheelModal = useSetRecoilState(showTimeWheelModalState)
@@ -280,22 +279,15 @@ const EditScheduleBottomSheet = React.memo(() => {
     return dayOfWeekSelectButtonStyle
   }, [])
 
-  const getDayOfWeekSelectButtonTextStyle = React.useCallback(
-    (flag: string, index: number) => {
-      let dayOfWeekSelectButtonTextStyle: TextStyle[] = [styles.dayofWeekText]
+  const getDayOfWeekSelectButtonTextStyle = React.useCallback((flag: string) => {
+    let dayOfWeekSelectButtonTextStyle: TextStyle[] = [styles.dayofWeekText]
 
-      if (flag === '1') {
-        dayOfWeekSelectButtonTextStyle = [...dayOfWeekSelectButtonTextStyle, styles.activeDayOfWeekText]
-      }
+    if (flag === '1') {
+      dayOfWeekSelectButtonTextStyle = [...dayOfWeekSelectButtonTextStyle, styles.activeDayOfWeekText]
+    }
 
-      if (index === scheduleDayOfWeekIndex) {
-        dayOfWeekSelectButtonTextStyle.push({fontFamily: 'Pretendard-Bold'})
-      }
-
-      return dayOfWeekSelectButtonTextStyle
-    },
-    [scheduleDayOfWeekIndex]
-  )
+    return dayOfWeekSelectButtonTextStyle
+  }, [])
 
   const focusTitleInput = React.useCallback(() => {
     bottomSheetRef.current?.collapse()
@@ -348,16 +340,12 @@ const EditScheduleBottomSheet = React.memo(() => {
   )
 
   const changeDayOfWeek = React.useCallback(
-    (key: DAY_OF_WEEK, index: number) => () => {
-      if (index === scheduleDayOfWeekIndex) {
-        return
-      }
-
+    (key: DAY_OF_WEEK) => () => {
       const flag = schedule[key] === '1' ? '0' : '1'
 
       setSchedule(prevState => ({...prevState, [key]: flag}))
     },
-    [scheduleDayOfWeekIndex, schedule, setSchedule]
+    [schedule, setSchedule]
   )
 
   // const changeAlarm = React.useCallback(
@@ -756,26 +744,26 @@ const EditScheduleBottomSheet = React.memo(() => {
           </Pressable>
 
           <View style={styles.dayOfWeekContainer}>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.mon)} onPress={changeDayOfWeek('mon', 0)}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.mon, 0)}>월</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.mon)} onPress={changeDayOfWeek('mon')}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.mon)}>월</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.tue)} onPress={changeDayOfWeek('tue', 1)}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.tue, 1)}>화</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.tue)} onPress={changeDayOfWeek('tue')}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.tue)}>화</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.wed)} onPress={changeDayOfWeek('wed', 2)}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.wed, 2)}>수</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.wed)} onPress={changeDayOfWeek('wed')}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.wed)}>수</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.thu)} onPress={changeDayOfWeek('thu', 3)}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.thu, 3)}>목</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.thu)} onPress={changeDayOfWeek('thu')}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.thu)}>목</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.fri)} onPress={changeDayOfWeek('fri', 4)}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.fri, 4)}>금</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.fri)} onPress={changeDayOfWeek('fri')}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.fri)}>금</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.sat)} onPress={changeDayOfWeek('sat', 5)}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.sat, 5)}>토</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.sat)} onPress={changeDayOfWeek('sat')}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.sat)}>토</Text>
             </Pressable>
-            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.sun)} onPress={changeDayOfWeek('sun', 6)}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.sun, 6)}>일</Text>
+            <Pressable style={getDayOfWeekSelectButtonStyle(schedule.sun)} onPress={changeDayOfWeek('sun')}>
+              <Text style={getDayOfWeekSelectButtonTextStyle(schedule.sun)}>일</Text>
             </Pressable>
           </View>
         </Animated.View>
