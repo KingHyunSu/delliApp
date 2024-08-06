@@ -58,3 +58,19 @@ export const updateScheduleDisable = async (params: UpdateScheduleDisable, tx?: 
     await db.executeSql(query)
   }
 }
+
+export const getBackgroundColorList = async () => {
+  const query = scheduleQueries.getBackgroundColorListQuery()
+  const db = await openDatabase()
+  const [result] = await db.executeSql(query)
+
+  return result.rows.raw()
+}
+
+export const getTextColorList = async () => {
+  const query = scheduleQueries.getTextColorListQuery()
+  const db = await openDatabase()
+  const [result] = await db.executeSql(query)
+
+  return result.rows.raw()
+}

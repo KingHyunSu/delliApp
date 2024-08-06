@@ -2,7 +2,6 @@ import React from 'react'
 import {StyleSheet, ViewStyle, ScrollView, TextStyle, View, Text, Pressable, TextInput, Platform} from 'react-native'
 import Switch from '@/components/Swtich'
 import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
-import type {returnedResults} from 'reanimated-color-picker'
 
 import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
 import ColorPicker from '@/components/ColorPicker'
@@ -11,7 +10,7 @@ import DatePicker from '@/components/DatePicker'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {editScheduleListSnapPointState, isEditState} from '@/store/system'
 import {scheduleState, scheduleDayOfWeekIndexState, isInputModeState} from '@/store/schedule'
-import {showTimeWheelModalState} from '@/store/modal'
+import {showTimeWheelModalState, showColorModalState} from '@/store/modal'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
@@ -27,9 +26,11 @@ import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
 import {DAY_OF_WEEK} from '@/types/common'
 import TimeWheelModal from '@/views/Modal/TimeWheelModal'
 
+import {scheduleRepository} from '@/repository'
+
 const defaultPanelHeight = 74
 const defaultItemPanelHeight = 56
-const defaultFullColorPanelItemHeight = 320 + defaultItemPanelHeight
+const defaultFullColorPanelItemHeight = 304 + defaultItemPanelHeight
 const defaultFullDateItemPanelHeight = 426
 // const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
 
@@ -37,12 +38,18 @@ const EditScheduleBottomSheet = React.memo(() => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const bottomSheetScrollViewRef = React.useRef<ScrollView>(null)
 
+  const [usedBackgroundColorList, setUsedBackgroundColorList] = React.useState<UsedColor[]>([])
+  const [usedTextColorList, setUsedTextColorList] = React.useState<UsedColor[]>([])
+
+  const [schedule, setSchedule] = useRecoilState(scheduleState)
+
   const editScheduleListSnapPoint = useRecoilValue(editScheduleListSnapPointState)
   const isEdit = useRecoilValue(isEditState)
   const scheduleDayOfWeekIndex = useRecoilValue(scheduleDayOfWeekIndexState)
-  const [schedule, setSchedule] = useRecoilState(scheduleState)
+
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setShowTimeWheelModal = useSetRecoilState(showTimeWheelModalState)
+  const setShowColorModal = useSetRecoilState(showColorModalState)
 
   const [activeColorPanel, setActiveColorPanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
@@ -289,29 +296,29 @@ const EditScheduleBottomSheet = React.memo(() => {
     setIsInputMode(true)
   }, [setIsInputMode])
 
-  const changeBackgroundColor = React.useCallback((color: returnedResults) => {
-    backgroundColor.value = color.hex
+  const changeBackgroundColor = React.useCallback((color: string) => {
+    backgroundColor.value = color
   }, [])
 
-  const changeTextColor = React.useCallback((color: returnedResults) => {
-    textColor.value = color.hex
+  const changeTextColor = React.useCallback((color: string) => {
+    textColor.value = color
   }, [])
 
   const backgroundColorChanged = React.useCallback(
-    (color: returnedResults) => {
+    (color: string) => {
       setSchedule(prevState => ({
         ...prevState,
-        background_color: color.hex
+        background_color: color
       }))
     },
     [setSchedule]
   )
 
   const textColorChanged = React.useCallback(
-    (color: returnedResults) => {
+    (color: string) => {
       setSchedule(prevState => ({
         ...prevState,
-        text_color: color.hex
+        text_color: color
       }))
     },
     [setSchedule]
@@ -504,9 +511,18 @@ const EditScheduleBottomSheet = React.memo(() => {
   )
 
   React.useEffect(() => {
+    const getColorList = async () => {
+      const backgroundColorList = await scheduleRepository.getBackgroundColorList()
+      const textColorList = await scheduleRepository.getTextColorList()
+
+      setUsedBackgroundColorList(backgroundColorList)
+      setUsedTextColorList(textColorList)
+    }
+
     if (bottomSheetRef.current) {
       if (isEdit) {
         bottomSheetRef.current.snapToIndex(0)
+        getColorList()
       } else {
         bottomSheetRef.current.close()
 
@@ -541,6 +557,7 @@ const EditScheduleBottomSheet = React.memo(() => {
 
     // close panel
     if (!activeColorPanel) {
+      setShowColorModal(false)
       colorPanelHeight.value = withTiming(defaultPanelHeight)
     }
     if (!activeDatePanel) {
@@ -561,6 +578,8 @@ const EditScheduleBottomSheet = React.memo(() => {
   }, [schedule.schedule_id])
 
   React.useEffect(() => {
+    setShowColorModal(false)
+
     if (colorFlag === 'background') {
       backgroundColorPanelHeight.value = withTiming(defaultFullColorPanelItemHeight)
       textColorPanelHeight.value = withTiming(defaultItemPanelHeight)
@@ -624,6 +643,7 @@ const EditScheduleBottomSheet = React.memo(() => {
 
               <ColorPicker
                 value={backgroundColor}
+                usedColorList={usedBackgroundColorList}
                 onChange={changeBackgroundColor}
                 onComplete={backgroundColorChanged}
               />
@@ -636,7 +656,12 @@ const EditScheduleBottomSheet = React.memo(() => {
                 <Animated.View style={textColorPreview} />
               </Pressable>
 
-              <ColorPicker value={textColor} onChange={changeTextColor} onComplete={textColorChanged} />
+              <ColorPicker
+                value={textColor}
+                usedColorList={usedTextColorList}
+                onChange={changeTextColor}
+                onComplete={textColorChanged}
+              />
             </Animated.View>
           </View>
         </Animated.View>
@@ -879,7 +904,7 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24,
     borderRadius: 12,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: '#f5f6f8'
   },
   dateOfWeekTitleContainer: {

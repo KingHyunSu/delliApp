@@ -316,3 +316,25 @@ export const updateScheduleDisableQuery = (params: UpdateScheduleDisable) => {
 
   return query
 }
+
+export const getBackgroundColorListQuery = () => {
+  const query = `
+    SELECT background_color as color
+    FROM SCHEDULE
+    GROUP BY background_color
+    LIMIT 20
+  `
+
+  return query
+}
+
+export const getTextColorListQuery = () => {
+  const query = `
+    SELECT text_color as color
+    FROM SCHEDULE
+    GROUP BY text_color
+    LIMIT 20
+  `
+
+  return query
+}

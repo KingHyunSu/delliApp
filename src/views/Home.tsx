@@ -65,18 +65,20 @@ import {HomeNavigationProps} from '@/types/navigation'
 const Home = ({navigation}: HomeNavigationProps) => {
   const safeAreaInsets = useSafeAreaInsets()
 
-  const setIsLunch = useSetRecoilState(isLunchState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
-  const scheduleDate = useRecoilValue(scheduleDateState)
-  const scheduleDayOfWeekIndex = useRecoilValue(scheduleDayOfWeekIndexState)
   const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const [backPressCount, setBackPressCount] = React.useState(0)
+
+  const scheduleDate = useRecoilValue(scheduleDateState)
+  const scheduleDayOfWeekIndex = useRecoilValue(scheduleDayOfWeekIndexState)
   const disableScheduleList = useRecoilValue(disableScheduleListState)
 
+  const setIsLunch = useSetRecoilState(isLunchState)
   const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
   const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
   const resetSchedule = useResetRecoilState(scheduleState)
@@ -84,8 +86,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
-
-  const [backPressCount, setBackPressCount] = React.useState(0)
 
   const {isError, refetch: refetchScheduleList} = useQuery({
     queryKey: ['scheduleList', scheduleDate],
