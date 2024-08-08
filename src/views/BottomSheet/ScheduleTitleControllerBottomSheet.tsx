@@ -5,6 +5,8 @@ import {BottomSheetBackdropProps, BottomSheetModal} from '@gorhom/bottom-sheet'
 import {useRecoilState} from 'recoil'
 import {showScheduleTitleControllerBottomSheetState} from '@/store/bottomSheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
+import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
+import BottomSheetHandler from '@/components/BottomSheetHandler'
 
 const ScheduleTitleControllerBottomSheet = () => {
   const [isShow, setIsShow] = useRecoilState(showScheduleTitleControllerBottomSheetState)
@@ -31,9 +33,10 @@ const ScheduleTitleControllerBottomSheet = () => {
     <BottomSheetModal
       name="ScheduleTitleControllerBottomSheet"
       ref={bottomSheetRef}
-      index={0}
-      snapPoints={[300]}
+      index={1}
+      snapPoints={[1, 300, 500]}
       backdropComponent={backdropComponent}
+      handleComponent={BottomSheetHandler}
       onDismiss={handleDismiss}>
       <View>
         <Text>회전</Text>
