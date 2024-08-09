@@ -20,10 +20,11 @@ const shadowCorners = {
 }
 
 interface Props extends BottomSheetHandleProps {
+  shadow?: boolean
   maxSnapIndex?: 1 | 2 | 3
 }
 
-const BottomSheetHandler = ({maxSnapIndex = 3, animatedIndex}: Props) => {
+const BottomSheetHandler = ({shadow = true, maxSnapIndex = 3, animatedIndex}: Props) => {
   const inputInterpolate = [-0.6, 0, 1, 2]
 
   const outputIndicatorTransformOriginY = useMemo(() => {
@@ -119,6 +120,7 @@ const BottomSheetHandler = ({maxSnapIndex = 3, animatedIndex}: Props) => {
 
   return (
     <Shadow
+      disabled={!shadow}
       startColor="#f0eff586"
       distance={10}
       sides={shadowSides}
