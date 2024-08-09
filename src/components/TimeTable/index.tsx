@@ -1,6 +1,6 @@
 import React from 'react'
 import {StyleSheet, View, Pressable} from 'react-native'
-import {Svg, G, Text, Circle} from 'react-native-svg'
+import {Svg, Text} from 'react-native-svg'
 
 import Background from './src/Background'
 import SchedulePie from './src/SchedulePie'
@@ -12,9 +12,7 @@ import EditSchedulePieController from './src/EditSchedulePieController'
 import {useRecoilState, useSetRecoilState, useRecoilValue} from 'recoil'
 import {timetableSizeState, timetablePositionXState, timetablePositionYState} from '@/store/system'
 import {scheduleState, disableScheduleListState, isInputModeState} from '@/store/schedule'
-import {showStyleBottomSheetState, showEditMenuBottomSheetState} from '@/store/bottomSheet'
-
-import PaletteIcon from '@/assets/icons/palette.svg'
+import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
 interface Props {
   data: Schedule[]
@@ -26,8 +24,7 @@ const TimeTable = ({data, isEdit}: Props) => {
   const timetablePositionY = useRecoilValue(timetablePositionYState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
-  const setIsInputMode = useSetRecoilState(isInputModeState)
-  const setIsShowStyleBottomSheet = useSetRecoilState(showStyleBottomSheetState)
+  const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
   const list = React.useMemo(() => {
@@ -52,11 +49,6 @@ const TimeTable = ({data, isEdit}: Props) => {
   const closeKeyboard = React.useCallback(() => {
     setIsInputMode(false)
   }, [setIsInputMode])
-
-  const showStyleBottomSheet = React.useCallback(() => {
-    closeKeyboard()
-    setIsShowStyleBottomSheet(true)
-  }, [closeKeyboard, setIsShowStyleBottomSheet])
 
   const clickBackground = React.useCallback(() => {
     closeKeyboard()
@@ -136,22 +128,22 @@ const TimeTable = ({data, isEdit}: Props) => {
       <Svg>
         <Background x={timetablePositionX} y={timetablePositionY} radius={radius} />
 
-        {list.length > 0 ? (
-          list.map((item, index) => {
-            return (
-              <SchedulePie
-                key={index}
-                data={item}
-                x={timetablePositionX}
-                y={timetablePositionY}
-                radius={radius}
-                isEdit={isEdit}
-                disableScheduleList={disableScheduleList}
-                onClick={openEditMenuBottomSheet}
-              />
-            )
-          })
-        ) : (
+        {list.map((item, index) => {
+          return (
+            <SchedulePie
+              key={index}
+              data={item}
+              x={timetablePositionX}
+              y={timetablePositionY}
+              radius={radius}
+              isEdit={isEdit}
+              disableScheduleList={disableScheduleList}
+              onClick={openEditMenuBottomSheet}
+            />
+          )
+        })}
+
+        {list.length === 0 && !isEdit && (
           <Text
             x={timetablePositionX}
             y={timetablePositionY}
@@ -180,11 +172,6 @@ const TimeTable = ({data, isEdit}: Props) => {
       {isEdit && (
         <Pressable style={styles.editContainer} onPress={clickBackground}>
           <Svg>
-            <G x={20} y={timetablePositionY + radius - 10}>
-              <PaletteIcon width={32} height={32} fill="#babfc5" />
-              <Circle cx={15} cy={15} r={18} fill={'transparent'} onPress={showStyleBottomSheet} />
-            </G>
-
             <EditSchedulePie
               data={schedule}
               x={timetablePositionX}
@@ -203,13 +190,15 @@ const TimeTable = ({data, isEdit}: Props) => {
             onChangeSchedule={changeSchedule}
           />
 
-          <EditSchedulePieController
-            data={schedule}
-            x={timetablePositionX}
-            y={timetablePositionY}
-            radius={radius}
-            onScheduleChanged={changeSchedule}
-          />
+          {!isInputMode && (
+            <EditSchedulePieController
+              data={schedule}
+              x={timetablePositionX}
+              y={timetablePositionY}
+              radius={radius}
+              onScheduleChanged={changeSchedule}
+            />
+          )}
         </Pressable>
       )}
     </View>

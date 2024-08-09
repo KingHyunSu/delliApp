@@ -1,16 +1,13 @@
 import React from 'react'
-import {Appearance, LayoutChangeEvent, StyleSheet, View, Pressable, Text} from 'react-native'
+import {StyleSheet, View} from 'react-native'
 
-import {Gesture, GestureDetector, BaseButton, TextInput} from 'react-native-gesture-handler'
-import Animated, {useSharedValue, useAnimatedStyle, runOnJS} from 'react-native-reanimated'
+import {Gesture, GestureDetector, TextInput} from 'react-native-gesture-handler'
+import Animated, {useSharedValue, useAnimatedStyle, runOnJS, withTiming} from 'react-native-reanimated'
 
 import {useRecoilState} from 'recoil'
 import {isInputModeState} from '@/store/schedule'
-import {polarToCartesian} from '../util'
 
-import TextRotationIcon1 from '@/assets/icons/text_rotation_none.svg'
-import TextRotationIcon2 from '@/assets/icons/text_rotation_angleup.svg'
-import TextRotationIcon3 from '@/assets/icons/text_rotation_down.svg'
+import RotateGuideIcon from '@/assets/icons/rotate_guide.svg'
 
 interface Props {
   data: Schedule
@@ -20,21 +17,21 @@ interface Props {
   onChangeSchedule: Function
 }
 const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Props) => {
-  const containerPadding = 50
+  const gestureHorizontalSafeArea = 70
+  const gestureVerticalSafeArea = 100
 
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
 
   const textInputRef = React.useRef<TextInput>(null)
 
-  const [containerWidth, setContainerWidth] = React.useState(0)
-  const [containerHeight, setContainerHeight] = React.useState(0)
   const [top, setTop] = React.useState(0)
   const [left, setLeft] = React.useState(0)
 
-  const containerX = useSharedValue(Math.round(centerX - containerPadding + (radius / 100) * data.title_x))
-  const containerY = useSharedValue(Math.round(centerY - containerPadding - (radius / 100) * data.title_y))
+  const containerX = useSharedValue(Math.round(centerX - gestureHorizontalSafeArea + (radius / 100) * data.title_x))
+  const containerY = useSharedValue(Math.round(centerY - gestureVerticalSafeArea - (radius / 100) * data.title_y))
   const containerRotate = useSharedValue(data.title_rotate)
-  const conatinerSavedRotate = useSharedValue(0)
+  const containerSavedRotate = useSharedValue(data.title_rotate)
+  const opacity = useSharedValue(0)
 
   React.useEffect(() => {
     if (isInputMode) {
@@ -42,7 +39,7 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     } else {
       textInputRef.current?.blur()
     }
-  }, [isInputMode, textInputRef.current])
+  }, [isInputMode, textInputRef])
 
   const changeSchedule = React.useCallback(
     (value: Object) => {
@@ -60,12 +57,12 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
 
   const handleFocus = React.useCallback(() => {
     setIsInputMode(true)
-  }, [])
+  }, [setIsInputMode])
 
   const setTitlePosition = React.useCallback(
     (x: number, y: number) => {
-      const xPercentage = Math.round(((x + containerPadding - centerX) / radius) * 100)
-      const yPercentage = Math.round((((y + containerPadding - centerY) * -1) / radius) * 100)
+      const xPercentage = Math.round(((x + gestureHorizontalSafeArea - centerX) / radius) * 100)
+      const yPercentage = Math.round((((y + gestureVerticalSafeArea - centerY) * -1) / radius) * 100)
 
       setLeft(x)
       setTop(y)
@@ -77,83 +74,13 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
 
   const setTitleRotate = React.useCallback(
     (rotate: number) => {
-      conatinerSavedRotate.value = rotate
-
       changeSchedule({title_rotate: rotate})
     },
-    [conatinerSavedRotate, changeSchedule]
+    [changeSchedule]
   )
-
-  const getTitleRotateByControlType = React.useCallback((type: string, startTime: number, endTime: number) => {
-    const centerAngle = (startTime + endTime) / 2
-
-    switch (type) {
-      case 'horizon':
-        return 0
-      case 'vertical':
-        return 90
-      case 'topRight':
-        let textRotate = 90 - centerAngle
-
-        if ((startTime > 180 && endTime > 180) || startTime > endTime) {
-          textRotate = 180 + textRotate
-        }
-
-        return textRotate * -1
-      default:
-        return 0
-    }
-  }, [])
-
-  const getTitleCenterPosition = React.useCallback(
-    (startTime: number, endTime: number) => {
-      let centerAngle = (startTime + endTime) / 2
-
-      if (startTime > endTime) {
-        centerAngle = (startTime + (endTime + 360)) / 2
-      }
-
-      return polarToCartesian(centerX - containerWidth / 2, centerY - containerHeight / 2, radius / 2, centerAngle)
-    },
-    [centerX, centerY, radius, containerWidth, containerHeight]
-  )
-
-  const handleTitleControl = React.useCallback(
-    (type: string) => () => {
-      const startTime = data.start_time * 0.25
-      const endTime = data.end_time * 0.25
-
-      const titleCenterPosition = getTitleCenterPosition(startTime, endTime)
-      const titleRotate = getTitleRotateByControlType(type, startTime, endTime)
-
-      containerX.value = titleCenterPosition.x
-      containerY.value = titleCenterPosition.y
-      containerRotate.value = titleRotate
-
-      setTitlePosition(titleCenterPosition.x, titleCenterPosition.y)
-      setTitleRotate(titleRotate)
-    },
-    [
-      data.start_time,
-      data.end_time,
-      containerX,
-      containerY,
-      containerRotate,
-      getTitleCenterPosition,
-      getTitleRotateByControlType,
-      setTitlePosition,
-      setTitleRotate
-    ]
-  )
-
-  const handleLayout = React.useCallback((e: LayoutChangeEvent) => {
-    const {width, height} = e.nativeEvent.layout
-
-    setContainerWidth(width)
-    setContainerHeight(height)
-  }, [])
 
   const moveGesture = Gesture.Pan()
+    .enabled(isInputMode as boolean)
     .enableTrackpadTwoFingerGesture(true)
     .onUpdate(e => {
       containerX.value = Math.round(left + e.translationX)
@@ -167,13 +94,15 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     })
 
   const rotateGesture = Gesture.Rotation()
+    .enabled(isInputMode as boolean)
     .onUpdate(e => {
-      containerRotate.value = conatinerSavedRotate.value + (e.rotation / Math.PI) * 180
+      containerRotate.value = containerSavedRotate.value + (e.rotation / Math.PI) * 180
     })
     .onEnd(e => {
-      const chagnedRotate = (e.rotation / Math.PI) * 180
+      const rotate = containerSavedRotate.value + (e.rotation / Math.PI) * 180
 
-      runOnJS(setTitleRotate)(chagnedRotate)
+      containerSavedRotate.value = rotate
+      runOnJS(setTitleRotate)(rotate)
     })
 
   const composeGesture = Gesture.Simultaneous(moveGesture, rotateGesture)
@@ -192,11 +121,21 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
   })
 
   const containerStyle = React.useMemo(() => {
-    return [positionStyle, rotateStyle, styles.conatiner, {padding: containerPadding}]
-  }, [positionStyle, rotateStyle, containerPadding])
+    return [
+      positionStyle,
+      rotateStyle,
+      styles.container,
+      {paddingVertical: gestureVerticalSafeArea, paddingHorizontal: gestureHorizontalSafeArea}
+    ]
+  }, [positionStyle, rotateStyle])
+
+  const overlayStyle = useAnimatedStyle(() => ({
+    ...styles.overlay,
+    opacity: opacity.value
+  }))
 
   const textStyle = React.useMemo(() => {
-    let color = '#c3c5cc'
+    let color = '#424242'
 
     if (data.title) {
       color = data.text_color
@@ -204,59 +143,35 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
     return [styles.text, {color}]
   }, [data.title, data.text_color])
 
-  const title = React.useMemo(() => {
-    if (data.title) {
-      return data.title
-    }
-
-    return '일정명을 입력해주세요'
-  }, [data.title])
-
-  const toolContainerStyle = React.useMemo(() => {
-    const systemColor = Appearance.getColorScheme()
-
-    let backgroundColor = '#D2D4D9'
-    let borderBottomColor = '#C0C2C6'
-
-    if (systemColor === 'dark') {
-      backgroundColor = '#6D6D6D'
-      borderBottomColor = '#757575'
-    }
-
-    return [toolStyles.container, {backgroundColor, borderBottomColor}]
-  }, [])
-
-  const toolItemStyle = React.useMemo(() => {
-    const systemColor = Appearance.getColorScheme()
-
-    let backgroundColor = '#ffffff'
-
-    if (systemColor === 'dark') {
-      backgroundColor = '#969696'
-    }
-
-    return [toolStyles.item, {backgroundColor}]
-  }, [])
-
-  const toolIconColor = React.useMemo(() => {
-    const systemColor = Appearance.getColorScheme()
-
-    if (systemColor === 'dark') {
-      return '#fcfcfc'
-    }
-
-    return '#000000'
-  }, [])
-
   React.useEffect(() => {
     setLeft(containerX.value)
     setTop(containerY.value)
   }, [])
 
+  React.useEffect(() => {
+    if (isInputMode) {
+      opacity.value = withTiming(1)
+    } else {
+      opacity.value = withTiming(0)
+    }
+  }, [isInputMode])
+
   return (
     <>
       <GestureDetector gesture={composeGesture}>
-        <Animated.View style={containerStyle} onLayout={handleLayout}>
+        <Animated.View style={containerStyle}>
+          <Animated.View style={overlayStyle}>
+            <View style={styles.overlayItem}>
+              <RotateGuideIcon fill="#ffffff" width={24} height={24} style={styles.rotateGuideIcon1} />
+              <RotateGuideIcon fill="#ffffff" width={24} height={24} style={styles.rotateGuideIcon2} />
+            </View>
+
+            <View style={[styles.overlayItem, styles.overlayItemRight]}>
+              <RotateGuideIcon fill="#ffffff" width={24} height={24} style={styles.rotateGuideIcon3} />
+              <RotateGuideIcon fill="#ffffff" width={24} height={24} style={styles.rotateGuideIcon4} />
+            </View>
+          </Animated.View>
+
           <TextInput
             ref={textInputRef}
             value={data.title}
@@ -269,18 +184,6 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
             placeholder="일정명을 입력해주세요"
             placeholderTextColor="#c3c5cc"
           />
-
-          {/*<View style={toolContainerStyle}>*/}
-          {/*  <Pressable style={toolItemStyle} onPress={handleTitleControl('horizon')}>*/}
-          {/*    <TextRotationIcon1 fill={toolIconColor} />*/}
-          {/*  </Pressable>*/}
-          {/*  <Pressable style={toolItemStyle} onPress={handleTitleControl('topRight')}>*/}
-          {/*    <TextRotationIcon2 fill={toolIconColor} />*/}
-          {/*  </Pressable>*/}
-          {/*  <Pressable style={toolItemStyle} onPress={handleTitleControl('vertical')}>*/}
-          {/*    <TextRotationIcon3 fill={toolIconColor} />*/}
-          {/*  </Pressable>*/}
-          {/*</View>*/}
         </Animated.View>
       </GestureDetector>
     </>
@@ -288,40 +191,49 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
 }
 
 const styles = StyleSheet.create({
-  conatiner: {
+  container: {
     position: 'absolute',
     textAlign: 'center',
     textAlignVertical: 'center'
   },
-  textWrapper: {
-    // minWidth: 40
+  overlay: {
+    flexDirection: 'row',
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    borderRadius: 20,
+    padding: 5,
+    backgroundColor: '#00000020'
+  },
+  overlayItem: {
+    flex: 1,
+    justifyContent: 'space-between'
+  },
+  overlayItemRight: {
+    alignItems: 'flex-end'
+  },
+  rotateGuideIcon1: {
+    transform: [{rotateZ: '-45deg'}]
+  },
+  rotateGuideIcon2: {
+    transform: [{rotateZ: '-135deg'}]
+  },
+  rotateGuideIcon3: {
+    transform: [{rotateZ: '45deg'}]
+  },
+  rotateGuideIcon4: {
+    transform: [{rotateZ: '135deg'}]
   },
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    paddingVertical: 0,
     padding: 0,
+    paddingTop: 0,
     minWidth: 150,
-    minHeight: 28,
-    textAlignVertical: 'top'
-  }
-})
-
-const toolStyles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    gap: 10,
-    borderBottomWidth: 1,
-    height: 52,
-    alignItems: 'center',
-    paddingHorizontal: 10
-  },
-  item: {
-    height: 38,
-    borderRadius: 8,
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
+    minHeight: 28
+    // textAlignVertical: 'top'
   }
 })
 

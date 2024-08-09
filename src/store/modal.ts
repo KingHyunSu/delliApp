@@ -14,3 +14,8 @@ export const showTimeWheelModalState = atom({
   key: 'showTimeWheelModalState',
   default: false
 })
+
+export const showColorModalState = atom({
+  key: 'showColorModalState',
+  default: false
+})

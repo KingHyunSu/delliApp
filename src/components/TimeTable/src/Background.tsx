@@ -7,8 +7,7 @@ interface Props {
   y: number
   radius: number
 }
-
-interface TimePosition {
+interface HourRingInfo {
   x: number
   y: number
   hour: number
@@ -16,10 +15,11 @@ interface TimePosition {
   dot: Boolean
 }
 const Background = ({x, y, radius}: Props) => {
-  const [hourPositionList, setHourPositionList] = React.useState<TimePosition[]>([])
+  const [hourRingInfoList, setHourRingInfoList] = React.useState<HourRingInfo[]>([])
 
   React.useEffect(() => {
     const list = []
+
     for (let i = 1; i <= 24; i++) {
       const angle = i * 60 * 0.25
 
@@ -32,20 +32,21 @@ const Background = ({x, y, radius}: Props) => {
       list.push({...cartesian, hour, angle, dot})
     }
 
-    setHourPositionList(list)
+    setHourRingInfoList(list)
   }, [x, y, radius])
 
   return (
     <G>
       <Circle cx={x} cy={y} r={radius} fill={'#f5f6f8'} fillOpacity={1} strokeWidth={0.4} stroke={'#f5f6f8'} />
-      {hourPositionList.map((hourPosition, index) => {
+
+      {hourRingInfoList.map((hourRingInfo, index) => {
         return (
-          <G key={index} x={hourPosition.x} y={hourPosition.y} rotation={hourPosition.angle}>
-            {hourPosition.dot ? (
+          <G key={index} x={hourRingInfo.x} y={hourRingInfo.y} rotation={hourRingInfo.angle}>
+            {hourRingInfo.dot ? (
               <Circle r={1} fill="#7c8698" />
             ) : (
               <Text textAnchor="middle" fontSize={12} fill="#7c8698" fontFamily="Pretendard-Regular">
-                {hourPosition.hour}
+                {hourRingInfo.hour}
               </Text>
             )}
           </G>

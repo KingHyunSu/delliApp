@@ -66,3 +66,7 @@ declare interface ExistSchedule {
   sat: string
   sun: string
 }
+
+declare interface UsedColor {
+  color: string
+}

@@ -15,11 +15,6 @@ export const showTimePickerBototmSheetState = atom({
   default: false
 })
 
-export const showStyleBottomSheetState = atom({
-  key: 'showStyleBottomSheetState',
-  default: false
-})
-
 export const showEditScheduleCheckBottomSheetState = atom({
   key: 'showEditScheduleCheckBottomSheetState',
   default: false

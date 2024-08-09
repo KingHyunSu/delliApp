@@ -135,7 +135,7 @@ export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
     AND
       start_date <= '${params.end_date}'
     AND
-      end_date > '${params.start_date}'
+      end_date >= '${params.start_date}'
   `
 
   if (params.schedule_id !== null) {
@@ -219,7 +219,7 @@ export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
   query += `
     )
   `
-  console.log('query', query)
+
   return query
 }
 
@@ -312,6 +312,28 @@ export const updateScheduleDisableQuery = (params: UpdateScheduleDisable) => {
       disable_date = (SELECT datetime('now', 'localtime'))
     WHERE
       schedule_id = ${params.schedule_id}
+  `
+
+  return query
+}
+
+export const getBackgroundColorListQuery = () => {
+  const query = `
+    SELECT background_color as color
+    FROM SCHEDULE
+    GROUP BY background_color
+    LIMIT 20
+  `
+
+  return query
+}
+
+export const getTextColorListQuery = () => {
+  const query = `
+    SELECT text_color as color
+    FROM SCHEDULE
+    GROUP BY text_color
+    LIMIT 20
   `
 
   return query
