@@ -24,7 +24,7 @@ const TimeTable = ({data, isEdit}: Props) => {
   const timetablePositionY = useRecoilValue(timetablePositionYState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
-  const setIsInputMode = useSetRecoilState(isInputModeState)
+  const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
   const list = React.useMemo(() => {
@@ -190,13 +190,15 @@ const TimeTable = ({data, isEdit}: Props) => {
             onChangeSchedule={changeSchedule}
           />
 
-          <EditSchedulePieController
-            data={schedule}
-            x={timetablePositionX}
-            y={timetablePositionY}
-            radius={radius}
-            onScheduleChanged={changeSchedule}
-          />
+          {!isInputMode && (
+            <EditSchedulePieController
+              data={schedule}
+              x={timetablePositionX}
+              y={timetablePositionY}
+              radius={radius}
+              onScheduleChanged={changeSchedule}
+            />
+          )}
         </Pressable>
       )}
     </View>
