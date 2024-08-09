@@ -10,13 +10,13 @@ import TimeWheelModal from '@/views/Modal/TimeWheelModal'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {editScheduleListSnapPointState, isEditState} from '@/store/system'
-import {scheduleState, isInputModeState} from '@/store/schedule'
+import {scheduleDateState, scheduleState, isInputModeState} from '@/store/schedule'
 import {showTimeWheelModalState, showColorModalState} from '@/store/modal'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
 import {RANGE_FLAG} from '@/utils/types'
-import {isAfter} from 'date-fns'
+import {format, isAfter} from 'date-fns'
 // import {getTime, startOfToday, setMinutes} from 'date-fns'
 // import notifee, {TimestampTrigger, TriggerType, RepeatFrequency} from '@notifee/react-native'
 
@@ -45,6 +45,7 @@ const EditScheduleBottomSheet = React.memo(() => {
 
   const editScheduleListSnapPoint = useRecoilValue(editScheduleListSnapPointState)
   const isEdit = useRecoilValue(isEditState)
+  const scheduleDate = useRecoilValue(scheduleDateState)
 
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setShowTimeWheelModal = useSetRecoilState(showTimeWheelModalState)
@@ -708,7 +709,11 @@ const EditScheduleBottomSheet = React.memo(() => {
               </View>
 
               <View style={styles.panelItemContents}>
-                <DatePicker value={schedule.start_date} onChange={changeStartDate} />
+                <DatePicker
+                  value={schedule.start_date}
+                  disableDate={format(scheduleDate, 'yyyy-MM-dd')}
+                  onChange={changeStartDate}
+                />
               </View>
             </Animated.View>
 
