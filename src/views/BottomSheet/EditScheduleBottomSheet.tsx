@@ -1,17 +1,17 @@
 import React from 'react'
 import {StyleSheet, ViewStyle, ScrollView, TextStyle, View, Text, Pressable, TextInput, Platform} from 'react-native'
 import Switch from '@/components/Swtich'
-import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet'
+import BottomSheet, {BottomSheetHandleProps, BottomSheetScrollView} from '@gorhom/bottom-sheet'
 
-import BottomSheetShadowHandler from '@/components/BottomSheetShadowHandler'
+import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ColorPicker from '@/components/ColorPicker'
 import DatePicker from '@/components/DatePicker'
+import TimeWheelModal from '@/views/Modal/TimeWheelModal'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {editScheduleListSnapPointState, isEditState} from '@/store/system'
 import {scheduleState, isInputModeState} from '@/store/schedule'
 import {showTimeWheelModalState, showColorModalState} from '@/store/modal'
-import {showScheduleTitleControllerBottomSheetState} from '@/store/bottomSheet'
 
 import Animated, {useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
@@ -23,10 +23,8 @@ import {isAfter} from 'date-fns'
 import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
-import TuneIcon from '@/assets/icons/tune.svg'
 
 import {DAY_OF_WEEK} from '@/types/common'
-import TimeWheelModal from '@/views/Modal/TimeWheelModal'
 
 import {scheduleRepository} from '@/repository'
 
@@ -51,7 +49,6 @@ const EditScheduleBottomSheet = React.memo(() => {
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setShowTimeWheelModal = useSetRecoilState(showTimeWheelModalState)
   const setShowColorModal = useSetRecoilState(showColorModalState)
-  const setShowScheduleTitleControllerBottomSheet = useSetRecoilState(showScheduleTitleControllerBottomSheetState)
 
   const [activeColorPanel, setActiveColorPanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
@@ -211,11 +208,6 @@ const EditScheduleBottomSheet = React.memo(() => {
     }
   }, [])
 
-  const showScheduleTitleControllerBottomSheet = React.useCallback(() => {
-    bottomSheetRef.current?.collapse()
-    setShowScheduleTitleControllerBottomSheet(true)
-  }, [])
-
   const handleColorPanel = React.useCallback(() => {
     setActiveColorPanel(!activeColorPanel)
     setActiveDatePanel(false)
@@ -263,6 +255,7 @@ const EditScheduleBottomSheet = React.memo(() => {
 
     setDateFlag(RANGE_FLAG.START)
   }, [schedule.schedule_id])
+
   const handleEndDatePanel = React.useCallback(() => {
     setDateFlag(RANGE_FLAG.END)
   }, [])
@@ -512,6 +505,17 @@ const EditScheduleBottomSheet = React.memo(() => {
     [changeDate]
   )
 
+  // components
+  const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
+    return (
+      <BottomSheetHandler
+        maxSnapIndex={2}
+        animatedIndex={props.animatedIndex}
+        animatedPosition={props.animatedPosition}
+      />
+    )
+  }, [])
+
   React.useEffect(() => {
     const getColorList = async () => {
       const backgroundColorList = await scheduleRepository.getBackgroundColorList()
@@ -613,23 +617,17 @@ const EditScheduleBottomSheet = React.memo(() => {
       ref={bottomSheetRef}
       index={-1}
       snapPoints={editScheduleListSnapPoint}
-      handleComponent={BottomSheetShadowHandler}
+      handleComponent={bottomSheetHandler}
       onChange={handleBottomSheetChanged}>
       <BottomSheetScrollView ref={bottomSheetScrollViewRef} contentContainerStyle={styles.container}>
         {/* 일정명 */}
-        <View style={styles.titleBox}>
-          <Pressable style={styles.titleButton} onPress={focusTitleInput}>
-            {schedule.title ? (
-              <Text style={styles.titleText}>{schedule.title}</Text>
-            ) : (
-              <Text style={titleTextStyle}>일정명을 입력해주세요</Text>
-            )}
-          </Pressable>
-
-          <Pressable onPress={showScheduleTitleControllerBottomSheet}>
-            <TuneIcon fill="#424242" />
-          </Pressable>
-        </View>
+        <Pressable style={styles.titleButton} onPress={focusTitleInput}>
+          {schedule.title ? (
+            <Text style={styles.titleText}>{schedule.title}</Text>
+          ) : (
+            <Text style={titleTextStyle}>일정명을 입력해주세요</Text>
+          )}
+        </Pressable>
 
         {/* 색상 */}
         <Animated.View style={colorPanelContainerStyle}>
@@ -828,11 +826,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#eeeded'
   },
   titleButton: {
-    flex: 1
-  },
-  titleTuneButton: {
-    height: '100%',
-    justifyContent: 'flex-start'
+    paddingVertical: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eeeded'
   },
   titleText: {
     fontFamily: 'Pretendard-SemiBold',
@@ -873,7 +869,7 @@ const styles = StyleSheet.create({
   },
   panelHeaderTitle: {
     fontSize: 16,
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: 'Pretendard-Medium',
     color: '#424242'
   },
   panelItemContainer: {

@@ -1,6 +1,5 @@
 import {atom, selector} from 'recoil'
 import {Platform} from 'react-native'
-import {getStatusBarHeight} from 'react-native-status-bar-height'
 
 export const loginState = atom({
   key: 'loginState',
