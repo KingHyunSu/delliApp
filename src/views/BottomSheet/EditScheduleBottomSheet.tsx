@@ -55,7 +55,7 @@ const EditScheduleBottomSheet = React.memo(() => {
   const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = React.useState(false)
   const [activeAlarmPanel, setActiveAlarmPanel] = React.useState(false)
   const [colorFlag, setColorFlag] = React.useState<'background' | 'text'>('background')
-  const [dateFlag, setDateFlag] = React.useState<RANGE_FLAG>(RANGE_FLAG.START)
+  const [dateFlag, setDateFlag] = React.useState<RANGE_FLAG | null>(null)
 
   // const [alarmWheelIndex, setAlarmWheelIndex] = React.useState(1)
 
@@ -192,13 +192,8 @@ const EditScheduleBottomSheet = React.memo(() => {
 
   const closeAllPanel = () => {
     setActiveColorPanel(false)
-    setColorFlag('background')
-
     setActiveDatePanel(false)
-    setDateFlag(RANGE_FLAG.START)
-
     setActiveDayOfWeekPanel(false)
-
     setActiveAlarmPanel(false)
   }
 
@@ -209,6 +204,8 @@ const EditScheduleBottomSheet = React.memo(() => {
   }, [])
 
   const handleColorPanel = React.useCallback(() => {
+    setColorFlag('background')
+
     setActiveColorPanel(!activeColorPanel)
     setActiveDatePanel(false)
     setActiveDayOfWeekPanel(false)
@@ -228,11 +225,17 @@ const EditScheduleBottomSheet = React.memo(() => {
   }, [setShowTimeWheelModal])
 
   const handleDatePanel = React.useCallback(() => {
+    if (schedule.schedule_id) {
+      setDateFlag(RANGE_FLAG.END)
+    } else {
+      setDateFlag(RANGE_FLAG.START)
+    }
+
     setActiveColorPanel(false)
     setActiveDayOfWeekPanel(false)
     setActiveDatePanel(!activeDatePanel)
     setActiveAlarmPanel(false)
-  }, [activeDatePanel])
+  }, [schedule.schedule_id, activeDatePanel])
 
   const handleDayOfWeekPanel = React.useCallback(() => {
     setActiveColorPanel(false)
@@ -579,12 +582,6 @@ const EditScheduleBottomSheet = React.memo(() => {
       alarmPanelHeight.value = withTiming(defaultPanelHeight)
     }
   }, [activeColorPanel, activeDatePanel, activeDayOfWeekPanel, activeAlarmPanel])
-
-  React.useEffect(() => {
-    if (schedule.schedule_id) {
-      setDateFlag(RANGE_FLAG.END)
-    }
-  }, [schedule.schedule_id])
 
   React.useEffect(() => {
     setShowColorModal(false)
