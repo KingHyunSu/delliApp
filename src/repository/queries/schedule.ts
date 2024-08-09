@@ -135,7 +135,7 @@ export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
     AND
       start_date <= '${params.end_date}'
     AND
-      end_date > '${params.start_date}'
+      end_date >= '${params.start_date}'
   `
 
   if (params.schedule_id !== null) {
@@ -219,7 +219,7 @@ export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
   query += `
     )
   `
-  console.log('query', query)
+
   return query
 }
 

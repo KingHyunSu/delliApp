@@ -15,7 +15,7 @@ import {
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import {useQuery, useMutation} from '@tanstack/react-query'
-import {format, addDays, getDay} from 'date-fns'
+import {format} from 'date-fns'
 
 // components
 import Loading from '@/components/Loading'
@@ -42,7 +42,6 @@ import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} 
 import {safeAreaInsetsState, isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
 import {
   scheduleDateState,
-  scheduleDayOfWeekIndexState,
   scheduleState,
   scheduleListState,
   disableScheduleListState,
@@ -74,7 +73,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const [backPressCount, setBackPressCount] = React.useState(0)
 
   const scheduleDate = useRecoilValue(scheduleDateState)
-  const scheduleDayOfWeekIndex = useRecoilValue(scheduleDayOfWeekIndexState)
   const disableScheduleList = useRecoilValue(disableScheduleListState)
 
   const setIsLunch = useSetRecoilState(isLunchState)
@@ -132,31 +130,6 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
   const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
     mutationFn: async () => {
-      let endDate = schedule.end_date
-
-      if (schedule.end_date !== '9999-12-31') {
-        let lastActiveDayOfWeekIndex = 0
-
-        const activeDayOfWeekList = [
-          schedule.mon,
-          schedule.tue,
-          schedule.wed,
-          schedule.thu,
-          schedule.fri,
-          schedule.sat,
-          schedule.sun
-        ]
-
-        activeDayOfWeekList.forEach((item, index) => {
-          if (item === '1') {
-            lastActiveDayOfWeekIndex = index
-          }
-        })
-
-        const addDay = lastActiveDayOfWeekIndex - scheduleDayOfWeekIndex
-        endDate = format(addDays(new Date(schedule.end_date), addDay), 'yyyy-MM-dd')
-      }
-
       const params = {
         schedule_id: schedule.schedule_id,
         start_time: schedule.start_time,
@@ -169,7 +142,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
         sat: schedule.sat,
         sun: schedule.sun,
         start_date: schedule.start_date,
-        end_date: endDate
+        end_date: schedule.end_date
       }
 
       return await scheduleRepository.getExistScheduleList(params)
