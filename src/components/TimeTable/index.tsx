@@ -128,22 +128,22 @@ const TimeTable = ({data, isEdit}: Props) => {
       <Svg>
         <Background x={timetablePositionX} y={timetablePositionY} radius={radius} />
 
-        {list.length > 0 ? (
-          list.map((item, index) => {
-            return (
-              <SchedulePie
-                key={index}
-                data={item}
-                x={timetablePositionX}
-                y={timetablePositionY}
-                radius={radius}
-                isEdit={isEdit}
-                disableScheduleList={disableScheduleList}
-                onClick={openEditMenuBottomSheet}
-              />
-            )
-          })
-        ) : (
+        {list.map((item, index) => {
+          return (
+            <SchedulePie
+              key={index}
+              data={item}
+              x={timetablePositionX}
+              y={timetablePositionY}
+              radius={radius}
+              isEdit={isEdit}
+              disableScheduleList={disableScheduleList}
+              onClick={openEditMenuBottomSheet}
+            />
+          )
+        })}
+
+        {list.length === 0 && !isEdit && (
           <Text
             x={timetablePositionX}
             y={timetablePositionY}
