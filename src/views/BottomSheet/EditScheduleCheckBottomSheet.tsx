@@ -1,7 +1,14 @@
-import React, {useCallback} from 'react'
-import {Platform, StyleSheet, View, Pressable, Text} from 'react-native'
-import {BottomSheetModal, BottomSheetScrollView, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
+import React from 'react'
+import {Platform, StyleSheet, View, Pressable, Text, Image} from 'react-native'
+import {
+  BottomSheetModal,
+  BottomSheetFlatList,
+  BottomSheetBackdropProps,
+  BottomSheetHandleProps
+} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
+import BottomSheetHandler from '@/components/BottomSheetHandler'
+import {Shadow} from 'react-native-shadow-2'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
@@ -13,9 +20,83 @@ import {useMutation} from '@tanstack/react-query'
 import {getTimeOfMinute} from '@/utils/helper'
 import {scheduleRepository} from '@/repository'
 
+import CheckCircleIcon from '@/assets/icons/check_circle.svg'
+
 interface Props {
   refetchScheduleList: Function
 }
+interface ItemProps {
+  item: ExistSchedule
+}
+
+const shadowOffset: [number, number] = [0, 1]
+
+const Item = ({item}: ItemProps) => {
+  const getTimeText = (time: number) => {
+    const timeInfo = getTimeOfMinute(time)
+
+    return `${timeInfo.meridiem} ${timeInfo.hour}시 ${timeInfo.minute}분`
+  }
+
+  const getDayOfWeekTextStyle = (dayOfweek: string) => {
+    return [itemStyles.dayOfWeekText, dayOfweek === '1' && itemStyles.activeDayOfWeekText]
+  }
+
+  return (
+    <View style={itemStyles.container}>
+      <View style={itemStyles.infoWrapper}>
+        <CheckCircleIcon width={14} height={14} fill="#ffb86c" />
+        <Text style={itemStyles.infoText}>{/*변경전*/}수정됨</Text>
+      </View>
+
+      <Shadow startColor="#00000010" distance={5} offset={shadowOffset} stretch>
+        <View style={itemStyles.item}>
+          <Text style={itemStyles.titleText}>{item.title}</Text>
+
+          {/* TODO 변경된 종료일 강조 */}
+          <View style={itemStyles.contentsSection}>
+            <Image
+              source={require('@/assets/icons/calendar.png')}
+              width={16}
+              height={16}
+              style={{width: 16, height: 16}}
+            />
+            <Text style={itemStyles.contentsText}>
+              {`${item.start_date} ~ ${item.end_date === '9999-12-31' ? '없음' : item.end_date}`}
+            </Text>
+          </View>
+
+          <View style={itemStyles.contentsSection}>
+            <Image source={require('@/assets/icons/time.png')} width={16} height={16} style={{width: 16, height: 16}} />
+            <Text style={itemStyles.contentsText}>
+              {`${getTimeText(item.start_time)} ~ ${getTimeText(item.end_time)}`}
+            </Text>
+          </View>
+
+          <View style={itemStyles.dayOfWeekContainer}>
+            <Text style={getDayOfWeekTextStyle(item.mon)}>월</Text>
+            <Text style={getDayOfWeekTextStyle(item.tue)}>화</Text>
+            <Text style={getDayOfWeekTextStyle(item.wed)}>수</Text>
+            <Text style={getDayOfWeekTextStyle(item.thu)}>목</Text>
+            <Text style={getDayOfWeekTextStyle(item.fri)}>금</Text>
+            <Text style={getDayOfWeekTextStyle(item.sat)}>토</Text>
+            <Text style={getDayOfWeekTextStyle(item.sun)}>일</Text>
+          </View>
+        </View>
+      </Shadow>
+
+      <View style={itemStyles.buttonWrapper}>
+        <Pressable style={cancelButton}>
+          <Text style={cancelButtonText}>삭제</Text>
+        </Pressable>
+        <Pressable style={editButton}>
+          <Text style={itemStyles.buttonText}>수정</Text>
+        </Pressable>
+      </View>
+    </View>
+  )
+}
+
 const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
   const [showEditScheduleCheckBottomSheet, setShowEditScheduleCheckBottomSheet] = useRecoilState(
     showEditScheduleCheckBottomSheetState
@@ -32,60 +113,87 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
   }, [])
 
   const list = React.useMemo(() => {
-    let targetList = disableScheduleList
+    const mergeList = [...disableScheduleList, ...existScheduleList]
 
-    if (existScheduleList.length > 0) {
-      targetList = existScheduleList
-    }
-
-    return targetList
+    return mergeList.reduce<ExistSchedule[]>((acc, cur) => {
+      if (acc.findIndex(item => item.schedule_id === cur.schedule_id) === -1) {
+        acc.push(cur)
+      }
+      return acc
+    }, [])
   }, [disableScheduleList, existScheduleList])
 
-  const backdropComponent = React.useCallback((props: BottomSheetBackdropProps) => {
-    return <BottomSheetBackdrop props={props} />
-  }, [])
-
-  const dismissEditScheduleCheckBottomSheet = React.useCallback(() => {
+  const handleDismiss = React.useCallback(() => {
     setShowEditScheduleCheckBottomSheet(false)
   }, [setShowEditScheduleCheckBottomSheet])
 
-  const getTimeText = React.useCallback((time: number) => {
-    const timeInfo = getTimeOfMinute(time)
-
-    return `${timeInfo.meridiem} ${timeInfo.hour}시 ${timeInfo.minute}분`
-  }, [])
-
-  const getDayOfWeekTextStyle = React.useCallback((dayOfweek: string) => {
-    return [styles.dayOfWeekText, dayOfweek === '1' && styles.activeDayOfWeekText]
-  }, [])
-
   const {mutate: setScheduleMutate} = useMutation({
     mutationFn: async () => {
-      const disableScheduleIdList = list.map(item => {
-        return {schedule_id: item.schedule_id}
-      })
-
-      if (schedule.schedule_id) {
-        disableScheduleIdList.push({schedule_id: schedule.schedule_id})
-      }
-
-      const params = {
-        schedule,
-        disableScheduleIdList
-      }
-
-      await scheduleRepository.setSchedule(params)
+      // const disableScheduleIdList = list.map(item => {
+      //   return {schedule_id: item.schedule_id}
+      // })
+      //
+      // if (schedule.schedule_id) {
+      //   disableScheduleIdList.push({schedule_id: schedule.schedule_id})
+      // }
+      //
+      // const params = {
+      //   schedule,
+      //   disableScheduleIdList
+      // }
+      //
+      // await scheduleRepository.setSchedule(params)
     },
     onSuccess: async () => {
       await refetchScheduleList()
-      dismissEditScheduleCheckBottomSheet()
+      handleDismiss()
       setIsEdit(false)
     }
   })
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = React.useCallback(() => {
     setScheduleMutate()
   }, [setScheduleMutate])
+
+  const getKeyExtractor = React.useCallback((item: ExistSchedule) => {
+    return String(item.schedule_id)
+  }, [])
+
+  // components
+  const bottomSheetBackdrop = React.useCallback((props: BottomSheetBackdropProps) => {
+    return <BottomSheetBackdrop props={props} />
+  }, [])
+
+  const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
+    return (
+      <BottomSheetHandler
+        shadow={false}
+        maxSnapIndex={1}
+        animatedIndex={props.animatedIndex}
+        animatedPosition={props.animatedPosition}
+      />
+    )
+  }, [])
+
+  const header = React.useCallback(() => {
+    return (
+      <View style={headerStyles.container}>
+        <Text style={headerStyles.titleText}>겹치는 일정이 있어요</Text>
+        <View style={headerStyles.subTitleWrapper}>
+          <Text style={headerStyles.scheduleTitleText}>"{schedule.title}" </Text>
+          <Text style={headerStyles.subTitleText}>일정과 겹치는 일정을 변경해야 해요</Text>
+        </View>
+      </View>
+    )
+  }, [schedule.title])
+
+  const footer = React.useCallback(() => {
+    return (
+      <Pressable style={footerStyles.button}>
+        <Text style={footerStyles.buttonText}>등록하기</Text>
+      </Pressable>
+    )
+  }, [])
 
   React.useEffect(() => {
     if (showEditScheduleCheckBottomSheet) {
@@ -99,117 +207,68 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
     <BottomSheetModal
       name="editScheduleCheck"
       ref={editScheduleCheckBottomSheet}
-      backdropComponent={backdropComponent}
+      backdropComponent={bottomSheetBackdrop}
+      handleComponent={bottomSheetHandler}
       index={0}
       snapPoints={snapPoints}
-      onDismiss={dismissEditScheduleCheckBottomSheet}>
-      <BottomSheetScrollView>
-        <View style={styles.container}>
-          <Text style={styles.title}>겹치는 일정이 있어요</Text>
-          {/* <Text style={styles.subTitle}>{`겹치는 일정들은 삭제되며,\n삭제된 일정은 "설정 > 휴지통"에 보관됩니다`}</Text> */}
-          <Text style={styles.subTitle}>{`등록시 겹치는 일정들은 삭제됩니다`}</Text>
-
-          <View>
-            {list.map(item => {
-              return (
-                <View key={item.schedule_id} style={styles.section}>
-                  <View style={timeStyles.container}>
-                    <Text style={timeStyles.text}>
-                      {`${getTimeText(item.start_time)} ~ ${getTimeText(item.end_time)}`}
-                    </Text>
-                    <View style={timeStyles.line} />
-                  </View>
-
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>{item.title}</Text>
-
-                    {/* TODO 변경된 종료일 강조 */}
-                    <Text style={styles.dateText}>
-                      {`${item.start_date} ~ ${item.end_date === '9999-12-31' ? '없음' : item.end_date}`}
-                    </Text>
-
-                    <View style={styles.dayOfWeekContainer}>
-                      <Text style={getDayOfWeekTextStyle(item.mon)}>월</Text>
-                      <Text style={getDayOfWeekTextStyle(item.tue)}>화</Text>
-                      <Text style={getDayOfWeekTextStyle(item.wed)}>수</Text>
-                      <Text style={getDayOfWeekTextStyle(item.thu)}>목</Text>
-                      <Text style={getDayOfWeekTextStyle(item.fri)}>금</Text>
-                      <Text style={getDayOfWeekTextStyle(item.sat)}>토</Text>
-                      <Text style={getDayOfWeekTextStyle(item.sun)}>일</Text>
-                    </View>
-                  </View>
-                </View>
-              )
-            })}
-          </View>
-        </View>
-      </BottomSheetScrollView>
-
-      <Pressable style={styles.submitBtn} onPress={handleSubmit}>
-        <Text style={styles.submitText}>무시하고 등록하기</Text>
-      </Pressable>
+      onDismiss={handleDismiss}>
+      <BottomSheetFlatList
+        data={list}
+        keyExtractor={getKeyExtractor}
+        renderItem={Item}
+        ListHeaderComponent={header}
+        ListFooterComponent={footer}
+        contentContainerStyle={styles.container}
+        ListFooterComponentStyle={footerStyles.container}
+      />
     </BottomSheetModal>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
+    flexGrow: 1,
+    backgroundColor: '#f9f9f9'
+  }
+})
+
+const headerStyles = StyleSheet.create({
+  container: {
     backgroundColor: '#fff',
     paddingHorizontal: 16,
-    paddingVertical: 20
+    paddingTop: 15,
+    paddingBottom: 20
   },
-  title: {
+  titleText: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 24,
     color: '#424242',
-    paddingTop: 20,
     marginBottom: 5
   },
-  subTitle: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 16,
-    color: '#7c8698',
-    marginBottom: 40
+  subTitleWrapper: {
+    flexDirection: 'row'
   },
-  section: {
-    marginBottom: 15,
-    gap: 15
-  },
-  item: {
-    padding: 16,
-    borderRadius: 10,
-    backgroundColor: '#f9f9f9',
-    gap: 10
-  },
-  itemTitle: {
+  scheduleTitleText: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#424242'
   },
-
-  dateText: {
+  subTitleText: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
-    color: '#424242'
-  },
+    fontSize: 16,
+    color: '#7c8698'
+  }
+})
 
-  dayOfWeekContainer: {
-    flexDirection: 'row',
-    gap: 3
+const footerStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    marginVertical: 20,
+    paddingHorizontal: 16
   },
-  dayOfWeekText: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 11,
-    color: '#babfc5'
-  },
-  activeDayOfWeekText: {
-    color: '#1E90FF'
-  },
-
-  submitBtn: {
+  button: {
     height: 48,
-    marginHorizontal: 16,
-    marginBottom: 40,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
@@ -223,34 +282,90 @@ const styles = StyleSheet.create({
         shadowRadius: 2
       },
       android: {
-        elevation: 3
+        elevation: 2
       }
     })
   },
-  submitText: {
-    fontFamily: 'Pretendard-Bold',
+  buttonText: {
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 18,
     color: '#fff'
   }
 })
 
-const timeStyles = StyleSheet.create({
+const itemStyles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignContent: 'space-between',
-    alignItems: 'center',
-    gap: 16
+    marginTop: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+    gap: 15,
+    backgroundColor: '#fff'
   },
-  text: {
+  infoWrapper: {
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center'
+  },
+  infoText: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 14,
+    color: '#ffb86c'
+  },
+  item: {
+    gap: 10,
+    padding: 16,
+    backgroundColor: '#fff',
+    borderRadius: 10
+  },
+  titleText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 16,
     color: '#424242'
   },
-  line: {
-    height: 1,
+  contentsSection: {
     flex: 1,
-    backgroundColor: '#eeeded'
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center'
+  },
+  contentsText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 12,
+    color: '#424242'
+  },
+  dayOfWeekContainer: {
+    flexDirection: 'row',
+    gap: 3
+  },
+  dayOfWeekText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 11,
+    color: '#babfc5'
+  },
+  activeDayOfWeekText: {
+    color: '#1E90FF'
+  },
+  buttonWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: 10
+  },
+  button: {
+    flex: 1,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 7
+  },
+  buttonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 14,
+    color: '#fff'
   }
 })
+
+const cancelButton = StyleSheet.compose(itemStyles.button, {backgroundColor: '#ff4b82'})
+const cancelButtonText = StyleSheet.compose(itemStyles.buttonText, {color: '#ffffff'})
+const editButton = StyleSheet.compose(itemStyles.button, {backgroundColor: '#ffb86c'})
 
 export default EditScheduleCheckBottomSheet
