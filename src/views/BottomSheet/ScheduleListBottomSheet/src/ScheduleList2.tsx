@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, View, Text, ListRenderItem} from 'react-native'
+import {StyleSheet, View, Text, ListRenderItem, Pressable} from 'react-native'
 import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetFlatListMethods,
@@ -68,12 +68,12 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
   }
 
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      index={0}
-      snapPoints={scheduleListSnapPoint}
-      backgroundStyle={{backgroundColor: '#fff', borderTopLeftRadius: 30, borderTopRightRadius: 30}}
-      handleComponent={bottomSheetHandler}>
+    <BottomSheet ref={bottomSheetRef} index={0} snapPoints={scheduleListSnapPoint} handleComponent={bottomSheetHandler}>
+      <View>
+        <Pressable>
+          <Text>대기</Text>
+        </Pressable>
+      </View>
       {data && data.length > 0 ? (
         <BottomSheetFlatList
           ref={bottomSheetFlatListRef}

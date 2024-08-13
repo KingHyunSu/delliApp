@@ -200,6 +200,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
   }, [activeSubmit])
 
   const handleSubmit = React.useCallback(async () => {
+    // TODO 겹치는 일정 제거 - 2023.08.12
     const existScheduleList = await getExistScheduleListMutateAsync()
 
     setExistScheduleList(existScheduleList)
@@ -211,8 +212,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
 
     setScheduleMutate()
   }, [
-    getExistScheduleListMutateAsync,
     setScheduleMutate,
+    getExistScheduleListMutateAsync,
     setExistScheduleList,
     setShowEditScheduleCheckBottomSheet,
     disableScheduleList.length
