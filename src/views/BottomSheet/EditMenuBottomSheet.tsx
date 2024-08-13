@@ -46,9 +46,9 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
     }
   }, [schedule.schedule_id, changeScheduleTodo, setShowEditTodoModalState])
 
-  const updateScheduleDisableMutation = useMutation({
+  const updateScheduleDeletedMutation = useMutation({
     mutationFn: async (data: ScheduleDisableReqeust) => {
-      await scheduleRepository.updateScheduleDisable(data)
+      await scheduleRepository.updateScheduleDeleted(data)
     },
     onSuccess: async () => {
       await refetchScheduleList()
@@ -74,13 +74,13 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
               schedule_id: schedule.schedule_id
             }
 
-            updateScheduleDisableMutation.mutate(params)
+            updateScheduleDeletedMutation.mutate(params)
           }
         },
         style: 'destructive'
       }
     ])
-  }, [schedule.title, schedule.schedule_id, updateScheduleDisableMutation])
+  }, [schedule.title, schedule.schedule_id, updateScheduleDeletedMutation])
 
   const openEditScheduleBottomSheet = React.useCallback(() => {
     setShowEditMenuBottomSheet(false)

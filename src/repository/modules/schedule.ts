@@ -1,7 +1,12 @@
-import {Transaction} from 'react-native-sqlite-storage'
 import {openDatabase} from '../utils/helper'
 import * as scheduleQueries from '../queries/schedule'
-import {GetScheduleList, GetExistScheduleList, SetSchedule, UpdateScheduleDisable} from '../types/schedule'
+import {
+  GetScheduleList,
+  GetExistScheduleList,
+  SetSchedule,
+  UpdateScheduleDisable,
+  UpdateScheduleDeleted
+} from '../types/schedule'
 
 export const getScheduleList = async (params: GetScheduleList) => {
   const query = scheduleQueries.getScheduleListQuery(params)
@@ -29,12 +34,6 @@ export const setSchedule = async (params: SetSchedule) => {
     tx.executeSql(query, undefined, (tx2, response) => {
       insertId = response.insertId
     })
-
-    if (params.disableScheduleIdList && params.disableScheduleIdList.length > 0) {
-      params.disableScheduleIdList?.forEach(item => {
-        updateScheduleDisable(item, tx)
-      })
-    }
   })
 
   return insertId
@@ -47,16 +46,18 @@ export const updateSchedule = async (params: SetSchedule) => {
   await db.executeSql(query)
 }
 
-export const updateScheduleDisable = async (params: UpdateScheduleDisable, tx?: Transaction) => {
+export const updateScheduleDisable = async (params: UpdateScheduleDisable) => {
   const query = scheduleQueries.updateScheduleDisableQuery(params)
+  const db = await openDatabase()
 
-  if (tx) {
-    tx.executeSql(query)
-  } else {
-    const db = await openDatabase()
+  await db.executeSql(query)
+}
 
-    await db.executeSql(query)
-  }
+export const updateScheduleDeleted = async (params: UpdateScheduleDeleted) => {
+  const query = scheduleQueries.updateScheduleDeletedQuery(params)
+  const db = await openDatabase()
+
+  await db.executeSql(query)
 }
 
 export const getBackgroundColorList = async () => {
