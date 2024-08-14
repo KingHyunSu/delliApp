@@ -6,6 +6,7 @@ import {
   BottomSheetBackdropProps,
   BottomSheetHandleProps
 } from '@gorhom/bottom-sheet'
+import {trigger} from 'react-native-haptic-feedback'
 
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
@@ -13,43 +14,86 @@ import ScheduleItem from '@/components/ScheduleItem'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
-import {disableScheduleListState, existScheduleListState, scheduleState} from '@/store/schedule'
+import {disableScheduleListState, existScheduleListState} from '@/store/schedule'
 import {isEditState, safeAreaInsetsState} from '@/store/system'
 
 import {useMutation} from '@tanstack/react-query'
 
+import {UpdateScheduleDeleted} from '@/repository/types/schedule'
 import DeleteIcon from '@/assets/icons/trash.svg'
+import {scheduleRepository} from '@/repository'
 
 interface Props {
   refetchScheduleList: Function
 }
 interface ItemProps {
-  item: ExistSchedule
-  onDelete: () => void
+  schedule: ExistSchedule
+  deletedScheduleIdList: UpdateScheduleDeleted[]
+  onDelete: (schedule: ExistSchedule) => void
+  onCancelDeleted: (schedule: ExistSchedule) => void
 }
 
-const Item = ({item, onDelete}: ItemProps) => {
+const Item = ({schedule, deletedScheduleIdList, onDelete, onCancelDeleted}: ItemProps) => {
+  const isDeleted = React.useMemo(() => {
+    return deletedScheduleIdList.findIndex(sItem => sItem.schedule_id === schedule.schedule_id) !== -1
+  }, [schedule.schedule_id, deletedScheduleIdList])
+
+  const handleDeleted = React.useCallback(() => {
+    if (isDeleted) {
+      onCancelDeleted(schedule)
+    } else {
+      onDelete(schedule)
+    }
+  }, [isDeleted, onDelete, onCancelDeleted, schedule])
+
+  // components
+  const StateBox = React.useMemo(() => {
+    if (isDeleted) {
+      return (
+        <>
+          <View style={deleteIconWrapper}>
+            <DeleteIcon width={12} height={12} fill="#fff" />
+          </View>
+          <Text style={deleteText}>삭제 예정</Text>
+        </>
+      )
+    }
+
+    return (
+      <>
+        <View style={disabledIconWrapper}>
+          <View style={itemStyles.disabledIcon} />
+        </View>
+        <Text style={disabledText}>비활성화 예정</Text>
+      </>
+    )
+  }, [isDeleted])
+
+  const ChangeStateButton = React.useMemo(() => {
+    if (isDeleted) {
+      return (
+        <Pressable style={itemStyles.button} onPress={handleDeleted}>
+          <Text style={disabledButtonText}>비활성화</Text>
+        </Pressable>
+      )
+    }
+
+    return (
+      <Pressable style={itemStyles.button} onPress={handleDeleted}>
+        <Text style={deleteButtonText}>삭제하기</Text>
+      </Pressable>
+    )
+  }, [isDeleted, handleDeleted])
+
   return (
     <View style={itemStyles.container}>
       <View style={itemStyles.header}>
-        <View style={itemStyles.infoWrapper}>
-          <View style={disabledIconWrapper}>
-            <View style={itemStyles.disabledIcon} />
-          </View>
-          <Text style={disabledText}>비활성화</Text>
-          {/*<View style={deleteIconWrapper}>*/}
-          {/*  <DeleteIcon width={12} height={12} fill="#fff" />*/}
-          {/*</View>*/}
-          {/*<Text style={deleteText}>삭제</Text>*/}
-          {/*<CheckCircleIcon width={14} height={14} fill="#9aa0a4" />*/}
-        </View>
+        <View style={itemStyles.infoWrapper}>{StateBox}</View>
 
-        <Pressable style={itemStyles.deleteButton} onPress={onDelete}>
-          <Text style={itemStyles.deleteButtonText}>삭제하기</Text>
-        </Pressable>
+        {ChangeStateButton}
       </View>
 
-      <ScheduleItem item={item as Schedule} backgroundColor="#f9f9f9" />
+      <ScheduleItem item={schedule as Schedule} backgroundColor="#f9f9f9" />
     </View>
   )
 }
@@ -61,29 +105,36 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
   const disableScheduleList = useRecoilValue(disableScheduleListState)
   const existScheduleList = useRecoilValue(existScheduleListState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
-  const schedule = useRecoilValue(scheduleState)
   const setIsEdit = useSetRecoilState(isEditState)
 
   const editScheduleCheckBottomSheet = React.useRef<BottomSheetModal>(null)
+
+  const [deletedScheduleIdList, setDeletedScheduleIdList] = React.useState<UpdateScheduleDeleted[]>([])
 
   const snapPoints = React.useMemo(() => {
     return ['90%']
   }, [])
 
-  const containerStyle = React.useMemo(() => {
-    let marginBottom = 0
-
+  const bottomSafeArea = React.useMemo(() => {
     if (Platform.OS === 'ios') {
-      marginBottom = safeAreaInsets.bottom
+      return safeAreaInsets.bottom
     }
 
-    return {marginBottom}
-  }, [])
+    return 0
+  }, [safeAreaInsets.bottom])
+
+  const containerStyle = React.useMemo(() => {
+    return {paddingBottom: bottomSafeArea + 88}
+  }, [bottomSafeArea])
+
+  const footerButtonStyle = React.useMemo(() => {
+    return [footerStyles.button, {marginBottom: bottomSafeArea}]
+  }, [bottomSafeArea])
 
   const list = React.useMemo(() => {
-    const mergeList = [...disableScheduleList, ...existScheduleList]
+    const allList = [...disableScheduleList, ...existScheduleList]
 
-    return mergeList.reduce<ExistSchedule[]>((acc, cur) => {
+    return allList.reduce<ExistSchedule[]>((acc, cur) => {
       if (acc.findIndex(item => item.schedule_id === cur.schedule_id) === -1) {
         acc.push(cur)
       }
@@ -95,29 +146,58 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
     setShowEditScheduleCheckBottomSheet(false)
   }, [setShowEditScheduleCheckBottomSheet])
 
-  const deleteSchedule = () => {}
+  const deleteSchedule = React.useCallback(
+    (schedule: ExistSchedule) => {
+      trigger('soft', {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false
+      })
+
+      setDeletedScheduleIdList([...deletedScheduleIdList, {schedule_id: schedule.schedule_id}])
+    },
+    [deletedScheduleIdList]
+  )
+
+  const cancelScheduleDeleted = React.useCallback(
+    (schedule: ExistSchedule) => {
+      trigger('soft', {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false
+      })
+
+      const target = deletedScheduleIdList.find(item => item.schedule_id === schedule.schedule_id)
+
+      if (target) {
+        const newDeletedScheduleIdList = deletedScheduleIdList.filter(item => item.schedule_id !== target.schedule_id)
+        setDeletedScheduleIdList(newDeletedScheduleIdList)
+      }
+    },
+    [deletedScheduleIdList]
+  )
 
   const {mutate: setScheduleMutate} = useMutation({
     mutationFn: async () => {
-      // const disableScheduleIdList = list.map(item => {
-      //   return {schedule_id: item.schedule_id}
-      // })
-      //
-      // if (schedule.schedule_id) {
-      //   disableScheduleIdList.push({schedule_id: schedule.schedule_id})
-      // }
-      //
-      // const params = {
-      //   schedule,
-      //   disableScheduleIdList
-      // }
-      //
-      // await scheduleRepository.setSchedule(params)
+      return Promise.all(
+        list.map(item => {
+          const params = {schedule_id: item.schedule_id}
+          const isDeleted = deletedScheduleIdList.some(sItem => sItem.schedule_id === item.schedule_id)
+
+          if (isDeleted) {
+            // deleted
+            return scheduleRepository.updateScheduleDeleted(params)
+          }
+          // disabled
+          return scheduleRepository.updateScheduleDisable(params)
+        })
+      )
     },
     onSuccess: async () => {
       await refetchScheduleList()
       handleDismiss()
       setIsEdit(false)
+    },
+    onError: error => {
+      console.error('error', error)
     }
   })
 
@@ -155,17 +235,19 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
   }, [])
 
   type RenderItem = {item: ExistSchedule}
-  const renderItem = React.useCallback(({item}: RenderItem) => {
-    return <Item item={item} onDelete={deleteSchedule} />
-  }, [])
-
-  const footer = React.useCallback(() => {
-    return (
-      <Pressable style={footerStyles.button}>
-        <Text style={footerStyles.buttonText}>적용하기</Text>
-      </Pressable>
-    )
-  }, [])
+  const renderItem = React.useCallback(
+    ({item}: RenderItem) => {
+      return (
+        <Item
+          schedule={item}
+          deletedScheduleIdList={deletedScheduleIdList}
+          onDelete={deleteSchedule}
+          onCancelDeleted={cancelScheduleDeleted}
+        />
+      )
+    },
+    [deletedScheduleIdList, deleteSchedule, cancelScheduleDeleted]
+  )
 
   React.useEffect(() => {
     if (showEditScheduleCheckBottomSheet) {
@@ -179,7 +261,7 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
     <BottomSheetModal
       name="editScheduleCheck"
       ref={editScheduleCheckBottomSheet}
-      backgroundStyle={{backgroundColor: '#f5f6f8'}} // #ebf0f3
+      backgroundStyle={styles.background}
       backdropComponent={bottomSheetBackdrop}
       handleComponent={bottomSheetHandler}
       index={0}
@@ -191,18 +273,19 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
         keyExtractor={getKeyExtractor}
         renderItem={renderItem}
         ListHeaderComponent={header}
-        ListFooterComponent={footer}
-        style={containerStyle}
-        contentContainerStyle={styles.container}
-        ListFooterComponentStyle={footerStyles.container}
+        contentContainerStyle={containerStyle}
       />
+
+      <Pressable style={footerButtonStyle} onPress={handleSubmit}>
+        <Text style={footerStyles.buttonText}>적용하기</Text>
+      </Pressable>
     </BottomSheetModal>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1
+  background: {
+    backgroundColor: '#f5f6f8' // #ebf0f3
   }
 })
 
@@ -232,13 +315,13 @@ const headerStyles = StyleSheet.create({
 })
 
 const footerStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    marginVertical: 20,
-    paddingHorizontal: 16
-  },
   button: {
+    position: 'absolute',
+    bottom: 20,
+    left: 0,
+    right: 0,
+    marginHorizontal: 16,
+
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
@@ -298,21 +381,23 @@ const itemStyles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 14
   },
-  deleteButton: {
+  button: {
     height: 36,
     justifyContent: 'center',
     alignItems: 'center'
   },
-  deleteButtonText: {
+  buttonText: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 14,
-    color: '#f12d22'
+    fontSize: 14
   }
 })
 
 const disabledIconWrapper = StyleSheet.compose(itemStyles.infoIcon, {backgroundColor: '#9aa0a4'})
 const disabledText = StyleSheet.compose(itemStyles.infoText, {color: '#9aa0a4'})
-const deleteIconWrapper = StyleSheet.compose(itemStyles.infoIcon, {backgroundColor: '#FD4672'})
-const deleteText = StyleSheet.compose(itemStyles.infoText, {color: '#FD4672'})
+const disabledButtonText = StyleSheet.compose(itemStyles.buttonText, {color: '#9aa0a4'})
+
+const deleteIconWrapper = StyleSheet.compose(itemStyles.infoIcon, {backgroundColor: '#f12d22'})
+const deleteText = StyleSheet.compose(itemStyles.infoText, {color: '#f12d22'})
+const deleteButtonText = StyleSheet.compose(itemStyles.buttonText, {color: '#f12d22'})
 
 export default EditScheduleCheckBottomSheet
