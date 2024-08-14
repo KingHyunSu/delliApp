@@ -407,11 +407,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
           <TimeTable data={scheduleList} isEdit={isEdit} />
         </Animated.View>
 
-        <ScheduleListBottomSheet
-          data={scheduleList}
-          openEditScheduleBottomSheet={openEditScheduleBottomSheet}
-          onClick={openEditMenuBottomSheet}
-        />
+        <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
         <EditScheduleBottomSheet />
         <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
 

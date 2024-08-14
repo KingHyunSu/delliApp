@@ -16,10 +16,9 @@ import {scheduleDateState} from '@/store/schedule'
 
 interface Props {
   data: Schedule[]
-  openEditScheduleBottomSheet: (value?: Schedule) => Function
   onClick: (value: Schedule) => void
 }
-const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
+const ScheduleList = ({data, onClick}: Props) => {
   const scheduleListSnapPoint = useRecoilValue(scheduleListSnapPointState)
   const isEdit = useRecoilValue(isEditState)
   const scheduleDate = useRecoilValue(scheduleDateState)
@@ -46,10 +45,10 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
   }, [])
 
   const renderItem: ListRenderItem<Schedule> = React.useCallback(
-    ({item, index}) => {
-      return <ScheduleListItem item={item} onClick={onClick} />
+    ({item}) => {
+      return <ScheduleListItem item={item} backgroundColor="#f9f9f9" onClick={onClick} />
     },
-    [data.length, openEditScheduleBottomSheet, onClick]
+    [onClick]
   )
 
   // components
@@ -69,11 +68,6 @@ const ScheduleList = ({data, openEditScheduleBottomSheet, onClick}: Props) => {
 
   return (
     <BottomSheet ref={bottomSheetRef} index={0} snapPoints={scheduleListSnapPoint} handleComponent={bottomSheetHandler}>
-      <View>
-        <Pressable>
-          <Text>대기</Text>
-        </Pressable>
-      </View>
       {data && data.length > 0 ? (
         <BottomSheetFlatList
           ref={bottomSheetFlatListRef}

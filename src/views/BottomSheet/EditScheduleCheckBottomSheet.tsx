@@ -1,5 +1,5 @@
 import React from 'react'
-import {Platform, StyleSheet, View, Pressable, Text, Image} from 'react-native'
+import {Platform, StyleSheet, View, Pressable, Text} from 'react-native'
 import {
   BottomSheetModal,
   BottomSheetFlatList,
@@ -18,21 +18,35 @@ import {isEditState, safeAreaInsetsState} from '@/store/system'
 
 import {useMutation} from '@tanstack/react-query'
 
-import CheckCircleIcon from '@/assets/icons/check_circle.svg'
+import DeleteIcon from '@/assets/icons/trash.svg'
 
 interface Props {
   refetchScheduleList: Function
 }
 interface ItemProps {
   item: ExistSchedule
+  onDelete: () => void
 }
 
-const Item = ({item}: ItemProps) => {
+const Item = ({item, onDelete}: ItemProps) => {
   return (
     <View style={itemStyles.container}>
-      <View style={itemStyles.infoWrapper}>
-        <CheckCircleIcon width={14} height={14} fill="#ffb86c" />
-        <Text style={itemStyles.infoText}>{/*변경전*/}비활성화</Text>
+      <View style={itemStyles.header}>
+        <View style={itemStyles.infoWrapper}>
+          <View style={disabledIconWrapper}>
+            <View style={itemStyles.disabledIcon} />
+          </View>
+          <Text style={disabledText}>비활성화</Text>
+          {/*<View style={deleteIconWrapper}>*/}
+          {/*  <DeleteIcon width={12} height={12} fill="#fff" />*/}
+          {/*</View>*/}
+          {/*<Text style={deleteText}>삭제</Text>*/}
+          {/*<CheckCircleIcon width={14} height={14} fill="#9aa0a4" />*/}
+        </View>
+
+        <Pressable style={itemStyles.deleteButton} onPress={onDelete}>
+          <Text style={itemStyles.deleteButtonText}>삭제하기</Text>
+        </Pressable>
       </View>
 
       <ScheduleItem item={item as Schedule} backgroundColor="#f9f9f9" />
@@ -80,6 +94,8 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
   const handleDismiss = React.useCallback(() => {
     setShowEditScheduleCheckBottomSheet(false)
   }, [setShowEditScheduleCheckBottomSheet])
+
+  const deleteSchedule = () => {}
 
   const {mutate: setScheduleMutate} = useMutation({
     mutationFn: async () => {
@@ -136,7 +152,12 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
         <Text style={headerStyles.subTitleText}>겹치는 일정은 비활성화될 예정이에요</Text>
       </View>
     )
-  }, [schedule.title])
+  }, [])
+
+  type RenderItem = {item: ExistSchedule}
+  const renderItem = React.useCallback(({item}: RenderItem) => {
+    return <Item item={item} onDelete={deleteSchedule} />
+  }, [])
 
   const footer = React.useCallback(() => {
     return (
@@ -158,7 +179,7 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
     <BottomSheetModal
       name="editScheduleCheck"
       ref={editScheduleCheckBottomSheet}
-      backgroundStyle={{backgroundColor: '#f9f9f9'}}
+      backgroundStyle={{backgroundColor: '#f5f6f8'}} // #ebf0f3
       backdropComponent={bottomSheetBackdrop}
       handleComponent={bottomSheetHandler}
       index={0}
@@ -168,7 +189,7 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
         data={list}
         bounces={false}
         keyExtractor={getKeyExtractor}
-        renderItem={Item}
+        renderItem={renderItem}
         ListHeaderComponent={header}
         ListFooterComponent={footer}
         style={containerStyle}
@@ -248,19 +269,50 @@ const itemStyles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 16,
     paddingVertical: 20,
-    gap: 15,
+    gap: 5,
     backgroundColor: '#fff'
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
   infoWrapper: {
     flexDirection: 'row',
     gap: 5,
     alignItems: 'center'
   },
+  infoIcon: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  disabledIcon: {
+    width: 8,
+    height: 2,
+    backgroundColor: '#fff'
+  },
   infoText: {
     fontFamily: 'Pretendard-SemiBold',
+    fontSize: 14
+  },
+  deleteButton: {
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  deleteButtonText: {
+    fontFamily: 'Pretendard-Medium',
     fontSize: 14,
-    color: '#ffb86c'
+    color: '#f12d22'
   }
 })
+
+const disabledIconWrapper = StyleSheet.compose(itemStyles.infoIcon, {backgroundColor: '#9aa0a4'})
+const disabledText = StyleSheet.compose(itemStyles.infoText, {color: '#9aa0a4'})
+const deleteIconWrapper = StyleSheet.compose(itemStyles.infoIcon, {backgroundColor: '#FD4672'})
+const deleteText = StyleSheet.compose(itemStyles.infoText, {color: '#FD4672'})
 
 export default EditScheduleCheckBottomSheet
