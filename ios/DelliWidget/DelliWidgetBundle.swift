@@ -2,7 +2,7 @@
 //  DelliWidgetBundle.swift
 //  DelliWidget
 //
-//  Created by 김현수 on 6/16/24.
+//  Created by 김현수 on 8/15/24.
 //
 
 import WidgetKit

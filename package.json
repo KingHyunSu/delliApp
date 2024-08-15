@@ -24,6 +24,7 @@
     "@react-navigation/stack": "^6.3.21",
     "@tanstack/react-query": "^5.0.0-rc.2",
     "@types/lodash.debounce": "^4.0.9",
+    "@types/uuid": "^10.0.0",
     "axios": "^1.4.0",
     "date-fns": "^2.30.0",
     "eslint-plugin-react-perf": "^3.3.2",
@@ -32,7 +33,9 @@
     "patch-package": "^8.0.0",
     "react": "18.2.0",
     "react-native": "^0.74.0",
+    "react-native-fs": "^2.20.0",
     "react-native-gesture-handler": "^2.18.1",
+    "react-native-get-random-values": "^1.11.0",
     "react-native-google-mobile-ads": "^14.2.2",
     "react-native-haptic-feedback": "^2.2.0",
     "react-native-permissions": "^4.1.1",
@@ -45,9 +48,11 @@
     "react-native-sqlite-storage": "^6.0.1",
     "react-native-status-bar-height": "^2.6.0",
     "react-native-svg": "^15.4.0",
+    "react-native-view-shot": "^3.8.0",
     "react-native-wheely": "^0.6.0",
     "reanimated-color-picker": "^3.0.4",
-    "recoil": "^0.7.7"
+    "recoil": "^0.7.7",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
