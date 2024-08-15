@@ -1,91 +1,253 @@
-import React, {useCallback} from 'react'
+import React from 'react'
 import {Platform, StyleSheet, View, Pressable, Text} from 'react-native'
-import {BottomSheetModal, BottomSheetScrollView, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
+import {
+  BottomSheetModal,
+  BottomSheetFlatList,
+  BottomSheetBackdropProps,
+  BottomSheetHandleProps
+} from '@gorhom/bottom-sheet'
+import {trigger} from 'react-native-haptic-feedback'
+
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
+import BottomSheetHandler from '@/components/BottomSheetHandler'
+import ScheduleItem from '@/components/ScheduleItem'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
-import {disableScheduleListState, existScheduleListState, scheduleState} from '@/store/schedule'
-import {isEditState} from '@/store/system'
+import {disableScheduleListState, existScheduleListState} from '@/store/schedule'
+import {isEditState, safeAreaInsetsState} from '@/store/system'
 
 import {useMutation} from '@tanstack/react-query'
 
-import {getTimeOfMinute} from '@/utils/helper'
+import {UpdateScheduleDeleted} from '@/repository/types/schedule'
+import DeleteIcon from '@/assets/icons/trash.svg'
 import {scheduleRepository} from '@/repository'
 
 interface Props {
   refetchScheduleList: Function
 }
+interface ItemProps {
+  schedule: ExistSchedule
+  deletedScheduleIdList: UpdateScheduleDeleted[]
+  onDelete: (schedule: ExistSchedule) => void
+  onCancelDeleted: (schedule: ExistSchedule) => void
+}
+
+const Item = ({schedule, deletedScheduleIdList, onDelete, onCancelDeleted}: ItemProps) => {
+  const isDeleted = React.useMemo(() => {
+    return deletedScheduleIdList.findIndex(sItem => sItem.schedule_id === schedule.schedule_id) !== -1
+  }, [schedule.schedule_id, deletedScheduleIdList])
+
+  const handleDeleted = React.useCallback(() => {
+    if (isDeleted) {
+      onCancelDeleted(schedule)
+    } else {
+      onDelete(schedule)
+    }
+  }, [isDeleted, onDelete, onCancelDeleted, schedule])
+
+  // components
+  const StateBox = React.useMemo(() => {
+    if (isDeleted) {
+      return (
+        <>
+          <View style={deleteIconWrapper}>
+            <DeleteIcon width={12} height={12} fill="#fff" />
+          </View>
+          <Text style={deleteText}>삭제 예정</Text>
+        </>
+      )
+    }
+
+    return (
+      <>
+        <View style={disabledIconWrapper}>
+          <View style={itemStyles.disabledIcon} />
+        </View>
+        <Text style={disabledText}>비활성화 예정</Text>
+      </>
+    )
+  }, [isDeleted])
+
+  const ChangeStateButton = React.useMemo(() => {
+    if (isDeleted) {
+      return (
+        <Pressable style={itemStyles.button} onPress={handleDeleted}>
+          <Text style={disabledButtonText}>비활성화</Text>
+        </Pressable>
+      )
+    }
+
+    return (
+      <Pressable style={itemStyles.button} onPress={handleDeleted}>
+        <Text style={deleteButtonText}>삭제하기</Text>
+      </Pressable>
+    )
+  }, [isDeleted, handleDeleted])
+
+  return (
+    <View style={itemStyles.container}>
+      <View style={itemStyles.header}>
+        <View style={itemStyles.infoWrapper}>{StateBox}</View>
+
+        {ChangeStateButton}
+      </View>
+
+      <ScheduleItem item={schedule as Schedule} backgroundColor="#f9f9f9" />
+    </View>
+  )
+}
+
 const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
   const [showEditScheduleCheckBottomSheet, setShowEditScheduleCheckBottomSheet] = useRecoilState(
     showEditScheduleCheckBottomSheetState
   )
   const disableScheduleList = useRecoilValue(disableScheduleListState)
   const existScheduleList = useRecoilValue(existScheduleListState)
-  const schedule = useRecoilValue(scheduleState)
+  const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
   const setIsEdit = useSetRecoilState(isEditState)
 
   const editScheduleCheckBottomSheet = React.useRef<BottomSheetModal>(null)
+
+  const [deletedScheduleIdList, setDeletedScheduleIdList] = React.useState<UpdateScheduleDeleted[]>([])
 
   const snapPoints = React.useMemo(() => {
     return ['90%']
   }, [])
 
-  const list = React.useMemo(() => {
-    let targetList = disableScheduleList
-
-    if (existScheduleList.length > 0) {
-      targetList = existScheduleList
+  const bottomSafeArea = React.useMemo(() => {
+    if (Platform.OS === 'ios') {
+      return safeAreaInsets.bottom
     }
 
-    return targetList
+    return 0
+  }, [safeAreaInsets.bottom])
+
+  const containerStyle = React.useMemo(() => {
+    return {paddingBottom: bottomSafeArea + 88}
+  }, [bottomSafeArea])
+
+  const footerButtonStyle = React.useMemo(() => {
+    return [footerStyles.button, {marginBottom: bottomSafeArea}]
+  }, [bottomSafeArea])
+
+  const list = React.useMemo(() => {
+    const allList = [...disableScheduleList, ...existScheduleList]
+
+    return allList.reduce<ExistSchedule[]>((acc, cur) => {
+      if (acc.findIndex(item => item.schedule_id === cur.schedule_id) === -1) {
+        acc.push(cur)
+      }
+      return acc
+    }, [])
   }, [disableScheduleList, existScheduleList])
 
-  const backdropComponent = React.useCallback((props: BottomSheetBackdropProps) => {
-    return <BottomSheetBackdrop props={props} />
-  }, [])
-
-  const dismissEditScheduleCheckBottomSheet = React.useCallback(() => {
+  const handleDismiss = React.useCallback(() => {
     setShowEditScheduleCheckBottomSheet(false)
   }, [setShowEditScheduleCheckBottomSheet])
 
-  const getTimeText = React.useCallback((time: number) => {
-    const timeInfo = getTimeOfMinute(time)
+  const deleteSchedule = React.useCallback(
+    (schedule: ExistSchedule) => {
+      trigger('soft', {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false
+      })
 
-    return `${timeInfo.meridiem} ${timeInfo.hour}시 ${timeInfo.minute}분`
-  }, [])
+      setDeletedScheduleIdList([...deletedScheduleIdList, {schedule_id: schedule.schedule_id}])
+    },
+    [deletedScheduleIdList]
+  )
 
-  const getDayOfWeekTextStyle = React.useCallback((dayOfweek: string) => {
-    return [styles.dayOfWeekText, dayOfweek === '1' && styles.activeDayOfWeekText]
-  }, [])
+  const cancelScheduleDeleted = React.useCallback(
+    (schedule: ExistSchedule) => {
+      trigger('soft', {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false
+      })
+
+      const target = deletedScheduleIdList.find(item => item.schedule_id === schedule.schedule_id)
+
+      if (target) {
+        const newDeletedScheduleIdList = deletedScheduleIdList.filter(item => item.schedule_id !== target.schedule_id)
+        setDeletedScheduleIdList(newDeletedScheduleIdList)
+      }
+    },
+    [deletedScheduleIdList]
+  )
 
   const {mutate: setScheduleMutate} = useMutation({
     mutationFn: async () => {
-      const disableScheduleIdList = list.map(item => {
-        return {schedule_id: item.schedule_id}
-      })
+      return Promise.all(
+        list.map(item => {
+          const params = {schedule_id: item.schedule_id}
+          const isDeleted = deletedScheduleIdList.some(sItem => sItem.schedule_id === item.schedule_id)
 
-      if (schedule.schedule_id) {
-        disableScheduleIdList.push({schedule_id: schedule.schedule_id})
-      }
-
-      const params = {
-        schedule,
-        disableScheduleIdList
-      }
-
-      await scheduleRepository.setSchedule(params)
+          if (isDeleted) {
+            // deleted
+            return scheduleRepository.updateScheduleDeleted(params)
+          }
+          // disabled
+          return scheduleRepository.updateScheduleDisable(params)
+        })
+      )
     },
     onSuccess: async () => {
       await refetchScheduleList()
-      dismissEditScheduleCheckBottomSheet()
+      handleDismiss()
       setIsEdit(false)
+    },
+    onError: error => {
+      console.error('error', error)
     }
   })
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = React.useCallback(() => {
     setScheduleMutate()
   }, [setScheduleMutate])
+
+  const getKeyExtractor = React.useCallback((item: ExistSchedule) => {
+    return String(item.schedule_id)
+  }, [])
+
+  // components
+  const bottomSheetBackdrop = React.useCallback((props: BottomSheetBackdropProps) => {
+    return <BottomSheetBackdrop props={props} />
+  }, [])
+
+  const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
+    return (
+      <BottomSheetHandler
+        shadow={false}
+        maxSnapIndex={1}
+        animatedIndex={props.animatedIndex}
+        animatedPosition={props.animatedPosition}
+      />
+    )
+  }, [])
+
+  const header = React.useCallback(() => {
+    return (
+      <View style={headerStyles.container}>
+        <Text style={headerStyles.titleText}>겹치는 일정이 있어요</Text>
+        <Text style={headerStyles.subTitleText}>겹치는 일정은 비활성화될 예정이에요</Text>
+      </View>
+    )
+  }, [])
+
+  type RenderItem = {item: ExistSchedule}
+  const renderItem = React.useCallback(
+    ({item}: RenderItem) => {
+      return (
+        <Item
+          schedule={item}
+          deletedScheduleIdList={deletedScheduleIdList}
+          onDelete={deleteSchedule}
+          onCancelDeleted={cancelScheduleDeleted}
+        />
+      )
+    },
+    [deletedScheduleIdList, deleteSchedule, cancelScheduleDeleted]
+  )
 
   React.useEffect(() => {
     if (showEditScheduleCheckBottomSheet) {
@@ -99,116 +261,68 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList}: Props) => {
     <BottomSheetModal
       name="editScheduleCheck"
       ref={editScheduleCheckBottomSheet}
-      backdropComponent={backdropComponent}
+      backgroundStyle={styles.background}
+      backdropComponent={bottomSheetBackdrop}
+      handleComponent={bottomSheetHandler}
       index={0}
       snapPoints={snapPoints}
-      onDismiss={dismissEditScheduleCheckBottomSheet}>
-      <BottomSheetScrollView>
-        <View style={styles.container}>
-          <Text style={styles.title}>겹치는 일정이 있어요</Text>
-          {/* <Text style={styles.subTitle}>{`겹치는 일정들은 삭제되며,\n삭제된 일정은 "설정 > 휴지통"에 보관됩니다`}</Text> */}
-          <Text style={styles.subTitle}>{`등록시 겹치는 일정들은 삭제됩니다`}</Text>
+      onDismiss={handleDismiss}>
+      <BottomSheetFlatList
+        data={list}
+        bounces={false}
+        keyExtractor={getKeyExtractor}
+        renderItem={renderItem}
+        ListHeaderComponent={header}
+        contentContainerStyle={containerStyle}
+      />
 
-          <View>
-            {list.map(item => {
-              return (
-                <View key={item.schedule_id} style={styles.section}>
-                  <View style={timeStyles.container}>
-                    <Text style={timeStyles.text}>
-                      {`${getTimeText(item.start_time)} ~ ${getTimeText(item.end_time)}`}
-                    </Text>
-                    <View style={timeStyles.line} />
-                  </View>
-
-                  <View style={styles.item}>
-                    <Text style={styles.itemTitle}>{item.title}</Text>
-
-                    <Text style={styles.dateText}>
-                      {`${item.start_date} ~ ${item.end_date === '9999-12-31' ? '없음' : item.end_date}`}
-                    </Text>
-
-                    <View style={styles.dayOfWeekContainer}>
-                      <Text style={getDayOfWeekTextStyle(item.mon)}>월</Text>
-                      <Text style={getDayOfWeekTextStyle(item.tue)}>화</Text>
-                      <Text style={getDayOfWeekTextStyle(item.wed)}>수</Text>
-                      <Text style={getDayOfWeekTextStyle(item.thu)}>목</Text>
-                      <Text style={getDayOfWeekTextStyle(item.fri)}>금</Text>
-                      <Text style={getDayOfWeekTextStyle(item.sat)}>토</Text>
-                      <Text style={getDayOfWeekTextStyle(item.sun)}>일</Text>
-                    </View>
-                  </View>
-                </View>
-              )
-            })}
-          </View>
-        </View>
-      </BottomSheetScrollView>
-
-      <Pressable style={styles.submitBtn} onPress={handleSubmit}>
-        <Text style={styles.submitText}>무시하고 등록하기</Text>
+      <Pressable style={footerButtonStyle} onPress={handleSubmit}>
+        <Text style={footerStyles.buttonText}>적용하기</Text>
       </Pressable>
     </BottomSheetModal>
   )
 }
 
 const styles = StyleSheet.create({
+  background: {
+    backgroundColor: '#f5f6f8' // #ebf0f3
+  }
+})
+
+const headerStyles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     paddingHorizontal: 16,
-    paddingVertical: 20
+    paddingTop: 15,
+    paddingBottom: 20
   },
-  title: {
+  titleText: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 24,
     color: '#424242',
-    paddingTop: 20,
     marginBottom: 5
   },
-  subTitle: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 16,
-    color: '#7c8698',
-    marginBottom: 40
-  },
-  section: {
-    marginBottom: 15,
-    gap: 15
-  },
-  item: {
-    padding: 16,
-    borderRadius: 10,
-    backgroundColor: '#f9f9f9',
-    gap: 10
-  },
-  itemTitle: {
+  scheduleTitleText: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#424242'
   },
-
-  dateText: {
+  subTitleText: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
-    color: '#424242'
-  },
+    fontSize: 16,
+    color: '#7c8698'
+  }
+})
 
-  dayOfWeekContainer: {
-    flexDirection: 'row',
-    gap: 3
-  },
-  dayOfWeekText: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 11,
-    color: '#babfc5'
-  },
-  activeDayOfWeekText: {
-    color: '#1E90FF'
-  },
-
-  submitBtn: {
-    height: 48,
+const footerStyles = StyleSheet.create({
+  button: {
+    position: 'absolute',
+    bottom: 20,
+    left: 0,
+    right: 0,
     marginHorizontal: 16,
-    marginBottom: 40,
+
+    height: 48,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
@@ -222,34 +336,68 @@ const styles = StyleSheet.create({
         shadowRadius: 2
       },
       android: {
-        elevation: 3
+        elevation: 2
       }
     })
   },
-  submitText: {
-    fontFamily: 'Pretendard-Bold',
+  buttonText: {
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 18,
     color: '#fff'
   }
 })
 
-const timeStyles = StyleSheet.create({
+const itemStyles = StyleSheet.create({
   container: {
+    marginTop: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+    gap: 5,
+    backgroundColor: '#fff'
+  },
+  header: {
     flexDirection: 'row',
-    alignContent: 'space-between',
-    alignItems: 'center',
-    gap: 16
+    justifyContent: 'space-between',
+    alignItems: 'center'
   },
-  text: {
+  infoWrapper: {
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center'
+  },
+  infoIcon: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  disabledIcon: {
+    width: 8,
+    height: 2,
+    backgroundColor: '#fff'
+  },
+  infoText: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 14,
-    color: '#424242'
+    fontSize: 14
   },
-  line: {
-    height: 1,
-    flex: 1,
-    backgroundColor: '#eeeded'
+  button: {
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  buttonText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 14
   }
 })
+
+const disabledIconWrapper = StyleSheet.compose(itemStyles.infoIcon, {backgroundColor: '#9aa0a4'})
+const disabledText = StyleSheet.compose(itemStyles.infoText, {color: '#9aa0a4'})
+const disabledButtonText = StyleSheet.compose(itemStyles.buttonText, {color: '#9aa0a4'})
+
+const deleteIconWrapper = StyleSheet.compose(itemStyles.infoIcon, {backgroundColor: '#f12d22'})
+const deleteText = StyleSheet.compose(itemStyles.infoText, {color: '#f12d22'})
+const deleteButtonText = StyleSheet.compose(itemStyles.buttonText, {color: '#f12d22'})
 
 export default EditScheduleCheckBottomSheet

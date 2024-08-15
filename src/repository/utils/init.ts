@@ -1,5 +1,6 @@
 import {SQLiteDatabase} from 'react-native-sqlite-storage'
 import {openDatabase} from './helper'
+import upgrade from './upgrade.json'
 
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {
@@ -72,7 +73,7 @@ const createTable = async (db: SQLiteDatabase) => {
   })
 }
 
-const getVersion = async (db: SQLiteDatabase) => {
+const getCurrentVersion = async (db: SQLiteDatabase) => {
   const [result] = await db.executeSql('SELECT MAX(version) as maxVersion FROM VERSION')
   const {maxVersion} = result.rows.item(0)
 
@@ -90,9 +91,26 @@ export default async function init() {
     const db = await openDatabase()
 
     await createTable(db)
-    const version = await getVersion(db)
+    const currentVersion = await getCurrentVersion(db)
+    const latestVersion = upgrade.version
 
-    console.log('database version : ', version)
+    if (currentVersion < latestVersion) {
+      let upgradeQueryList: string[] = []
+
+      for (let i = currentVersion + 1; i <= latestVersion; i++) {
+        const targetVersion = `v${i}`
+        upgradeQueryList = [...upgradeQueryList, ...upgrade.list[targetVersion]]
+      }
+
+      await db.transaction(tx => {
+        for (const upgradeQuery of upgradeQueryList) {
+          tx.executeSql(upgradeQuery)
+        }
+
+        // update version
+        tx.executeSql(`UPDATE VERSION SET version = ${latestVersion}`)
+      })
+    }
 
     return true
   } catch (e) {

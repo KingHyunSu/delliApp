@@ -13,7 +13,7 @@ import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
 import EditIcon from '@/assets/icons/edit3.svg'
 import DeleteIcon from '@/assets/icons/trash.svg'
-import TodoIcon from '@/assets/icons/priority.svg'
+import TodoIcon from '@/assets/icons/priority.svg' // TODO 이름 변경하기 (priority -> check_square)
 
 // repository
 import {scheduleRepository} from '@/repository'
@@ -46,9 +46,9 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
     }
   }, [schedule.schedule_id, changeScheduleTodo, setShowEditTodoModalState])
 
-  const updateScheduleDisableMutation = useMutation({
+  const updateScheduleDeletedMutation = useMutation({
     mutationFn: async (data: ScheduleDisableReqeust) => {
-      await scheduleRepository.updateScheduleDisable(data)
+      await scheduleRepository.updateScheduleDeleted(data)
     },
     onSuccess: async () => {
       await refetchScheduleList()
@@ -74,13 +74,13 @@ const EditMenuBottomSheet = ({refetchScheduleList}: Props) => {
               schedule_id: schedule.schedule_id
             }
 
-            updateScheduleDisableMutation.mutate(params)
+            updateScheduleDeletedMutation.mutate(params)
           }
         },
         style: 'destructive'
       }
     ])
-  }, [schedule.title, schedule.schedule_id, updateScheduleDisableMutation])
+  }, [schedule.title, schedule.schedule_id, updateScheduleDeletedMutation])
 
   const openEditScheduleBottomSheet = React.useCallback(() => {
     setShowEditMenuBottomSheet(false)

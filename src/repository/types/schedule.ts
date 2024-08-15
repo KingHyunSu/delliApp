@@ -27,9 +27,12 @@ export interface GetExistScheduleList {
 
 export interface SetSchedule {
   schedule: Schedule
-  disableScheduleIdList?: UpdateScheduleDisable[]
 }
 
 export interface UpdateScheduleDisable {
+  schedule_id: number
+}
+
+export interface UpdateScheduleDeleted {
   schedule_id: number
 }

@@ -1,4 +1,11 @@
 {
-  "version": 1,
-  "upgrade": {} 
+  "version": 2,
+  "list": {
+    "v2": [
+      "ALTER TABLE SCHEDULE RENAME COLUMN disable TO deleted",
+      "ALTER TABLE SCHEDULE RENAME COLUMN disable_date TO deleted_date",
+      "ALTER TABLE SCHEDULE ADD COLUMN disabled text default '0'",
+      "ALTER TABLE SCHEDULE ADD COLUMN disabled_date text"
+    ]
+  }
 }

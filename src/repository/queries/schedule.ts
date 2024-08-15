@@ -1,4 +1,4 @@
-import {GetScheduleList, GetExistScheduleList, UpdateScheduleDisable} from '../types/schedule'
+import {GetScheduleList, GetExistScheduleList, UpdateScheduleDisable, UpdateScheduleDeleted} from '../types/schedule'
 
 export const getScheduleListQuery = (params: GetScheduleList) => {
   let query = `
@@ -7,7 +7,7 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.title,
       A.start_time,
       A.end_time,
-      A.disable,
+      A.disabled,
       A.mon,
       A.tue,
       A.wed,
@@ -54,6 +54,8 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
     AND
       C.complete_date = "${params.date}"
     WHERE
+      A.deleted = '0'
+    AND
       A.start_date <= "${params.date}"
     AND
       A.end_date >= "${params.date}"
@@ -81,7 +83,7 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
     query += `AND A.sun = "${params.sun}"\n`
   }
   if (params.disable) {
-    query += `AND A.disable = ${params.disable}`
+    query += `AND A.disabled = "${params.disable}"`
   }
 
   query += `
@@ -90,7 +92,7 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.title,
       A.start_time,
       A.end_time,
-      A.disable,
+      A.disabled,
       A.mon,
       A.tue,
       A.wed,
@@ -131,7 +133,9 @@ export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
     FROM
       SCHEDULE
     WHERE
-      disable = '0'
+      disabled = '0'
+    AND
+      deleted = '0'
     AND
       start_date <= '${params.end_date}'
     AND
@@ -243,7 +247,8 @@ export const setScheduleQuery = (params: Schedule) => {
       title_rotate,
       background_color,
       text_color,
-      disable,
+      deleted,
+      disabled,              
       create_date,
       update_date
     ) VALUES (
@@ -264,6 +269,7 @@ export const setScheduleQuery = (params: Schedule) => {
       ${params.title_rotate},
       "${params.background_color}",
       "${params.text_color}",
+      "0",
       "0",
       (SELECT strftime('%Y-%m-%d', datetime('now', 'localtime'))),
       (SELECT strftime('%Y-%m-%d', datetime('now', 'localtime')))
@@ -304,12 +310,26 @@ export const updateScheduleQuery = (params: Schedule) => {
 }
 
 export const updateScheduleDisableQuery = (params: UpdateScheduleDisable) => {
-  let query = `
+  const query = `
     UPDATE
       SCHEDULE
     SET
-      disable = '1',
-      disable_date = (SELECT datetime('now', 'localtime'))
+      disabled = '1',
+      disabled_date = (SELECT datetime('now', 'localtime'))
+    WHERE
+      schedule_id = ${params.schedule_id}
+  `
+
+  return query
+}
+
+export const updateScheduleDeletedQuery = (params: UpdateScheduleDeleted) => {
+  const query = `
+    UPDATE
+      SCHEDULE
+    SET
+      deleted = '1',
+      deleted_date = (SELECT datetime('now', 'localtime'))
     WHERE
       schedule_id = ${params.schedule_id}
   `
