@@ -73,3 +73,7 @@ declare interface WidgetSchedule {
   start_time: number
   end_time: number
 }
+
+declare interface UsedColor {
+  color: string
+}

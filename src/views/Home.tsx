@@ -1,23 +1,23 @@
 import React from 'react'
 import {
-  Platform,
-  Animated,
-  StyleSheet,
-  NativeModules,
-  LayoutChangeEvent,
-  BackHandler,
-  ToastAndroid,
-  Alert,
-  SafeAreaView,
-  Pressable,
-  View,
-  Text
+	Platform,
+	Animated,
+	StyleSheet,
+	NativeModules,
+	LayoutChangeEvent,
+	BackHandler,
+	ToastAndroid,
+	Alert,
+	SafeAreaView,
+	Pressable,
+	View,
+	Text
 } from 'react-native'
 import RNFS from 'react-native-fs'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
-import {useQuery, useMutation} from '@tanstack/react-query'
 import {RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
+import {useQuery, useMutation} from '@tanstack/react-query'
 import {format, addDays, getDay} from 'date-fns'
 
 // components
@@ -30,24 +30,22 @@ import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet
 import EditScheduleCheckBottomSheet from '@/views/BottomSheet/EditScheduleCheckBottomSheet'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
-import StyleBottomSheet from '@/views/BottomSheet/StyleBottomSheet'
 import EditTodoModal from '@/views/Modal/EditTodoModal'
 import TimeTableExternal, {TimeTableExternalRefs} from '@/components/TimeTableExternal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
 // icons
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
+// import EditIcon from '@/assets/icons/edit3.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
 import CancleIcon from '@/assets/icons/cancle.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
-// import EditIcon from '@/assets/icons/edit3.svg'
 
 // stores
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {safeAreaInsetsState, isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
 import {
   scheduleDateState,
-  scheduleDayOfWeekIndexState,
   scheduleState,
   scheduleListState,
   disableScheduleListState,
@@ -69,112 +67,110 @@ import {HomeNavigationProps} from '@/types/navigation'
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
 
 const Home = ({navigation, route}: HomeNavigationProps) => {
-  const {AppGroupModule, WidgetUpdaterModule} = NativeModules
-  const safeAreaInsets = useSafeAreaInsets()
+	const {AppGroupModule, WidgetUpdaterModule} = NativeModules
+	const safeAreaInsets = useSafeAreaInsets()
 
-  const timeTableExternalRef = React.useRef<TimeTableExternalRefs>(null)
+	const timeTableExternalRef = React.useRef<TimeTableExternalRefs>(null)
 
-  const [isEdit, setIsEdit] = useRecoilState(isEditState)
-  const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
-  const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
-  const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
-  const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
-  const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
-  const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
-  const [schedule, setSchedule] = useRecoilState(scheduleState)
+	const [isEdit, setIsEdit] = useRecoilState(isEditState)
+	const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
+	const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
+	const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
+	const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
+	const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
+	const [schedule, setSchedule] = useRecoilState(scheduleState)
+	const [backPressCount, setBackPressCount] = React.useState(0)
+	const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
 
-  const scheduleDayOfWeekIndex = useRecoilValue(scheduleDayOfWeekIndexState)
-  const disableScheduleList = useRecoilValue(disableScheduleListState)
+	const disableScheduleList = useRecoilValue(disableScheduleListState)
 
-  const setIsLunch = useSetRecoilState(isLunchState)
-  const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
-  const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
-  const resetSchedule = useResetRecoilState(scheduleState)
-  const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
-  const setExistScheduleList = useSetRecoilState(existScheduleListState)
-  const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
-  const setIsInputMode = useSetRecoilState(isInputModeState)
+	const setIsLunch = useSetRecoilState(isLunchState)
+	const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
+	const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
+	const resetSchedule = useResetRecoilState(scheduleState)
+	const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
+	const setExistScheduleList = useSetRecoilState(existScheduleListState)
+	const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
+	const setIsInputMode = useSetRecoilState(isInputModeState)
 
-  const [backPressCount, setBackPressCount] = React.useState(0)
+	const handleWidgetUpdate = React.useCallback(
+		async (value?: Schedule[]) => {
+			if (!timeTableExternalRef.current) {
+				Alert.alert('에러', '잠시 후 다시 시도해 주세요.', [
+					{
+						text: '확인'
+					}
+				])
 
-  const handleWidgetUpdate = React.useCallback(
-    async (value?: Schedule[]) => {
-      if (!timeTableExternalRef.current) {
-        Alert.alert('에러', '잠시 후 다시 시도해 주세요.', [
-          {
-            text: '확인'
-          }
-        ])
+				return
+			}
 
-        return
-      }
+			const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
 
-      const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
+			console.log('shouldWidgetReload', shouldWidgetReload)
+			// 위젯 새로고침 필요 상태
+			if (shouldWidgetReload) {
+				return
+			}
 
-      console.log('shouldWidgetReload', shouldWidgetReload)
-      // 위젯 새로고침 필요 상태
-      if (shouldWidgetReload) {
-        return
-      }
+			let newScheduleList = value ? value : [...scheduleList]
+			newScheduleList.sort((a, b) => a.end_time - b.end_time)
 
-      let newScheduleList = value ? value : [...scheduleList]
-      newScheduleList.sort((a, b) => a.end_time - b.end_time)
+			const timeTableExternalImageUri = await timeTableExternalRef.current.getImage()
 
-      const timeTableExternalImageUri = await timeTableExternalRef.current.getImage()
+			const fileName = 'timetable.png'
+			const appGroupPath = await AppGroupModule.getAppGroupPath()
+			const path = appGroupPath + '/' + fileName
+			const existImage = await RNFS.exists(path)
 
-      const fileName = 'timetable.png'
-      const appGroupPath = await AppGroupModule.getAppGroupPath()
-      const path = appGroupPath + '/' + fileName
-      const existImage = await RNFS.exists(path)
+			if (existImage) {
+				await RNFS.unlink(path)
+			}
+			await RNFS.moveFile(timeTableExternalImageUri, path)
 
-      if (existImage) {
-        await RNFS.unlink(path)
-      }
-      await RNFS.moveFile(timeTableExternalImageUri, path)
+			let widgetScheduleList: WidgetSchedule[] = []
 
-      let widgetScheduleList: WidgetSchedule[] = []
+			if (newScheduleList?.length > 0) {
+				// 공백 일정 추가
+				for (let i = 0; i < newScheduleList.length - 1; i++) {
+					const currentSchedule = newScheduleList[i]
+					const nextSchedule = newScheduleList[i + 1]
 
-      if (newScheduleList?.length > 0) {
-        // 공백 일정 추가
-        for (let i = 0; i < newScheduleList.length - 1; i++) {
-          const currentSchedule = newScheduleList[i]
-          const nextSchedule = newScheduleList[i + 1]
+					widgetScheduleList.push(currentSchedule)
 
-          widgetScheduleList.push(currentSchedule)
+					if (currentSchedule.end_time !== nextSchedule.start_time) {
+						widgetScheduleList.push({
+							schedule_id: null,
+							title: '',
+							start_time: currentSchedule.end_time,
+							end_time: nextSchedule.start_time
+						})
+					}
+				}
 
-          if (currentSchedule.end_time !== nextSchedule.start_time) {
-            widgetScheduleList.push({
-              schedule_id: null,
-              title: '',
-              start_time: currentSchedule.end_time,
-              end_time: nextSchedule.start_time
-            })
-          }
-        }
+				const firstSchedule = newScheduleList[0]
+				const lastSchedule = newScheduleList[newScheduleList.length - 1]
 
-        const firstSchedule = newScheduleList[0]
-        const lastSchedule = newScheduleList[newScheduleList.length - 1]
+				widgetScheduleList.push(lastSchedule)
 
-        widgetScheduleList.push(lastSchedule)
+				if (firstSchedule.start_time !== lastSchedule.end_time) {
+					widgetScheduleList.push({
+						schedule_id: null,
+						title: '',
+						start_time: lastSchedule.end_time,
+						end_time: firstSchedule.start_time
+					})
+				}
+			}
 
-        if (firstSchedule.start_time !== lastSchedule.end_time) {
-          widgetScheduleList.push({
-            schedule_id: null,
-            title: '',
-            start_time: lastSchedule.end_time,
-            end_time: firstSchedule.start_time
-          })
-        }
-      }
+			const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
 
-      const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
+			WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
+		},
+		[scheduleList]
+	)
 
-      WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
-    },
-    [scheduleList]
-  )
-
-  const {isError, refetch: refetchScheduleList} = useQuery<Schedule[]>({
+  const {isError, refetch: refetchScheduleList} = useQuery({
     queryKey: ['scheduleList', scheduleDate],
     queryFn: async () => {
       setIsLoading(true)
@@ -205,6 +201,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
           todo_list: JSON.parse(item.todo_list)
         }
       })
+      console.log('result', result)
 
       setScheduleList(result)
       setIsLunch(true)
@@ -219,31 +216,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
   const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
     mutationFn: async () => {
-      let endDate = schedule.end_date
-
-      if (schedule.end_date !== '9999-12-31') {
-        let lastActiveDayOfWeekIndex = 0
-
-        const activeDayOfWeekList = [
-          schedule.mon,
-          schedule.tue,
-          schedule.wed,
-          schedule.thu,
-          schedule.fri,
-          schedule.sat,
-          schedule.sun
-        ]
-
-        activeDayOfWeekList.forEach((item, index) => {
-          if (item === '1') {
-            lastActiveDayOfWeekIndex = index
-          }
-        })
-
-        const addDay = lastActiveDayOfWeekIndex - scheduleDayOfWeekIndex
-        endDate = format(addDays(new Date(schedule.end_date), addDay), 'yyyy-MM-dd')
-      }
-
       const params = {
         schedule_id: schedule.schedule_id,
         start_time: schedule.start_time,
@@ -256,7 +228,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         sat: schedule.sat,
         sun: schedule.sun,
         start_date: schedule.start_date,
-        end_date: endDate
+        end_date: schedule.end_date
       }
 
       return await scheduleRepository.getExistScheduleList(params)
@@ -277,7 +249,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       await refetchScheduleList()
       await handleWidgetUpdate()
 
-      setIsEdit(false)
+			setIsEdit(false)
     },
     onError: e => {
       console.error('error', e)
@@ -328,6 +300,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
   }, [activeSubmit])
 
   const handleSubmit = React.useCallback(async () => {
+    // TODO 겹치는 일정 제거 - 2023.08.12
     const existScheduleList = await getExistScheduleListMutateAsync()
 
     setExistScheduleList(existScheduleList)
@@ -339,8 +312,8 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
     setScheduleMutate()
   }, [
-    getExistScheduleListMutateAsync,
     setScheduleMutate,
+    getExistScheduleListMutateAsync,
     setExistScheduleList,
     setShowEditScheduleCheckBottomSheet,
     disableScheduleList.length
@@ -575,11 +548,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
           <TimeTable data={scheduleList} isEdit={isEdit} />
         </Animated.View>
 
-        <ScheduleListBottomSheet
-          data={scheduleList}
-          openEditScheduleBottomSheet={openEditScheduleBottomSheet}
-          onClick={openEditMenuBottomSheet}
-        />
+        <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
         <EditScheduleBottomSheet />
         <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
 
@@ -596,7 +565,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         {/* bottom sheet */}
         <EditMenuBottomSheet refetchScheduleList={refetchScheduleList} handleWidgetUpdate={handleWidgetUpdate} />
         <TimetableCategoryBottomSheet />
-        <StyleBottomSheet />
 
         {/* modal */}
         {/* <ScheduleCompleteModal /> */}
