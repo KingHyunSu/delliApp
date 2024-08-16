@@ -21,11 +21,14 @@
 		467D469A2C6E0E3300D94C4D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467D46992C6E0E3300D94C4D /* SwiftUI.framework */; };
 		467D469D2C6E0E3300D94C4D /* DelliWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467D469C2C6E0E3300D94C4D /* DelliWidgetBundle.swift */; };
 		467D469F2C6E0E3300D94C4D /* DelliWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467D469E2C6E0E3300D94C4D /* DelliWidget.swift */; };
-		467D46A12C6E0E3400D94C4D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 467D46A02C6E0E3400D94C4D /* Assets.xcassets */; };
 		467D46A52C6E0E3400D94C4D /* DelliWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 467D46962C6E0E3300D94C4D /* DelliWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		467D46AE2C6E0EB300D94C4D /* RCTAppGroupModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 467D46AC2C6E0EB300D94C4D /* RCTAppGroupModule.m */; };
 		467D46B82C6E375100D94C4D /* WidgetUpdaterModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467D46B62C6E375100D94C4D /* WidgetUpdaterModule.swift */; };
 		467D46B92C6E375100D94C4D /* WidgetUpdaterModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 467D46B72C6E375100D94C4D /* WidgetUpdaterModule.m */; };
+		46B664B12C6E45A100C1C6DF /* TimeTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B664AD2C6E45A100C1C6DF /* TimeTable.swift */; };
+		46B664B22C6E45A100C1C6DF /* ActiveScheduleBorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B664AE2C6E45A100C1C6DF /* ActiveScheduleBorder.swift */; };
+		46B664B32C6E45A100C1C6DF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B664AF2C6E45A100C1C6DF /* ContentView.swift */; };
+		46B664B42C6E45A100C1C6DF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 46B664B02C6E45A100C1C6DF /* Assets.xcassets */; };
 		46D305E82B8A1D09008A3204 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 46D305E72B8A1D09008A3204 /* GoogleService-Info.plist */; };
 		520137A55B6B44839521F2D8 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 984CFCDD09EA4249ADFC26FD /* Pretendard-Regular.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -84,13 +87,16 @@
 		467D46992C6E0E3300D94C4D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		467D469C2C6E0E3300D94C4D /* DelliWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelliWidgetBundle.swift; sourceTree = "<group>"; };
 		467D469E2C6E0E3300D94C4D /* DelliWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelliWidget.swift; sourceTree = "<group>"; };
-		467D46A02C6E0E3400D94C4D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		467D46A22C6E0E3400D94C4D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		467D46AB2C6E0EB300D94C4D /* RCTAppGroupModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTAppGroupModule.h; sourceTree = "<group>"; };
 		467D46AC2C6E0EB300D94C4D /* RCTAppGroupModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTAppGroupModule.m; sourceTree = "<group>"; };
 		467D46AF2C6E0F4200D94C4D /* DelliWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DelliWidgetExtension.entitlements; sourceTree = "<group>"; };
 		467D46B62C6E375100D94C4D /* WidgetUpdaterModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WidgetUpdaterModule.swift; path = NativeModules/WidgetUpdaterModule/WidgetUpdaterModule.swift; sourceTree = SOURCE_ROOT; };
 		467D46B72C6E375100D94C4D /* WidgetUpdaterModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WidgetUpdaterModule.m; path = NativeModules/WidgetUpdaterModule/WidgetUpdaterModule.m; sourceTree = SOURCE_ROOT; };
+		46B664AD2C6E45A100C1C6DF /* TimeTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeTable.swift; sourceTree = "<group>"; };
+		46B664AE2C6E45A100C1C6DF /* ActiveScheduleBorder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ActiveScheduleBorder.swift; sourceTree = "<group>"; };
+		46B664AF2C6E45A100C1C6DF /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		46B664B02C6E45A100C1C6DF /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		46D305E72B8A1D09008A3204 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "delli/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		78E387145E0841748E4547AD /* Pretendard-Light.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Light.otf"; path = "../src/assets/fonts/Pretendard-Light.otf"; sourceTree = "<group>"; };
 		810A8D5522CD621AECFD38FD /* Pods_delli_delliTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_delli_delliTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -200,9 +206,12 @@
 		467D469B2C6E0E3300D94C4D /* DelliWidget */ = {
 			isa = PBXGroup;
 			children = (
+				46B664AE2C6E45A100C1C6DF /* ActiveScheduleBorder.swift */,
+				46B664B02C6E45A100C1C6DF /* Assets.xcassets */,
+				46B664AF2C6E45A100C1C6DF /* ContentView.swift */,
+				46B664AD2C6E45A100C1C6DF /* TimeTable.swift */,
 				467D469C2C6E0E3300D94C4D /* DelliWidgetBundle.swift */,
 				467D469E2C6E0E3300D94C4D /* DelliWidget.swift */,
-				467D46A02C6E0E3400D94C4D /* Assets.xcassets */,
 				467D46A22C6E0E3400D94C4D /* Info.plist */,
 			);
 			path = DelliWidget;
@@ -426,7 +435,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				467D46A12C6E0E3400D94C4D /* Assets.xcassets in Resources */,
+				46B664B42C6E45A100C1C6DF /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -647,7 +656,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				46B664B22C6E45A100C1C6DF /* ActiveScheduleBorder.swift in Sources */,
+				46B664B32C6E45A100C1C6DF /* ContentView.swift in Sources */,
 				467D469F2C6E0E3300D94C4D /* DelliWidget.swift in Sources */,
+				46B664B12C6E45A100C1C6DF /* TimeTable.swift in Sources */,
 				467D469D2C6E0E3300D94C4D /* DelliWidgetBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

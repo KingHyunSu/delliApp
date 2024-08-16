@@ -1,17 +1,17 @@
 import React from 'react'
 import {
-	Platform,
-	Animated,
-	StyleSheet,
-	NativeModules,
-	LayoutChangeEvent,
-	BackHandler,
-	ToastAndroid,
-	Alert,
-	SafeAreaView,
-	Pressable,
-	View,
-	Text
+  Platform,
+  Animated,
+  StyleSheet,
+  NativeModules,
+  LayoutChangeEvent,
+  BackHandler,
+  ToastAndroid,
+  Alert,
+  SafeAreaView,
+  Pressable,
+  View,
+  Text
 } from 'react-native'
 import RNFS from 'react-native-fs'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
@@ -67,108 +67,108 @@ import {HomeNavigationProps} from '@/types/navigation'
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
 
 const Home = ({navigation, route}: HomeNavigationProps) => {
-	const {AppGroupModule, WidgetUpdaterModule} = NativeModules
-	const safeAreaInsets = useSafeAreaInsets()
+  const {AppGroupModule, WidgetUpdaterModule} = NativeModules
+  const safeAreaInsets = useSafeAreaInsets()
 
-	const timeTableExternalRef = React.useRef<TimeTableExternalRefs>(null)
+  const timeTableExternalRef = React.useRef<TimeTableExternalRefs>(null)
 
-	const [isEdit, setIsEdit] = useRecoilState(isEditState)
-	const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
-	const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
-	const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
-	const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
-	const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
-	const [schedule, setSchedule] = useRecoilState(scheduleState)
-	const [backPressCount, setBackPressCount] = React.useState(0)
-	const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
+  const [isEdit, setIsEdit] = useRecoilState(isEditState)
+  const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
+  const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
+  const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
+  const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
+  const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
+  const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const [backPressCount, setBackPressCount] = React.useState(0)
+  const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
 
-	const disableScheduleList = useRecoilValue(disableScheduleListState)
+  const disableScheduleList = useRecoilValue(disableScheduleListState)
 
-	const setIsLunch = useSetRecoilState(isLunchState)
-	const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
-	const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
-	const resetSchedule = useResetRecoilState(scheduleState)
-	const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
-	const setExistScheduleList = useSetRecoilState(existScheduleListState)
-	const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
-	const setIsInputMode = useSetRecoilState(isInputModeState)
+  const setIsLunch = useSetRecoilState(isLunchState)
+  const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
+  const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
+  const resetSchedule = useResetRecoilState(scheduleState)
+  const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
+  const setExistScheduleList = useSetRecoilState(existScheduleListState)
+  const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
+  const setIsInputMode = useSetRecoilState(isInputModeState)
 
-	const handleWidgetUpdate = React.useCallback(
-		async (value?: Schedule[]) => {
-			if (!timeTableExternalRef.current) {
-				Alert.alert('에러', '잠시 후 다시 시도해 주세요.', [
-					{
-						text: '확인'
-					}
-				])
+  const handleWidgetUpdate = React.useCallback(
+    async (value?: Schedule[]) => {
+      if (!timeTableExternalRef.current) {
+        Alert.alert('에러', '잠시 후 다시 시도해 주세요.', [
+          {
+            text: '확인'
+          }
+        ])
 
-				return
-			}
+        return
+      }
 
-			const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
+      const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
 
-			console.log('shouldWidgetReload', shouldWidgetReload)
-			// 위젯 새로고침 필요 상태
-			if (shouldWidgetReload) {
-				return
-			}
+      console.log('shouldWidgetReload', shouldWidgetReload)
+      // 위젯 새로고침 필요 상태
+      // if (shouldWidgetReload) {
+      //   return
+      // }
 
-			let newScheduleList = value ? value : [...scheduleList]
-			newScheduleList.sort((a, b) => a.end_time - b.end_time)
+      let newScheduleList = value ? value : [...scheduleList]
+      newScheduleList.sort((a, b) => a.end_time - b.end_time)
 
-			const timeTableExternalImageUri = await timeTableExternalRef.current.getImage()
+      const timeTableExternalImageUri = await timeTableExternalRef.current.getImage()
 
-			const fileName = 'timetable.png'
-			const appGroupPath = await AppGroupModule.getAppGroupPath()
-			const path = appGroupPath + '/' + fileName
-			const existImage = await RNFS.exists(path)
+      const fileName = 'timetable.png'
+      const appGroupPath = await AppGroupModule.getAppGroupPath()
+      const path = appGroupPath + '/' + fileName
+      const existImage = await RNFS.exists(path)
 
-			if (existImage) {
-				await RNFS.unlink(path)
-			}
-			await RNFS.moveFile(timeTableExternalImageUri, path)
+      if (existImage) {
+        await RNFS.unlink(path)
+      }
+      await RNFS.moveFile(timeTableExternalImageUri, path)
 
-			let widgetScheduleList: WidgetSchedule[] = []
+      let widgetScheduleList: WidgetSchedule[] = []
 
-			if (newScheduleList?.length > 0) {
-				// 공백 일정 추가
-				for (let i = 0; i < newScheduleList.length - 1; i++) {
-					const currentSchedule = newScheduleList[i]
-					const nextSchedule = newScheduleList[i + 1]
+      if (newScheduleList?.length > 0) {
+        // 공백 일정 추가
+        for (let i = 0; i < newScheduleList.length - 1; i++) {
+          const currentSchedule = newScheduleList[i]
+          const nextSchedule = newScheduleList[i + 1]
 
-					widgetScheduleList.push(currentSchedule)
+          widgetScheduleList.push(currentSchedule)
 
-					if (currentSchedule.end_time !== nextSchedule.start_time) {
-						widgetScheduleList.push({
-							schedule_id: null,
-							title: '',
-							start_time: currentSchedule.end_time,
-							end_time: nextSchedule.start_time
-						})
-					}
-				}
+          if (currentSchedule.end_time !== nextSchedule.start_time) {
+            widgetScheduleList.push({
+              schedule_id: null,
+              title: '',
+              start_time: currentSchedule.end_time,
+              end_time: nextSchedule.start_time
+            })
+          }
+        }
 
-				const firstSchedule = newScheduleList[0]
-				const lastSchedule = newScheduleList[newScheduleList.length - 1]
+        const firstSchedule = newScheduleList[0]
+        const lastSchedule = newScheduleList[newScheduleList.length - 1]
 
-				widgetScheduleList.push(lastSchedule)
+        widgetScheduleList.push(lastSchedule)
 
-				if (firstSchedule.start_time !== lastSchedule.end_time) {
-					widgetScheduleList.push({
-						schedule_id: null,
-						title: '',
-						start_time: lastSchedule.end_time,
-						end_time: firstSchedule.start_time
-					})
-				}
-			}
+        if (firstSchedule.start_time !== lastSchedule.end_time) {
+          widgetScheduleList.push({
+            schedule_id: null,
+            title: '',
+            start_time: lastSchedule.end_time,
+            end_time: firstSchedule.start_time
+          })
+        }
+      }
 
-			const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
+      const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
 
-			WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
-		},
-		[scheduleList]
-	)
+      WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
+    },
+    [scheduleList]
+  )
 
   const {isError, refetch: refetchScheduleList} = useQuery({
     queryKey: ['scheduleList', scheduleDate],
@@ -249,7 +249,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       await refetchScheduleList()
       await handleWidgetUpdate()
 
-			setIsEdit(false)
+      setIsEdit(false)
     },
     onError: e => {
       console.error('error', e)
