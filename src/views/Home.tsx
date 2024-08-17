@@ -60,7 +60,9 @@ import {
 } from '@/store/bottomSheet'
 
 import {getDayOfWeekKey} from '@/utils/helper'
-import {scheduleRepository} from '@/repository'
+import {userRepository, scheduleRepository} from '@/repository'
+
+import * as widgetApi from '@/apis/widget'
 
 import {HomeNavigationProps} from '@/types/navigation'
 
@@ -105,8 +107,12 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         return
       }
 
-      const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
+      // const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
+      const [user] = await userRepository.getUser()
+      const params = {id: user.user_id}
 
+      const response = await widgetApi.getWidgetReloadable(params)
+      const shouldWidgetReload = response.data.isWidgetReloadable
       console.log('shouldWidgetReload', shouldWidgetReload)
       // 위젯 새로고침 필요 상태
       // if (shouldWidgetReload) {
