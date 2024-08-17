@@ -1,8 +1,9 @@
 import {SQLiteDatabase} from 'react-native-sqlite-storage'
 import 'react-native-get-random-values'
-import {v4 as uuidV4} from 'uuid'
+
 import {openDatabase} from './helper'
 import upgrade from './upgrade.json'
+import {userRepository} from '@/repository'
 
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {
@@ -82,19 +83,6 @@ const createTable = async (db: SQLiteDatabase) => {
   })
 }
 
-const initUserId = async (db: SQLiteDatabase) => {
-	const userId = uuidV4()
-
-	await db.executeSql(
-		`
-          INSERT INTO "USER" ("user_id")
-          SELECT ?
-          WHERE NOT EXISTS (SELECT 1 FROM "USER")
-        `,
-		[userId]
-	)
-}
-
 const getCurrentVersion = async (db: SQLiteDatabase) => {
   const [result] = await db.executeSql('SELECT MAX(version) as maxVersion FROM VERSION')
   const {maxVersion} = result.rows.item(0)
@@ -113,9 +101,9 @@ export default async function init() {
     const db = await openDatabase()
 
     await createTable(db)
-		await initUserId(db)
+    await userRepository.setUser()
 
-		const currentVersion = await getCurrentVersion(db)
+    const currentVersion = await getCurrentVersion(db)
     const latestVersion = upgrade.version
 
     if (currentVersion < latestVersion) {
