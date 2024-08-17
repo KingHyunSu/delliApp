@@ -166,12 +166,11 @@ function App(): JSX.Element {
 
   // TODO android v1.0.0 배포에서 제외 2024-07-21
   // React.useEffect(() => {
-  //   if (isInit && isLoaded) {
+  //   if (isLoaded) {
   //     // 광고 show
   //     show()
-  //     SplashScreen.hide()
   //   }
-  // }, [isInit, isLoaded])
+  // }, [isLoaded])
 
   React.useEffect(() => {
     if (isInit) {
