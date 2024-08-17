@@ -10,7 +10,7 @@ import EditScheduleText from './src/EditScheduleText'
 import EditSchedulePieController from './src/EditSchedulePieController'
 
 import {useRecoilState, useSetRecoilState, useRecoilValue} from 'recoil'
-import {timetableSizeState, timetablePositionXState, timetablePositionYState} from '@/store/system'
+import {timetableWrapperHeightState, timetableCenterPositionState} from '@/store/system'
 import {scheduleState, disableScheduleListState, isInputModeState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
@@ -19,9 +19,8 @@ interface Props {
   isEdit: boolean
 }
 const TimeTable = ({data, isEdit}: Props) => {
-  const timetableSize = useRecoilValue(timetableSizeState)
-  const timetablePositionX = useRecoilValue(timetablePositionXState)
-  const timetablePositionY = useRecoilValue(timetablePositionYState)
+  const timetableWrapperHeight = useRecoilValue(timetableWrapperHeightState)
+  const timetableCenterPosition = useRecoilValue(timetableCenterPositionState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
@@ -35,8 +34,8 @@ const TimeTable = ({data, isEdit}: Props) => {
   }, [isEdit, data, schedule.schedule_id])
 
   const radius = React.useMemo(() => {
-    return timetableSize / 2
-  }, [timetableSize])
+    return timetableCenterPosition - 32
+  }, [timetableCenterPosition])
 
   const openEditMenuBottomSheet = React.useCallback(
     (value: Schedule) => {
@@ -123,89 +122,110 @@ const TimeTable = ({data, isEdit}: Props) => {
     setDisableScheduleList(result)
   }, [isEdit, schedule.schedule_id, schedule.start_time, schedule.end_time, data, setDisableScheduleList])
 
+  const containerStyle = React.useMemo(() => {
+    return [styles.container, {height: timetableWrapperHeight}]
+  }, [timetableWrapperHeight])
+
+  const wrapperStyle = React.useMemo(() => {
+    return {
+      width: timetableCenterPosition * 2,
+      height: timetableCenterPosition * 2
+    }
+  }, [timetableCenterPosition])
+
+  if (!timetableWrapperHeight || !timetableCenterPosition) {
+    return <></>
+  }
+
   return (
-    <View>
-      <Svg>
-        <Background x={timetablePositionX} y={timetablePositionY} radius={radius} />
+    <View style={containerStyle}>
+      <View style={wrapperStyle}>
+        <Svg>
+          <Background x={timetableCenterPosition} y={timetableCenterPosition} radius={radius} />
+
+          {list.map((item, index) => {
+            return (
+              <SchedulePie
+                key={index}
+                data={item}
+                x={timetableCenterPosition}
+                y={timetableCenterPosition}
+                radius={radius}
+                isEdit={isEdit}
+                disableScheduleList={disableScheduleList}
+                onClick={openEditMenuBottomSheet}
+              />
+            )
+          })}
+
+          {list.length === 0 && !isEdit && (
+            <Text
+              x={timetableCenterPosition}
+              y={timetableCenterPosition}
+              fontSize={18}
+              fill={'#babfc5'}
+              fontFamily={'Pretendard-SemiBold'}
+              textAnchor="middle">
+              일정을 추가해주세요
+            </Text>
+          )}
+        </Svg>
 
         {list.map((item, index) => {
           return (
-            <SchedulePie
+            <ScheduleText
               key={index}
               data={item}
-              x={timetablePositionX}
-              y={timetablePositionY}
+              centerX={timetableCenterPosition}
+              centerY={timetableCenterPosition}
               radius={radius}
-              isEdit={isEdit}
-              disableScheduleList={disableScheduleList}
               onClick={openEditMenuBottomSheet}
             />
           )
         })}
 
-        {list.length === 0 && !isEdit && (
-          <Text
-            x={timetablePositionX}
-            y={timetablePositionY}
-            fontSize={18}
-            fill={'#babfc5'}
-            fontFamily={'Pretendard-SemiBold'}
-            textAnchor="middle">
-            일정을 추가해주세요
-          </Text>
+        {isEdit && (
+          <Pressable style={styles.editContainer} onPress={clickBackground}>
+            <Svg>
+              <EditSchedulePie
+                data={schedule}
+                x={timetableCenterPosition}
+                y={timetableCenterPosition}
+                radius={radius}
+                scheduleList={data}
+                disableScheduleList={disableScheduleList}
+              />
+            </Svg>
+
+            <EditScheduleText
+              data={schedule}
+              centerX={timetableCenterPosition}
+              centerY={timetableCenterPosition}
+              radius={radius}
+              onChangeSchedule={changeSchedule}
+            />
+
+            {!isInputMode && (
+              <EditSchedulePieController
+                data={schedule}
+                x={timetableCenterPosition}
+                y={timetableCenterPosition}
+                radius={radius}
+                onScheduleChanged={changeSchedule}
+              />
+            )}
+          </Pressable>
         )}
-      </Svg>
-
-      {list.map((item, index) => {
-        return (
-          <ScheduleText
-            key={index}
-            data={item}
-            centerX={timetablePositionX}
-            centerY={timetablePositionY}
-            radius={radius}
-            onClick={openEditMenuBottomSheet}
-          />
-        )
-      })}
-
-      {isEdit && (
-        <Pressable style={styles.editContainer} onPress={clickBackground}>
-          <Svg>
-            <EditSchedulePie
-              data={schedule}
-              x={timetablePositionX}
-              y={timetablePositionY}
-              radius={radius}
-              scheduleList={data}
-              disableScheduleList={disableScheduleList}
-            />
-          </Svg>
-
-          <EditScheduleText
-            data={schedule}
-            centerX={timetablePositionX}
-            centerY={timetablePositionY}
-            radius={radius}
-            onChangeSchedule={changeSchedule}
-          />
-
-          {!isInputMode && (
-            <EditSchedulePieController
-              data={schedule}
-              x={timetablePositionX}
-              y={timetablePositionY}
-              radius={radius}
-              onScheduleChanged={changeSchedule}
-            />
-          )}
-        </Pressable>
-      )}
+      </View>
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   editContainer: {
     position: 'absolute',
     width: '100%',
