@@ -26,9 +26,11 @@ instance.interceptors.request.use(
     }
     console.log('config url', config.url)
     console.log('config params', config.params)
+    console.log('config data', config.data)
     return config
   },
   error => {
+    console.error('rerquest error!!', error)
     return Promise.reject(error)
   }
 )
@@ -67,6 +69,7 @@ instance.interceptors.response.use(
     return response.data
   },
   async error => {
+    console.error('api response error', error)
     const statusCode = error.response?.status || 500
 
     return Promise.reject(statusCode)

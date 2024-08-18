@@ -3,5 +3,13 @@ declare interface GetWidgetReloadableRequest {
 }
 
 declare interface GetWidgetReloadableResponse {
-  isWidgetReloadable: boolean
+  widget_reloadable: boolean
+}
+
+declare interface UpdateWidgetReloadableRequest {
+  id: string
+}
+
+declare interface UpdateWidgetReloadableResponse {
+  result: boolean
 }

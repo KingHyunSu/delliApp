@@ -21,7 +21,7 @@ struct TimeTable: View {
     if let image = getImage() {
       GeometryReader { geometry in
         //        let radius = min(geometry.size.width, geometry.size.height) / 2 - 2.5
-        let radius = geometry.size.height / 2
+        let radius = geometry.size.height / 2 - 7
         let center = CGPoint(x: geometry.size.width / 2, y: geometry.size.height / 2)
         
         ZStack {

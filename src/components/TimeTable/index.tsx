@@ -1,6 +1,7 @@
 import React from 'react'
 import {StyleSheet, View, Pressable} from 'react-native'
 import {Svg, Text} from 'react-native-svg'
+import {captureRef} from 'react-native-view-shot'
 
 import Background from './src/Background'
 import SchedulePie from './src/SchedulePie'
@@ -14,11 +15,16 @@ import {timetableWrapperHeightState, timetableCenterPositionState} from '@/store
 import {scheduleState, disableScheduleListState, isInputModeState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
+export type TimeTableExternalRefs = {
+  getImage: () => Promise<string>
+}
 interface Props {
   data: Schedule[]
   isEdit: boolean
 }
-const TimeTable = ({data, isEdit}: Props) => {
+const TimeTable = React.forwardRef<TimeTableExternalRefs, Props>(({data, isEdit}, ref) => {
+  const refs = React.useRef<View>(null)
+
   const timetableWrapperHeight = useRecoilValue(timetableWrapperHeightState)
   const timetableCenterPosition = useRecoilValue(timetableCenterPositionState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
@@ -26,16 +32,28 @@ const TimeTable = ({data, isEdit}: Props) => {
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
+  // styles
+  const containerStyle = React.useMemo(() => {
+    return [styles.container, {height: timetableWrapperHeight}]
+  }, [timetableWrapperHeight])
+
+  const wrapperStyle = React.useMemo(() => {
+    return {
+      width: timetableCenterPosition * 2,
+      height: timetableCenterPosition * 2
+    }
+  }, [timetableCenterPosition])
+
+  const radius = React.useMemo(() => {
+    return timetableCenterPosition - 32
+  }, [timetableCenterPosition])
+
   const list = React.useMemo(() => {
     if (isEdit && schedule.schedule_id) {
       return data.filter(item => item.schedule_id !== schedule.schedule_id)
     }
     return data
   }, [isEdit, data, schedule.schedule_id])
-
-  const radius = React.useMemo(() => {
-    return timetableCenterPosition - 32
-  }, [timetableCenterPosition])
 
   const openEditMenuBottomSheet = React.useCallback(
     (value: Schedule) => {
@@ -62,6 +80,17 @@ const TimeTable = ({data, isEdit}: Props) => {
     },
     [setSchedule]
   )
+
+  const getImage = async () => {
+    if (refs.current) {
+      return await captureRef(refs, {
+        format: 'png',
+        quality: 1
+      })
+    }
+
+    return Promise.reject('TimeTableExternal image capture error!')
+  }
 
   React.useLayoutEffect(() => {
     if (!isEdit) {
@@ -122,16 +151,9 @@ const TimeTable = ({data, isEdit}: Props) => {
     setDisableScheduleList(result)
   }, [isEdit, schedule.schedule_id, schedule.start_time, schedule.end_time, data, setDisableScheduleList])
 
-  const containerStyle = React.useMemo(() => {
-    return [styles.container, {height: timetableWrapperHeight}]
-  }, [timetableWrapperHeight])
-
-  const wrapperStyle = React.useMemo(() => {
-    return {
-      width: timetableCenterPosition * 2,
-      height: timetableCenterPosition * 2
-    }
-  }, [timetableCenterPosition])
+  React.useImperativeHandle(ref, () => ({
+    getImage
+  }))
 
   if (!timetableWrapperHeight || !timetableCenterPosition) {
     return <></>
@@ -139,7 +161,7 @@ const TimeTable = ({data, isEdit}: Props) => {
 
   return (
     <View style={containerStyle}>
-      <View style={wrapperStyle}>
+      <View ref={refs} style={wrapperStyle}>
         <Svg>
           <Background x={timetableCenterPosition} y={timetableCenterPosition} radius={radius} />
 
@@ -219,7 +241,7 @@ const TimeTable = ({data, isEdit}: Props) => {
       </View>
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   container: {

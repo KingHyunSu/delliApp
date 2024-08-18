@@ -16,7 +16,7 @@ import {
 import RNFS from 'react-native-fs'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
-import {RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
+import {AdEventType, RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
 import {useQuery, useMutation} from '@tanstack/react-query'
 import {format, addDays, getDay} from 'date-fns'
 
@@ -31,7 +31,6 @@ import EditScheduleCheckBottomSheet from '@/views/BottomSheet/EditScheduleCheckB
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import EditTodoModal from '@/views/Modal/EditTodoModal'
-import TimeTableExternal, {TimeTableExternalRefs} from '@/components/TimeTableExternal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
 // icons
@@ -43,7 +42,14 @@ import PlusIcon from '@/assets/icons/plus.svg'
 
 // stores
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
-import {safeAreaInsetsState, isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
+import {
+  safeAreaInsetsState,
+  isLunchState,
+  isEditState,
+  isLoadingState,
+  homeHeaderHeightState,
+  toastState
+} from '@/store/system'
 import {
   scheduleDateState,
   scheduleState,
@@ -65,6 +71,7 @@ import {userRepository, scheduleRepository} from '@/repository'
 import * as widgetApi from '@/apis/widget'
 
 import {HomeNavigationProps} from '@/types/navigation'
+import type {TimeTableExternalRefs} from '@/components/TimeTable'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
 
@@ -94,6 +101,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
+  const setToast = useSetRecoilState(toastState)
 
   const handleWidgetUpdate = React.useCallback(
     async (value?: Schedule[]) => {
@@ -107,17 +115,15 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         return
       }
 
-      // const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
       const [user] = await userRepository.getUser()
       const params = {id: user.user_id}
 
       const response = await widgetApi.getWidgetReloadable(params)
-      const shouldWidgetReload = response.data.isWidgetReloadable
-      console.log('shouldWidgetReload', shouldWidgetReload)
+
       // 위젯 새로고침 필요 상태
-      // if (shouldWidgetReload) {
-      //   return
-      // }
+      if (!response.data.widget_reloadable) {
+        return
+      }
 
       let newScheduleList = value ? value : [...scheduleList]
       newScheduleList.sort((a, b) => a.end_time - b.end_time)
@@ -126,6 +132,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
       const fileName = 'timetable.png'
       const appGroupPath = await AppGroupModule.getAppGroupPath()
+
       const path = appGroupPath + '/' + fileName
       const existImage = await RNFS.exists(path)
 
@@ -173,7 +180,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
       WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
     },
-    [scheduleList]
+    [scheduleList, AppGroupModule, WidgetUpdaterModule]
   )
 
   const {isError, refetch: refetchScheduleList} = useQuery({
@@ -207,7 +214,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
           todo_list: JSON.parse(item.todo_list)
         }
       })
-      console.log('result', result)
 
       setScheduleList(result)
       setIsLunch(true)
@@ -253,23 +259,13 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
     },
     onSuccess: async () => {
       await refetchScheduleList()
-      await handleWidgetUpdate()
-
       setIsEdit(false)
+      await handleWidgetUpdate()
     },
     onError: e => {
       console.error('error', e)
     }
   })
-
-  React.useEffect(() => {
-    const test = async () => {
-      const shouldWidgetReload = await WidgetUpdaterModule.shouldWidgetReload()
-      console.log('shouldWidgetReload', shouldWidgetReload)
-    }
-
-    test()
-  }, [WidgetUpdaterModule])
 
   const activeSubmit = React.useMemo(() => {
     const dayOfWeekList = [
@@ -444,6 +440,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
   React.useEffect(() => {
     const path = route.path
+    console.log('home path', path)
 
     if (path === 'widget/reload') {
       const rewardedAd = RewardedAd.createForAdRequest(adUnitId)
@@ -451,25 +448,41 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       setScheduleDate(new Date())
 
       // 광고 로드 완료
-      const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, () => {
-        Alert.alert('광고 시청하고\n새로운 생활계획표 생성하기', '', [
-          {
-            text: '취소',
-            style: 'cancel'
-          },
-          {
-            text: '생성하기',
-            onPress: () => {
-              rewardedAd.show()
+      const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, async () => {
+        const [user] = await userRepository.getUser()
+        const params = {id: user.user_id}
+        console.log('params', params)
+        const response = await widgetApi.getWidgetReloadable(params)
+        console.log('response', response)
+        if (!response.data.widget_reloadable) {
+          Alert.alert('광고 시청하고\n새로운 생활계획표 생성하기', '', [
+            {
+              text: '취소',
+              style: 'cancel'
+            },
+            {
+              text: '생성하기',
+              onPress: () => {
+                rewardedAd.show()
+              }
             }
-          }
-        ])
+          ])
+        }
       })
 
       // 광고 시청 완료
       const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, async reward => {
         const {data: newScheduleList} = await refetchScheduleList()
         await handleWidgetUpdate(newScheduleList)
+
+        const [user] = await userRepository.getUser()
+        const params = {id: user.user_id}
+        await widgetApi.updateWidgetReloadable(params)
+      })
+
+      // 광고 닫힘
+      const unsubscribeClosed = rewardedAd.addAdEventListener(AdEventType.CLOSED, () => {
+        setToast({visible: true, message: '위젯 새로고침 완료'})
       })
 
       // Start loading the rewarded ad straight away
@@ -477,8 +490,10 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
       // Unsubscribe from events on unmount
       return () => {
+        console.log('131231')
         unsubscribeLoaded()
         unsubscribeEarned()
+        unsubscribeClosed()
       }
     }
   }, [route])
@@ -551,7 +566,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         </Animated.View>
 
         <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
-          <TimeTable data={scheduleList} isEdit={isEdit} />
+          <TimeTable ref={timeTableExternalRef} data={scheduleList} isEdit={isEdit} />
         </Animated.View>
 
         <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
@@ -578,9 +593,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
         <Loading />
       </View>
-
-      {/*  external timetable */}
-      <TimeTableExternal ref={timeTableExternalRef} data={scheduleList} options={{width: 400, height: 400}} />
     </SafeAreaView>
   )
 }

@@ -14,12 +14,11 @@ class WidgetUpdaterModule: NSObject {
   @objc 
   static func requiresMainQueueSetup() -> Bool { return true }
 
-  @objc
+  @objc(updateWidget:)
   public func updateWidget(data: String) -> Void {
     let appGroupID = "group.delli.widget"
     let sharedUserDefaults = UserDefaults(suiteName: appGroupID)
     
-    sharedUserDefaults?.set(false, forKey: "shouldWidgetReload")
     sharedUserDefaults?.set(data, forKey: "scheduleList")
     WidgetCenter.shared.reloadAllTimelines()
   }

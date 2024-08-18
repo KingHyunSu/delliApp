@@ -17,6 +17,7 @@
 		20E37ADA26C741069DAC0674 /* Pretendard-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = DB1F50541BD340BBB3009FA9 /* Pretendard-Medium.otf */; };
 		20E83774125F49BCB290875A /* Pretendard-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 78E387145E0841748E4547AD /* Pretendard-Light.otf */; };
 		2D1FA4A9DEBDAF93D9E7B3B2 /* Pods_delli.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DA7A02BF3129EA7C8F6F06A /* Pods_delli.framework */; };
+		465FE11C2C70BEEC003039B0 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467D46972C6E0E3300D94C4D /* WidgetKit.framework */; };
 		467D46982C6E0E3300D94C4D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467D46972C6E0E3300D94C4D /* WidgetKit.framework */; };
 		467D469A2C6E0E3300D94C4D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467D46992C6E0E3300D94C4D /* SwiftUI.framework */; };
 		467D469D2C6E0E3300D94C4D /* DelliWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467D469C2C6E0E3300D94C4D /* DelliWidgetBundle.swift */; };
@@ -124,6 +125,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2D1FA4A9DEBDAF93D9E7B3B2 /* Pods_delli.framework in Frameworks */,
+				465FE11C2C70BEEC003039B0 /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -830,7 +832,7 @@
 				INFOPLIST_FILE = DelliWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DelliWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -875,7 +877,7 @@
 				INFOPLIST_FILE = DelliWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DelliWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -965,7 +967,7 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD = "";
 				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1057,7 +1059,7 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD = "";
 				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
