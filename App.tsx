@@ -19,6 +19,9 @@ import HomeScreen from '@/views/Home'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
 
+// components
+import Toast from '@/components/Toast'
+
 // stores
 import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
 import {loginState, isLunchState, windowDimensionsState} from '@/store/system'
@@ -215,7 +218,10 @@ function App(): JSX.Element {
           <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
           <SafeAreaView style={statusBarStyle} />
-          <NavigationContainer ref={navigationRef}>
+
+          <Toast />
+
+          <NavigationContainer ref={navigationRef} linking={linking}>
             <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
               <Stack.Screen name="Home" component={HomeScreen} />
               <Stack.Screen name="Setting" component={SettingScreen} />

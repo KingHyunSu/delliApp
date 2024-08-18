@@ -23,6 +23,15 @@ export const isLoadingState = atom({
   default: false
 })
 
+type Toast = {visible: boolean; message: string}
+export const toastState = atom<Toast>({
+  key: 'toastState',
+  default: {
+    visible: false,
+    message: ''
+  }
+})
+
 export const windowDimensionsState = atom({
   key: 'windowDimensionsState',
   default: {
