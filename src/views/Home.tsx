@@ -175,7 +175,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
           })
         }
       }
-
+      console.log('widgetScheduleList', widgetScheduleList)
       const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
 
       WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
@@ -183,6 +183,9 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
     [scheduleList, AppGroupModule, WidgetUpdaterModule]
   )
 
+  // ---------------------------------------------------------------------
+  // apis start
+  // ---------------------------------------------------------------------
   const {isError, refetch: refetchScheduleList} = useQuery({
     queryKey: ['scheduleList', scheduleDate],
     queryFn: async () => {
@@ -258,14 +261,30 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       }
     },
     onSuccess: async () => {
-      await refetchScheduleList()
+      const {data: newScheduleList} = await refetchScheduleList()
       setIsEdit(false)
-      await handleWidgetUpdate()
+      await handleWidgetUpdate(newScheduleList)
     },
     onError: e => {
       console.error('error', e)
     }
   })
+
+  const {mutate: updateScheduleDeletedMutate} = useMutation({
+    mutationFn: async (data: ScheduleDisableReqeust) => {
+      await scheduleRepository.updateScheduleDeleted(data)
+    },
+    onSuccess: async () => {
+      const {data: newScheduleList} = await refetchScheduleList()
+      await handleWidgetUpdate(newScheduleList)
+
+      resetSchedule()
+      setShowEditMenuBottomSheet(false)
+    }
+  })
+  // ---------------------------------------------------------------------
+  // apis end
+  // ---------------------------------------------------------------------
 
   const activeSubmit = React.useMemo(() => {
     const dayOfWeekList = [
@@ -451,9 +470,8 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, async () => {
         const [user] = await userRepository.getUser()
         const params = {id: user.user_id}
-        console.log('params', params)
         const response = await widgetApi.getWidgetReloadable(params)
-        console.log('response', response)
+
         if (!response.data.widget_reloadable) {
           Alert.alert('광고 시청하고\n새로운 생활계획표 생성하기', '', [
             {
@@ -490,7 +508,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
       // Unsubscribe from events on unmount
       return () => {
-        console.log('131231')
         unsubscribeLoaded()
         unsubscribeEarned()
         unsubscribeClosed()
@@ -584,7 +601,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         )}
 
         {/* bottom sheet */}
-        <EditMenuBottomSheet refetchScheduleList={refetchScheduleList} handleWidgetUpdate={handleWidgetUpdate} />
+        <EditMenuBottomSheet updateScheduleDeletedMutate={updateScheduleDeletedMutate} />
         <TimetableCategoryBottomSheet />
 
         {/* modal */}

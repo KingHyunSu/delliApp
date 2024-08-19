@@ -3,8 +3,6 @@ import {StyleSheet, Alert, View, Text, Pressable} from 'react-native'
 import {BottomSheetModal, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 
-import {useMutation} from '@tanstack/react-query'
-
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
 import {scheduleState, scheduleTodoState} from '@/store/schedule'
@@ -15,14 +13,10 @@ import EditIcon from '@/assets/icons/edit3.svg'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import TodoIcon from '@/assets/icons/priority.svg' // TODO 이름 변경하기 (priority -> check_square)
 
-// repository
-import {scheduleRepository} from '@/repository'
-
 interface Props {
-  refetchScheduleList: Function
-  handleWidgetUpdate: Function
+  updateScheduleDeletedMutate: Function
 }
-const EditMenuBottomSheet = ({refetchScheduleList, handleWidgetUpdate}: Props) => {
+const EditMenuBottomSheet = ({updateScheduleDeletedMutate}: Props) => {
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const setShowEditTodoModalState = useSetRecoilState(showEditTodoModalState)
   const setIsEdit = useSetRecoilState(isEditState)
@@ -47,20 +41,6 @@ const EditMenuBottomSheet = ({refetchScheduleList, handleWidgetUpdate}: Props) =
     }
   }, [schedule.schedule_id, changeScheduleTodo, setShowEditTodoModalState])
 
-  const updateScheduleDeletedMutation = useMutation({
-    mutationFn: async (data: ScheduleDisableReqeust) => {
-      await scheduleRepository.updateScheduleDeleted(data)
-    },
-    onSuccess: async () => {
-      await refetchScheduleList()
-      await handleWidgetUpdate()
-
-      handleReset()
-
-      setShowEditMenuBottomSheet(false)
-    }
-  })
-
   const deleteSchedule = React.useCallback(() => {
     Alert.alert('일정 삭제하기', `"${schedule.title}" 일정을 삭제하시겠습니까?`, [
       {
@@ -78,13 +58,13 @@ const EditMenuBottomSheet = ({refetchScheduleList, handleWidgetUpdate}: Props) =
               schedule_id: schedule.schedule_id
             }
 
-            updateScheduleDeletedMutation.mutate(params)
+            updateScheduleDeletedMutate(params)
           }
         },
         style: 'destructive'
       }
     ])
-  }, [schedule.title, schedule.schedule_id, updateScheduleDeletedMutation])
+  }, [schedule.title, schedule.schedule_id])
 
   const openEditScheduleBottomSheet = React.useCallback(() => {
     setShowEditMenuBottomSheet(false)
