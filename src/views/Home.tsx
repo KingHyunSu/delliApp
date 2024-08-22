@@ -156,7 +156,8 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
               schedule_id: null,
               title: '',
               start_time: currentSchedule.end_time,
-              end_time: nextSchedule.start_time
+              end_time: nextSchedule.start_time,
+              todo_list: []
             })
           }
         }
@@ -171,7 +172,8 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
             schedule_id: null,
             title: '',
             start_time: lastSchedule.end_time,
-            end_time: firstSchedule.start_time
+            end_time: firstSchedule.start_time,
+            todo_list: []
           })
         }
       }

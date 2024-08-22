@@ -72,6 +72,7 @@ declare interface WidgetSchedule {
   title: string
   start_time: number
   end_time: number
+  todo_list: Todo[]
 }
 
 declare interface UsedColor {

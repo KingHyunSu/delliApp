@@ -26,6 +26,11 @@
 		467D46AE2C6E0EB300D94C4D /* RCTAppGroupModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 467D46AC2C6E0EB300D94C4D /* RCTAppGroupModule.m */; };
 		467D46B82C6E375100D94C4D /* WidgetUpdaterModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467D46B62C6E375100D94C4D /* WidgetUpdaterModule.swift */; };
 		467D46B92C6E375100D94C4D /* WidgetUpdaterModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 467D46B72C6E375100D94C4D /* WidgetUpdaterModule.m */; };
+		4684A05C2C76620800C9D2BF /* Pretendard-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 78E387145E0841748E4547AD /* Pretendard-Light.otf */; };
+		4684A05D2C76620C00C9D2BF /* Pretendard-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = C1864CAB8C5B4A7B8321FF90 /* Pretendard-Bold.otf */; };
+		4684A05E2C76620E00C9D2BF /* Pretendard-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = DB1F50541BD340BBB3009FA9 /* Pretendard-Medium.otf */; };
+		4684A05F2C76621000C9D2BF /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 984CFCDD09EA4249ADFC26FD /* Pretendard-Regular.otf */; };
+		4684A0602C76621100C9D2BF /* Pretendard-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = B570A2503D224B7F98776731 /* Pretendard-SemiBold.otf */; };
 		46B664B12C6E45A100C1C6DF /* TimeTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B664AD2C6E45A100C1C6DF /* TimeTable.swift */; };
 		46B664B22C6E45A100C1C6DF /* ActiveScheduleBorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B664AE2C6E45A100C1C6DF /* ActiveScheduleBorder.swift */; };
 		46B664B32C6E45A100C1C6DF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B664AF2C6E45A100C1C6DF /* ContentView.swift */; };
@@ -438,6 +443,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				46B664B42C6E45A100C1C6DF /* Assets.xcassets in Resources */,
+				4684A05D2C76620C00C9D2BF /* Pretendard-Bold.otf in Resources */,
+				4684A05F2C76621000C9D2BF /* Pretendard-Regular.otf in Resources */,
+				4684A0602C76621100C9D2BF /* Pretendard-SemiBold.otf in Resources */,
+				4684A05C2C76620800C9D2BF /* Pretendard-Light.otf in Resources */,
+				4684A05E2C76620E00C9D2BF /* Pretendard-Medium.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -832,7 +842,7 @@
 				INFOPLIST_FILE = DelliWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DelliWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -877,7 +887,7 @@
 				INFOPLIST_FILE = DelliWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = DelliWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -967,7 +977,7 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD = "";
 				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1059,7 +1069,7 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD = "";
 				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (

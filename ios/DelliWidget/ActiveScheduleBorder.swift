@@ -26,7 +26,7 @@ struct ActiveScheduleBorder: View {
   var endAngle: CGFloat
   
   var body: some View {
-    let arcSweep = getArcSweep(startAngle: startAngle, endAngle: endAngle)
+//    let arcSweep = getArcSweep(startAngle: startAngle, endAngle: endAngle)
     let padding:CGFloat = 0
     var path = Path()
     
