@@ -15,14 +15,14 @@ import {timetableWrapperHeightState, timetableCenterPositionState} from '@/store
 import {scheduleState, disableScheduleListState, isInputModeState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
-export type TimeTableExternalRefs = {
+export type TimetableRefs = {
   getImage: () => Promise<string>
 }
 interface Props {
   data: Schedule[]
   isEdit: boolean
 }
-const TimeTable = React.forwardRef<TimeTableExternalRefs, Props>(({data, isEdit}, ref) => {
+const TimeTable = React.forwardRef<TimetableRefs, Props>(({data, isEdit}, ref) => {
   const refs = React.useRef<View>(null)
 
   const timetableWrapperHeight = useRecoilValue(timetableWrapperHeightState)
@@ -89,7 +89,7 @@ const TimeTable = React.forwardRef<TimeTableExternalRefs, Props>(({data, isEdit}
       })
     }
 
-    return Promise.reject('TimeTableExternal image capture error!')
+    return Promise.reject('timetable image capture error!')
   }
 
   React.useLayoutEffect(() => {
@@ -148,7 +148,7 @@ const TimeTable = React.forwardRef<TimeTableExternalRefs, Props>(({data, isEdit}
         }
       })
 
-    setDisableScheduleList(result)
+    setDisableScheduleList(result as ExistSchedule[])
   }, [isEdit, schedule.schedule_id, schedule.start_time, schedule.end_time, data, setDisableScheduleList])
 
   React.useImperativeHandle(ref, () => ({

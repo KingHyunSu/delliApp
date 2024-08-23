@@ -3,7 +3,6 @@ import {
   Platform,
   Animated,
   StyleSheet,
-  NativeModules,
   LayoutChangeEvent,
   BackHandler,
   ToastAndroid,
@@ -13,7 +12,6 @@ import {
   View,
   Text
 } from 'react-native'
-import RNFS from 'react-native-fs'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import {AdEventType, RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
@@ -65,21 +63,21 @@ import {
   showDatePickerBottomSheetState
 } from '@/store/bottomSheet'
 
-import {getDayOfWeekKey} from '@/utils/helper'
+import {updateWidgetWithImage} from '@/utils/widget'
+import {getScheduleList} from '@/utils/schedule'
 import {userRepository, scheduleRepository} from '@/repository'
 
 import * as widgetApi from '@/apis/widget'
 
 import {HomeNavigationProps} from '@/types/navigation'
-import type {TimeTableExternalRefs} from '@/components/TimeTable'
+import type {TimetableRefs} from '@/components/TimeTable'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
 
 const Home = ({navigation, route}: HomeNavigationProps) => {
-  const {AppGroupModule, WidgetUpdaterModule} = NativeModules
   const safeAreaInsets = useSafeAreaInsets()
 
-  const timeTableExternalRef = React.useRef<TimeTableExternalRefs>(null)
+  const timetableRef = React.useRef<TimetableRefs>(null)
 
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
@@ -103,88 +101,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setToast = useSetRecoilState(toastState)
 
-  const handleWidgetUpdate = React.useCallback(
-    async (value?: Schedule[]) => {
-      if (!timeTableExternalRef.current) {
-        Alert.alert('에러', '잠시 후 다시 시도해 주세요.', [
-          {
-            text: '확인'
-          }
-        ])
-
-        return
-      }
-
-      const [user] = await userRepository.getUser()
-      const params = {id: user.user_id}
-
-      const response = await widgetApi.getWidgetReloadable(params)
-
-      // 위젯 새로고침 필요 상태
-      if (!response.data.widget_reloadable) {
-        return
-      }
-
-      let newScheduleList = value ? value : [...scheduleList]
-      newScheduleList.sort((a, b) => a.end_time - b.end_time)
-
-      const timeTableExternalImageUri = await timeTableExternalRef.current.getImage()
-
-      const fileName = 'timetable.png'
-      const appGroupPath = await AppGroupModule.getAppGroupPath()
-
-      const path = appGroupPath + '/' + fileName
-      const existImage = await RNFS.exists(path)
-
-      if (existImage) {
-        await RNFS.unlink(path)
-      }
-      await RNFS.moveFile(timeTableExternalImageUri, path)
-
-      let widgetScheduleList: WidgetSchedule[] = []
-
-      if (newScheduleList?.length > 0) {
-        // 공백 일정 추가
-        for (let i = 0; i < newScheduleList.length - 1; i++) {
-          const currentSchedule = newScheduleList[i]
-          const nextSchedule = newScheduleList[i + 1]
-
-          widgetScheduleList.push(currentSchedule)
-
-          if (currentSchedule.end_time !== nextSchedule.start_time) {
-            widgetScheduleList.push({
-              schedule_id: null,
-              title: '',
-              start_time: currentSchedule.end_time,
-              end_time: nextSchedule.start_time,
-              todo_list: []
-            })
-          }
-        }
-
-        const firstSchedule = newScheduleList[0]
-        const lastSchedule = newScheduleList[newScheduleList.length - 1]
-
-        widgetScheduleList.push(lastSchedule)
-
-        if (firstSchedule.start_time !== lastSchedule.end_time) {
-          widgetScheduleList.push({
-            schedule_id: null,
-            title: '',
-            start_time: lastSchedule.end_time,
-            end_time: firstSchedule.start_time,
-            todo_list: []
-          })
-        }
-      }
-      console.log('widgetScheduleList', widgetScheduleList)
-      const widgetScheduleListJsonString = JSON.stringify(widgetScheduleList)
-
-      WidgetUpdaterModule.updateWidget(widgetScheduleListJsonString)
-    },
-    [scheduleList, AppGroupModule, WidgetUpdaterModule]
-  )
-
   // ---------------------------------------------------------------------
   // apis start
   // ---------------------------------------------------------------------
@@ -193,40 +109,15 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
     queryFn: async () => {
       setIsLoading(true)
 
-      const date = format(scheduleDate, 'yyyy-MM-dd')
-      const dayOfWeek = getDayOfWeekKey(scheduleDate.getDay())
-      const params = {
-        date,
-        mon: '',
-        tue: '',
-        wed: '',
-        thu: '',
-        fri: '',
-        sat: '',
-        sun: '',
-        disable: '0'
-      }
+      const newScheduleList = await getScheduleList(scheduleDate)
 
-      if (dayOfWeek) {
-        params[dayOfWeek] = '1'
-      }
-
-      let result = await scheduleRepository.getScheduleList(params)
-
-      result = result.map(item => {
-        return {
-          ...item,
-          todo_list: JSON.parse(item.todo_list)
-        }
-      })
-
-      setScheduleList(result)
+      setScheduleList(newScheduleList)
       setIsLunch(true)
       setTimeout(() => {
         setIsLoading(false)
       }, 300)
 
-      return result
+      return newScheduleList
     },
     initialData: []
   })
@@ -263,9 +154,10 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       }
     },
     onSuccess: async () => {
-      const {data: newScheduleList} = await refetchScheduleList()
+      await refetchScheduleList()
       setIsEdit(false)
-      await handleWidgetUpdate(newScheduleList)
+
+      await updateWidgetWithImage(timetableRef)
     },
     onError: e => {
       console.error('error', e)
@@ -277,8 +169,8 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       await scheduleRepository.updateScheduleDeleted(data)
     },
     onSuccess: async () => {
-      const {data: newScheduleList} = await refetchScheduleList()
-      await handleWidgetUpdate(newScheduleList)
+      await refetchScheduleList()
+      await updateWidgetWithImage(timetableRef)
 
       resetSchedule()
       setShowEditMenuBottomSheet(false)
@@ -492,8 +384,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
       // 광고 시청 완료
       const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, async reward => {
-        const {data: newScheduleList} = await refetchScheduleList()
-        await handleWidgetUpdate(newScheduleList)
+        await updateWidgetWithImage(timetableRef)
 
         const [user] = await userRepository.getUser()
         const params = {id: user.user_id}
@@ -585,7 +476,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         </Animated.View>
 
         <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
-          <TimeTable ref={timeTableExternalRef} data={scheduleList} isEdit={isEdit} />
+          <TimeTable ref={timetableRef} data={scheduleList} isEdit={isEdit} />
         </Animated.View>
 
         <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />

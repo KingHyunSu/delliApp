@@ -1,9 +1,10 @@
 import React from 'react'
 import {Alert, NativeModules} from 'react-native'
+import RNFS from 'react-native-fs'
 import {userRepository} from '@/repository'
 import * as widgetApi from '@/apis/widget'
+import {getScheduleList} from '@/utils/schedule'
 import type {TimetableRefs} from '@/components/TimeTable'
-import RNFS from 'react-native-fs'
 
 type WidgetSchedule = {
   schedule_id: number | null
@@ -74,19 +75,24 @@ const getWidgetScheduleList = (schedules: Schedule[]) => {
   return JSON.stringify(widgetScheduleList)
 }
 
-export const updateWidget = async (schedules: Schedule[]) => {
+const handleWidgetUpdate = async () => {
+  const newScheduleList = await getScheduleList(new Date())
+  const widgetScheduleList = getWidgetScheduleList(newScheduleList)
+
+  WidgetUpdaterModule.updateWidget(widgetScheduleList)
+}
+
+export const updateWidget = async () => {
   const widgetReloadable = await isWidgetReloadable()
 
   if (!widgetReloadable) {
     return
   }
 
-  const widgetScheduleList = getWidgetScheduleList(schedules)
-
-  WidgetUpdaterModule.updateWidget(widgetScheduleList)
+  await handleWidgetUpdate()
 }
 
-export const updateWidgetWithImage = async (schedules: Schedule[], timetableRefs: React.RefObject<TimetableRefs>) => {
+export const updateWidgetWithImage = async (timetableRefs: React.RefObject<TimetableRefs>) => {
   if (!timetableRefs.current) {
     Alert.alert('에러', '잠시 후 다시 시도해 주세요.', [
       {
@@ -115,7 +121,5 @@ export const updateWidgetWithImage = async (schedules: Schedule[], timetableRefs
   }
   await RNFS.moveFile(imageUri, path)
 
-  const widgetScheduleList = getWidgetScheduleList(schedules)
-
-  WidgetUpdaterModule.updateWidget(widgetScheduleList)
+  await handleWidgetUpdate()
 }

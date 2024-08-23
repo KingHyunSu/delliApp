@@ -126,7 +126,7 @@ const ScheduleTodoList = ({data}: Props) => {
       })
 
       setScheduleList(newScheduleList)
-      await updateWidget(newScheduleList)
+      await updateWidget()
     },
     [data, scheduleList, setScheduleList]
   )

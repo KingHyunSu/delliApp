@@ -123,7 +123,7 @@ const EditTodoModal = () => {
     handleClose()
     setShowEditMenuBottomSheet(false)
 
-    await updateWidget(newScheduleList)
+    await updateWidget()
   }
 
   const setScheduleTodoMutation = useMutation({
