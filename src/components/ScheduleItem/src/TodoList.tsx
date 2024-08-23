@@ -9,6 +9,7 @@ import {scheduleDateState, scheduleListState, scheduleTodoState} from '@/store/s
 import {showEditTodoModalState} from '@/store/modal'
 
 import {useMutation} from '@tanstack/react-query'
+import {updateWidget} from '@/utils/widget'
 
 import CheckIcon from '@/assets/icons/check.svg'
 import MoreIcon from '@/assets/icons/more_horiz.svg'
@@ -102,98 +103,83 @@ const ScheduleTodoList = ({data}: Props) => {
     }
   })
 
+  const triggerHapticFeedback = () => {
+    const triggerType = Platform.OS === 'android' ? 'effectClick' : 'impactMedium'
+    trigger(triggerType, {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false
+    })
+  }
+
+  const updateScheduleList = React.useCallback(
+    async (item: Todo, updatedFields: Partial<Todo>) => {
+      const newScheduleList = scheduleList.map(scheduleItem => {
+        if (item.schedule_id === scheduleItem.schedule_id) {
+          const newTodoList = data.map(todoItem =>
+            todoItem.todo_id === item.todo_id ? {...todoItem, ...updatedFields} : todoItem
+          )
+
+          return {...scheduleItem, todo_list: newTodoList}
+        }
+
+        return scheduleItem
+      })
+
+      setScheduleList(newScheduleList)
+      await updateWidget(newScheduleList)
+    },
+    [data, scheduleList, setScheduleList]
+  )
+
+  const completeTodoItem = React.useCallback(
+    async (item: Todo) => {
+      const params: SetScheduleTodoCompleteRequest = {
+        todo_id: item.todo_id!,
+        complete_date: format(new Date(scheduleDate), 'yyyy-MM-dd')
+      }
+
+      const result = await setScheduleTodoCompleteMutation.mutateAsync(params)
+      triggerHapticFeedback()
+
+      await updateScheduleList(item, {
+        complete_id: result.complete_id,
+        complete_date: format(new Date(scheduleDate), 'yyyy-MM-dd')
+      })
+    },
+    [scheduleDate, setScheduleTodoCompleteMutation, updateScheduleList]
+  )
+
+  const undoCompleteTodoItem = React.useCallback(
+    async (item: Todo) => {
+      const params: DeleteScheduleTodoCompleteRequest = {
+        complete_id: item.complete_id!
+      }
+
+      await deleteScheduleTodoCompleteMutation.mutateAsync(params)
+      triggerHapticFeedback()
+
+      await updateScheduleList(item, {
+        complete_id: null,
+        complete_date: null
+      })
+    },
+    [deleteScheduleTodoCompleteMutation, updateScheduleList]
+  )
+
   const handleScheduleTodoComplete = React.useCallback(
     async (value: boolean, item: Todo) => {
+      if (!item.todo_id || (value && !item.todo_id) || (!value && !item.complete_id)) {
+        // [TODO] error check...
+        return
+      }
+
       if (value) {
-        if (!item.todo_id) {
-          // [TODO] error check...
-          return
-        }
-
-        const params: SetScheduleTodoCompleteRequest = {
-          todo_id: item.todo_id,
-          complete_date: format(new Date(scheduleDate), 'yyyy-MM-dd')
-        }
-
-        const result = await setScheduleTodoCompleteMutation.mutateAsync(params)
-
-        const triggerType = Platform.OS === 'android' ? 'effectClick' : 'impactMedium'
-
-        trigger(triggerType, {
-          enableVibrateFallback: true,
-          ignoreAndroidSystemSettings: false
-        })
-
-        const newScheduleList = scheduleList.map(scheduleItem => {
-          if (item.schedule_id === scheduleItem.schedule_id) {
-            let newTodoList = [...data]
-
-            const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.todo_id === item.todo_id)
-
-            if (updateTodoIndex !== -1) {
-              newTodoList[updateTodoIndex] = {
-                ...newTodoList[updateTodoIndex],
-                complete_id: result.complete_id,
-                complete_date: format(new Date(scheduleDate), 'yyyy-MM-dd')
-              }
-            }
-
-            return {
-              ...scheduleItem,
-              todo_list: newTodoList
-            }
-          }
-
-          return scheduleItem
-        })
-
-        setScheduleList(newScheduleList)
+        await completeTodoItem(item)
       } else {
-        if (!item.complete_id) {
-          // [TODO] error check...
-          return
-        }
-
-        const params: DeleteScheduleTodoCompleteRequest = {
-          complete_id: item.complete_id
-        }
-
-        await deleteScheduleTodoCompleteMutation.mutateAsync(params)
-
-        const newScheduleList = scheduleList.map(scheduleItem => {
-          if (item.schedule_id === scheduleItem.schedule_id) {
-            let newTodoList = [...data]
-
-            const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.todo_id === item.todo_id)
-
-            if (updateTodoIndex !== -1) {
-              newTodoList[updateTodoIndex] = {
-                ...newTodoList[updateTodoIndex],
-                complete_id: null,
-                complete_date: null
-              }
-            }
-
-            return {
-              ...scheduleItem,
-              todo_list: newTodoList
-            }
-          }
-
-          return scheduleItem
-        })
-
-        setScheduleList(newScheduleList)
+        await undoCompleteTodoItem(item)
       }
     },
-    [
-      data,
-      deleteScheduleTodoCompleteMutation,
-      scheduleDate,
-      scheduleList,
-      setScheduleList,
-      setScheduleTodoCompleteMutation
-    ]
+    [completeTodoItem, undoCompleteTodoItem]
   )
 
   const keyExtractor = React.useCallback((item: Todo, index: number) => {
