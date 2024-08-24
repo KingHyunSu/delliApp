@@ -87,8 +87,8 @@ struct Provider: TimelineProvider {
     var scheduleList: [ScheduleModel] = []
     
     do {
-      if scheduleListJsonString != nil {
-        let decodedScheduleList = Data(scheduleListJsonString?.utf8 ?? "".utf8)
+      if let jsonString = scheduleListJsonString {
+        let decodedScheduleList = Data(jsonString.utf8)
         scheduleList = try JSONDecoder().decode([ScheduleModel].self, from: decodedScheduleList)
       }
     } catch {
@@ -98,11 +98,11 @@ struct Provider: TimelineProvider {
     let currentDate = Date()
     let calendar = Calendar.current
     let startOfDay = calendar.startOfDay(for: currentDate)
-    let currentTime = calendar.dateComponents([.minute], from: startOfDay, to: currentDate).minute
+    let currentTime = calendar.dateComponents([.minute], from: startOfDay, to: currentDate).minute ?? 0
     
-    if(scheduleList.count == 0) {
+    if scheduleList.isEmpty {
       let entry = SimpleEntry(
-        date: calendar.date(byAdding: .hour, value: 0, to: currentDate)!,
+        date: currentDate,
         isUpdate: false,
         scheduleList: [],
         activeSchedule: ScheduleModel(
@@ -129,33 +129,21 @@ struct Provider: TimelineProvider {
         
         entries.append(entry)
         
-        // 위젯 타임라인 생성시 현재 시간에 따라 일정 active 제어
-        if let currentTime = currentTime {
-          // 자정 이전에 일정이 있을 경우
-          if(schedule.schedule_id != nil
-             && schedule.start_time > schedule.end_time
-             && currentTime < Int(schedule.end_time)
-          ) {
-            entry = SimpleEntry(
-              date: calendar.date(byAdding: .hour, value: 0, to: currentDate)!,
-              isUpdate: false,
-              scheduleList: scheduleList,
-              activeSchedule: schedule
-            )
-            
-            entries.append(entry)
-          }
+        if schedule.schedule_id != nil && schedule.start_time > schedule.end_time && currentTime < Int(schedule.end_time) {
+          entry = SimpleEntry(
+            date: currentDate,
+            isUpdate: false,
+            scheduleList: scheduleList,
+            activeSchedule: schedule
+          )
+          
+          entries.append(entry)
         }
       }
     }
     
     // 자정 새로고침 업데이트 추가
-    if let midnight = calendar.date(
-      bySettingHour: 0,
-      minute: 0,
-      second: 0,
-      of: calendar.date(byAdding: .day, value: 1, to: currentDate)!
-    ) {
+    if let midnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: calendar.date(byAdding: .day, value: 1, to: startOfDay)!) {
       let entry = SimpleEntry(
         date: midnight,
         isUpdate: true,
@@ -171,8 +159,7 @@ struct Provider: TimelineProvider {
       entries.append(entry)
     }
     
-    print(entries)
-    let timeline = Timeline(entries: entries, policy: .atEnd)
+    let timeline = Timeline(entries: entries, policy: .never)
     completion(timeline)
   }
 }
