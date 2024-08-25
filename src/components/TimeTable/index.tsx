@@ -3,6 +3,7 @@ import {StyleSheet, View, Pressable} from 'react-native'
 import {Svg, Text} from 'react-native-svg'
 import {captureRef} from 'react-native-view-shot'
 
+import TimeBackground from './src/TimeBackground'
 import Background from './src/Background'
 import SchedulePie from './src/SchedulePie'
 import ScheduleText from './src/ScheduleText'
@@ -38,10 +39,13 @@ const TimeTable = React.forwardRef<TimetableRefs, Props>(({data, isEdit}, ref) =
   }, [timetableWrapperHeight])
 
   const wrapperStyle = React.useMemo(() => {
-    return {
-      width: timetableCenterPosition * 2,
-      height: timetableCenterPosition * 2
-    }
+    return [
+      styles.wrapper,
+      {
+        width: timetableCenterPosition * 2,
+        height: timetableCenterPosition * 2
+      }
+    ]
   }, [timetableCenterPosition])
 
   const radius = React.useMemo(() => {
@@ -83,10 +87,7 @@ const TimeTable = React.forwardRef<TimetableRefs, Props>(({data, isEdit}, ref) =
 
   const getImage = async () => {
     if (refs.current) {
-      return await captureRef(refs, {
-        format: 'png',
-        quality: 1
-      })
+      return await captureRef(refs)
     }
 
     return Promise.reject('timetable image capture error!')
@@ -161,50 +162,54 @@ const TimeTable = React.forwardRef<TimetableRefs, Props>(({data, isEdit}, ref) =
 
   return (
     <View style={containerStyle}>
-      <View ref={refs} style={wrapperStyle}>
-        <Svg>
-          <Background x={timetableCenterPosition} y={timetableCenterPosition} radius={radius} />
+      <View style={wrapperStyle}>
+        <TimeBackground x={timetableCenterPosition} y={timetableCenterPosition} radius={radius} />
+
+        <View ref={refs}>
+          <Svg width={radius * 2} height={radius * 2}>
+            <Background x={radius} y={radius} radius={radius} />
+
+            {list.map((item, index) => {
+              return (
+                <SchedulePie
+                  key={index}
+                  data={item}
+                  x={radius}
+                  y={radius}
+                  radius={radius}
+                  isEdit={isEdit}
+                  disableScheduleList={disableScheduleList}
+                  onClick={openEditMenuBottomSheet}
+                />
+              )
+            })}
+
+            {list.length === 0 && !isEdit && (
+              <Text
+                x={radius}
+                y={radius}
+                fontSize={18}
+                fill={'#babfc5'}
+                fontFamily={'Pretendard-SemiBold'}
+                textAnchor="middle">
+                일정을 추가해주세요
+              </Text>
+            )}
+          </Svg>
 
           {list.map((item, index) => {
             return (
-              <SchedulePie
+              <ScheduleText
                 key={index}
                 data={item}
-                x={timetableCenterPosition}
-                y={timetableCenterPosition}
+                centerX={radius}
+                centerY={radius}
                 radius={radius}
-                isEdit={isEdit}
-                disableScheduleList={disableScheduleList}
                 onClick={openEditMenuBottomSheet}
               />
             )
           })}
-
-          {list.length === 0 && !isEdit && (
-            <Text
-              x={timetableCenterPosition}
-              y={timetableCenterPosition}
-              fontSize={18}
-              fill={'#babfc5'}
-              fontFamily={'Pretendard-SemiBold'}
-              textAnchor="middle">
-              일정을 추가해주세요
-            </Text>
-          )}
-        </Svg>
-
-        {list.map((item, index) => {
-          return (
-            <ScheduleText
-              key={index}
-              data={item}
-              centerX={timetableCenterPosition}
-              centerY={timetableCenterPosition}
-              radius={radius}
-              onClick={openEditMenuBottomSheet}
-            />
-          )
-        })}
+        </View>
 
         {isEdit && (
           <Pressable style={styles.editContainer} onPress={clickBackground}>
@@ -245,6 +250,10 @@ const TimeTable = React.forwardRef<TimetableRefs, Props>(({data, isEdit}, ref) =
 
 const styles = StyleSheet.create({
   container: {
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  wrapper: {
     alignItems: 'center',
     justifyContent: 'center'
   },
