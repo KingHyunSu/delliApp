@@ -157,7 +157,9 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       await refetchScheduleList()
       setIsEdit(false)
 
-      await updateWidgetWithImage(timetableRef)
+      if (Platform.OS === 'ios') {
+        await updateWidgetWithImage(timetableRef)
+      }
     },
     onError: e => {
       console.error('error', e)
@@ -170,7 +172,10 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
     },
     onSuccess: async () => {
       await refetchScheduleList()
-      await updateWidgetWithImage(timetableRef)
+
+      if (Platform.OS === 'ios') {
+        await updateWidgetWithImage(timetableRef)
+      }
 
       resetSchedule()
       setShowEditMenuBottomSheet(false)
@@ -353,7 +358,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
   React.useEffect(() => {
     const path = route.path
-    console.log('home path', path)
 
     if (path === 'widget/reload') {
       const rewardedAd = RewardedAd.createForAdRequest(adUnitId)
@@ -367,13 +371,13 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         const response = await widgetApi.getWidgetReloadable(params)
 
         if (!response.data.widget_reloadable) {
-          Alert.alert('광고 시청하고\n새로운 생활계획표 생성하기', '', [
+          Alert.alert('광고 시청하고\n위젯 새로고침', '', [
             {
               text: '취소',
               style: 'cancel'
             },
             {
-              text: '생성하기',
+              text: '새로고침',
               onPress: () => {
                 rewardedAd.show()
               }

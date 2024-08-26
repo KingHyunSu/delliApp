@@ -1,5 +1,6 @@
 import React from 'react'
 import {
+  Platform,
   Keyboard,
   useWindowDimensions,
   StyleSheet,
@@ -123,7 +124,10 @@ const EditTodoModal = () => {
     handleClose()
     setShowEditMenuBottomSheet(false)
 
-    await updateWidget()
+    // TODO - 위젯에서 임시 제거
+    // if (Platform.OS === 'ios') {
+    //   await updateWidget()
+    // }
   }
 
   const setScheduleTodoMutation = useMutation({
