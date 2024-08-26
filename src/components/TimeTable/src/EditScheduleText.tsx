@@ -229,8 +229,6 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    padding: 0,
-    paddingTop: 0,
     minWidth: 150,
     minHeight: 28
     // textAlignVertical: 'top'
