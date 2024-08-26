@@ -1,12 +1,22 @@
 import {SQLiteDatabase} from 'react-native-sqlite-storage'
+import 'react-native-get-random-values'
+
 import {openDatabase} from './helper'
 import upgrade from './upgrade.json'
+import {userRepository} from '@/repository'
 
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {
     // tx.executeSql(`
     //   DROP TABLE SCHEDULE
     // `)
+
+    // user table
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS "USER" (
+        "user_id" TEXT NOT NULL
+      );
+    `)
 
     // schedule table
     tx.executeSql(`
@@ -91,6 +101,8 @@ export default async function init() {
     const db = await openDatabase()
 
     await createTable(db)
+    await userRepository.setUser()
+
     const currentVersion = await getCurrentVersion(db)
     const latestVersion = upgrade.version
 

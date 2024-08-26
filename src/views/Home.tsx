@@ -2,20 +2,21 @@ import React from 'react'
 import {
   Platform,
   Animated,
-  BackHandler,
+  StyleSheet,
   LayoutChangeEvent,
+  BackHandler,
   ToastAndroid,
   Alert,
-  Pressable,
-  StyleSheet,
   SafeAreaView,
+  Pressable,
   View,
   Text
 } from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
+import {AdEventType, RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
 import {useQuery, useMutation} from '@tanstack/react-query'
-import {format} from 'date-fns'
+import {format, addDays, getDay} from 'date-fns'
 
 // components
 import Loading from '@/components/Loading'
@@ -39,7 +40,14 @@ import PlusIcon from '@/assets/icons/plus.svg'
 
 // stores
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
-import {safeAreaInsetsState, isLunchState, isEditState, isLoadingState, homeHeaderHeightState} from '@/store/system'
+import {
+  safeAreaInsetsState,
+  isLunchState,
+  isEditState,
+  isLoadingState,
+  homeHeaderHeightState,
+  toastState
+} from '@/store/system'
 import {
   scheduleDateState,
   scheduleState,
@@ -55,13 +63,21 @@ import {
   showDatePickerBottomSheetState
 } from '@/store/bottomSheet'
 
-import {getDayOfWeekKey} from '@/utils/helper'
-import {scheduleRepository} from '@/repository'
+import {updateWidgetWithImage} from '@/utils/widget'
+import {getScheduleList} from '@/utils/schedule'
+import {userRepository, scheduleRepository} from '@/repository'
+
+import * as widgetApi from '@/apis/widget'
 
 import {HomeNavigationProps} from '@/types/navigation'
+import type {TimetableRefs} from '@/components/TimeTable'
 
-const Home = ({navigation}: HomeNavigationProps) => {
+const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
+
+const Home = ({navigation, route}: HomeNavigationProps) => {
   const safeAreaInsets = useSafeAreaInsets()
+
+  const timetableRef = React.useRef<TimetableRefs>(null)
 
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
@@ -71,8 +87,8 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [backPressCount, setBackPressCount] = React.useState(0)
+  const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
 
-  const scheduleDate = useRecoilValue(scheduleDateState)
   const disableScheduleList = useRecoilValue(disableScheduleListState)
 
   const setIsLunch = useSetRecoilState(isLunchState)
@@ -83,47 +99,25 @@ const Home = ({navigation}: HomeNavigationProps) => {
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
+  const setToast = useSetRecoilState(toastState)
 
+  // ---------------------------------------------------------------------
+  // apis start
+  // ---------------------------------------------------------------------
   const {isError, refetch: refetchScheduleList} = useQuery({
     queryKey: ['scheduleList', scheduleDate],
     queryFn: async () => {
       setIsLoading(true)
 
-      const date = format(scheduleDate, 'yyyy-MM-dd')
-      const dayOfWeek = getDayOfWeekKey(scheduleDate.getDay())
-      const params = {
-        date,
-        mon: '',
-        tue: '',
-        wed: '',
-        thu: '',
-        fri: '',
-        sat: '',
-        sun: '',
-        disable: '0'
-      }
+      const newScheduleList = await getScheduleList(scheduleDate)
 
-      if (dayOfWeek) {
-        params[dayOfWeek] = '1'
-      }
-
-      let result = await scheduleRepository.getScheduleList(params)
-
-      result = result.map(item => {
-        return {
-          ...item,
-          todo_list: JSON.parse(item.todo_list)
-        }
-      })
-      console.log('result', result)
-
-      setScheduleList(result)
+      setScheduleList(newScheduleList)
       setIsLunch(true)
       setTimeout(() => {
         setIsLoading(false)
       }, 300)
 
-      return result
+      return newScheduleList
     },
     initialData: []
   })
@@ -162,8 +156,34 @@ const Home = ({navigation}: HomeNavigationProps) => {
     onSuccess: async () => {
       await refetchScheduleList()
       setIsEdit(false)
+
+      if (Platform.OS === 'ios') {
+        await updateWidgetWithImage(timetableRef)
+      }
+    },
+    onError: e => {
+      console.error('error', e)
     }
   })
+
+  const {mutate: updateScheduleDeletedMutate} = useMutation({
+    mutationFn: async (data: ScheduleDisableReqeust) => {
+      await scheduleRepository.updateScheduleDeleted(data)
+    },
+    onSuccess: async () => {
+      await refetchScheduleList()
+
+      if (Platform.OS === 'ios') {
+        await updateWidgetWithImage(timetableRef)
+      }
+
+      resetSchedule()
+      setShowEditMenuBottomSheet(false)
+    }
+  })
+  // ---------------------------------------------------------------------
+  // apis end
+  // ---------------------------------------------------------------------
 
   const activeSubmit = React.useMemo(() => {
     const dayOfWeekList = [
@@ -337,6 +357,62 @@ const Home = ({navigation}: HomeNavigationProps) => {
   }, [])
 
   React.useEffect(() => {
+    const path = route.path
+
+    if (path === 'widget/reload') {
+      const rewardedAd = RewardedAd.createForAdRequest(adUnitId)
+
+      setScheduleDate(new Date())
+
+      // 광고 로드 완료
+      const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, async () => {
+        const [user] = await userRepository.getUser()
+        const params = {id: user.user_id}
+        const response = await widgetApi.getWidgetReloadable(params)
+
+        if (!response.data.widget_reloadable) {
+          Alert.alert('광고 시청하고\n위젯 새로고침', '', [
+            {
+              text: '취소',
+              style: 'cancel'
+            },
+            {
+              text: '새로고침',
+              onPress: () => {
+                rewardedAd.show()
+              }
+            }
+          ])
+        }
+      })
+
+      // 광고 시청 완료
+      const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, async reward => {
+        await updateWidgetWithImage(timetableRef)
+
+        const [user] = await userRepository.getUser()
+        const params = {id: user.user_id}
+        await widgetApi.updateWidgetReloadable(params)
+      })
+
+      // 광고 닫힘
+      const unsubscribeClosed = rewardedAd.addAdEventListener(AdEventType.CLOSED, () => {
+        setToast({visible: true, message: '위젯 새로고침 완료'})
+      })
+
+      // Start loading the rewarded ad straight away
+      rewardedAd.load()
+
+      // Unsubscribe from events on unmount
+      return () => {
+        unsubscribeLoaded()
+        unsubscribeEarned()
+        unsubscribeClosed()
+      }
+    }
+  }, [route])
+
+  React.useEffect(() => {
     if (isEdit) {
       setIsInputMode(true)
       translateAnimation(headerTranslateY, -200, 350)
@@ -404,7 +480,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
         </Animated.View>
 
         <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
-          <TimeTable data={scheduleList} isEdit={isEdit} />
+          <TimeTable ref={timetableRef} data={scheduleList} isEdit={isEdit} />
         </Animated.View>
 
         <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
@@ -422,7 +498,7 @@ const Home = ({navigation}: HomeNavigationProps) => {
         )}
 
         {/* bottom sheet */}
-        <EditMenuBottomSheet refetchScheduleList={refetchScheduleList} />
+        <EditMenuBottomSheet updateScheduleDeletedMutate={updateScheduleDeletedMutate} />
         <TimetableCategoryBottomSheet />
 
         {/* modal */}

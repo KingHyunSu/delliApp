@@ -1,6 +1,8 @@
 import {atom, selector} from 'recoil'
 import {Platform} from 'react-native'
 
+const editScheduleListMinSnapPoint = 150
+
 export const loginState = atom({
   key: 'loginState',
   default: false
@@ -19,6 +21,15 @@ export const isEditState = atom({
 export const isLoadingState = atom({
   key: 'isLoading',
   default: false
+})
+
+type Toast = {visible: boolean; message: string}
+export const toastState = atom<Toast>({
+  key: 'toastState',
+  default: {
+    visible: false,
+    message: ''
+  }
 })
 
 export const windowDimensionsState = atom({
@@ -44,44 +55,47 @@ export const homeHeaderHeightState = atom({
   default: 0
 })
 
-export const timetablePositionXState = selector({
-  key: 'timetablePositionXState',
-  get: ({get}) => {
-    const {width} = get(windowDimensionsState)
-
-    return width / 2
-  }
-})
-
-export const timetablePositionYState = selector({
-  key: 'timetablePositionYState',
+export const timetableWrapperHeightState = selector({
+  key: 'timetableWrapperHeightState',
   get: ({get}) => {
     const {height} = get(windowDimensionsState)
+    const homeHeaderHeight = get(homeHeaderHeightState)
+    const safeAreaInsets = get(safeAreaInsetsState)
 
-    return height * 0.28
+    if (!homeHeaderHeight) {
+      return null
+    }
+
+    let topSafeAreaHeight = 0
+    let bottomSafeAreaHeight = 0
+
+    if (Platform.OS === 'ios') {
+      topSafeAreaHeight = safeAreaInsets.top
+      bottomSafeAreaHeight = safeAreaInsets.bottom
+    }
+
+    const totalSafeAreaHeight = topSafeAreaHeight + bottomSafeAreaHeight
+
+    return height - (homeHeaderHeight + editScheduleListMinSnapPoint + totalSafeAreaHeight)
   }
 })
 
-export const timetableSizeState = selector({
-  key: 'timetableSizeState',
+export const timetableCenterPositionState = selector({
+  key: 'timetableCenterPositionState',
   get: ({get}) => {
-    const {width, height} = get(windowDimensionsState)
-    const timetablePositionY = get(timetablePositionYState)
+    const {width} = get(windowDimensionsState)
+    const homeHeaderHeight = get(homeHeaderHeightState)
+    const timetableWrapperHeight = get(timetableWrapperHeightState)
 
-    if (width === 0) {
+    if (!homeHeaderHeight || !timetableWrapperHeight) {
       return 0
     }
 
-    // const margin = 72
-    const margin = 64
-    const size = width - margin
-    const halfSize = size / 2
-
-    if (timetablePositionY < halfSize) {
-      return height * 0.4
+    if (width > timetableWrapperHeight) {
+      return timetableWrapperHeight / 2 - 10
     }
 
-    return size
+    return width / 2
   }
 })
 
@@ -100,7 +114,6 @@ export const scheduleListSnapPointState = selector({
 
     const safeAreaInsets = get(safeAreaInsetsState)
     const homeHeaderHeight = get(homeHeaderHeightState) // include status bar height
-    const timetablePositionY = get(timetablePositionYState)
 
     if (Platform.OS === 'ios') {
       topSafeAreaHeight = safeAreaInsets.top
@@ -109,10 +122,9 @@ export const scheduleListSnapPointState = selector({
 
     const totalSafeAreaHeight = topSafeAreaHeight + bottomSafeAreaHeight
 
-    const minSnapPoint = height - totalSafeAreaHeight - (homeHeaderHeight + timetablePositionY * 2)
     const maxSnapPoint = height - totalSafeAreaHeight - homeHeaderHeight - marginTop
 
-    return [minSnapPoint, maxSnapPoint]
+    return [editScheduleListMinSnapPoint, maxSnapPoint]
   }
 })
 
@@ -120,17 +132,16 @@ export const editScheduleListSnapPointState = selector({
   key: 'editScheduleListSnapPointState',
   get: ({get}) => {
     const {height} = get(windowDimensionsState)
+    const safeAreaInsets = get(safeAreaInsetsState)
+    const timetableWrapperHeight = get(timetableWrapperHeightState)
 
-    if (height === 0) {
+    if (height === 0 || !timetableWrapperHeight) {
       return []
     }
 
     const appBarHeight = 48
     let topSafeAreaHeight = 0
     let bottomSafeAreaHeight = 0
-
-    const safeAreaInsets = get(safeAreaInsetsState)
-    const timetablePositionY = get(timetablePositionYState)
 
     if (Platform.OS === 'ios') {
       topSafeAreaHeight = safeAreaInsets.top
@@ -139,8 +150,8 @@ export const editScheduleListSnapPointState = selector({
 
     const totalSafeAreaHeight = topSafeAreaHeight + bottomSafeAreaHeight
 
-    const minSnapPoint = height - totalSafeAreaHeight - (appBarHeight + timetablePositionY * 2)
-    const maxSnapPoint = height - totalSafeAreaHeight - appBarHeight
+    const minSnapPoint = height - (totalSafeAreaHeight + appBarHeight + timetableWrapperHeight)
+    const maxSnapPoint = height - (totalSafeAreaHeight + appBarHeight)
 
     return [minSnapPoint, maxSnapPoint]
   }

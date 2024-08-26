@@ -3,6 +3,7 @@
 #import <RNKakaoLogins.h>
 #import "RNSplashScreen.h"
 
+#import <React/RCTLinkingManager.h>
 #import <React/RCTBundleURLProvider.h>
 
 @implementation AppDelegate
@@ -14,8 +15,20 @@
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
 
+  // Firebase 초기화
   [FIRApp configure];
+
+  // shouldWidgetReload key 초기화
+  NSString *appGroupID = @"group.delli.widget";
+  NSUserDefaults *sharedUserDefaults = [[NSUserDefaults alloc] initWithSuiteName:appGroupID];
+
+  if([sharedUserDefaults objectForKey:@"shouldWidgetReload"] == nil) {
+    [sharedUserDefaults setBool:NO forKey:@"shouldWidgetReload"];
+  }
+
   [super application:application didFinishLaunchingWithOptions:launchOptions];
+
+  // RNSplashScreen 초기화
   [RNSplashScreen show];
 
   return YES;
@@ -40,14 +53,15 @@
   return true;
 }
 
-- (BOOL)application:(UIApplication *)app
-     openURL:(NSURL *)url
-     options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
+- (BOOL)application:(UIApplication *)application
+            openURL:(NSURL *)url
+            options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options
 {
   if([RNKakaoLogins isKakaoTalkLoginUrl:url]) {
-      return [RNKakaoLogins handleOpenUrl: url];
-   }
- return NO;
+    return [RNKakaoLogins handleOpenUrl: url];
+  }
+
+  return [RCTLinkingManager application:application openURL:url options:options];
 }
 
 @end

@@ -3,7 +3,6 @@ import {StyleSheet, Pressable, View, Text, Image} from 'react-native'
 import TodoList from './src/TodoList'
 
 import {getTimeOfMinute} from '@/utils/helper'
-import {te} from 'date-fns/locale'
 
 interface Props {
   item: Schedule

@@ -49,6 +49,7 @@ target 'delli' do
   flags = get_default_flags()
 
   use_frameworks! :linkage => :static
+#   use_frameworks = true
 
   use_react_native!(
     :path => config[:reactNativePath],

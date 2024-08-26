@@ -17,6 +17,21 @@
 		20E37ADA26C741069DAC0674 /* Pretendard-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = DB1F50541BD340BBB3009FA9 /* Pretendard-Medium.otf */; };
 		20E83774125F49BCB290875A /* Pretendard-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 78E387145E0841748E4547AD /* Pretendard-Light.otf */; };
 		2D1FA4A9DEBDAF93D9E7B3B2 /* Pods_delli.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2DA7A02BF3129EA7C8F6F06A /* Pods_delli.framework */; };
+		465FE11C2C70BEEC003039B0 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467D46972C6E0E3300D94C4D /* WidgetKit.framework */; };
+		467D46982C6E0E3300D94C4D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467D46972C6E0E3300D94C4D /* WidgetKit.framework */; };
+		467D469A2C6E0E3300D94C4D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 467D46992C6E0E3300D94C4D /* SwiftUI.framework */; };
+		467D469D2C6E0E3300D94C4D /* DelliWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467D469C2C6E0E3300D94C4D /* DelliWidgetBundle.swift */; };
+		467D469F2C6E0E3300D94C4D /* DelliWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467D469E2C6E0E3300D94C4D /* DelliWidget.swift */; };
+		467D46A52C6E0E3400D94C4D /* DelliWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 467D46962C6E0E3300D94C4D /* DelliWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		467D46AE2C6E0EB300D94C4D /* RCTAppGroupModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 467D46AC2C6E0EB300D94C4D /* RCTAppGroupModule.m */; };
+		467D46B82C6E375100D94C4D /* WidgetUpdaterModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 467D46B62C6E375100D94C4D /* WidgetUpdaterModule.swift */; };
+		467D46B92C6E375100D94C4D /* WidgetUpdaterModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 467D46B72C6E375100D94C4D /* WidgetUpdaterModule.m */; };
+		4684A05C2C76620800C9D2BF /* Pretendard-Light.otf in Resources */ = {isa = PBXBuildFile; fileRef = 78E387145E0841748E4547AD /* Pretendard-Light.otf */; };
+		4684A05D2C76620C00C9D2BF /* Pretendard-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = C1864CAB8C5B4A7B8321FF90 /* Pretendard-Bold.otf */; };
+		4684A05E2C76620E00C9D2BF /* Pretendard-Medium.otf in Resources */ = {isa = PBXBuildFile; fileRef = DB1F50541BD340BBB3009FA9 /* Pretendard-Medium.otf */; };
+		4684A05F2C76621000C9D2BF /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 984CFCDD09EA4249ADFC26FD /* Pretendard-Regular.otf */; };
+		4684A0602C76621100C9D2BF /* Pretendard-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = B570A2503D224B7F98776731 /* Pretendard-SemiBold.otf */; };
+		46B664B12C6E45A100C1C6DF /* TimeTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46B664AD2C6E45A100C1C6DF /* TimeTable.swift */; };
 		46D305E82B8A1D09008A3204 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 46D305E72B8A1D09008A3204 /* GoogleService-Info.plist */; };
 		520137A55B6B44839521F2D8 /* Pretendard-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 984CFCDD09EA4249ADFC26FD /* Pretendard-Regular.otf */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
@@ -31,7 +46,28 @@
 			remoteGlobalIDString = 13B07F861A680F5B00A75B9A;
 			remoteInfo = delli;
 		};
+		467D46A32C6E0E3400D94C4D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 467D46952C6E0E3300D94C4D;
+			remoteInfo = DelliWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		467D46A62C6E0E3400D94C4D /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				467D46A52C6E0E3400D94C4D /* DelliWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		00E356EE1AD99517003FC87E /* delliTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = delliTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -47,13 +83,24 @@
 		250DBC8B91FB5046E8CCB5A0 /* Pods-delli-delliTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli-delliTests.debug.xcconfig"; path = "Target Support Files/Pods-delli-delliTests/Pods-delli-delliTests.debug.xcconfig"; sourceTree = "<group>"; };
 		2DA7A02BF3129EA7C8F6F06A /* Pods_delli.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_delli.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		333C16A2BB96ADEAD67CA65B /* Pods-delli-delliTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli-delliTests.release.xcconfig"; path = "Target Support Files/Pods-delli-delliTests/Pods-delli-delliTests.release.xcconfig"; sourceTree = "<group>"; };
-		46329EDC2A930BF000EB4B99 /* delli-Briging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "delli-Briging-Header.h"; sourceTree = "<group>"; };
+		46329EDC2A930BF000EB4B99 /* delli_Bridging_Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = delli_Bridging_Header.h; path = delli/delli_Bridging_Header.h; sourceTree = "<group>"; };
 		4653F0542AEA931400A37E15 /* RNReactNativeHapticFeedback.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNReactNativeHapticFeedback.xcodeproj; path = "../node_modules/react-native-haptic-feedback/ios/RNReactNativeHapticFeedback.xcodeproj"; sourceTree = "<group>"; };
-		46D305772B3DA570008A3204 /* delli.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = delli.entitlements; path = delli/delli.entitlements; sourceTree = "<group>"; };
+		467D46962C6E0E3300D94C4D /* DelliWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DelliWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		467D46972C6E0E3300D94C4D /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		467D46992C6E0E3300D94C4D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		467D469C2C6E0E3300D94C4D /* DelliWidgetBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelliWidgetBundle.swift; sourceTree = "<group>"; };
+		467D469E2C6E0E3300D94C4D /* DelliWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelliWidget.swift; sourceTree = "<group>"; };
+		467D46A22C6E0E3400D94C4D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		467D46AB2C6E0EB300D94C4D /* RCTAppGroupModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTAppGroupModule.h; sourceTree = "<group>"; };
+		467D46AC2C6E0EB300D94C4D /* RCTAppGroupModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTAppGroupModule.m; sourceTree = "<group>"; };
+		467D46AF2C6E0F4200D94C4D /* DelliWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DelliWidgetExtension.entitlements; sourceTree = "<group>"; };
+		467D46B62C6E375100D94C4D /* WidgetUpdaterModule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = WidgetUpdaterModule.swift; path = NativeModules/WidgetUpdaterModule/WidgetUpdaterModule.swift; sourceTree = SOURCE_ROOT; };
+		467D46B72C6E375100D94C4D /* WidgetUpdaterModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = WidgetUpdaterModule.m; path = NativeModules/WidgetUpdaterModule/WidgetUpdaterModule.m; sourceTree = SOURCE_ROOT; };
+		46B664AD2C6E45A100C1C6DF /* TimeTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeTable.swift; sourceTree = "<group>"; };
 		46D305E72B8A1D09008A3204 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "delli/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		78E387145E0841748E4547AD /* Pretendard-Light.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Light.otf"; path = "../src/assets/fonts/Pretendard-Light.otf"; sourceTree = "<group>"; };
 		810A8D5522CD621AECFD38FD /* Pods_delli_delliTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_delli_delliTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		818E8B5F0892CD67ED81447D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = delli/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		818E8B5F0892CD67ED81447D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = delli/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = delli/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8A8314C9FB29F750B237C8EC /* Pods-delli.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-delli.release.xcconfig"; path = "Target Support Files/Pods-delli/Pods-delli.release.xcconfig"; sourceTree = "<group>"; };
 		984CFCDD09EA4249ADFC26FD /* Pretendard-Regular.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Pretendard-Regular.otf"; path = "../src/assets/fonts/Pretendard-Regular.otf"; sourceTree = "<group>"; };
@@ -77,6 +124,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				2D1FA4A9DEBDAF93D9E7B3B2 /* Pods_delli.framework in Frameworks */,
+				465FE11C2C70BEEC003039B0 /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		467D46932C6E0E3300D94C4D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				467D469A2C6E0E3300D94C4D /* SwiftUI.framework in Frameworks */,
+				467D46982C6E0E3300D94C4D /* WidgetKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,14 +161,13 @@
 			isa = PBXGroup;
 			children = (
 				46D305E72B8A1D09008A3204 /* GoogleService-Info.plist */,
-				46D305772B3DA570008A3204 /* delli.entitlements */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB71A68108700A75B9A /* main.m */,
-				46329EDC2A930BF000EB4B99 /* delli-Briging-Header.h */,
+				46329EDC2A930BF000EB4B99 /* delli_Bridging_Header.h */,
 				818E8B5F0892CD67ED81447D /* PrivacyInfo.xcprivacy */,
 			);
 			name = delli;
@@ -135,6 +191,8 @@
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				2DA7A02BF3129EA7C8F6F06A /* Pods_delli.framework */,
 				810A8D5522CD621AECFD38FD /* Pods_delli_delliTests.framework */,
+				467D46972C6E0E3300D94C4D /* WidgetKit.framework */,
+				467D46992C6E0E3300D94C4D /* SwiftUI.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -144,6 +202,44 @@
 			children = (
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		467D469B2C6E0E3300D94C4D /* DelliWidget */ = {
+			isa = PBXGroup;
+			children = (
+				46B664AD2C6E45A100C1C6DF /* TimeTable.swift */,
+				467D469C2C6E0E3300D94C4D /* DelliWidgetBundle.swift */,
+				467D469E2C6E0E3300D94C4D /* DelliWidget.swift */,
+				467D46A22C6E0E3400D94C4D /* Info.plist */,
+			);
+			path = DelliWidget;
+			sourceTree = "<group>";
+		};
+		467D46AD2C6E0EB300D94C4D /* AppGroupModule */ = {
+			isa = PBXGroup;
+			children = (
+				467D46AB2C6E0EB300D94C4D /* RCTAppGroupModule.h */,
+				467D46AC2C6E0EB300D94C4D /* RCTAppGroupModule.m */,
+			);
+			path = AppGroupModule;
+			sourceTree = "<group>";
+		};
+		467D46B32C6E363F00D94C4D /* NativeModules */ = {
+			isa = PBXGroup;
+			children = (
+				467D46BA2C6E37F800D94C4D /* WidgetUpdaterModule */,
+				467D46AD2C6E0EB300D94C4D /* AppGroupModule */,
+			);
+			path = NativeModules;
+			sourceTree = "<group>";
+		};
+		467D46BA2C6E37F800D94C4D /* WidgetUpdaterModule */ = {
+			isa = PBXGroup;
+			children = (
+				467D46B72C6E375100D94C4D /* WidgetUpdaterModule.m */,
+				467D46B62C6E375100D94C4D /* WidgetUpdaterModule.swift */,
+			);
+			path = WidgetUpdaterModule;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -157,9 +253,12 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				467D46B32C6E363F00D94C4D /* NativeModules */,
+				467D46AF2C6E0F4200D94C4D /* DelliWidgetExtension.entitlements */,
 				13B07FAE1A68108700A75B9A /* delli */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* delliTests */,
+				467D469B2C6E0E3300D94C4D /* DelliWidget */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
@@ -175,6 +274,7 @@
 			children = (
 				13B07F961A680F5B00A75B9A /* delli.app */,
 				00E356EE1AD99517003FC87E /* delliTests.xctest */,
+				467D46962C6E0E3300D94C4D /* DelliWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -224,6 +324,7 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
+				467D46A62C6E0E3400D94C4D /* Embed Foundation Extensions */,
 				8303A8658405375BBF53B50B /* [CP] Embed Pods Frameworks */,
 				FF916D3D27A9C4B86960E65F /* [CP] Copy Pods Resources */,
 				9951C24506A41BCF9E834EA4 /* [CP-User] [RNFB] Core Configuration */,
@@ -233,11 +334,29 @@
 			buildRules = (
 			);
 			dependencies = (
+				467D46A42C6E0E3400D94C4D /* PBXTargetDependency */,
 			);
 			name = delli;
 			productName = delli;
 			productReference = 13B07F961A680F5B00A75B9A /* delli.app */;
 			productType = "com.apple.product-type.application";
+		};
+		467D46952C6E0E3300D94C4D /* DelliWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 467D46A92C6E0E3400D94C4D /* Build configuration list for PBXNativeTarget "DelliWidgetExtension" */;
+			buildPhases = (
+				467D46922C6E0E3300D94C4D /* Sources */,
+				467D46932C6E0E3300D94C4D /* Frameworks */,
+				467D46942C6E0E3300D94C4D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DelliWidgetExtension;
+			productName = DelliWidgetExtension;
+			productReference = 467D46962C6E0E3300D94C4D /* DelliWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -245,6 +364,7 @@
 		83CBB9F71A601CBA00E9B192 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				LastSwiftUpdateCheck = 1540;
 				LastUpgradeCheck = 1210;
 				TargetAttributes = {
 					00E356ED1AD99517003FC87E = {
@@ -252,7 +372,10 @@
 						TestTargetID = 13B07F861A680F5B00A75B9A;
 					};
 					13B07F861A680F5B00A75B9A = {
-						LastSwiftMigration = 1120;
+						LastSwiftMigration = 1540;
+					};
+					467D46952C6E0E3300D94C4D = {
+						CreatedOnToolsVersion = 15.4;
 					};
 				};
 			};
@@ -277,6 +400,7 @@
 			targets = (
 				13B07F861A680F5B00A75B9A /* delli */,
 				00E356ED1AD99517003FC87E /* delliTests */,
+				467D46952C6E0E3300D94C4D /* DelliWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -302,6 +426,18 @@
 				520137A55B6B44839521F2D8 /* Pretendard-Regular.otf in Resources */,
 				1971F662D04E4CBDAE82B4B3 /* Pretendard-SemiBold.otf in Resources */,
 				00E7932A0732397FD3AB678D /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		467D46942C6E0E3300D94C4D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4684A05D2C76620C00C9D2BF /* Pretendard-Bold.otf in Resources */,
+				4684A05F2C76621000C9D2BF /* Pretendard-Regular.otf in Resources */,
+				4684A0602C76621100C9D2BF /* Pretendard-SemiBold.otf in Resources */,
+				4684A05C2C76620800C9D2BF /* Pretendard-Light.otf in Resources */,
+				4684A05E2C76620E00C9D2BF /* Pretendard-Medium.otf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -511,7 +647,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */,
+				467D46B92C6E375100D94C4D /* WidgetUpdaterModule.m in Sources */,
 				13B07FC11A68108700A75B9A /* main.m in Sources */,
+				467D46AE2C6E0EB300D94C4D /* RCTAppGroupModule.m in Sources */,
+				467D46B82C6E375100D94C4D /* WidgetUpdaterModule.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		467D46922C6E0E3300D94C4D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				467D469F2C6E0E3300D94C4D /* DelliWidget.swift in Sources */,
+				46B664B12C6E45A100C1C6DF /* TimeTable.swift in Sources */,
+				467D469D2C6E0E3300D94C4D /* DelliWidgetBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -523,6 +672,11 @@
 			target = 13B07F861A680F5B00A75B9A /* delli */;
 			targetProxy = 00E356F41AD99517003FC87E /* PBXContainerItemProxy */;
 		};
+		467D46A42C6E0E3400D94C4D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 467D46952C6E0E3300D94C4D /* DelliWidgetExtension */;
+			targetProxy = 467D46A32C6E0E3400D94C4D /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -530,6 +684,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 250DBC8B91FB5046E8CCB5A0 /* Pods-delli-delliTests.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				DEVELOPMENT_TEAM = A973M6VY68;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -558,6 +713,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 333C16A2BB96ADEAD67CA65B /* Pods-delli-delliTests.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = A973M6VY68;
@@ -583,6 +739,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 06154223244E621772B0BE35 /* Pods-delli.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = delli/delli.entitlements;
@@ -592,12 +749,12 @@
 				INFOPLIST_FILE = delli/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "델리";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.4.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -607,6 +764,7 @@
 				PRODUCT_NAME = delli;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = delli/delli_Bridging_Header.h;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -618,6 +776,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8A8314C9FB29F750B237C8EC /* Pods-delli.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = delli/delli.entitlements;
@@ -626,12 +785,12 @@
 				INFOPLIST_FILE = delli/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "델리";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.3.0;
+				MARKETING_VERSION = 1.4.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -641,9 +800,97 @@
 				PRODUCT_NAME = delli;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
+				SWIFT_OBJC_BRIDGING_HEADER = delli/delli_Bridging_Header.h;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		467D46A72C6E0E3400D94C4D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = DelliWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = A973M6VY68;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DelliWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DelliWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.delli.DelliWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		467D46A82C6E0E3400D94C4D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_ENTITLEMENTS = DelliWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = A973M6VY68;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = DelliWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = DelliWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = org.reactjs.native.example.delli.DelliWidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -705,20 +952,20 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD = "";
 				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -739,10 +986,7 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -800,20 +1044,20 @@
 					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon-Samples/ReactCommon_Samples.framework/Headers/platform/ios",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-NativeModulesApple/React_NativeModulesApple.framework/Headers",
 					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers/react/renderer/graphics/platform/ios",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
-					" ${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/ReactCommon/ReactCommon.framework/Headers",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-Fabric/React_Fabric.framework/Headers/react/renderer/components/view/platform/cxx",
+					"${PODS_CONFIGURATION_BUILD_DIR}/React-graphics/React_graphics.framework/Headers",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD = "";
 				LDPLUSPLUS = "";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -833,10 +1077,7 @@
 					"-DFOLLY_MOBILE=1",
 					"-DFOLLY_USE_LIBCPP=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -861,6 +1102,15 @@
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
 				13B07F951A680F5B00A75B9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		467D46A92C6E0E3400D94C4D /* Build configuration list for PBXNativeTarget "DelliWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				467D46A72C6E0E3400D94C4D /* Debug */,
+				467D46A82C6E0E3400D94C4D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

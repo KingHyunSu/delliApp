@@ -4,20 +4,15 @@ import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
 
 import {setDate, format} from 'date-fns'
 
-import {useRecoilState, useSetRecoilState} from 'recoil'
-import {showDatePickerBottomSheetState} from '@/store/bottomSheet'
-import {scheduleDateState} from '@/store/schedule'
-
 interface Props {
   date: Date
   currentWeeklyDateList: Date[]
+  onChange: Function
 }
-const WeekController = ({date, currentWeeklyDateList}: Props) => {
+const WeekController = ({date, currentWeeklyDateList, onChange}: Props) => {
   const THURSDAY_NUMBER = 4
 
-  const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
-  const setScheduleDate = useSetRecoilState(scheduleDateState)
-
+  const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = React.useState(false)
   const screenDateStr = React.useMemo(() => format(date, 'yyyy-MM-dd'), [date])
   const screenYear = React.useMemo(() => date.getFullYear(), [date])
   const [screenMonth, setScreenMonth] = React.useState(date.getMonth() + 1)
@@ -36,7 +31,7 @@ const WeekController = ({date, currentWeeklyDateList}: Props) => {
   }
 
   const changeDate = (data: string) => {
-    setScheduleDate(new Date(data))
+    onChange(new Date(data))
   }
 
   React.useEffect(() => {

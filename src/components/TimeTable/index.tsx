@@ -1,7 +1,9 @@
 import React from 'react'
 import {StyleSheet, View, Pressable} from 'react-native'
 import {Svg, Text} from 'react-native-svg'
+import {captureRef} from 'react-native-view-shot'
 
+import TimeBackground from './src/TimeBackground'
 import Background from './src/Background'
 import SchedulePie from './src/SchedulePie'
 import ScheduleText from './src/ScheduleText'
@@ -10,22 +12,45 @@ import EditScheduleText from './src/EditScheduleText'
 import EditSchedulePieController from './src/EditSchedulePieController'
 
 import {useRecoilState, useSetRecoilState, useRecoilValue} from 'recoil'
-import {timetableSizeState, timetablePositionXState, timetablePositionYState} from '@/store/system'
+import {timetableWrapperHeightState, timetableCenterPositionState} from '@/store/system'
 import {scheduleState, disableScheduleListState, isInputModeState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
+export type TimetableRefs = {
+  getImage: () => Promise<string>
+}
 interface Props {
   data: Schedule[]
   isEdit: boolean
 }
-const TimeTable = ({data, isEdit}: Props) => {
-  const timetableSize = useRecoilValue(timetableSizeState)
-  const timetablePositionX = useRecoilValue(timetablePositionXState)
-  const timetablePositionY = useRecoilValue(timetablePositionYState)
+const TimeTable = React.forwardRef<TimetableRefs, Props>(({data, isEdit}, ref) => {
+  const refs = React.useRef<View>(null)
+
+  const timetableWrapperHeight = useRecoilValue(timetableWrapperHeightState)
+  const timetableCenterPosition = useRecoilValue(timetableCenterPositionState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
+
+  // styles
+  const containerStyle = React.useMemo(() => {
+    return [styles.container, {height: timetableWrapperHeight}]
+  }, [timetableWrapperHeight])
+
+  const wrapperStyle = React.useMemo(() => {
+    return [
+      styles.wrapper,
+      {
+        width: timetableCenterPosition * 2,
+        height: timetableCenterPosition * 2
+      }
+    ]
+  }, [timetableCenterPosition])
+
+  const radius = React.useMemo(() => {
+    return timetableCenterPosition - 32
+  }, [timetableCenterPosition])
 
   const list = React.useMemo(() => {
     if (isEdit && schedule.schedule_id) {
@@ -33,10 +58,6 @@ const TimeTable = ({data, isEdit}: Props) => {
     }
     return data
   }, [isEdit, data, schedule.schedule_id])
-
-  const radius = React.useMemo(() => {
-    return timetableSize / 2
-  }, [timetableSize])
 
   const openEditMenuBottomSheet = React.useCallback(
     (value: Schedule) => {
@@ -63,6 +84,14 @@ const TimeTable = ({data, isEdit}: Props) => {
     },
     [setSchedule]
   )
+
+  const getImage = async () => {
+    if (refs.current) {
+      return await captureRef(refs)
+    }
+
+    return Promise.reject('timetable image capture error!')
+  }
 
   React.useLayoutEffect(() => {
     if (!isEdit) {
@@ -120,92 +149,114 @@ const TimeTable = ({data, isEdit}: Props) => {
         }
       })
 
-    setDisableScheduleList(result)
+    setDisableScheduleList(result as ExistSchedule[])
   }, [isEdit, schedule.schedule_id, schedule.start_time, schedule.end_time, data, setDisableScheduleList])
 
+  React.useImperativeHandle(ref, () => ({
+    getImage
+  }))
+
+  if (!timetableWrapperHeight || !timetableCenterPosition) {
+    return <></>
+  }
+
   return (
-    <View>
-      <Svg>
-        <Background x={timetablePositionX} y={timetablePositionY} radius={radius} />
+    <View style={containerStyle}>
+      <View style={wrapperStyle}>
+        <TimeBackground x={timetableCenterPosition} y={timetableCenterPosition} radius={radius} />
 
-        {list.map((item, index) => {
-          return (
-            <SchedulePie
-              key={index}
-              data={item}
-              x={timetablePositionX}
-              y={timetablePositionY}
-              radius={radius}
-              isEdit={isEdit}
-              disableScheduleList={disableScheduleList}
-              onClick={openEditMenuBottomSheet}
-            />
-          )
-        })}
+        <View ref={refs}>
+          <Svg width={radius * 2} height={radius * 2}>
+            <Background x={radius} y={radius} radius={radius} />
 
-        {list.length === 0 && !isEdit && (
-          <Text
-            x={timetablePositionX}
-            y={timetablePositionY}
-            fontSize={18}
-            fill={'#babfc5'}
-            fontFamily={'Pretendard-SemiBold'}
-            textAnchor="middle">
-            일정을 추가해주세요
-          </Text>
-        )}
-      </Svg>
+            {list.map((item, index) => {
+              return (
+                <SchedulePie
+                  key={index}
+                  data={item}
+                  x={radius}
+                  y={radius}
+                  radius={radius}
+                  isEdit={isEdit}
+                  disableScheduleList={disableScheduleList}
+                  onClick={openEditMenuBottomSheet}
+                />
+              )
+            })}
 
-      {list.map((item, index) => {
-        return (
-          <ScheduleText
-            key={index}
-            data={item}
-            centerX={timetablePositionX}
-            centerY={timetablePositionY}
-            radius={radius}
-            onClick={openEditMenuBottomSheet}
-          />
-        )
-      })}
-
-      {isEdit && (
-        <Pressable style={styles.editContainer} onPress={clickBackground}>
-          <Svg>
-            <EditSchedulePie
-              data={schedule}
-              x={timetablePositionX}
-              y={timetablePositionY}
-              radius={radius}
-              scheduleList={data}
-              disableScheduleList={disableScheduleList}
-            />
+            {list.length === 0 && !isEdit && (
+              <Text
+                x={radius}
+                y={radius}
+                fontSize={18}
+                fill={'#babfc5'}
+                fontFamily={'Pretendard-SemiBold'}
+                textAnchor="middle">
+                일정을 추가해주세요
+              </Text>
+            )}
           </Svg>
 
-          <EditScheduleText
-            data={schedule}
-            centerX={timetablePositionX}
-            centerY={timetablePositionY}
-            radius={radius}
-            onChangeSchedule={changeSchedule}
-          />
+          {list.map((item, index) => {
+            return (
+              <ScheduleText
+                key={index}
+                data={item}
+                centerX={radius}
+                centerY={radius}
+                radius={radius}
+                onClick={openEditMenuBottomSheet}
+              />
+            )
+          })}
+        </View>
 
-          {!isInputMode && (
-            <EditSchedulePieController
+        {isEdit && (
+          <Pressable style={styles.editContainer} onPress={clickBackground}>
+            <Svg>
+              <EditSchedulePie
+                data={schedule}
+                x={timetableCenterPosition}
+                y={timetableCenterPosition}
+                radius={radius}
+                scheduleList={data}
+                disableScheduleList={disableScheduleList}
+              />
+            </Svg>
+
+            <EditScheduleText
               data={schedule}
-              x={timetablePositionX}
-              y={timetablePositionY}
+              centerX={timetableCenterPosition}
+              centerY={timetableCenterPosition}
               radius={radius}
-              onScheduleChanged={changeSchedule}
+              onChangeSchedule={changeSchedule}
             />
-          )}
-        </Pressable>
-      )}
+
+            {!isInputMode && (
+              <EditSchedulePieController
+                data={schedule}
+                x={timetableCenterPosition}
+                y={timetableCenterPosition}
+                radius={radius}
+                onScheduleChanged={changeSchedule}
+              />
+            )}
+          </Pressable>
+        )}
+      </View>
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  wrapper: {
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
   editContainer: {
     position: 'absolute',
     width: '100%',

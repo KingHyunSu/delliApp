@@ -1,5 +1,6 @@
 import React from 'react'
 import {
+  Platform,
   Keyboard,
   useWindowDimensions,
   StyleSheet,
@@ -20,6 +21,7 @@ import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {scheduleDateState, scheduleListState, scheduleState, scheduleTodoState} from '@/store/schedule'
 
 import {format} from 'date-fns'
+import {updateWidget} from '@/utils/widget'
 
 import {useMutation} from '@tanstack/react-query'
 
@@ -116,6 +118,18 @@ const EditTodoModal = () => {
     [changeScheduleTodo, scheduleDate]
   )
 
+  const handleSuccess = async (newScheduleList: Schedule[]) => {
+    setScheduleList(newScheduleList)
+    resetSchedule()
+    handleClose()
+    setShowEditMenuBottomSheet(false)
+
+    // TODO - 위젯에서 임시 제거
+    // if (Platform.OS === 'ios') {
+    //   await updateWidget()
+    // }
+  }
+
   const setScheduleTodoMutation = useMutation({
     mutationFn: async (data: Todo) => {
       if (!data.schedule_id) {
@@ -139,7 +153,7 @@ const EditTodoModal = () => {
 
       return todoRepository.setTodo(params)
     },
-    onSuccess: (response: Todo[]) => {
+    onSuccess: async (response: Todo[]) => {
       const result = response[0]
 
       const newScheduleList = scheduleList.map(item => {
@@ -153,7 +167,7 @@ const EditTodoModal = () => {
           } else {
             newTodoList[updateTodoIndex] = result
           }
-          console.log('newTodoList', newTodoList)
+
           return {
             ...item,
             todo_list: newTodoList
@@ -163,10 +177,7 @@ const EditTodoModal = () => {
         return item
       })
 
-      setScheduleList(newScheduleList)
-      resetSchedule()
-      handleClose()
-      setShowEditMenuBottomSheet(false)
+      await handleSuccess(newScheduleList)
     }
   })
 
@@ -174,7 +185,7 @@ const EditTodoModal = () => {
     mutationFn: async (data: DeleteScheduleTodoReqeust) => {
       return todoRepository.deleteTodo(data)
     },
-    onSuccess: response => {
+    onSuccess: async response => {
       const result = response
 
       const newScheduleList = scheduleList.map(item => {
@@ -186,10 +197,7 @@ const EditTodoModal = () => {
         }
       })
 
-      setScheduleList(newScheduleList)
-      resetSchedule
-      handleClose()
-      setShowEditMenuBottomSheet(false)
+      await handleSuccess(newScheduleList)
     }
   })
 

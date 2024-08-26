@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, Platform, AppState, StyleSheet, StatusBar, SafeAreaView, Alert} from 'react-native'
+import {useWindowDimensions, Platform, AppState, StatusBar, SafeAreaView, Alert} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SplashScreen from 'react-native-splash-screen'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
@@ -10,7 +10,7 @@ import {QueryClient, QueryCache, QueryClientProvider} from '@tanstack/react-quer
 // import crashlytics from '@react-native-firebase/crashlytics'
 
 // navigations
-import {NavigationContainer} from '@react-navigation/native'
+import {NavigationContainer, LinkingOptions} from '@react-navigation/native'
 import {createStackNavigator} from '@react-navigation/stack'
 import {navigationRef} from '@/utils/navigation'
 
@@ -18,6 +18,9 @@ import {navigationRef} from '@/utils/navigation'
 import HomeScreen from '@/views/Home'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
+
+// components
+import Toast from '@/components/Toast'
 
 // stores
 import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
@@ -45,6 +48,14 @@ function App(): JSX.Element {
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
 
   const Stack = createStackNavigator<RootStackParamList>()
+  const linking: LinkingOptions<RootStackParamList> = {
+    prefixes: ['delli://'],
+    config: {
+      screens: {
+        Home: 'widget/reload'
+      }
+    }
+  }
 
   const screenOptions = React.useMemo(() => {
     return {headerShown: false}
@@ -158,12 +169,11 @@ function App(): JSX.Element {
 
   // TODO android v1.0.0 배포에서 제외 2024-07-21
   // React.useEffect(() => {
-  //   if (isInit && isLoaded) {
+  //   if (isLoaded) {
   //     // 광고 show
   //     show()
-  //     SplashScreen.hide()
   //   }
-  // }, [isInit, isLoaded])
+  // }, [isLoaded])
 
   React.useEffect(() => {
     if (isInit) {
@@ -208,7 +218,10 @@ function App(): JSX.Element {
           <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
           <SafeAreaView style={statusBarStyle} />
-          <NavigationContainer ref={navigationRef}>
+
+          <Toast />
+
+          <NavigationContainer ref={navigationRef} linking={linking}>
             <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
               <Stack.Screen name="Home" component={HomeScreen} />
               <Stack.Screen name="Setting" component={SettingScreen} />

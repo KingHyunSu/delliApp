@@ -38,7 +38,7 @@ const TimetableCategoryBottomSheet = () => {
   const {data: timetableCategoryList, refetch: refetchTimetableCategoryList} = useQuery({
     queryKey: ['timetableCategoryList2'],
     queryFn: async () => {
-      const response = await getTimetableCategoryList()
+      // const response = await getTimetableCategoryList()
 
       // return response.data
       return []

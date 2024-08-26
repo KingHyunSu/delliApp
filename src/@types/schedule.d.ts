@@ -67,6 +67,14 @@ declare interface ExistSchedule {
   sun: string
 }
 
+declare interface WidgetSchedule {
+  schedule_id: number | null
+  title: string
+  start_time: number
+  end_time: number
+  todo_list: Todo[]
+}
+
 declare interface UsedColor {
   color: string
 }

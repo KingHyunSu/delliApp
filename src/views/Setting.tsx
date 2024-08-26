@@ -121,6 +121,15 @@ const Setting = ({navigation}: SettingNavigationProps) => {
     }
   }, [])
 
+  const deleteToken = React.useCallback(async () => {
+    try {
+      await AsyncStorage.setItem('token', '')
+      Alert.alert('토큰 삭제 완료')
+    } catch (e) {
+      console.error(e)
+    }
+  }, [])
+
   return (
     <View style={styles.container}>
       <AppBar>
@@ -159,12 +168,17 @@ const Setting = ({navigation}: SettingNavigationProps) => {
         {__DEV__ && (
           <>
             <Pressable style={styles.item} onPress={setTest}>
-              <Text style={styles.contentText}>테스트 데이터 삽입</Text>
+              <Text style={styles.contentText}>테스트 데이터 추가</Text>
             </Pressable>
             <Pressable style={styles.item} onPress={deleteAllSchedule}>
               <Text style={styles.contentText}>테스트 데이터 삭제</Text>
             </Pressable>
 
+            <View style={styles.blank} />
+
+            <Pressable style={styles.item} onPress={deleteToken}>
+              <Text style={styles.contentText}>토큰 삭제</Text>
+            </Pressable>
             <View style={styles.blank} />
           </>
         )}
