@@ -1,6 +1,7 @@
 import React from 'react'
 import {Alert, NativeModules} from 'react-native'
 import RNFS from 'react-native-fs'
+import {format} from 'date-fns'
 import {userRepository} from '@/repository'
 import * as widgetApi from '@/apis/widget'
 import {getScheduleList} from '@/utils/schedule'
@@ -76,25 +77,26 @@ const getWidgetScheduleList = (schedules: Schedule[]) => {
 }
 
 const handleWidgetUpdate = async () => {
-  const newScheduleList = await getScheduleList(new Date())
+  const date = new Date()
+  const newScheduleList = await getScheduleList(date)
   const widgetScheduleList = getWidgetScheduleList(newScheduleList)
 
-  WidgetUpdaterModule.updateWidget(widgetScheduleList)
+  const dateString = format(date, "yyyy-MM-dd'T'HH:mm:ssX")
+
+  WidgetUpdaterModule.updateWidget(widgetScheduleList, dateString)
 }
 
 export const updateWidget = async () => {
   const widgetReloadable = await isWidgetReloadable()
 
-  if (!widgetReloadable) {
-    return
+  if (widgetReloadable) {
+    await handleWidgetUpdate()
   }
-
-  await handleWidgetUpdate()
 }
 
 export const updateWidgetWithImage = async (timetableRefs: React.RefObject<TimetableRefs>) => {
-  if (!timetableRefs.current) {
-    Alert.alert('에러', '잠시 후 다시 시도해 주세요.', [
+  if (!timetableRefs.current || !AppGroupModule) {
+    Alert.alert('위젯 업데이트 실패', '잠시 후 다시 시도해 주세요.', [
       {
         text: '확인'
       }
@@ -113,13 +115,13 @@ export const updateWidgetWithImage = async (timetableRefs: React.RefObject<Timet
   const imageUri = await timetableRefs.current.getImage()
   const fileName = 'timetable.png'
   const appGroupPath = await AppGroupModule.getAppGroupPath()
-  const path = appGroupPath + '/' + fileName
-  const existImage = await RNFS.exists(path)
+  const filePath = appGroupPath + '/' + fileName
+  const existImage = await RNFS.exists(filePath)
 
   if (existImage) {
-    await RNFS.unlink(path)
+    await RNFS.unlink(filePath)
   }
-  await RNFS.moveFile(imageUri, path)
+  await RNFS.moveFile(imageUri, filePath)
 
   await handleWidgetUpdate()
 }
