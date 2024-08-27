@@ -34,7 +34,7 @@ const defaultFullColorPanelItemHeight = 304 + defaultItemPanelHeight
 const defaultFullDateItemPanelHeight = 426
 // const alarmWheelTimeList = ['5', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60']
 
-const EditScheduleBottomSheet = React.memo(() => {
+const EditScheduleBottomSheet2 = React.memo(() => {
   const bottomSheetRef = React.useRef<BottomSheet>(null)
   const bottomSheetScrollViewRef = React.useRef<ScrollView>(null)
 
@@ -978,4 +978,4 @@ const titleTextStyle = StyleSheet.compose(styles.titleText, styles.titlePlaceHol
 const panelHeaderStyle = StyleSheet.compose(styles.panelHeader, {height: defaultPanelHeight})
 const panelItemHeaderContainerStyle = StyleSheet.compose(styles.panelItemHeader, {height: defaultItemPanelHeight})
 
-export default EditScheduleBottomSheet
+export default EditScheduleBottomSheet2
