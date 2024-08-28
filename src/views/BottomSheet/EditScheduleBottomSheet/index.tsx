@@ -140,6 +140,19 @@ const EditScheduleBottomSheet = React.memo(() => {
     [schedule, setSchedule]
   )
 
+  React.useEffect(() => {
+    if (bottomSheetRef.current) {
+      if (isEdit) {
+        bottomSheetRef.current.snapToIndex(0)
+      } else {
+        bottomSheetRef.current.close()
+
+        bottomSheetScrollViewRef.current?.scrollTo({y: 0})
+        closeAllPanel()
+      }
+    }
+  }, [isEdit])
+
   // components
   const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
     return (
@@ -150,22 +163,6 @@ const EditScheduleBottomSheet = React.memo(() => {
       />
     )
   }, [])
-
-  React.useEffect(() => {
-    if (bottomSheetRef.current) {
-      if (isEdit) {
-        bottomSheetRef.current.snapToIndex(0)
-
-        // backgroundColor.value = schedule.background_color
-        // textColor.value = schedule.text_color
-      } else {
-        bottomSheetRef.current.close()
-
-        bottomSheetScrollViewRef.current?.scrollTo({y: 0})
-        closeAllPanel()
-      }
-    }
-  }, [isEdit])
 
   if (editScheduleListSnapPoint.length === 0) {
     return <></>

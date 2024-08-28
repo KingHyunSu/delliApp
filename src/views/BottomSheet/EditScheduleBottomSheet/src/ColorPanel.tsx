@@ -110,8 +110,11 @@ const ColorPanel = ({
 
     if (isEdit) {
       getColorList()
+
+      backgroundColor.value = data.background_color
+      textColor.value = data.text_color
     }
-  }, [isEdit])
+  }, [isEdit, data.background_color, data.text_color])
 
   // components
   const headerComponent = React.useMemo(() => {
