@@ -19,152 +19,141 @@ interface Props {
   changeStartDate: (date: string) => void
   changeEndDate: (date: string) => void
 }
-const DatePanel = ({
-  value,
-  data,
-  itemPanelHeight,
-  headerContainerStyle,
-  headerLabelStyle,
-  headerTitleStyle,
-  itemHeaderContainerStyle,
-  itemHeaderLabelStyle,
-  handleExpansion,
-  changeStartDate,
-  changeEndDate
-}: Props) => {
-  const panelItemContentsHeight = 370
-  const [activeDatePanelItemIndex, setActiveDatePanelItemIndex] = React.useState(-1)
-  const scheduleDate = useRecoilValue(scheduleDateState)
+const DatePanel = React.memo(
+  ({
+    value,
+    data,
+    itemPanelHeight,
+    headerContainerStyle,
+    headerLabelStyle,
+    headerTitleStyle,
+    itemHeaderContainerStyle,
+    itemHeaderLabelStyle,
+    handleExpansion,
+    changeStartDate,
+    changeEndDate
+  }: Props) => {
+    const panelItemContentsHeight = 370
+    const [activeDatePanelItemIndex, setActiveDatePanelItemIndex] = React.useState(-1)
+    const scheduleDate = useRecoilValue(scheduleDateState)
 
-  const endDate = React.useMemo(() => {
-    return data.end_date !== '9999-12-31' ? data.end_date : '없음'
-  }, [data.end_date])
+    const endDate = React.useMemo(() => {
+      return data.end_date !== '9999-12-31' ? data.end_date : '없음'
+    }, [data.end_date])
 
-  const startDatePanelItemHeaderWrapperStyle = React.useMemo(() => {
-    return [styles.panelItemButton, activeDatePanelItemIndex === 0 && styles.panelItemActiveButton]
-  }, [activeDatePanelItemIndex])
+    const startDatePanelItemHeaderWrapperStyle = React.useMemo(() => {
+      return [styles.panelItemButton, activeDatePanelItemIndex === 0 && styles.panelItemActiveButton]
+    }, [activeDatePanelItemIndex])
 
-  const startDatePanelItemHeaderTextStyle = React.useMemo(() => {
-    return [styles.panelItemButtonText, activeDatePanelItemIndex === 0 && styles.panelItemActiveButtonText]
-  }, [activeDatePanelItemIndex])
+    const startDatePanelItemHeaderTextStyle = React.useMemo(() => {
+      return [styles.panelItemButtonText, activeDatePanelItemIndex === 0 && styles.panelItemActiveButtonText]
+    }, [activeDatePanelItemIndex])
 
-  const endDatePanelItemHeaderWrapperStyle = React.useMemo(() => {
-    return [styles.panelItemButton, activeDatePanelItemIndex === 1 && styles.panelItemActiveButton]
-  }, [activeDatePanelItemIndex])
+    const endDatePanelItemHeaderWrapperStyle = React.useMemo(() => {
+      return [styles.panelItemButton, activeDatePanelItemIndex === 1 && styles.panelItemActiveButton]
+    }, [activeDatePanelItemIndex])
 
-  const endDatePanelItemHeaderTextStyle = React.useMemo(() => {
-    return [styles.panelItemButtonText, activeDatePanelItemIndex === 1 && styles.panelItemActiveButtonText]
-  }, [activeDatePanelItemIndex])
+    const endDatePanelItemHeaderTextStyle = React.useMemo(() => {
+      return [styles.panelItemButtonText, activeDatePanelItemIndex === 1 && styles.panelItemActiveButtonText]
+    }, [activeDatePanelItemIndex])
 
-  const handleStartDatePanel = React.useCallback(() => {
-    if (data.schedule_id) {
-      return
-    }
-
-    setActiveDatePanelItemIndex(0)
-  }, [data.schedule_id])
-
-  const handleEndDatePanel = React.useCallback(() => {
-    setActiveDatePanelItemIndex(1)
-  }, [])
-
-  React.useEffect(() => {
-    if (data.schedule_id) {
-      setActiveDatePanelItemIndex(1)
-    } else {
-      setActiveDatePanelItemIndex(0)
-    }
-  }, [data.schedule_id])
-
-  // components
-  const headerComponent = React.useMemo(() => {
-    return (
-      <View style={headerContainerStyle}>
-        <Text style={headerLabelStyle}>기간</Text>
-        <Text style={headerTitleStyle}>{`${data.start_date} ~ ${endDate}`}</Text>
-      </View>
-    )
-  }, [data.start_date, endDate])
-
-  const startDatePanelHeaderComponent = React.useMemo(() => {
-    return (
-      <View style={[itemHeaderContainerStyle, {borderTopWidth: 0}]}>
-        <Text style={itemHeaderLabelStyle}>시작일</Text>
-
-        <View style={startDatePanelItemHeaderWrapperStyle}>
-          <Text style={startDatePanelItemHeaderTextStyle}>{data.start_date}</Text>
-        </View>
-      </View>
-    )
-  }, [data.start_date, startDatePanelItemHeaderWrapperStyle, startDatePanelItemHeaderTextStyle])
-
-  const startDatePanelContentsComponent = React.useMemo(() => {
-    return (
-      <View style={styles.panelItemContents}>
-        <DatePicker
-          value={data.start_date}
-          disableDate={format(scheduleDate, 'yyyy-MM-dd')}
-          onChange={changeStartDate}
-        />
-      </View>
-    )
-  }, [data.start_date, scheduleDate, changeStartDate])
-
-  const endDatePanelHeaderComponent = React.useMemo(() => {
-    return (
-      <View style={itemHeaderContainerStyle}>
-        <Text style={itemHeaderLabelStyle}>종료일</Text>
-
-        <View style={endDatePanelItemHeaderWrapperStyle}>
-          <Text style={endDatePanelItemHeaderTextStyle}>{endDate}</Text>
-        </View>
-      </View>
-    )
-  }, [endDate, endDatePanelItemHeaderWrapperStyle, endDatePanelItemHeaderTextStyle])
-
-  const endDatePanelContentsComponent = React.useMemo(() => {
-    return (
-      <View style={styles.panelItemContents}>
-        <DatePicker value={data.end_date} hasNull disableDate={data.start_date} onChange={changeEndDate} />
-      </View>
-    )
-  }, [data.start_date, data.end_date, changeEndDate])
-
-  return (
-    <Panel
-      type="container"
-      value={value}
-      contentsHeight={itemPanelHeight * 2 + panelItemContentsHeight + 3} // 3 = borderWidth
-      handleExpansion={handleExpansion}
-      headerComponent={headerComponent}
-      contentsComponent={
-        <View>
-          {/* 시작일 */}
-          <Panel
-            type="item"
-            value={activeDatePanelItemIndex === 0}
-            headerHeight={itemPanelHeight}
-            contentsHeight={panelItemContentsHeight}
-            handleExpansion={handleStartDatePanel}
-            headerComponent={startDatePanelHeaderComponent}
-            contentsComponent={startDatePanelContentsComponent}
-          />
-
-          {/* 종료일 */}
-          <Panel
-            type="item"
-            value={activeDatePanelItemIndex === 1}
-            headerHeight={itemPanelHeight}
-            contentsHeight={panelItemContentsHeight}
-            handleExpansion={handleEndDatePanel}
-            headerComponent={endDatePanelHeaderComponent}
-            contentsComponent={endDatePanelContentsComponent}
-          />
-        </View>
+    const handleStartDatePanel = React.useCallback(() => {
+      if (data.schedule_id) {
+        return
       }
-    />
-  )
-}
+
+      setActiveDatePanelItemIndex(0)
+    }, [data.schedule_id])
+
+    const handleEndDatePanel = React.useCallback(() => {
+      setActiveDatePanelItemIndex(1)
+    }, [])
+
+    React.useEffect(() => {
+      if (data.schedule_id) {
+        setActiveDatePanelItemIndex(1)
+      } else {
+        setActiveDatePanelItemIndex(0)
+      }
+    }, [data.schedule_id])
+
+    return (
+      <Panel
+        type="container"
+        value={value}
+        contentsHeight={itemPanelHeight * 2 + panelItemContentsHeight + 3} // 3 = borderWidth
+        handleExpansion={handleExpansion}
+        headerComponent={
+          <View style={headerContainerStyle}>
+            <Text style={headerLabelStyle}>기간</Text>
+            <Text style={headerTitleStyle}>{`${data.start_date} ~ ${endDate}`}</Text>
+          </View>
+        }
+        contentsComponent={
+          <View>
+            {/* 시작일 */}
+            <Panel
+              type="item"
+              value={activeDatePanelItemIndex === 0}
+              headerHeight={itemPanelHeight}
+              contentsHeight={panelItemContentsHeight}
+              handleExpansion={handleStartDatePanel}
+              headerComponent={
+                <View style={[itemHeaderContainerStyle, {borderTopWidth: 0}]}>
+                  <Text style={itemHeaderLabelStyle}>시작일</Text>
+
+                  <View style={startDatePanelItemHeaderWrapperStyle}>
+                    <Text style={startDatePanelItemHeaderTextStyle}>{data.start_date}</Text>
+                  </View>
+                </View>
+              }
+              contentsComponent={
+                <View style={styles.panelItemContents}>
+                  <DatePicker
+                    value={data.start_date}
+                    disableDate={format(scheduleDate, 'yyyy-MM-dd')}
+                    onChange={changeStartDate}
+                  />
+                </View>
+              }
+            />
+
+            {/* 종료일 */}
+            <Panel
+              type="item"
+              value={activeDatePanelItemIndex === 1}
+              headerHeight={itemPanelHeight}
+              contentsHeight={panelItemContentsHeight}
+              handleExpansion={handleEndDatePanel}
+              headerComponent={
+                <View style={itemHeaderContainerStyle}>
+                  <Text style={itemHeaderLabelStyle}>종료일</Text>
+
+                  <View style={endDatePanelItemHeaderWrapperStyle}>
+                    <Text style={endDatePanelItemHeaderTextStyle}>{endDate}</Text>
+                  </View>
+                </View>
+              }
+              contentsComponent={
+                <View style={styles.panelItemContents}>
+                  <DatePicker value={data.end_date} hasNull disableDate={data.start_date} onChange={changeEndDate} />
+                </View>
+              }
+            />
+          </View>
+        }
+      />
+    )
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.value === nextProps.value &&
+      prevProps.data.start_date === nextProps.data.start_date &&
+      prevProps.data.end_date === nextProps.data.end_date &&
+      prevProps.data.schedule_id === nextProps.data.schedule_id
+    )
+  }
+)
 
 const styles = StyleSheet.create({
   panelItemButton: {
