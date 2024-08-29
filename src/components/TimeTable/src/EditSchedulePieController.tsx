@@ -17,7 +17,7 @@ interface Props {
   onScheduleChanged: Function
 }
 
-const MINUTE_INTERVAL = 5
+const MINUTE_INTERVAL = 10
 const itemSize = 38
 
 const EditSchedulePieController = ({data, x, y, radius, onScheduleChanged}: Props) => {
