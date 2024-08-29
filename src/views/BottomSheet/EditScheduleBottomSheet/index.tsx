@@ -191,7 +191,7 @@ const EditScheduleBottomSheet = React.memo(() => {
           isEdit={isEdit}
           data={schedule}
           itemPanelHeight={defaultItemPanelHeight}
-          headerContainerStyle={styles.panelHeaderBox}
+          headerContainerStyle={styles.panelHeaderContainer}
           headerLabelStyle={styles.panelHeaderLabel}
           itemHeaderContainerStyle={styles.panelItemHeader}
           itemHeaderLabelStyle={styles.panelItemLabel}
@@ -203,7 +203,8 @@ const EditScheduleBottomSheet = React.memo(() => {
         {/* 시간 */}
         <TimePanel
           data={schedule}
-          headerContainerStyle={styles.panelHeaderTextBox}
+          headerContainerStyle={styles.panelHeaderContainer}
+          headerTitleWrapper={styles.panelHeaderTitleWrapper}
           headerLabelStyle={styles.panelHeaderLabel}
           headerTitleStyle={styles.panelHeaderTitle}
           handleExpansion={handleTimePanel}
@@ -214,7 +215,8 @@ const EditScheduleBottomSheet = React.memo(() => {
           value={activeDatePanel}
           data={schedule}
           itemPanelHeight={defaultItemPanelHeight}
-          headerContainerStyle={styles.panelHeaderTextBox}
+          headerContainerStyle={styles.panelHeaderContainer}
+          headerTitleWrapper={styles.panelHeaderTitleWrapper}
           headerLabelStyle={styles.panelHeaderLabel}
           headerTitleStyle={styles.panelHeaderTitle}
           itemHeaderContainerStyle={styles.panelItemHeader}
@@ -228,7 +230,8 @@ const EditScheduleBottomSheet = React.memo(() => {
         <DayOfWeekPanel
           value={activeDayOfWeekPanel}
           data={schedule}
-          headerContainerStyle={styles.panelHeaderTextBox}
+          headerContainerStyle={styles.panelHeaderContainer}
+          headerTitleWrapper={styles.panelHeaderTitleWrapper}
           headerLabelStyle={styles.panelHeaderLabel}
           headerTitleStyle={styles.panelHeaderTitle}
           handleExpansion={handleDayOfWeekPanel}
@@ -271,14 +274,13 @@ const styles = StyleSheet.create({
   },
 
   // expansion panel style
-  panelHeaderBox: {
+  panelHeaderContainer: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginRight: 16
+    gap: 20
   },
-  panelHeaderTextBox: {
+  panelHeaderTitleWrapper: {
     gap: 5
   },
   panelHeaderLabel: {

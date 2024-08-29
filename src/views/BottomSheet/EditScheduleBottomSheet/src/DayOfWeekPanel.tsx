@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, ViewStyle, TextStyle, Pressable, Text, View} from 'react-native'
+import {StyleSheet, ViewStyle, TextStyle, Pressable, Text, View, Image} from 'react-native'
 import Panel from '@/components/Panel'
 import {DAY_OF_WEEK} from '@/types/common'
 
@@ -7,6 +7,7 @@ interface Props {
   value: boolean
   data: Schedule
   headerContainerStyle: ViewStyle
+  headerTitleWrapper: ViewStyle
   headerLabelStyle: TextStyle
   headerTitleStyle: TextStyle
   handleExpansion: () => void
@@ -17,6 +18,7 @@ const DayOfWeekPanel = React.memo(
     value,
     data,
     headerContainerStyle,
+    headerTitleWrapper,
     headerLabelStyle,
     headerTitleStyle,
     handleExpansion,
@@ -67,15 +69,19 @@ const DayOfWeekPanel = React.memo(
         handleExpansion={handleExpansion}
         headerComponent={
           <View style={headerContainerStyle}>
-            <Text style={headerLabelStyle}>요일</Text>
-            <View style={styles.headerTitleContainer}>
-              <Text style={getDayOfWeekTitleStyle(data.mon)}>월</Text>
-              <Text style={getDayOfWeekTitleStyle(data.tue)}>화</Text>
-              <Text style={getDayOfWeekTitleStyle(data.wed)}>수</Text>
-              <Text style={getDayOfWeekTitleStyle(data.thu)}>목</Text>
-              <Text style={getDayOfWeekTitleStyle(data.fri)}>금</Text>
-              <Text style={getDayOfWeekTitleStyle(data.sat)}>토</Text>
-              <Text style={getDayOfWeekTitleStyle(data.sun)}>일</Text>
+            <Image source={require('@/assets/icons/dayOfWeek.png')} style={{width: 24, height: 24}} />
+
+            <View style={headerTitleWrapper}>
+              <Text style={headerLabelStyle}>요일</Text>
+              <View style={styles.headerTitleContainer}>
+                <Text style={getDayOfWeekTitleStyle(data.mon)}>월</Text>
+                <Text style={getDayOfWeekTitleStyle(data.tue)}>화</Text>
+                <Text style={getDayOfWeekTitleStyle(data.wed)}>수</Text>
+                <Text style={getDayOfWeekTitleStyle(data.thu)}>목</Text>
+                <Text style={getDayOfWeekTitleStyle(data.fri)}>금</Text>
+                <Text style={getDayOfWeekTitleStyle(data.sat)}>토</Text>
+                <Text style={getDayOfWeekTitleStyle(data.sun)}>일</Text>
+              </View>
             </View>
           </View>
         }

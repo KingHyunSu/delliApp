@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, ViewStyle, TextStyle, Text, View} from 'react-native'
+import {StyleSheet, ViewStyle, TextStyle, Text, View, Image} from 'react-native'
 import Animated, {useAnimatedStyle, useSharedValue} from 'react-native-reanimated'
 import Panel from '@/components/Panel'
 import ColorPicker from '@/components/ColorPicker'
@@ -134,10 +134,14 @@ const ColorPanel = React.memo(
         handleExpansion={handleExpansion}
         headerComponent={
           <View style={headerContainerStyle}>
-            <Text style={headerLabelStyle}>색상</Text>
-            <Animated.View style={previewColorBox}>
-              <Animated.Text style={previewColorBoxText}>일정명</Animated.Text>
-            </Animated.View>
+            <Image source={require('@/assets/icons/palette.png')} style={{width: 24, height: 24}} />
+
+            <View style={styles.headerTitleWrapper}>
+              <Text style={headerLabelStyle}>색상</Text>
+              <Animated.View style={previewColorBox}>
+                <Animated.Text style={previewColorBoxText}>일정명</Animated.Text>
+              </Animated.View>
+            </View>
           </View>
         }
         contentsComponent={
@@ -204,6 +208,13 @@ const ColorPanel = React.memo(
   }
 )
 const styles = StyleSheet.create({
+  headerTitleWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginRight: 16
+  },
   previewColorBox: {
     paddingVertical: 5,
     paddingHorizontal: 12,

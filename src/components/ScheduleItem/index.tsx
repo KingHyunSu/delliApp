@@ -64,19 +64,14 @@ const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
           </View>
 
           <View style={styles.infoIconRow}>
-            <Image
-              source={require('@/assets/icons/calendar.png')}
-              width={16}
-              height={16}
-              style={{width: 16, height: 16}}
-            />
+            <Image source={require('@/assets/icons/calendar.png')} style={styles.icon} />
             <Text style={contentsTextStyle}>
               {`${item.start_date} ~ ${item.end_date === '9999-12-31' ? '없음' : item.end_date}`}
             </Text>
           </View>
 
           <View style={styles.infoIconRow}>
-            <Image source={require('@/assets/icons/time.png')} width={16} height={16} style={{width: 16, height: 16}} />
+            <Image source={require('@/assets/icons/time.png')} style={styles.icon} />
 
             <Text style={contentsTextStyle}>{`${getTimeText(item.start_time)} ~ ${getTimeText(item.end_time)}`}</Text>
           </View>
@@ -124,6 +119,10 @@ const styles = StyleSheet.create({
   },
   activeDayOfWeekText: {
     color: '#1E90FF'
+  },
+  icon: {
+    width: 16,
+    height: 16
   }
 })
 

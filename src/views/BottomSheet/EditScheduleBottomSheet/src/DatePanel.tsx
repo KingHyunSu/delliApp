@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
+import {Image, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
 import {format} from 'date-fns'
 import Panel from '@/components/Panel'
 import DatePicker from '@/components/DatePicker'
@@ -11,6 +11,7 @@ interface Props {
   data: Schedule
   itemPanelHeight: number
   headerContainerStyle: ViewStyle
+  headerTitleWrapper: ViewStyle
   headerLabelStyle: TextStyle
   headerTitleStyle: TextStyle
   itemHeaderContainerStyle: ViewStyle
@@ -25,6 +26,7 @@ const DatePanel = React.memo(
     data,
     itemPanelHeight,
     headerContainerStyle,
+    headerTitleWrapper,
     headerLabelStyle,
     headerTitleStyle,
     itemHeaderContainerStyle,
@@ -85,8 +87,11 @@ const DatePanel = React.memo(
         handleExpansion={handleExpansion}
         headerComponent={
           <View style={headerContainerStyle}>
-            <Text style={headerLabelStyle}>기간</Text>
-            <Text style={headerTitleStyle}>{`${data.start_date} ~ ${endDate}`}</Text>
+            <Image source={require('@/assets/icons/calendar.png')} style={{width: 24, height: 24}} />
+            <View style={headerTitleWrapper}>
+              <Text style={headerLabelStyle}>기간</Text>
+              <Text style={headerTitleStyle}>{`${data.start_date} ~ ${endDate}`}</Text>
+            </View>
           </View>
         }
         contentsComponent={
