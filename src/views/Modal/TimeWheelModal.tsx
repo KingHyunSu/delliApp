@@ -361,8 +361,4 @@ const contentStyles = StyleSheet.create({
 const leftWheelWrapperStyle = StyleSheet.compose(contentStyles.wheelWrapper, contentStyles.leftWheelWrapper)
 const rightWheelWrapperStyle = StyleSheet.compose(contentStyles.wheelWrapper, contentStyles.rightWheelWrapper)
 
-TimeWheel.whyDidYouRender = {
-  logOnDifferentValues: true,
-  customName: 'TimeWheelModal'
-}
 export default TimeWheel
