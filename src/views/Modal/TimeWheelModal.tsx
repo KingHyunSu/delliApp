@@ -23,11 +23,6 @@ const TimeWheel = () => {
   const [showTimeWheelModal, setShowTimeWheelModal] = useRecoilState(showTimeWheelModalState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
-  const meridiemRef = React.useRef<TimeWheelRefs>(null)
-  const hourRef = React.useRef<TimeWheelRefs>(null)
-  const minuteRef = React.useRef<TimeWheelRefs>(null)
-
-  const [value, setValue] = React.useState(0)
   const [startTime, setStartTime] = React.useState(0)
   const [endTime, setEndTime] = React.useState(0)
   const [activeTab, setActiveTab] = React.useState<Tab>('START')
@@ -56,7 +51,7 @@ const TimeWheel = () => {
   const activeStartTab = React.useMemo(() => {
     if (activeTab === 'START') {
       return {
-        borderBottomColor: '#7c8698'
+        borderBottomColor: '#424242'
       }
     }
     return null
@@ -65,8 +60,8 @@ const TimeWheel = () => {
   const activeStartText = React.useMemo(() => {
     if (activeTab === 'START') {
       return {
-        color: '#7c8698',
-        fontFamily: 'Pretendard-Bold'
+        color: '#424242',
+        fontFamily: 'Pretendard-SemiBold'
       }
     }
   }, [activeTab])
@@ -74,7 +69,7 @@ const TimeWheel = () => {
   const activeEndTab = React.useMemo(() => {
     if (activeTab === 'END') {
       return {
-        borderBottomColor: '#7c8698'
+        borderBottomColor: '#424242'
       }
     }
     return null
@@ -83,15 +78,11 @@ const TimeWheel = () => {
   const activeEndText = React.useMemo(() => {
     if (activeTab === 'END') {
       return {
-        color: '#7c8698',
-        fontFamily: 'Pretendard-Bold'
+        color: '#424242',
+        fontFamily: 'Pretendard-SemiBold'
       }
     }
   }, [activeTab])
-
-  const handleClose = React.useCallback(() => {
-    setShowTimeWheelModal(false)
-  }, [setShowTimeWheelModal])
 
   const onChange = React.useCallback(
     (time: number) => {
@@ -113,8 +104,6 @@ const TimeWheel = () => {
 
   const handleMeridiemChanged = React.useCallback(
     (index: number) => {
-      setMeridiemIndex(index)
-
       const hourToMinute = (hourIndex + index * 12) * 60
       const result = hourToMinute + minuteIndex
 
@@ -125,8 +114,6 @@ const TimeWheel = () => {
 
   const handleHourChanged = React.useCallback(
     (index: number) => {
-      setHourIndex(index)
-
       const hourToMinute = (index + meridiemIndex * 12) * 60
       const result = hourToMinute + minuteIndex
 
@@ -137,8 +124,6 @@ const TimeWheel = () => {
 
   const handleMinuteChanged = React.useCallback(
     (index: number) => {
-      setMinuteIndex(index)
-
       const hourToMinute = (hourIndex + meridiemIndex * 12) * 60
       const result = hourToMinute + index
 
@@ -147,6 +132,14 @@ const TimeWheel = () => {
     [hourIndex, meridiemIndex, onChange]
   )
 
+  const handleClose = React.useCallback(() => {
+    // 종료일에서 닫으면 스크롤 안보이는 이슈 때문에 추가
+    setStartTime(schedule.start_time)
+    setActiveTab('START')
+
+    setShowTimeWheelModal(false)
+  }, [setShowTimeWheelModal, schedule.start_time])
+
   const handleConfirm = React.useCallback(() => {
     setSchedule(prevState => ({
       ...prevState,
@@ -154,47 +147,44 @@ const TimeWheel = () => {
       end_time: endTime
     }))
 
-    handleClose()
-  }, [setSchedule, startTime, endTime, handleClose])
+    // 종료일에서 닫으면 스크롤 안보이는 이슈 때문에 추가
+    setActiveTab('START')
+
+    setShowTimeWheelModal(false)
+  }, [setSchedule, startTime, endTime])
+
+  const changeTime = (time: number) => {
+    let meridie = 0
+    let hour = Math.floor(time / 60)
+    const minute = time % 60
+
+    if (time >= 720) {
+      meridie = 1
+      hour -= 12
+    }
+
+    setMeridiemIndex(meridie)
+    setHourIndex(hour)
+    setMinuteIndex(minute)
+  }
 
   React.useEffect(() => {
     if (showTimeWheelModal) {
-      opacity.value = withTiming(1, {duration: 150})
-      setActiveTab('START')
       setStartTime(schedule.start_time)
       setEndTime(schedule.end_time)
+      opacity.value = withTiming(1, {duration: 150})
     } else {
       opacity.value = 0
     }
-  }, [showTimeWheelModal])
+  }, [showTimeWheelModal, schedule.start_time, schedule.end_time])
 
   React.useEffect(() => {
     if (activeTab === 'START') {
-      setValue(startTime)
+      changeTime(startTime)
     } else if (activeTab === 'END') {
-      setValue(endTime)
+      changeTime(endTime)
     }
   }, [activeTab, startTime, endTime])
-
-  React.useEffect(() => {
-    if (Number.isInteger(value)) {
-      let meridie = 0
-      let hour = Math.floor(value / 60)
-      const minute = value % 60
-
-      if (value >= 720) {
-        meridie = 1
-        hour -= 12
-      }
-
-      setMeridiemIndex(meridie)
-      setHourIndex(hour)
-      setMinuteIndex(minute)
-      meridiemRef.current?.scrollToIndex(meridie)
-      hourRef.current?.scrollToIndex(hour)
-      minuteRef.current?.scrollToIndex(minute)
-    }
-  }, [value])
 
   return (
     <Modal visible={showTimeWheelModal} hardwareAccelerated transparent statusBarTranslucent>
@@ -221,7 +211,6 @@ const TimeWheel = () => {
 
             <View style={contentStyles.container}>
               <WheelPicker
-                ref={meridiemRef}
                 options={meridiemList}
                 selectedIndex={meridiemIndex}
                 visibleRest={visibleRest}
@@ -231,7 +220,6 @@ const TimeWheel = () => {
                 onChange={handleMeridiemChanged}
               />
               <WheelPicker
-                ref={hourRef}
                 options={hourList}
                 selectedIndex={hourIndex}
                 visibleRest={visibleRest}
@@ -241,7 +229,6 @@ const TimeWheel = () => {
                 onChange={handleHourChanged}
               />
               <WheelPicker
-                ref={minuteRef}
                 options={minuteList}
                 selectedIndex={minuteIndex}
                 visibleRest={visibleRest}
@@ -306,7 +293,7 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 14,
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: 'Pretendard-Medium',
     color: '#7c8698'
   },
   tabTimeText: {
@@ -326,7 +313,7 @@ const styles = StyleSheet.create({
   cancelButtonText: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 16,
-    color: '#7c8698'
+    color: '#777777'
   },
   confirmButton: {
     flex: 1,
@@ -354,7 +341,7 @@ const contentStyles = StyleSheet.create({
   },
   wheelWrapper: {
     borderRadius: 0,
-    backgroundColor: '#f5f6f8'
+    backgroundColor: '#f9f9f9'
   },
   leftWheelWrapper: {
     borderTopLeftRadius: 10,
@@ -365,13 +352,17 @@ const contentStyles = StyleSheet.create({
     borderBottomRightRadius: 10
   },
   wheelItemText: {
-    fontFamily: 'Pretendard-Bold',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    color: '#7c8698'
+    color: '#424242'
   }
 })
 
 const leftWheelWrapperStyle = StyleSheet.compose(contentStyles.wheelWrapper, contentStyles.leftWheelWrapper)
 const rightWheelWrapperStyle = StyleSheet.compose(contentStyles.wheelWrapper, contentStyles.rightWheelWrapper)
 
+TimeWheel.whyDidYouRender = {
+  logOnDifferentValues: true,
+  customName: 'TimeWheelModal'
+}
 export default TimeWheel
