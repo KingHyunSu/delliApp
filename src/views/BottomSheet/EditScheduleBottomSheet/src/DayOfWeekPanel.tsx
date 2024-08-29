@@ -2,6 +2,7 @@ import React from 'react'
 import {StyleSheet, ViewStyle, TextStyle, Pressable, Text, View, Image} from 'react-native'
 import Panel from '@/components/Panel'
 import {DAY_OF_WEEK} from '@/types/common'
+import RepeatIcon from '@/assets/icons/repeat.svg'
 
 interface Props {
   value: boolean
@@ -65,11 +66,11 @@ const DayOfWeekPanel = React.memo(
       <Panel
         type="container"
         value={value}
-        contentsHeight={77}
+        contentsHeight={78}
         handleExpansion={handleExpansion}
         headerComponent={
           <View style={headerContainerStyle}>
-            <Image source={require('@/assets/icons/dayOfWeek.png')} style={{width: 24, height: 24}} />
+            <RepeatIcon fill="#03cf5d" />
 
             <View style={headerTitleWrapper}>
               <Text style={headerLabelStyle}>요일</Text>
@@ -134,16 +135,23 @@ const styles = StyleSheet.create({
   },
   dayOfWeekContainer: {
     flexDirection: 'row',
-    gap: 10,
-    paddingLeft: 16,
+    // gap: 10,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
     paddingTop: 20
   },
   dayOfWeek: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    width: 36,
-    height: 36
+    width: 38,
+    height: 38,
+    borderRadius: 10,
+    backgroundColor: '#f9f9f9',
+    borderWidth: 1,
+    borderColor: '#eeeded'
+  },
+  activeDayOfWeek: {
+    backgroundColor: '#ffffff'
   },
   dayOfWeekText: {
     fontFamily: 'Pretendard-Regular',
@@ -151,13 +159,10 @@ const styles = StyleSheet.create({
     color: '#babfc5'
   },
   activeDayOfWeekText: {
-    color: '#1E90FF'
+    color: '#424242'
   },
   disableDayOfWeekText: {
     color: '#babfc5'
-  },
-  activeDayOfWeek: {
-    borderColor: '#424242'
   }
 })
 
