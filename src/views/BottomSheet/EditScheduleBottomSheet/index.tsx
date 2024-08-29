@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingTop: 10,
-    paddingBottom: 30,
+    paddingBottom: 70,
     gap: 20
   },
   titleBox: {
@@ -285,8 +285,8 @@ const styles = StyleSheet.create({
   },
   panelHeaderLabel: {
     fontSize: 14,
-    fontFamily: 'Pretendard-Light',
-    color: '#424242'
+    fontFamily: 'Pretendard-Medium',
+    color: '#7c8698'
   },
   panelHeaderTitle: {
     fontSize: 16,
@@ -304,8 +304,8 @@ const styles = StyleSheet.create({
   },
   panelItemLabel: {
     fontSize: 14,
-    fontFamily: 'Pretendard-Regular',
-    color: '#424242'
+    fontFamily: 'Pretendard-Medium',
+    color: '#7c8698'
   }
 })
 

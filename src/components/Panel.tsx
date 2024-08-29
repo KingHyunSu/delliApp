@@ -90,7 +90,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: '#eeeded',
-    borderRadius: 10
+    borderRadius: 10,
+    backgroundColor: '#ffffff'
   },
   itemContainer: {
     overflow: 'hidden',

@@ -3,6 +3,7 @@ import {StyleSheet, Pressable, View, Text, Image} from 'react-native'
 import TodoList from './src/TodoList'
 
 import {getTimeOfMinute} from '@/utils/helper'
+import RepeatIcon from '@/assets/icons/repeat.svg'
 
 interface Props {
   item: Schedule
@@ -53,14 +54,10 @@ const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
         <Text style={titleTextStyle}>{item.title}</Text>
 
         <View style={styles.infoWrapper}>
-          <View style={styles.dayOfWeekContainer}>
-            <Text style={getDayOfWeekTextStyle(item.mon)}>월</Text>
-            <Text style={getDayOfWeekTextStyle(item.tue)}>화</Text>
-            <Text style={getDayOfWeekTextStyle(item.wed)}>수</Text>
-            <Text style={getDayOfWeekTextStyle(item.thu)}>목</Text>
-            <Text style={getDayOfWeekTextStyle(item.fri)}>금</Text>
-            <Text style={getDayOfWeekTextStyle(item.sat)}>토</Text>
-            <Text style={getDayOfWeekTextStyle(item.sun)}>일</Text>
+          <View style={styles.infoIconRow}>
+            <Image source={require('@/assets/icons/time.png')} style={styles.icon} />
+
+            <Text style={contentsTextStyle}>{`${getTimeText(item.start_time)} ~ ${getTimeText(item.end_time)}`}</Text>
           </View>
 
           <View style={styles.infoIconRow}>
@@ -71,9 +68,17 @@ const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
           </View>
 
           <View style={styles.infoIconRow}>
-            <Image source={require('@/assets/icons/time.png')} style={styles.icon} />
+            <RepeatIcon width={16} height={16} fill="#03cf5d" />
 
-            <Text style={contentsTextStyle}>{`${getTimeText(item.start_time)} ~ ${getTimeText(item.end_time)}`}</Text>
+            <View style={styles.dayOfWeekContainer}>
+              <Text style={getDayOfWeekTextStyle(item.mon)}>월</Text>
+              <Text style={getDayOfWeekTextStyle(item.tue)}>화</Text>
+              <Text style={getDayOfWeekTextStyle(item.wed)}>수</Text>
+              <Text style={getDayOfWeekTextStyle(item.thu)}>목</Text>
+              <Text style={getDayOfWeekTextStyle(item.fri)}>금</Text>
+              <Text style={getDayOfWeekTextStyle(item.sat)}>토</Text>
+              <Text style={getDayOfWeekTextStyle(item.sun)}>일</Text>
+            </View>
           </View>
         </View>
       </Pressable>
@@ -89,11 +94,12 @@ const styles = StyleSheet.create({
     padding: 16
   },
   infoWrapper: {
-    gap: 6,
+    gap: 7,
     marginTop: 10
   },
   infoIconRow: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 5
   },
   titleText: {
@@ -118,7 +124,7 @@ const styles = StyleSheet.create({
     color: '#babfc5'
   },
   activeDayOfWeekText: {
-    color: '#1E90FF'
+    color: '#424242'
   },
   icon: {
     width: 16,
