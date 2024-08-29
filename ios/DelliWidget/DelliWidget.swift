@@ -119,23 +119,29 @@ struct Provider: TimelineProvider {
       }
     }
     
-    for schedule in scheduleList {
-      let hour = Int(floor(Double(schedule.start_time) / 60.0))
-      let minute = Int(schedule.start_time) % 60
-      
-      var entry = SimpleEntry(
-        date: calendar.date(bySettingHour: hour, minute: minute, second: 0, of: currentDate)!,
-        activeDate: activeDateString,
-        isUpdate: isUpdate,
-        scheduleList: scheduleList,
-        activeSchedule: schedule
+    if scheduleList.isEmpty {
+      let entry = SimpleEntry(
+        date: currentDate,
+        activeDate: nil,
+        isUpdate: false,
+        scheduleList: [],
+        activeSchedule: ScheduleModel(
+          schedule_id: nil,
+          title: "",
+          start_time: 0,
+          end_time: 0,
+          todo_list: []
+        )
       )
       
       entries.append(entry)
-      
-      if schedule.schedule_id != nil && schedule.start_time > schedule.end_time && currentTime < Int(schedule.end_time) {
-        entry = SimpleEntry(
-          date: currentDate,
+    } else {
+      for schedule in scheduleList {
+        let hour = Int(floor(Double(schedule.start_time) / 60.0))
+        let minute = Int(schedule.start_time) % 60
+        
+        var entry = SimpleEntry(
+          date: calendar.date(bySettingHour: hour, minute: minute, second: 0, of: currentDate)!,
           activeDate: activeDateString,
           isUpdate: isUpdate,
           scheduleList: scheduleList,
@@ -143,6 +149,18 @@ struct Provider: TimelineProvider {
         )
         
         entries.append(entry)
+        
+        if schedule.schedule_id != nil && schedule.start_time > schedule.end_time && currentTime < Int(schedule.end_time) {
+          entry = SimpleEntry(
+            date: currentDate,
+            activeDate: activeDateString,
+            isUpdate: isUpdate,
+            scheduleList: scheduleList,
+            activeSchedule: schedule
+          )
+          
+          entries.append(entry)
+        }
       }
     }
     
@@ -326,8 +344,8 @@ struct DelliWidgetEntryView : View {
       
       if(entry.isUpdate) {
         VStack {
-          if let activeDateString = entry.activeDate {
-            Text("\(activeDateString)의")
+          if let activeDate = entry.activeDate {
+            Text("\(activeDate)의")
             Text("모든 일정이")
             Text("완료되었어요")
             
