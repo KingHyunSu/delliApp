@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     minWidth: 150,
     minHeight: 28,
-    textAlignVertical: 'center'
+    paddingTop: 0
   }
 })
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, Pressable, Text} from 'react-native'
+import {StyleSheet, Pressable, TextInput} from 'react-native'
 
 interface Props {
   data: Schedule
@@ -30,7 +30,7 @@ const ScheduleText = ({data, centerX, centerY, radius, onClick}: Props) => {
 
   return (
     <Pressable style={containerStyle} onPress={handleClick}>
-      <Text style={textStyle}>{data.title}</Text>
+      <TextInput value={data.title} style={textStyle} readOnly multiline scrollEnabled={false} onPress={handleClick} />
     </Pressable>
   )
 }
@@ -42,9 +42,9 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    padding: 0,
     minWidth: 150,
-    minHeight: 28
+    minHeight: 28,
+    paddingTop: 0
   }
 })
 
