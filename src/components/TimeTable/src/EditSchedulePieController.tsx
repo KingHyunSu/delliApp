@@ -1,9 +1,14 @@
 import React from 'react'
-import {StyleSheet, Platform, StatusBar, PanResponder, View} from 'react-native'
+import {StyleSheet} from 'react-native'
+import {GestureDetector, Gesture} from 'react-native-gesture-handler'
+import Animated, {
+  useSharedValue,
+  useDerivedValue,
+  useAnimatedStyle,
+  runOnJS,
+  useAnimatedReaction
+} from 'react-native-reanimated'
 import Svg, {Circle} from 'react-native-svg'
-
-import {polarToCartesian} from '../util'
-import {getStatusBarHeight} from 'react-native-status-bar-height'
 import {trigger} from 'react-native-haptic-feedback'
 
 import {useRecoilValue} from 'recoil'
@@ -21,121 +26,148 @@ const MINUTE_INTERVAL = 10
 const itemSize = 38
 
 const EditSchedulePieController = ({data, x, y, radius, onScheduleChanged}: Props) => {
-  const statusBarHeight = Platform.OS === 'ios' ? getStatusBarHeight(true) : StatusBar.currentHeight || 0
-
   const homeHeaderHeight = useRecoilValue(homeHeaderHeightState)
 
-  const newStartTime = React.useRef(data.start_time)
-  const newEndTime = React.useRef(data.end_time)
+  const newStartTime = useSharedValue(data.start_time)
+  const newEndTime = useSharedValue(data.end_time)
 
-  const startAngle = React.useMemo(() => {
-    return data.start_time * 0.25
-  }, [data.start_time])
+  const startAnchorPosition = useDerivedValue(() => {
+    const angle = newStartTime.value * 0.25
+    const angleInRadians = ((angle - 90) * Math.PI) / 180.0
 
-  const endAngle = React.useMemo(() => {
-    return data.end_time * 0.25
-  }, [data.end_time])
+    return {
+      x: x + radius * Math.cos(angleInRadians) - itemSize / 2,
+      y: y + radius * Math.sin(angleInRadians) - itemSize / 2
+    }
+  })
 
-  const dragStartBtnCoordinate = polarToCartesian(x, y, radius, startAngle)
-  const dragEndBtnCoordinate = polarToCartesian(x, y, radius, endAngle)
+  const endAnchorPosition = useDerivedValue(() => {
+    const angle = newEndTime.value * 0.25
+    const angleInRadians = ((angle - 90) * Math.PI) / 180.0
 
-  const startItemStyle = React.useMemo(() => {
-    return [styles.item, {left: dragStartBtnCoordinate.x - itemSize / 2, top: dragStartBtnCoordinate.y - itemSize / 2}]
-  }, [dragStartBtnCoordinate.x, dragStartBtnCoordinate.y])
+    return {
+      x: x + radius * Math.cos(angleInRadians) - itemSize / 2,
+      y: y + radius * Math.sin(angleInRadians) - itemSize / 2
+    }
+  })
 
-  const endItemStyle = React.useMemo(() => {
-    return [styles.item, {left: dragEndBtnCoordinate.x - itemSize / 2, top: dragEndBtnCoordinate.y - itemSize / 2}]
-  }, [dragEndBtnCoordinate.x, dragEndBtnCoordinate.y])
+  const startAnchorAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      top: startAnchorPosition.value.y,
+      left: startAnchorPosition.value.x
+    }
+  })
 
-  const getCalcTotalMinute = (angle: number) => {
+  const endAnchorAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      top: endAnchorPosition.value.y,
+      left: endAnchorPosition.value.x
+    }
+  })
+
+  // styles
+  const startAnchorStyle = React.useMemo(() => {
+    return [styles.item, startAnchorAnimatedStyle]
+  }, [])
+
+  const endAnchorStyle = React.useMemo(() => {
+    return [styles.item, endAnchorAnimatedStyle]
+  }, [])
+
+  const getCalcTotalMinute = React.useCallback((angle: number) => {
     const totalMinute = angle / 0.25
-    const minuteInterval = Math.round(totalMinute / MINUTE_INTERVAL) * MINUTE_INTERVAL
 
-    const hour = Math.floor(minuteInterval / 60)
-    const minute = Math.floor(minuteInterval % 60)
+    if (totalMinute % 10 < 3) {
+      const minuteInterval = Math.round(totalMinute / MINUTE_INTERVAL) * MINUTE_INTERVAL
+      const hour = Math.floor(minuteInterval / 60)
+      const minute = Math.floor(minuteInterval % 60)
 
-    return hour * 60 + minute
-  }
+      return hour * 60 + minute
+    }
 
-  const startPanResponders = React.useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + (homeHeaderHeight + statusBarHeight - 100))
-        const moveX = gestureState.moveX - x
+    return null
+  }, [])
 
-        let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
+  const startGesture = Gesture.Pan()
+    .onUpdate(event => {
+      const moveY = event.absoluteY - (y + homeHeaderHeight)
+      const moveX = event.absoluteX - x
 
-        if (angle < 0) {
-          angle += 360
-        }
+      let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
+      if (angle < 0) angle += 360
 
-        let calcTotalMinute = getCalcTotalMinute(angle)
+      const calcTotalMinute = getCalcTotalMinute(angle)
 
-        if (calcTotalMinute === 1440) {
-          calcTotalMinute = 0
-        }
-
-        if (newStartTime.current !== calcTotalMinute) {
-          newStartTime.current = calcTotalMinute
-
-          onScheduleChanged({start_time: calcTotalMinute})
-        }
+      if (calcTotalMinute) {
+        newStartTime.value = calcTotalMinute
+        onScheduleChanged({start_time: calcTotalMinute})
       }
     })
-  ).current
+    .runOnJS(true)
 
-  const endPanResponders = React.useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
-      onPanResponderMove: (event, gestureState) => {
-        const moveY = gestureState.moveY - (y + homeHeaderHeight + statusBarHeight - 100)
-        const moveX = gestureState.moveX - x
+  const endGesture = Gesture.Pan()
+    .onUpdate(event => {
+      const moveY = event.absoluteY - (y + homeHeaderHeight)
+      const moveX = event.absoluteX - x
 
-        let move = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
+      let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
+      if (angle < 0) angle += 360
 
-        const moveAngle = move - endAngle
-        let angle = endAngle + moveAngle
+      const calcTotalMinute = getCalcTotalMinute(angle)
 
-        if (angle < 0) {
-          angle += 360
-        }
-
-        let calcTotalMinute = getCalcTotalMinute(angle)
-
-        if (calcTotalMinute === 1440) {
-          calcTotalMinute = 0
-        }
-
-        if (newEndTime.current !== calcTotalMinute) {
-          newEndTime.current = calcTotalMinute
-
-          onScheduleChanged({end_time: calcTotalMinute})
-        }
+      if (calcTotalMinute) {
+        newEndTime.value = calcTotalMinute
+        onScheduleChanged({end_time: calcTotalMinute})
       }
     })
-  ).current
+    .runOnJS(true)
 
-  React.useEffect(() => {
-    trigger('soft', {
-      enableVibrateFallback: true,
-      ignoreAndroidSystemSettings: false
-    })
-  }, [startAngle, endAngle])
+  // trigger
+  useAnimatedReaction(
+    () => {
+      return newStartTime.value
+    },
+    (currentValue, previousValue) => {
+      if (currentValue !== previousValue) {
+        runOnJS(trigger)('soft', {
+          enableVibrateFallback: true,
+          ignoreAndroidSystemSettings: false
+        })
+      }
+    }
+  )
+
+  useAnimatedReaction(
+    () => {
+      return newEndTime.value
+    },
+    (currentValue, previousValue) => {
+      if (currentValue !== previousValue) {
+        runOnJS(trigger)('soft', {
+          enableVibrateFallback: true,
+          ignoreAndroidSystemSettings: false
+        })
+      }
+    }
+  )
 
   return (
     <>
-      <View {...startPanResponders.panHandlers} style={startItemStyle}>
-        <Svg>
-          <Circle cx={itemSize / 2} cy={itemSize / 2} r={10} fill="#1E90FF" />
-        </Svg>
-      </View>
+      <GestureDetector gesture={startGesture}>
+        <Animated.View style={startAnchorStyle}>
+          <Svg>
+            <Circle cx={itemSize / 2} cy={itemSize / 2} r={10} fill="#1E90FF" />
+          </Svg>
+        </Animated.View>
+      </GestureDetector>
 
-      <View {...endPanResponders.panHandlers} style={endItemStyle}>
-        <Svg>
-          <Circle cx={itemSize / 2} cy={itemSize / 2} r={10} fill="#1E90FF" />
-        </Svg>
-      </View>
+      <GestureDetector gesture={endGesture}>
+        <Animated.View style={endAnchorStyle}>
+          <Svg>
+            <Circle cx={itemSize / 2} cy={itemSize / 2} r={10} fill="#1E90FF" />
+          </Svg>
+        </Animated.View>
+      </GestureDetector>
     </>
   )
 }
