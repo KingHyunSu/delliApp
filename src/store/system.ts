@@ -156,3 +156,8 @@ export const editScheduleListSnapPointState = selector({
     return [minSnapPoint, maxSnapPoint]
   }
 })
+
+export const editScheduleListStatusState = atom({
+  key: 'editScheduleListStatusState',
+  default: 0
+})

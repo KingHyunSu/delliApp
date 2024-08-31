@@ -1,199 +1,369 @@
 import React from 'react'
-import {G, Defs, Path, TextPath, Text} from 'react-native-svg'
+import {StyleSheet, View, Text, Image} from 'react-native'
+import Svg, {Circle} from 'react-native-svg'
+import {Gesture, GestureDetector} from 'react-native-gesture-handler'
+import Animated, {
+  runOnJS,
+  useAnimatedReaction,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+  withTiming
+} from 'react-native-reanimated'
+import {trigger} from 'react-native-haptic-feedback'
+
 import SchedulePie from './SchedulePie'
 
-import {describeBorder} from '../util'
+import {useRecoilValue} from 'recoil'
+import {
+  homeHeaderHeightState,
+  timetableWrapperHeightState,
+  timetableCenterPositionState,
+  editScheduleListStatusState
+} from '@/store/system'
+import {getTimeOfMinute} from '@/utils/helper'
 
 interface Props {
+  isEdit: boolean
   data: Schedule
+  scheduleList: Schedule[]
   x: number
   y: number
   radius: number
-  scheduleList: Schedule[]
-  disableScheduleList: ExistSchedule[]
+  isInputMode: Boolean
+  onChangeSchedule: Function
+  onChangeScheduleDisabled: (value: ExistSchedule[]) => void
 }
 
-const EditSchedulePie = ({data, x, y, radius, scheduleList, disableScheduleList}: Props) => {
-  const getRenderPath = React.useCallback(
-    (startAngle: number, endAngle: number, _radius?: number) => {
-      const {path} = describeBorder({
-        x,
-        y,
-        radius: _radius || radius,
-        startAngle,
-        endAngle
-      })
-      return path
+const MINUTE_INTERVAL = 10
+const itemSize = 38
+const EditSchedulePie = ({
+  isEdit,
+  data,
+  scheduleList,
+  x,
+  y,
+  radius,
+  isInputMode,
+  onChangeSchedule,
+  onChangeScheduleDisabled
+}: Props) => {
+  const homeHeaderHeight = useRecoilValue(homeHeaderHeightState)
+  const timetableWrapperHeight = useRecoilValue(timetableWrapperHeightState)
+  const timetableCenterPosition = useRecoilValue(timetableCenterPositionState)
+  const editScheduleListStatus = useRecoilValue(editScheduleListStatusState)
+
+  const [newStartTimeState, setNewStartTimeState] = React.useState(0)
+  const [newEndTimeState, setNewEndTimeState] = React.useState(0)
+
+  const newStartTime = useSharedValue(data.start_time)
+  const newEndTime = useSharedValue(data.end_time)
+  const timeInfoTranslateX = useSharedValue(0)
+
+  const startAnchorPosition = useDerivedValue(() => {
+    const angle = newStartTime.value * 0.25
+    const angleInRadians = ((angle - 90) * Math.PI) / 180.0
+
+    return {
+      x: x + radius * Math.cos(angleInRadians) - itemSize / 2,
+      y: y + radius * Math.sin(angleInRadians) - itemSize / 2
+    }
+  })
+
+  const endAnchorPosition = useDerivedValue(() => {
+    const angle = newEndTime.value * 0.25
+    const angleInRadians = ((angle - 90) * Math.PI) / 180.0
+
+    return {
+      x: x + radius * Math.cos(angleInRadians) - itemSize / 2,
+      y: y + radius * Math.sin(angleInRadians) - itemSize / 2
+    }
+  })
+
+  /**
+   * style start
+   */
+  const startAnchorAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      top: startAnchorPosition.value.y,
+      left: startAnchorPosition.value.x
+    }
+  })
+  const endAnchorAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      top: endAnchorPosition.value.y,
+      left: endAnchorPosition.value.x
+    }
+  })
+
+  const startAnchorStyle = React.useMemo(() => {
+    return [styles.anchor, startAnchorAnimatedStyle]
+  }, [])
+  const endAnchorStyle = React.useMemo(() => {
+    return [styles.anchor, endAnchorAnimatedStyle]
+  }, [])
+
+  const timeInfoAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{translateX: timeInfoTranslateX.value}]
+    }
+  })
+  const timeInfoContainerStyle = React.useMemo(() => {
+    if (timetableWrapperHeight) {
+      const top = ((timetableWrapperHeight - timetableCenterPosition * 2) / 2 + (39 - 9)) * -1
+      return [timeInfoAnimatedStyle, styles.timeIntoContainer, {top, left: -10}]
+    }
+    return null
+  }, [])
+  /**
+   * style end
+   */
+
+  const startTimeString = React.useMemo(() => {
+    const timeOfMinute = getTimeOfMinute(newStartTimeState)
+
+    return `${timeOfMinute.meridiem} ${timeOfMinute.hour}시 ${timeOfMinute.minute}분`
+  }, [newStartTimeState])
+
+  const endTimeString = React.useMemo(() => {
+    const timeOfMinute = getTimeOfMinute(newEndTimeState)
+
+    return `${timeOfMinute.meridiem} ${timeOfMinute.hour}시 ${timeOfMinute.minute}분`
+  }, [newEndTimeState])
+
+  const getCalcTotalMinute = React.useCallback((angle: number) => {
+    const totalMinute = angle / 0.25
+
+    if (totalMinute % 10 < 3) {
+      const minuteInterval = Math.round(totalMinute / MINUTE_INTERVAL) * MINUTE_INTERVAL
+      const hour = Math.floor(minuteInterval / 60)
+      const minute = Math.floor(minuteInterval % 60)
+
+      return hour * 60 + minute
+    }
+
+    return null
+  }, [])
+
+  /**
+   * gesture event start
+   */
+  const startGesture = Gesture.Pan()
+    .onUpdate(event => {
+      const moveY = event.absoluteY - (y + homeHeaderHeight)
+      const moveX = event.absoluteX - x
+
+      let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
+      if (angle < 0) angle += 360
+
+      const calcTotalMinute = getCalcTotalMinute(angle)
+
+      if (calcTotalMinute !== null) {
+        newStartTime.value = calcTotalMinute
+      }
+    })
+    .onEnd(() => {
+      onChangeSchedule({start_time: newStartTime.value})
+    })
+    .runOnJS(true)
+
+  const endGesture = Gesture.Pan()
+    .onUpdate(event => {
+      const moveY = event.absoluteY - (y + homeHeaderHeight)
+      const moveX = event.absoluteX - x
+
+      let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
+      if (angle < 0) angle += 360
+
+      const calcTotalMinute = getCalcTotalMinute(angle)
+
+      if (calcTotalMinute !== null) {
+        newEndTime.value = calcTotalMinute
+      }
+    })
+    .onEnd(() => {
+      onChangeSchedule({end_time: newEndTime.value})
+    })
+    .runOnJS(true)
+  /**
+   * gesture event end
+   */
+
+  useAnimatedReaction(
+    () => {
+      return newStartTime.value
     },
-    [x, y, radius]
+    (currentValue, previousValue) => {
+      if (currentValue !== previousValue) {
+        runOnJS(setNewStartTimeState)(currentValue)
+
+        runOnJS(trigger)('soft', {
+          enableVibrateFallback: true,
+          ignoreAndroidSystemSettings: false
+        })
+      }
+    }
   )
 
-  const getTime = React.useCallback((startAngle: number, endAngle: number) => {
-    let time = (endAngle - startAngle) * 4
+  useAnimatedReaction(
+    () => {
+      return newEndTime.value
+    },
+    (currentValue, previousValue) => {
+      if (currentValue !== previousValue) {
+        runOnJS(setNewEndTimeState)(currentValue)
 
-    if (endAngle < startAngle) {
-      time += 1440
+        runOnJS(trigger)('soft', {
+          enableVibrateFallback: true,
+          ignoreAndroidSystemSettings: false
+        })
+      }
+    }
+  )
+
+  React.useEffect(() => {
+    if (editScheduleListStatus === 0) {
+      timeInfoTranslateX.value = withTiming(0)
+    } else {
+      timeInfoTranslateX.value = withTiming(-250)
+    }
+  }, [editScheduleListStatus])
+
+  React.useLayoutEffect(() => {
+    if (!isEdit) {
+      return
     }
 
-    return time
-  }, [])
+    let startTime = newStartTimeState
+    let endTime = newEndTimeState
 
-  const getTimeText = React.useCallback((time: number) => {
-    if (time === 0) {
-      return ''
-    }
-
-    const hour = Math.floor(time / 60)
-    const minute = time % 60
-
-    const hourText = hour > 0 ? `${hour}시간 ` : ''
-    const minuteText = minute > 0 ? `${minute}분` : ''
-    const surffixText = minute > 0 ? ' 전' : '전'
-
-    return hourText + minuteText + surffixText
-  }, [])
-
-  const nearSchedule = React.useMemo(() => {
-    let list = [...scheduleList]
-
-    const existSchedule = list.some(item => item.schedule_id === data.schedule_id)
-
-    if (!existSchedule) {
-      list.push(data)
-    }
-
-    list = list
+    const result = scheduleList
       .filter(item => {
-        return !disableScheduleList.some(sItem => sItem.schedule_id === item.schedule_id)
-      })
-      .sort((a, b) => {
-        return a.start_time - b.start_time
-      })
-
-    const isNextDayScheduleIndex = list.findIndex(item => item.start_time > item.end_time)
-
-    if (isNextDayScheduleIndex !== -1) {
-      const _schedule = list.splice(isNextDayScheduleIndex, 1)
-      list.unshift(_schedule[0])
-    }
-
-    const currentScheduleIndex = list.findIndex(item => item.schedule_id === data.schedule_id)
-    if (list.length > 0 && currentScheduleIndex !== -1) {
-      let prevSchedule = null
-      let nextSchedule = null
-
-      if (list[currentScheduleIndex - 1]) {
-        prevSchedule = list[currentScheduleIndex - 1]
-      } else if (list.length > 1) {
-        prevSchedule = list[list.length - 1]
-      }
-
-      if (list[currentScheduleIndex + 1]) {
-        nextSchedule = list[currentScheduleIndex + 1]
-      } else if (list.length > 1) {
-        nextSchedule = list[0]
-      }
-
-      return {
-        prevSchedule,
-        nextSchedule
-      }
-    }
-
-    return null
-  }, [disableScheduleList, scheduleList, data])
-
-  const prevScheduleInfo = React.useMemo(() => {
-    if (nearSchedule && nearSchedule.prevSchedule) {
-      const prevStartAngle = nearSchedule.prevSchedule.end_time * 0.25
-      const prevEndAngle = data.start_time * 0.25
-
-      const time = getTime(prevStartAngle, prevEndAngle)
-      const moveRightAngle = 5
-
-      const borderPath = getRenderPath(prevStartAngle, prevEndAngle, radius - 1)
-      const textPath = getRenderPath(prevEndAngle, prevEndAngle - moveRightAngle, radius - 15)
-
-      return {
-        border: {
-          path: borderPath
-        },
-        text: {
-          path: textPath,
-          value: getTimeText(time)
+        if (data.schedule_id === item.schedule_id) {
+          return false
         }
-      }
-    }
 
-    return null
-  }, [nearSchedule, radius, data.start_time, getTime, getRenderPath, getTimeText])
+        let start_time = item.start_time === 0 ? 1440 : item.start_time
+        let end_time = item.end_time
 
-  const nextScheduleInfo = React.useMemo(() => {
-    if (nearSchedule && nearSchedule.nextSchedule) {
-      const nextStartAngle = data.end_time * 0.25
-      const nextEndAngle = nearSchedule.nextSchedule.start_time * 0.25
+        if (start_time > end_time) {
+          const isOverlapStart = startTime > start_time || startTime < end_time
+          const isOverlapEnd = endTime > start_time || endTime < end_time
+          const isOverlapAll = startTime > endTime && startTime <= start_time && endTime >= end_time
 
-      const time = getTime(nextStartAngle, nextEndAngle)
-      const moveRightAngle = 5
-
-      const borderPath = getRenderPath(nextStartAngle, nextEndAngle, radius - 1)
-      const textPath = getRenderPath(nextStartAngle + moveRightAngle, nextEndAngle + 100, radius - 15)
-
-      return {
-        border: {
-          path: borderPath
-        },
-        text: {
-          path: textPath,
-          value: getTimeText(time)
+          return isOverlapStart || isOverlapEnd || isOverlapAll
         }
-      }
-    }
 
-    return null
-  }, [nearSchedule, radius, data.end_time, getTime, getRenderPath, getTimeText])
+        const isOverlapStart = startTime > start_time && startTime < end_time
+        const isOverlapEnd = endTime > start_time && endTime < end_time
+
+        if (startTime > endTime) {
+          if (endTime > start_time) {
+            start_time += 1440
+          }
+          endTime += 1440
+        }
+        const isOverlapAll = start_time >= startTime && end_time <= endTime
+
+        return isOverlapStart || isOverlapEnd || isOverlapAll
+      })
+      .map(item => {
+        return {
+          schedule_id: item.schedule_id,
+          title: item.title,
+          start_time: item.start_time,
+          end_time: item.end_time,
+          start_date: item.start_date,
+          end_date: item.end_date,
+          mon: item.mon,
+          tue: item.tue,
+          wed: item.wed,
+          thu: item.thu,
+          fri: item.fri,
+          sat: item.sat,
+          sun: item.sun
+        }
+      })
+
+    onChangeScheduleDisabled(result as ExistSchedule[])
+  }, [isEdit, data.schedule_id, newStartTimeState, newEndTimeState, scheduleList, onChangeScheduleDisabled])
 
   return (
-    <G>
-      <SchedulePie data={data} x={x} y={y} radius={radius} />
+    <>
+      <Animated.View style={timeInfoContainerStyle}>
+        <View style={styles.timeInfoWrapper}>
+          <Image source={require('@/assets/icons/time.png')} style={styles.timeInfoIcon} />
+          <Text style={styles.timeInfoText}>{startTimeString}</Text>
+          <Text>-</Text>
+          <Text style={styles.timeInfoText}>{endTimeString}</Text>
+        </View>
+      </Animated.View>
 
-      {prevScheduleInfo && (
-        <G>
-          <Path d={prevScheduleInfo.border.path} fill={'none'} stroke={'#ffe2e2'} strokeWidth={1} />
+      <Svg>
+        <SchedulePie data={data} x={x} y={y} radius={radius} startTime={newStartTimeState} endTime={newEndTimeState} />
+      </Svg>
 
-          <G>
-            <Defs>
-              <Path id="prevPath" d={prevScheduleInfo.text.path} />
-            </Defs>
+      {!isInputMode && (
+        <>
+          <GestureDetector gesture={startGesture}>
+            <Animated.View style={startAnchorStyle}>
+              <Svg>
+                <Circle cx={itemSize / 2} cy={itemSize / 2} r={10} fill="#1E90FF" />
+              </Svg>
+            </Animated.View>
+          </GestureDetector>
 
-            <TextPath href="#prevPath" startOffset="100%">
-              <Text fontSize={12} fill="#424242" textAnchor="end">
-                {prevScheduleInfo.text.value}
-              </Text>
-            </TextPath>
-          </G>
-        </G>
+          <GestureDetector gesture={endGesture}>
+            <Animated.View style={endAnchorStyle}>
+              <Svg>
+                <Circle cx={itemSize / 2} cy={itemSize / 2} r={10} fill="#1E90FF" />
+              </Svg>
+            </Animated.View>
+          </GestureDetector>
+        </>
       )}
-
-      {nextScheduleInfo && (
-        <G>
-          <Path d={nextScheduleInfo.border.path} fill={'none'} stroke={'#ffe2e2'} strokeWidth={1} />
-
-          <G>
-            <Defs>
-              <Path id="nextPath" d={nextScheduleInfo.text.path} />
-            </Defs>
-
-            <TextPath href="#nextPath">
-              <Text fontSize={12} fill="#424242">
-                {nextScheduleInfo.text.value}
-              </Text>
-            </TextPath>
-          </G>
-        </G>
-      )}
-    </G>
+    </>
   )
 }
+
+const styles = StyleSheet.create({
+  anchor: {
+    position: 'absolute',
+    width: itemSize,
+    height: itemSize,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999
+  },
+
+  timeIntoContainer: {
+    width: 245,
+    position: 'absolute',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#00000010',
+    borderRadius: 10,
+
+    shadowColor: '#00000010',
+    shadowOffset: {width: 0, height: 1},
+    shadowOpacity: 1
+  },
+  timeInfoWrapper: {
+    paddingLeft: 10,
+    gap: 5,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  timeInfoIcon: {
+    width: 16,
+    height: 16
+  },
+  timeInfoText: {
+    color: '#424242',
+    fontSize: 14,
+    fontFamily: 'Pretendard-Medium'
+  }
+})
 
 export default EditSchedulePie

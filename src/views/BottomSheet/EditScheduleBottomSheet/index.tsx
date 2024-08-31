@@ -11,7 +11,7 @@ import DayOfWeekPanel from './src/DayOfWeekPanel'
 import TimeWheelModal from '@/views/Modal/TimeWheelModal'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {editScheduleListSnapPointState, isEditState} from '@/store/system'
+import {editScheduleListSnapPointState, isEditState, editScheduleListStatusState} from '@/store/system'
 import {scheduleState, isInputModeState} from '@/store/schedule'
 import {showTimeWheelModalState} from '@/store/modal'
 
@@ -32,6 +32,7 @@ const EditScheduleBottomSheet = React.memo(() => {
 
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setShowTimeWheelModal = useSetRecoilState(showTimeWheelModalState)
+  const setEditScheduleListStatus = useSetRecoilState(editScheduleListStatusState)
 
   const [activeColorPanel, setActiveColorPanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
@@ -44,6 +45,8 @@ const EditScheduleBottomSheet = React.memo(() => {
   }
 
   const handleBottomSheetChanged = React.useCallback((index: number) => {
+    setEditScheduleListStatus(index)
+
     if (index === 0) {
       closeAllPanel()
     }

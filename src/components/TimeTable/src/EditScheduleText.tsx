@@ -230,8 +230,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     minWidth: 150,
-    minHeight: 28
-    // textAlignVertical: 'top'
+    minHeight: 28,
+    textAlignVertical: 'center'
   }
 })
 

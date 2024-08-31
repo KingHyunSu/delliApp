@@ -8,6 +8,8 @@ interface Props {
   x: number
   y: number
   radius: number
+  startTime: number
+  endTime: number
   opacity?: number
   isEdit?: Boolean
   disableScheduleList?: ExistSchedule[]
@@ -16,7 +18,18 @@ interface Props {
 
 const STROK_WIDTH = 1
 
-const SchedulePie = ({data, x, y, radius, opacity, isEdit = false, disableScheduleList, onClick}: Props) => {
+const SchedulePie = ({
+  data,
+  x,
+  y,
+  radius,
+  startTime = 0,
+  endTime = 0,
+  opacity,
+  isEdit = false,
+  disableScheduleList,
+  onClick
+}: Props) => {
   const isDisabled = React.useMemo(() => {
     if (isEdit && disableScheduleList) {
       return disableScheduleList.some(item => item.schedule_id === data.schedule_id)
@@ -26,12 +39,12 @@ const SchedulePie = ({data, x, y, radius, opacity, isEdit = false, disableSchedu
   }, [isEdit, disableScheduleList, data.schedule_id])
 
   const startAngle = React.useMemo(() => {
-    return data.start_time * 0.25
-  }, [data.start_time])
+    return startTime * 0.25
+  }, [startTime])
 
   const endAngle = React.useMemo(() => {
-    return data.end_time * 0.25
-  }, [data.end_time])
+    return endTime * 0.25
+  }, [endTime])
 
   const {path} = React.useMemo(() => {
     return describeArc({

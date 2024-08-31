@@ -9,7 +9,6 @@ import SchedulePie from './src/SchedulePie'
 import ScheduleText from './src/ScheduleText'
 import EditSchedulePie from './src/EditSchedulePie'
 import EditScheduleText from './src/EditScheduleText'
-import EditSchedulePieController from './src/EditSchedulePieController'
 
 import {useRecoilState, useSetRecoilState, useRecoilValue} from 'recoil'
 import {timetableWrapperHeightState, timetableCenterPositionState} from '@/store/system'
@@ -93,64 +92,9 @@ const TimeTable = React.forwardRef<TimetableRefs, Props>(({data, isEdit}, ref) =
     return Promise.reject('timetable image capture error!')
   }
 
-  React.useLayoutEffect(() => {
-    if (!isEdit) {
-      return
-    }
-
-    let startTime = schedule.start_time
-    let endTime = schedule.end_time
-
-    const result = data
-      .filter(item => {
-        if (schedule.schedule_id === item.schedule_id) {
-          return false
-        }
-
-        let start_time = item.start_time === 0 ? 1440 : item.start_time
-        let end_time = item.end_time
-
-        if (start_time > end_time) {
-          const isOverlapStart = startTime > start_time || startTime < end_time
-          const isOverlapEnd = endTime > start_time || endTime < end_time
-          const isOverlapAll = startTime > endTime && startTime <= start_time && endTime >= end_time
-
-          return isOverlapStart || isOverlapEnd || isOverlapAll
-        }
-
-        const isOverlapStart = startTime > start_time && startTime < end_time
-        const isOverlapEnd = endTime > start_time && endTime < end_time
-
-        if (startTime > endTime) {
-          if (endTime > start_time) {
-            start_time += 1440
-          }
-          endTime += 1440
-        }
-        const isOverlapAll = start_time >= startTime && end_time <= endTime
-
-        return isOverlapStart || isOverlapEnd || isOverlapAll
-      })
-      .map(item => {
-        return {
-          schedule_id: item.schedule_id,
-          title: item.title,
-          start_time: item.start_time,
-          end_time: item.end_time,
-          start_date: item.start_date,
-          end_date: item.end_date,
-          mon: item.mon,
-          tue: item.tue,
-          wed: item.wed,
-          thu: item.thu,
-          fri: item.fri,
-          sat: item.sat,
-          sun: item.sun
-        }
-      })
-
-    setDisableScheduleList(result as ExistSchedule[])
-  }, [isEdit, schedule.schedule_id, schedule.start_time, schedule.end_time, data, setDisableScheduleList])
+  const changeScheduleDisabled = React.useCallback((value: ExistSchedule[]) => {
+    setDisableScheduleList(value)
+  }, [])
 
   React.useImperativeHandle(ref, () => ({
     getImage
@@ -177,6 +121,8 @@ const TimeTable = React.forwardRef<TimetableRefs, Props>(({data, isEdit}, ref) =
                   x={radius}
                   y={radius}
                   radius={radius}
+                  startTime={item.start_time}
+                  endTime={item.end_time}
                   isEdit={isEdit}
                   disableScheduleList={disableScheduleList}
                   onClick={openEditMenuBottomSheet}
@@ -213,16 +159,17 @@ const TimeTable = React.forwardRef<TimetableRefs, Props>(({data, isEdit}, ref) =
 
         {isEdit && (
           <Pressable style={styles.editContainer} onPress={clickBackground}>
-            <Svg>
-              <EditSchedulePie
-                data={schedule}
-                x={timetableCenterPosition}
-                y={timetableCenterPosition}
-                radius={radius}
-                scheduleList={data}
-                disableScheduleList={disableScheduleList}
-              />
-            </Svg>
+            <EditSchedulePie
+              isEdit={isEdit}
+              data={schedule}
+              scheduleList={data}
+              x={timetableCenterPosition}
+              y={timetableCenterPosition}
+              radius={radius}
+              isInputMode={isInputMode}
+              onChangeSchedule={changeSchedule}
+              onChangeScheduleDisabled={changeScheduleDisabled}
+            />
 
             <EditScheduleText
               data={schedule}
@@ -231,16 +178,6 @@ const TimeTable = React.forwardRef<TimetableRefs, Props>(({data, isEdit}, ref) =
               radius={radius}
               onChangeSchedule={changeSchedule}
             />
-
-            {!isInputMode && (
-              <EditSchedulePieController
-                data={schedule}
-                x={timetableCenterPosition}
-                y={timetableCenterPosition}
-                radius={radius}
-                onScheduleChanged={changeSchedule}
-              />
-            )}
           </Pressable>
         )}
       </View>
