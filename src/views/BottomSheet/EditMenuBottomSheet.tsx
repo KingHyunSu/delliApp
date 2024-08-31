@@ -1,6 +1,6 @@
 import React from 'react'
 import {StyleSheet, Alert, View, Text, Pressable} from 'react-native'
-import {BottomSheetModal, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
+import {BottomSheetModal, BottomSheetBackdropProps, BottomSheetHandleProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
@@ -11,15 +11,16 @@ import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
 import EditIcon from '@/assets/icons/edit3.svg'
 import DeleteIcon from '@/assets/icons/trash.svg'
-import TodoIcon from '@/assets/icons/priority.svg' // TODO 이름 변경하기 (priority -> check_square)
+import TodoIcon from '@/assets/icons/priority.svg'
+import BottomSheetHandler from '@/components/BottomSheetHandler' // TODO 이름 변경하기 (priority -> check_square)
 
 interface Props {
   updateScheduleDeletedMutate: Function
 }
 const EditMenuBottomSheet = ({updateScheduleDeletedMutate}: Props) => {
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
+  const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const setShowEditTodoModalState = useSetRecoilState(showEditTodoModalState)
-  const setIsEdit = useSetRecoilState(isEditState)
   const schedule = useRecoilValue(scheduleState)
   const resetSchedule = useResetRecoilState(scheduleState)
   const changeScheduleTodo = useSetRecoilState(scheduleTodoState)
@@ -29,6 +30,12 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate}: Props) => {
   const snapPoints = React.useMemo(() => {
     return [350]
   }, [])
+
+  const handleReset = React.useCallback(() => {
+    if (!isEdit) {
+      resetSchedule()
+    }
+  }, [isEdit, resetSchedule])
 
   const openEditTodoModal = React.useCallback(() => {
     if (schedule.schedule_id) {
@@ -67,8 +74,8 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate}: Props) => {
   }, [schedule.title, schedule.schedule_id])
 
   const openEditScheduleBottomSheet = React.useCallback(() => {
-    setShowEditMenuBottomSheet(false)
     setIsEdit(true)
+    setShowEditMenuBottomSheet(false)
   }, [setShowEditMenuBottomSheet, setIsEdit])
 
   const closeEditMenuBottomSheet = React.useCallback(() => {
@@ -80,33 +87,37 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate}: Props) => {
       editInfoBottomSheetRef.current?.present()
     } else {
       editInfoBottomSheetRef.current?.dismiss()
+      handleReset()
     }
-  }, [showEditMenuBottomSheet])
+  }, [showEditMenuBottomSheet, handleReset])
 
-  const handleReset = React.useCallback(() => {
-    resetSchedule()
-  }, [resetSchedule])
+  // components
+  const bottomSheetBackdrop = React.useCallback((props: BottomSheetBackdropProps) => {
+    return <BottomSheetBackdrop props={props} />
+  }, [])
 
-  const backdropComponent = React.useCallback(
-    (props: BottomSheetBackdropProps) => {
-      return <BottomSheetBackdrop props={props} onPress={handleReset} />
-    },
-    [handleReset]
-  )
+  const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
+    return (
+      <BottomSheetHandler
+        shadow={false}
+        maxSnapIndex={1}
+        animatedIndex={props.animatedIndex}
+        animatedPosition={props.animatedPosition}
+      />
+    )
+  }, [])
 
   return (
     <BottomSheetModal
       name="editMenu"
       ref={editInfoBottomSheetRef}
-      backdropComponent={backdropComponent}
+      backdropComponent={bottomSheetBackdrop}
+      handleComponent={bottomSheetHandler}
       index={0}
       snapPoints={snapPoints}
       onDismiss={closeEditMenuBottomSheet}>
       <View style={styles.container}>
         <View style={styles.titleContainer}>
-          {/* <Text style={styles.titleText}>
-            테스트 데이터테스트 데이터테스트 데이터테스트 데이터테스트 데이터테스트 데이터테스트 데이터
-          </Text> */}
           <Text style={styles.titleText}>{schedule.title}</Text>
         </View>
 

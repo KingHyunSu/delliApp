@@ -1,10 +1,11 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
-import {BottomSheetModal} from '@gorhom/bottom-sheet'
+import {BottomSheetBackdropProps, BottomSheetHandleProps, BottomSheetModal} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import DatePicker from '@/components/DatePicker'
 
 import {format} from 'date-fns'
+import BottomSheetHandler from '@/components/BottomSheetHandler'
 
 interface Props {
   value: string | string[]
@@ -49,13 +50,28 @@ const DatePickerBottomSheet = ({value, isShow, onClose, onChange}: Props) => {
     onDismiss()
   }
 
+  // components
+  const bottomSheetBackdrop = React.useCallback((props: BottomSheetBackdropProps) => {
+    return <BottomSheetBackdrop props={props} />
+  }, [])
+
+  const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
+    return (
+      <BottomSheetHandler
+        shadow={false}
+        maxSnapIndex={1}
+        animatedIndex={props.animatedIndex}
+        animatedPosition={props.animatedPosition}
+      />
+    )
+  }, [])
+
   return (
     <BottomSheetModal
       name="datePicker"
       ref={datePickerBottomSheetRef}
-      backdropComponent={props => {
-        return <BottomSheetBackdrop props={props} />
-      }}
+      backdropComponent={bottomSheetBackdrop}
+      handleComponent={bottomSheetHandler}
       index={0}
       snapPoints={[500]}
       onDismiss={onDismiss}>
