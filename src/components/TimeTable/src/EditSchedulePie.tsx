@@ -36,7 +36,7 @@ interface Props {
 }
 
 const MINUTE_INTERVAL = 10
-const itemSize = 38
+const itemSize = 48
 const EditSchedulePie = ({
   isEdit,
   data,
