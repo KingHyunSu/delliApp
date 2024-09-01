@@ -229,6 +229,14 @@ const EditSchedulePie = ({
     }
   }, [editScheduleListStatus])
 
+  React.useEffect(() => {
+    newStartTime.value = data.start_time
+  }, [data.start_time])
+
+  React.useEffect(() => {
+    newEndTime.value = data.end_time
+  }, [data.end_time])
+
   React.useLayoutEffect(() => {
     if (!isEdit) {
       return
