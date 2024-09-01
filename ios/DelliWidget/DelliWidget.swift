@@ -207,9 +207,16 @@ struct DelliWidgetEntryView : View {
     // 현재 날짜의 종료 시간으로 Date 객체 생성
     var eventDate = Calendar.current.date(bySettingHour: endHour, minute: endMinute, second: 0, of: currentDate)!
     
-    // 만약 시작 시간이 종료 시간보다 크다면, 종료 시간을 다음날로 설정
+    // 현재 시간을 분 단위로 변환
+    let currentHour = Calendar.current.component(.hour, from: currentDate)
+    let currentMinute = Calendar.current.component(.minute, from: currentDate)
+    let currentTimeInMinutes = currentHour * 60 + currentMinute
+    
     if startTimeInMinutes > endTimeInMinutes {
-      eventDate = Calendar.current.date(byAdding: .day, value: 1, to: eventDate)!
+      // 자정 이전인 경우 종료 시간을 다음날로 설정
+      if currentTimeInMinutes > startTimeInMinutes && currentTimeInMinutes < 1440 {
+        eventDate = Calendar.current.date(bySettingHour: endHour, minute: endMinute, second: 0, of: Calendar.current.date(byAdding: .day, value: 1, to: currentDate)!)!
+      }
     }
     
     let remainingTime = eventDate.timeIntervalSince(currentDate)

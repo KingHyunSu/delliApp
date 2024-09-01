@@ -388,11 +388,11 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
       // 광고 시청 완료
       const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, async reward => {
-        await updateWidgetWithImage(timetableRef)
-
         const [user] = await userRepository.getUser()
         const params = {id: user.user_id}
         await widgetApi.updateWidgetReloadable(params)
+
+        await updateWidgetWithImage(timetableRef)
       })
 
       // 광고 닫힘
