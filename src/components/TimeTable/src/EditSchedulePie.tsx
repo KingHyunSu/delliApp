@@ -234,8 +234,8 @@ const EditSchedulePie = ({
       return
     }
 
-    let startTime = newStartTimeState
-    let endTime = newEndTimeState
+    const pStartTime = newStartTimeState
+    const pEndTime = newEndTimeState
 
     const result = scheduleList
       .filter(item => {
@@ -243,29 +243,33 @@ const EditSchedulePie = ({
           return false
         }
 
-        let start_time = item.start_time === 0 ? 1440 : item.start_time
-        let end_time = item.end_time
+        const sStartTime = item.start_time
+        const sEndTime = item.end_time
 
-        if (start_time > end_time) {
-          const isOverlapStart = startTime > start_time || startTime < end_time
-          const isOverlapEnd = endTime > start_time || endTime < end_time
-          const isOverlapAll = startTime > endTime && startTime <= start_time && endTime >= end_time
-
-          return isOverlapStart || isOverlapEnd || isOverlapAll
-        }
-
-        const isOverlapStart = startTime > start_time && startTime < end_time
-        const isOverlapEnd = endTime > start_time && endTime < end_time
-
-        if (startTime > endTime) {
-          if (endTime > start_time) {
-            start_time += 1440
+        if (sStartTime > sEndTime) {
+          if (sStartTime < pStartTime || sEndTime > pStartTime || sStartTime < pEndTime || sEndTime > pEndTime) {
+            return true
           }
-          endTime += 1440
-        }
-        const isOverlapAll = start_time >= startTime && end_time <= endTime
 
-        return isOverlapStart || isOverlapEnd || isOverlapAll
+          if (pStartTime > pEndTime) {
+            if (sStartTime > pStartTime && sEndTime < pEndTime) {
+              return true
+            }
+          }
+        }
+
+        // Case 2: start_time < end_time (does not span midnight)
+        if (sStartTime < sEndTime) {
+          if (
+            (sStartTime < pStartTime && sEndTime > pStartTime) ||
+            (sStartTime < pEndTime && sEndTime > pEndTime) ||
+            (sStartTime >= pStartTime && sEndTime <= pEndTime)
+          ) {
+            return true
+          }
+        }
+
+        return false
       })
       .map(item => {
         return {
