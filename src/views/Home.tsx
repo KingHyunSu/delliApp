@@ -485,7 +485,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
         <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
         <EditScheduleBottomSheet />
-        <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} />
+        <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} timetableRef={timetableRef} />
 
         {isEdit ? (
           <Pressable style={submitButtonStyle} onPress={handleSubmit} disabled={!activeSubmit}>
