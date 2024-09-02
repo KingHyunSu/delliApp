@@ -7,6 +7,7 @@ import ColorPanel from './src/ColorPanel'
 import TimePanel from './src/TimePanel'
 import DatePanel from './src/DatePanel'
 import DayOfWeekPanel from './src/DayOfWeekPanel'
+import CategoryPanel from './src/CategoryPanel'
 
 import TimeWheelModal from '@/views/Modal/TimeWheelModal'
 
@@ -187,6 +188,16 @@ const EditScheduleBottomSheet = React.memo(() => {
             <Text style={titleTextStyle}>일정명을 입력해주세요</Text>
           )}
         </Pressable>
+
+        {/* 카테고리 */}
+        <CategoryPanel
+          data={schedule}
+          headerContainerStyle={styles.panelHeaderContainer}
+          headerTitleWrapper={styles.panelHeaderTitleWrapper}
+          headerLabelStyle={styles.panelHeaderLabel}
+          headerTitleStyle={styles.panelHeaderTitle}
+          handleExpansion={handleTimePanel}
+        />
 
         {/* 색상 */}
         <ColorPanel
