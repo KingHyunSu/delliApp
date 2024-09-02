@@ -45,7 +45,7 @@ const Setting = ({navigation}: SettingNavigationProps) => {
 
   const version = React.useMemo(() => {
     if (Platform.OS === 'ios') {
-      return '1.3.0'
+      return '1.4.0'
     } else if (Platform.OS === 'android') {
       return '1.0.0'
     }
