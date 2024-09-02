@@ -18,7 +18,7 @@ interface Props {
   data: Schedule[]
   onClick: (value: Schedule) => void
 }
-const ScheduleList = ({data, onClick}: Props) => {
+const ScheduleListBottomSheet = ({data, onClick}: Props) => {
   const scheduleListSnapPoint = useRecoilValue(scheduleListSnapPointState)
   const isEdit = useRecoilValue(isEditState)
   const scheduleDate = useRecoilValue(scheduleDateState)
@@ -106,4 +106,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default ScheduleList
+export default ScheduleListBottomSheet
