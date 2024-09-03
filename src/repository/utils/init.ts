@@ -18,10 +18,18 @@ const createTable = async (db: SQLiteDatabase) => {
       );
     `)
 
+    // schedule category table
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS "SCHEDULE_CATEGORY" (
+        "schedule_category_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        "title" TEXT NOT NULL
+      )
+		`)
+
     // schedule table
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "SCHEDULE" (
-        "schedule_id"	INTEGER NOT NULL,
+        "schedule_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         "title"	TEXT NOT NULL,
         "start_date"	TEXT NOT NULL,
         "end_date"	TEXT NOT NULL DEFAULT '9999-00-00',
@@ -43,30 +51,27 @@ const createTable = async (db: SQLiteDatabase) => {
         "disable"	TEXT,
         "disable_date"	TEXT,
         "create_date"	TEXT NOT NULL,
-        "update_date"	TEXT,
-        PRIMARY KEY("schedule_id")
+        "update_date"	TEXT
       )
     `)
 
     // todo table
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "TODO" (
-        "todo_id"	INTEGER NOT NULL,
+        "todo_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         "title"	TEXT NOT NULL,
         "start_date"	TEXT NOT NULL,
         "end_date"	TEXT NOT NULL DEFAULT '9999-12-31',
-        "schedule_id"	INTEGER NOT NULL,
-        PRIMARY KEY("todo_id" AUTOINCREMENT)
+        "schedule_id"	INTEGER NOT NULL
       )
     `)
 
     // todo_complete table
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "TODO_COMPLETE" (
-        "complete_id"	INTEGER NOT NULL,
+        "complete_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         "complete_date"	TEXT NOT NULL,
         "todo_id"	INTEGER NOT NULL,
-        PRIMARY KEY("complete_id" AUTOINCREMENT),
         FOREIGN KEY("todo_id")
           REFERENCES TODO("todo_id")
           ON DELETE CASCADE
