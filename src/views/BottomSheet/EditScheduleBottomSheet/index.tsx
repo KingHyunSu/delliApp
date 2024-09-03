@@ -20,6 +20,7 @@ import {RANGE_FLAG} from '@/utils/types'
 import {isAfter} from 'date-fns'
 
 import {DAY_OF_WEEK} from '@/types/common'
+import {showScheduleCategoryBottomSheetState} from '@/store/bottomSheet'
 
 const EditScheduleBottomSheet = React.memo(() => {
   const defaultItemPanelHeight = 56
@@ -32,6 +33,7 @@ const EditScheduleBottomSheet = React.memo(() => {
   const isEdit = useRecoilValue(isEditState)
 
   const setIsInputMode = useSetRecoilState(isInputModeState)
+  const setShowScheduleCategoryBottomSheet = useSetRecoilState(showScheduleCategoryBottomSheetState)
   const setShowTimeWheelModal = useSetRecoilState(showTimeWheelModalState)
   const setEditScheduleListStatus = useSetRecoilState(editScheduleListStatusState)
 
@@ -52,6 +54,11 @@ const EditScheduleBottomSheet = React.memo(() => {
       closeAllPanel()
     }
   }, [])
+
+  const handleCategoryPanel = React.useCallback(() => {
+    setShowScheduleCategoryBottomSheet(true)
+    closeAllPanel()
+  }, [setShowScheduleCategoryBottomSheet])
 
   const handleColorPanel = React.useCallback(() => {
     setActiveColorPanel(!activeColorPanel)
@@ -196,7 +203,7 @@ const EditScheduleBottomSheet = React.memo(() => {
           headerTitleWrapper={styles.panelHeaderTitleWrapper}
           headerLabelStyle={styles.panelHeaderLabel}
           headerTitleStyle={styles.panelHeaderTitle}
-          handleExpansion={handleTimePanel}
+          handleExpansion={handleCategoryPanel}
         />
 
         {/* 색상 */}
@@ -275,7 +282,7 @@ const styles = StyleSheet.create({
   },
   titleButton: {
     paddingVertical: 20,
-    borderBottomWidth: 1,
+    borderBottomWidth: 2,
     borderBottomColor: '#eeeded'
   },
   titleText: {

@@ -71,8 +71,9 @@ import * as widgetApi from '@/apis/widget'
 
 import {HomeNavigationProps} from '@/types/navigation'
 import type {TimetableRefs} from '@/components/TimeTable'
+import ScheduleCategoryBottomSheet from '@/views/BottomSheet/ScheduleCategoryBottomSheet'
 
-const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
+const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
 const Home = ({navigation, route}: HomeNavigationProps) => {
   const safeAreaInsets = useSafeAreaInsets()
@@ -500,6 +501,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         {/* bottom sheet */}
         <EditMenuBottomSheet updateScheduleDeletedMutate={updateScheduleDeletedMutate} />
         <TimetableCategoryBottomSheet />
+        <ScheduleCategoryBottomSheet />
 
         {/* modal */}
         {/* <ScheduleCompleteModal /> */}
