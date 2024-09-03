@@ -1,20 +1,47 @@
 import React from 'react'
-import {StyleSheet, ScrollView, View, Text, TextInput, Pressable} from 'react-native'
-import {BottomSheetBackdropProps, BottomSheetHandleProps, BottomSheetModal} from '@gorhom/bottom-sheet'
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
+import {Keyboard, StyleSheet, ScrollView, View, Text, Pressable} from 'react-native'
+import {
+  BottomSheetBackdropProps,
+  BottomSheetHandleProps,
+  BottomSheetModal,
+  BottomSheetTextInput
+} from '@gorhom/bottom-sheet'
 import {Shadow} from 'react-native-shadow-2'
 
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
-import {useRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
 import {showScheduleCategoryBottomSheetState} from '@/store/bottomSheet'
+import {safeAreaInsetsState} from '@/store/system'
 
 const shadowOffset: [number, number] = [0, -1]
 const ScheduleCategoryBottomSheet = () => {
+  const scheduleCategoryBottomSheetRef = React.useRef<BottomSheetModal>(null)
+
+  const [pressBehavior, setPressBehavior] = React.useState<'close' | 0>('close')
+
   const [showScheduleCategoryBottomSheet, setShowScheduleCategoryBottomSheet] = useRecoilState(
     showScheduleCategoryBottomSheetState
   )
-  const scheduleCategoryBottomSheetRef = React.useRef<BottomSheetModal>(null)
+  const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
+
+  const snapPoints = React.useMemo(() => ['50%'], [])
+
+  const confirmButtonWrapperStyle = React.useMemo(() => {
+    const bottom = safeAreaInsets.bottom > 0 ? safeAreaInsets.bottom : 20
+
+    return [styles.confirmButtonWrapper, {bottom}]
+  }, [safeAreaInsets.bottom])
+
+  const handleDismiss = React.useCallback(() => {
+    setShowScheduleCategoryBottomSheet(false)
+  }, [setShowScheduleCategoryBottomSheet])
+
+  const clickBackdrop = React.useCallback(() => {
+    if (pressBehavior === 0) {
+      Keyboard.dismiss()
+    }
+  }, [pressBehavior])
 
   React.useEffect(() => {
     if (showScheduleCategoryBottomSheet) {
@@ -24,13 +51,28 @@ const ScheduleCategoryBottomSheet = () => {
     }
   }, [showScheduleCategoryBottomSheet])
 
-  const handleDismiss = React.useCallback(() => {
-    setShowScheduleCategoryBottomSheet(false)
+  React.useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
+      setPressBehavior(0)
+    })
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+      setPressBehavior('close')
+    })
+
+    // Clean up the event listeners on component unmount
+    return () => {
+      keyboardDidShowListener.remove()
+      keyboardDidHideListener.remove()
+    }
   }, [])
+
   // components
-  const bottomSheetBackdrop = React.useCallback((props: BottomSheetBackdropProps) => {
-    return <BottomSheetBackdrop props={props} />
-  }, [])
+  const bottomSheetBackdrop = React.useCallback(
+    (props: BottomSheetBackdropProps) => {
+      return <BottomSheetBackdrop props={props} pressBehavior={pressBehavior} onPress={clickBackdrop} />
+    },
+    [pressBehavior, clickBackdrop]
+  )
 
   const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
     return (
@@ -50,10 +92,11 @@ const ScheduleCategoryBottomSheet = () => {
       backdropComponent={bottomSheetBackdrop}
       handleComponent={bottomSheetHandler}
       index={0}
-      snapPoints={['50%']}
+      snapPoints={snapPoints}
+      keyboardBlurBehavior="restore"
       onDismiss={handleDismiss}>
-      <KeyboardAwareScrollView style={styles.container}>
-        <TextInput style={styles.input} placeholder="일정 카테고리명" placeholderTextColor="#c3c5cc" />
+      <View style={styles.container}>
+        <BottomSheetTextInput style={styles.input} placeholder="일정 카테고리명" placeholderTextColor="#c3c5cc" />
 
         <ScrollView style={styles.categoryListContainer}>
           <View style={styles.categoryListWrapper}>
@@ -123,13 +166,13 @@ const ScheduleCategoryBottomSheet = () => {
           startColor="#ffffff"
           distance={20}
           offset={shadowOffset}
-          containerStyle={styles.confirmButtonWrapper}
+          containerStyle={confirmButtonWrapperStyle}
           stretch>
           <Pressable style={styles.confirmButton}>
             <Text style={styles.confirmButtonText}>추가하기</Text>
           </Pressable>
         </Shadow>
-      </KeyboardAwareScrollView>
+      </View>
     </BottomSheetModal>
   )
 }
@@ -172,7 +215,6 @@ const styles = StyleSheet.create({
 
   confirmButtonWrapper: {
     position: 'absolute',
-    bottom: 20,
     left: 16,
     right: 16
   },
