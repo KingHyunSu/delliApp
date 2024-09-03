@@ -30,12 +30,12 @@ import {RootStackParamList} from '@/types/navigation'
 
 import initDatabase from '@/repository/utils/init'
 
-const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-xxxxxxxxxxxxx/yyyyyyyyyyyyyy'
+const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
 function App(): JSX.Element {
   const windowDimensions = useWindowDimensions()
 
-  const {isLoaded, load, show} = useAppOpenAd(TestIds.APP_OPEN)
+  const {isLoaded, load, show} = useAppOpenAd(adUnitId)
 
   const appState = React.useRef(AppState.currentState)
 
@@ -161,19 +161,25 @@ function App(): JSX.Element {
     init()
   }, [])
 
+  /**
+   * 테스트용 광고 비활성화 start
+   */
   // TODO android v1.0.0 배포에서 제외 2024-07-21
   // React.useEffect(() => {
   //   // 광고 load
   //   load()
   // }, [load])
-
-  // TODO android v1.0.0 배포에서 제외 2024-07-21
+  //
+  // // TODO android v1.0.0 배포에서 제외 2024-07-21
   // React.useEffect(() => {
   //   if (isLoaded) {
   //     // 광고 show
   //     show()
   //   }
   // }, [isLoaded])
+  /**
+   * 테스트용 광고 비활성화 end
+   */
 
   React.useEffect(() => {
     if (isInit) {
