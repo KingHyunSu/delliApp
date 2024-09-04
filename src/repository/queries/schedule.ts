@@ -36,7 +36,9 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
             'complete_date', C.complete_date
           )
         )
-      END) as todo_list
+      END) as todo_list,
+      D.schedule_category_id,
+      D.title as schedule_category_title
     FROM
       SCHEDULE A
     LEFT OUTER JOIN
@@ -53,6 +55,10 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       B.todo_id = C.todo_id
     AND
       C.complete_date = "${params.date}"
+    LEFT OUTER JOIN 
+      SCHEDULE_CATEGORY D
+    ON
+      A.schedule_category_id = D.schedule_category_id
     WHERE
       A.deleted = '0'
     AND
@@ -110,6 +116,8 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.alarm
     ORDER BY A.start_time asc
   `
+
+  console.log('query', query)
 
   return query
 }
@@ -247,8 +255,9 @@ export const setScheduleQuery = (params: Schedule) => {
       title_rotate,
       background_color,
       text_color,
+      schedule_category_id,
       deleted,
-      disabled,              
+      disabled,
       create_date,
       update_date
     ) VALUES (
@@ -269,6 +278,7 @@ export const setScheduleQuery = (params: Schedule) => {
       ${params.title_rotate},
       "${params.background_color}",
       "${params.text_color}",
+      ${params.schedule_category_id},
       "0",
       "0",
       (SELECT strftime('%Y-%m-%d', datetime('now', 'localtime'))),
@@ -301,6 +311,7 @@ export const updateScheduleQuery = (params: Schedule) => {
       title_rotate = ${params.title_rotate},
       background_color = "${params.background_color}",
       text_color = "${params.text_color}",
+      schedule_category_id = ${params.schedule_category_id},
       update_date = (SELECT datetime('now', 'localtime'))
     WHERE
       schedule_id = ${params.schedule_id}

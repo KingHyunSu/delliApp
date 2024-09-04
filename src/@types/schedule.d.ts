@@ -38,9 +38,10 @@ declare interface Schedule {
   complete_start_time?: number
   complete_end_time?: number
   todo_list: Todo[]
+  schedule_category_id?: number | null
+  schedule_category_title?: string
 
   alarm?: number | null
-  display_type?: string
 }
 
 declare interface ScheduleComplete {
@@ -65,14 +66,7 @@ declare interface ExistSchedule {
   fri: string
   sat: string
   sun: string
-}
-
-declare interface WidgetSchedule {
-  schedule_id: number | null
-  title: string
-  start_time: number
-  end_time: number
-  todo_list: Todo[]
+  schedule_category_title: string
 }
 
 declare interface UsedColor {

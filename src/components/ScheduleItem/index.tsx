@@ -55,6 +55,11 @@ const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
 
         <View style={styles.infoWrapper}>
           <View style={styles.infoIconRow}>
+            <Image source={require('@/assets/icons/folder.png')} style={styles.icon} />
+            <Text style={contentsTextStyle}>{item.schedule_category_title || '없음'}</Text>
+          </View>
+
+          <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/time.png')} style={styles.icon} />
 
             <Text style={contentsTextStyle}>{`${getTimeText(item.start_time)} ~ ${getTimeText(item.end_time)}`}</Text>

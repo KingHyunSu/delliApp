@@ -18,6 +18,10 @@ const CategoryPanel = ({
   headerTitleStyle,
   handleExpansion
 }: Props) => {
+  const title = React.useMemo(() => {
+    return data.schedule_category_id ? data.schedule_category_title : '없음'
+  }, [data.schedule_category_id, data.schedule_category_title])
+
   return (
     <Panel
       type="container"
@@ -29,10 +33,7 @@ const CategoryPanel = ({
 
           <View style={headerTitleWrapper}>
             <Text style={headerLabelStyle}>카테고리</Text>
-            <Text style={headerTitleStyle}>
-              없음
-              {/*{`${startTime.meridiem} ${startTime.hour}시 ${startTime.minute}분 ~ ${endTime.meridiem} ${endTime.hour}시 ${endTime.minute}분`}*/}
-            </Text>
+            <Text style={headerTitleStyle}>{title}</Text>
           </View>
         </View>
       }
