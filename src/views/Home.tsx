@@ -501,7 +501,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         {/* bottom sheet */}
         <EditMenuBottomSheet updateScheduleDeletedMutate={updateScheduleDeletedMutate} />
         <TimetableCategoryBottomSheet />
-        <ScheduleCategoryBottomSheet />
+        <ScheduleCategoryBottomSheet refetchScheduleList={refetchScheduleList} />
 
         {/* modal */}
         {/* <ScheduleCompleteModal /> */}

@@ -20,8 +20,12 @@ import {scheduleCategoryRepository} from '@/repository'
 import {scheduleState} from '@/store/schedule'
 import {SetScheduleCategory, UpdateScheduleCategory} from '@/repository/types/scheduleCategory'
 
+interface Props {
+  refetchScheduleList: Function
+}
+
 const shadowOffset: [number, number] = [0, -1]
-const ScheduleCategoryBottomSheet = () => {
+const ScheduleCategoryBottomSheet = ({refetchScheduleList}: Props) => {
   const scheduleCategoryBottomSheetRef = React.useRef<BottomSheetModal>(null)
 
   const [pressBehavior, setPressBehavior] = React.useState<'close' | 0>('close')
@@ -40,12 +44,13 @@ const ScheduleCategoryBottomSheet = () => {
   const {data: scheduleCategoryList, refetch} = useQuery({
     queryKey: ['scheduleCategoryList'],
     queryFn: async () => {
-      const list = await scheduleCategoryRepository.getScheduleCategoryListQuery()
+      const list = await scheduleCategoryRepository.getScheduleCategoryList()
+      const [{seq}] = await scheduleCategoryRepository.getLastScheduleCategorySeq()
 
       // default data insert
-      if (list.length === 0) {
-        await scheduleCategoryRepository.setDefaultScheduleCategoryQuery()
-        return await scheduleCategoryRepository.getScheduleCategoryListQuery()
+      if (seq === 0) {
+        await scheduleCategoryRepository.setDefaultScheduleCategory()
+        return await scheduleCategoryRepository.getScheduleCategoryList()
       }
 
       return list
@@ -57,7 +62,7 @@ const ScheduleCategoryBottomSheet = () => {
     mutationFn: async (value: number) => {
       const params = {schedule_category_id: value}
 
-      return await scheduleCategoryRepository.deleteScheduleCategoryQuery(params)
+      return await scheduleCategoryRepository.deleteScheduleCategory(params)
     },
     onSuccess: async (data, value) => {
       if (schedule.schedule_category_id === value) {
@@ -69,6 +74,7 @@ const ScheduleCategoryBottomSheet = () => {
         setSchedule(prevState => ({...prevState, ...newScheduleCategory}))
       }
 
+      refetchScheduleList()
       await refetch()
       clear()
     }
@@ -76,13 +82,13 @@ const ScheduleCategoryBottomSheet = () => {
 
   const setScheduleCategoryMutation = useMutation({
     mutationFn: async (params: SetScheduleCategory) => {
-      return await scheduleCategoryRepository.setScheduleCategoryQuery(params)
+      return await scheduleCategoryRepository.setScheduleCategory(params)
     }
   })
 
   const updateScheduleCategoryMutation = useMutation({
     mutationFn: async (params: UpdateScheduleCategory) => {
-      return await scheduleCategoryRepository.updateScheduleCategoryQuery(params)
+      return await scheduleCategoryRepository.updateScheduleCategory(params)
     }
   })
 

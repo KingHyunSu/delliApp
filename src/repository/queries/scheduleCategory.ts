@@ -1,5 +1,9 @@
 import {DeleteScheduleCategory, SetScheduleCategory, UpdateScheduleCategory} from '../types/scheduleCategory'
 
+export const getLastScheduleCategorySeqQuery = () => {
+  return `SELECT seq FROM sqlite_sequence WHERE name = 'SCHEDULE_CATEGORY'`
+}
+
 export const getScheduleCategoryListQuery = () => {
   return `SELECT * FROM SCHEDULE_CATEGORY;`
 }

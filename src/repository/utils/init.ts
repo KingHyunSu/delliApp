@@ -111,6 +111,7 @@ export default async function init() {
     const currentVersion = await getCurrentVersion(db)
     const latestVersion = upgrade.version
 
+    // upgrade db
     if (currentVersion < latestVersion) {
       let upgradeQueryList: string[] = []
 

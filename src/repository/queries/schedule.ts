@@ -1,4 +1,5 @@
 import {GetScheduleList, GetExistScheduleList, UpdateScheduleDisable, UpdateScheduleDeleted} from '../types/schedule'
+import {DeleteScheduleCategory} from '@/repository/types/scheduleCategory'
 
 export const getScheduleListQuery = (params: GetScheduleList) => {
   let query = `
@@ -368,4 +369,13 @@ export const getTextColorListQuery = () => {
   `
 
   return query
+}
+
+export const updateScheduleCategory = (params: DeleteScheduleCategory) => {
+  return `
+    UPDATE
+			SCHEDULE 
+    SET schedule_category_id = null 
+    WHERE schedule_category_id = ${params.schedule_category_id}
+  `
 }
