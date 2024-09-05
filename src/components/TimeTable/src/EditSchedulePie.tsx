@@ -110,7 +110,7 @@ const EditSchedulePie = ({
   })
   const timeInfoContainerStyle = React.useMemo(() => {
     if (timetableWrapperHeight) {
-      const top = ((timetableWrapperHeight - timetableCenterPosition * 2) / 2 + (39 - 9)) * -1
+      const top = ((timetableWrapperHeight - timetableCenterPosition * 2) / 2 + (48 - 4.5)) * -1
       return [timeInfoAnimatedStyle, styles.timeIntoContainer, {top, left: -10}]
     }
     return null

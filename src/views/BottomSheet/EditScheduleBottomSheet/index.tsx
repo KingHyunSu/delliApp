@@ -1,6 +1,12 @@
 import React from 'react'
-import {StyleSheet, ScrollView, Text, Pressable} from 'react-native'
-import BottomSheet, {BottomSheetHandleProps, BottomSheetScrollView} from '@gorhom/bottom-sheet'
+import {StyleSheet, SafeAreaView, ScrollView, Text, Pressable} from 'react-native'
+import {
+  BottomSheetHandleProps,
+  BottomSheetFooterProps,
+  BottomSheetModal,
+  BottomSheetFooter,
+  BottomSheetScrollView
+} from '@gorhom/bottom-sheet'
 
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ColorPanel from './src/ColorPanel'
@@ -12,7 +18,12 @@ import CategoryPanel from './src/CategoryPanel'
 import TimeWheelModal from '@/views/Modal/TimeWheelModal'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {editScheduleListSnapPointState, isEditState, editScheduleListStatusState} from '@/store/system'
+import {
+  editScheduleListSnapPointState,
+  isEditState,
+  editScheduleListStatusState,
+  safeAreaInsetsState
+} from '@/store/system'
 import {scheduleState, isInputModeState} from '@/store/schedule'
 import {showTimeWheelModalState} from '@/store/modal'
 
@@ -24,12 +35,14 @@ import {showScheduleCategoryBottomSheetState} from '@/store/bottomSheet'
 
 const EditScheduleBottomSheet = React.memo(() => {
   const defaultItemPanelHeight = 56
-  const bottomSheetRef = React.useRef<BottomSheet>(null)
+
+  const bottomSheetRef = React.useRef<BottomSheetModal>(null)
   const bottomSheetScrollViewRef = React.useRef<ScrollView>(null)
 
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
   const editScheduleListSnapPoint = useRecoilValue(editScheduleListSnapPointState)
+  const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
   const isEdit = useRecoilValue(isEditState)
 
   const setIsInputMode = useSetRecoilState(isInputModeState)
@@ -40,6 +53,28 @@ const EditScheduleBottomSheet = React.memo(() => {
   const [activeColorPanel, setActiveColorPanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
   const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = React.useState(false)
+
+  const activeSubmit = React.useMemo(() => {
+    const dayOfWeekList = [
+      schedule.mon,
+      schedule.tue,
+      schedule.wed,
+      schedule.thu,
+      schedule.fri,
+      schedule.sat,
+      schedule.sun
+    ]
+
+    return !!(schedule.title && dayOfWeekList.some(item => item === '1'))
+  }, [schedule.title, schedule.mon, schedule.tue, schedule.wed, schedule.thu, schedule.fri, schedule.sat, schedule.sun])
+
+  const submitButtonStyle = React.useMemo(() => {
+    return [styles.submitButton, activeSubmit && styles.activeSubmitBtn, {height: 52 + safeAreaInsets.bottom}]
+  }, [activeSubmit, safeAreaInsets.bottom])
+
+  const submitTextStyle = React.useMemo(() => {
+    return [styles.submitText, activeSubmit && styles.activeSubmitText]
+  }, [activeSubmit])
 
   const closeAllPanel = () => {
     setActiveColorPanel(false)
@@ -151,18 +186,21 @@ const EditScheduleBottomSheet = React.memo(() => {
     [schedule, setSchedule]
   )
 
-  React.useEffect(() => {
-    if (bottomSheetRef.current) {
-      if (isEdit) {
-        bottomSheetRef.current.snapToIndex(0)
-      } else {
-        bottomSheetRef.current.close()
+  const handleSubmit = React.useCallback(() => {}, [])
 
-        bottomSheetScrollViewRef.current?.scrollTo({y: 0})
-        closeAllPanel()
-      }
+  React.useEffect(() => {
+    if (isEdit) {
+      bottomSheetRef.current?.snapToIndex(0)
+    } else {
+      bottomSheetRef.current?.dismiss()
+      bottomSheetScrollViewRef.current?.scrollTo({y: 0})
+      closeAllPanel()
     }
   }, [isEdit])
+
+  React.useEffect(() => {
+    bottomSheetRef.current?.present()
+  }, [bottomSheetRef, editScheduleListSnapPoint.length])
 
   // components
   const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
@@ -175,93 +213,111 @@ const EditScheduleBottomSheet = React.memo(() => {
     )
   }, [])
 
+  const footerComponent = React.useCallback(
+    (props: BottomSheetFooterProps) => {
+      return (
+        <BottomSheetFooter {...props}>
+          <Pressable style={submitButtonStyle} onPress={handleSubmit} disabled={!activeSubmit}>
+            <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
+          </Pressable>
+        </BottomSheetFooter>
+      )
+    },
+    [schedule.schedule_id, activeSubmit, submitButtonStyle, submitTextStyle, handleSubmit]
+  )
+
   if (editScheduleListSnapPoint.length === 0) {
     return <></>
   }
 
   return (
-    <BottomSheet
+    <BottomSheetModal
       ref={bottomSheetRef}
       index={-1}
       snapPoints={editScheduleListSnapPoint}
+      enableDismissOnClose={false}
+      enablePanDownToClose={false}
       handleComponent={bottomSheetHandler}
+      footerComponent={footerComponent}
       onChange={handleBottomSheetChanged}>
-      <BottomSheetScrollView ref={bottomSheetScrollViewRef} contentContainerStyle={styles.container}>
-        {/* 일정명 */}
-        <Pressable style={styles.titleButton} onPress={focusTitleInput}>
-          {schedule.title ? (
-            <Text style={styles.titleText}>{schedule.title}</Text>
-          ) : (
-            <Text style={titleTextStyle}>일정명을 입력해주세요</Text>
-          )}
-        </Pressable>
+      <SafeAreaView style={{flex: 1}}>
+        <BottomSheetScrollView ref={bottomSheetScrollViewRef} contentContainerStyle={styles.container}>
+          {/* 일정명 */}
+          <Pressable style={styles.titleButton} onPress={focusTitleInput}>
+            {schedule.title ? (
+              <Text style={styles.titleText}>{schedule.title}</Text>
+            ) : (
+              <Text style={titleTextStyle}>일정명을 입력해주세요</Text>
+            )}
+          </Pressable>
 
-        {/* 카테고리 */}
-        <CategoryPanel
-          data={schedule}
-          headerContainerStyle={styles.panelHeaderContainer}
-          headerTitleWrapper={styles.panelHeaderTitleWrapper}
-          headerLabelStyle={styles.panelHeaderLabel}
-          headerTitleStyle={styles.panelHeaderTitle}
-          handleExpansion={handleCategoryPanel}
-        />
+          {/* 카테고리 */}
+          <CategoryPanel
+            data={schedule}
+            headerContainerStyle={styles.panelHeaderContainer}
+            headerTitleWrapper={styles.panelHeaderTitleWrapper}
+            headerLabelStyle={styles.panelHeaderLabel}
+            headerTitleStyle={styles.panelHeaderTitle}
+            handleExpansion={handleCategoryPanel}
+          />
 
-        {/* 색상 */}
-        <ColorPanel
-          value={activeColorPanel}
-          isEdit={isEdit}
-          data={schedule}
-          itemPanelHeight={defaultItemPanelHeight}
-          headerContainerStyle={styles.panelHeaderContainer}
-          headerLabelStyle={styles.panelHeaderLabel}
-          itemHeaderContainerStyle={styles.panelItemHeader}
-          itemHeaderLabelStyle={styles.panelItemLabel}
-          handleExpansion={handleColorPanel}
-          changeBackgroundColor={changeBackgroundColor}
-          changeTextColor={changeTextColor}
-        />
+          {/* 색상 */}
+          <ColorPanel
+            value={activeColorPanel}
+            isEdit={isEdit}
+            data={schedule}
+            itemPanelHeight={defaultItemPanelHeight}
+            headerContainerStyle={styles.panelHeaderContainer}
+            headerLabelStyle={styles.panelHeaderLabel}
+            itemHeaderContainerStyle={styles.panelItemHeader}
+            itemHeaderLabelStyle={styles.panelItemLabel}
+            handleExpansion={handleColorPanel}
+            changeBackgroundColor={changeBackgroundColor}
+            changeTextColor={changeTextColor}
+          />
 
-        {/* 시간 */}
-        <TimePanel
-          data={schedule}
-          headerContainerStyle={styles.panelHeaderContainer}
-          headerTitleWrapper={styles.panelHeaderTitleWrapper}
-          headerLabelStyle={styles.panelHeaderLabel}
-          headerTitleStyle={styles.panelHeaderTitle}
-          handleExpansion={handleTimePanel}
-        />
+          {/* 시간 */}
+          <TimePanel
+            data={schedule}
+            headerContainerStyle={styles.panelHeaderContainer}
+            headerTitleWrapper={styles.panelHeaderTitleWrapper}
+            headerLabelStyle={styles.panelHeaderLabel}
+            headerTitleStyle={styles.panelHeaderTitle}
+            handleExpansion={handleTimePanel}
+          />
 
-        {/* 기간 */}
-        <DatePanel
-          value={activeDatePanel}
-          data={schedule}
-          itemPanelHeight={defaultItemPanelHeight}
-          headerContainerStyle={styles.panelHeaderContainer}
-          headerTitleWrapper={styles.panelHeaderTitleWrapper}
-          headerLabelStyle={styles.panelHeaderLabel}
-          headerTitleStyle={styles.panelHeaderTitle}
-          itemHeaderContainerStyle={styles.panelItemHeader}
-          itemHeaderLabelStyle={styles.panelItemLabel}
-          handleExpansion={handleDatePanel}
-          changeStartDate={changeStartDate}
-          changeEndDate={changeEndDate}
-        />
+          {/* 기간 */}
+          <DatePanel
+            value={activeDatePanel}
+            data={schedule}
+            itemPanelHeight={defaultItemPanelHeight}
+            headerContainerStyle={styles.panelHeaderContainer}
+            headerTitleWrapper={styles.panelHeaderTitleWrapper}
+            headerLabelStyle={styles.panelHeaderLabel}
+            headerTitleStyle={styles.panelHeaderTitle}
+            itemHeaderContainerStyle={styles.panelItemHeader}
+            itemHeaderLabelStyle={styles.panelItemLabel}
+            handleExpansion={handleDatePanel}
+            changeStartDate={changeStartDate}
+            changeEndDate={changeEndDate}
+          />
 
-        {/* 요일 */}
-        <DayOfWeekPanel
-          value={activeDayOfWeekPanel}
-          data={schedule}
-          headerContainerStyle={styles.panelHeaderContainer}
-          headerTitleWrapper={styles.panelHeaderTitleWrapper}
-          headerLabelStyle={styles.panelHeaderLabel}
-          headerTitleStyle={styles.panelHeaderTitle}
-          handleExpansion={handleDayOfWeekPanel}
-          changeDayOfWeek={changeDayOfWeek}
-        />
-      </BottomSheetScrollView>
+          {/* 요일 */}
+          <DayOfWeekPanel
+            value={activeDayOfWeekPanel}
+            data={schedule}
+            headerContainerStyle={styles.panelHeaderContainer}
+            headerTitleWrapper={styles.panelHeaderTitleWrapper}
+            headerLabelStyle={styles.panelHeaderLabel}
+            headerTitleStyle={styles.panelHeaderTitle}
+            handleExpansion={handleDayOfWeekPanel}
+            changeDayOfWeek={changeDayOfWeek}
+          />
+        </BottomSheetScrollView>
+      </SafeAreaView>
 
       <TimeWheelModal />
-    </BottomSheet>
+    </BottomSheetModal>
   )
 })
 
@@ -327,6 +383,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Pretendard-Medium',
     color: '#7c8698'
+  },
+
+  // bottom button style
+  submitButton: {
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+    backgroundColor: '#f5f6f8',
+    paddingTop: 15
+  },
+  submitText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 18,
+    color: '#babfc5'
+  },
+  activeSubmitBtn: {
+    backgroundColor: '#1E90FF'
+  },
+  activeSubmitText: {
+    color: '#fff'
   }
 })
 

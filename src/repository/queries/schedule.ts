@@ -118,8 +118,6 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
     ORDER BY A.start_time asc
   `
 
-  console.log('query', query)
-
   return query
 }
 

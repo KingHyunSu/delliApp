@@ -7,7 +7,6 @@ import {
   BackHandler,
   ToastAndroid,
   Alert,
-  SafeAreaView,
   Pressable,
   View,
   Text
@@ -186,40 +185,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
   // apis end
   // ---------------------------------------------------------------------
 
-  const activeSubmit = React.useMemo(() => {
-    const dayOfWeekList = [
-      schedule.mon,
-      schedule.tue,
-      schedule.wed,
-      schedule.thu,
-      schedule.fri,
-      schedule.sat,
-      schedule.sun
-    ]
-
-    return !!(schedule.title && dayOfWeekList.some(item => item === '1'))
-  }, [schedule.title, schedule.mon, schedule.tue, schedule.wed, schedule.thu, schedule.fri, schedule.sat, schedule.sun])
-
-  const containerStyle = React.useMemo(() => {
-    let color = '#ffffff'
-
-    if (isEdit) {
-      color = activeSubmit ? '#1E90FF' : '#f5f6f8'
-    } else {
-      color = '#ffffff'
-    }
-
-    return [homeStyles.container, {backgroundColor: color}]
-  }, [activeSubmit, isEdit])
-
-  const submitButtonStyle = React.useMemo(() => {
-    return [homeStyles.submitButton, activeSubmit && homeStyles.activeSubmitBtn]
-  }, [activeSubmit])
-
-  const submitTextStyle = React.useMemo(() => {
-    return [homeStyles.submitText, activeSubmit && homeStyles.activeSubmitText]
-  }, [activeSubmit])
-
   const handleSubmit = React.useCallback(async () => {
     // TODO 겹치는 일정 제거 - 2023.08.12
     const existScheduleList = await getExistScheduleListMutateAsync()
@@ -245,22 +210,11 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       if (value) {
         setSchedule(value)
       } else {
-        // const dayOfWeekKeyList = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-        //
-        // let currentDayOfWeekIndex = getDay(new Date(scheduleDate)) - 1
-        //
-        // if (currentDayOfWeekIndex === -1) {
-        //   currentDayOfWeekIndex = 6
-        // }
-        //
-        // const dayOfWeekkey = dayOfWeekKeyList[currentDayOfWeekIndex]
-
         setSchedule(prevState => {
           return {
             ...prevState,
             // timetable_category_id: activeTimeTableCategory.timetable_category_id,
             start_date: format(scheduleDate, 'yyyy-MM-dd')
-            // [dayOfWeekkey]: '1'
           }
         })
       }
@@ -415,9 +369,11 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
   React.useEffect(() => {
     if (isEdit) {
+      const dateBarHeight = 36
+
       setIsInputMode(true)
       translateAnimation(headerTranslateY, -200, 350)
-      translateAnimation(timaTableTranslateY, -100)
+      translateAnimation(timaTableTranslateY, -dateBarHeight)
     } else {
       resetDisableScheduleList()
       setIsInputMode(false)
@@ -434,7 +390,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
   }, [isError, setIsLoading])
 
   return (
-    <SafeAreaView style={containerStyle}>
+    <View style={homeStyles.container}>
       <View style={homeStyles.wrapper}>
         {/* insert header */}
         <View style={homeStyles.insertHeaderContainer}>
@@ -488,15 +444,9 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         <EditScheduleBottomSheet />
         <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} timetableRef={timetableRef} />
 
-        {isEdit ? (
-          <Pressable style={submitButtonStyle} onPress={handleSubmit} disabled={!activeSubmit}>
-            <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
-          </Pressable>
-        ) : (
-          <Pressable style={homeStyles.fabContainer} onPress={openEditScheduleBottomSheet()}>
-            <PlusIcon stroke="#fff" />
-          </Pressable>
-        )}
+        <Pressable style={homeStyles.fabContainer} onPress={openEditScheduleBottomSheet()}>
+          <PlusIcon stroke="#fff" />
+        </Pressable>
 
         {/* bottom sheet */}
         <EditMenuBottomSheet updateScheduleDeletedMutate={updateScheduleDeletedMutate} />
@@ -509,7 +459,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
         <Loading />
       </View>
-    </SafeAreaView>
+    </View>
   )
 }
 
@@ -577,36 +527,6 @@ const homeStyles = StyleSheet.create({
         elevation: 3
       }
     })
-  },
-
-  submitButton: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f6f8',
-
-    ...Platform.select({
-      ios: {
-        height: 48
-      },
-      android: {
-        height: 52
-      }
-    })
-  },
-  submitText: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 18,
-    color: '#babfc5'
-  },
-  activeSubmitBtn: {
-    backgroundColor: '#1E90FF'
-  },
-  activeSubmitText: {
-    color: '#fff'
   }
 })
 

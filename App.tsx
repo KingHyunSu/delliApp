@@ -11,6 +11,7 @@ import {QueryClient, QueryCache, QueryClientProvider} from '@tanstack/react-quer
 
 // navigations
 import {NavigationContainer, LinkingOptions} from '@react-navigation/native'
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
 import {createStackNavigator} from '@react-navigation/stack'
 import {navigationRef} from '@/utils/navigation'
 
@@ -22,15 +23,60 @@ import LeaveScreen from '@/views/Leave'
 // components
 import Toast from '@/components/Toast'
 
+// icons
+import HomeIcon from '@/assets/icons/home.svg'
+import MyIcon from '@/assets/icons/my.svg'
+import ChartIcon from '@/assets/icons/chart.svg'
+
 // stores
 import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
 import {loginState, isLunchState, windowDimensionsState} from '@/store/system'
 
-import {RootStackParamList} from '@/types/navigation'
+import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
 
 import initDatabase from '@/repository/utils/init'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
+
+const Tab = createBottomTabNavigator<BottomTabNavigator>()
+const Stack = createStackNavigator<StackNavigator>()
+
+const BottomTabs = React.memo(() => {
+  return (
+    <Tab.Navigator
+      initialRouteName="Home"
+      screenOptions={{headerShown: false, tabBarShowLabel: false, tabBarStyle: {height: 48}}} // 탭의 상단 바 제거
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({focused}) => {
+            return <HomeIcon fill={focused ? '#424242' : '#babfc5'} />
+          }
+        }}
+      />
+      <Tab.Screen
+        name="Leave"
+        component={LeaveScreen}
+        options={{
+          tabBarIcon: ({focused}) => {
+            return <ChartIcon fill={focused ? '#424242' : '#babfc5'} />
+          }
+        }}
+      />
+      <Tab.Screen
+        name="Setting"
+        component={SettingScreen}
+        options={{
+          tabBarIcon: ({focused}) => {
+            return <MyIcon fill={focused ? '#424242' : '#babfc5'} />
+          }
+        }}
+      />
+    </Tab.Navigator>
+  )
+})
 
 function App(): JSX.Element {
   const windowDimensions = useWindowDimensions()
@@ -47,8 +93,7 @@ function App(): JSX.Element {
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
 
-  const Stack = createStackNavigator<RootStackParamList>()
-  const linking: LinkingOptions<RootStackParamList> = {
+  const linking: LinkingOptions<BottomTabNavigator> = {
     prefixes: ['delli://'],
     config: {
       screens: {
@@ -63,7 +108,7 @@ function App(): JSX.Element {
 
   const statusBarStyle = React.useMemo(() => {
     return {
-      flex: 0,
+      flex: 1,
       backgroundColor: '#fff',
       paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
     }
@@ -223,17 +268,15 @@ function App(): JSX.Element {
         <BottomSheetModalProvider>
           <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-          <SafeAreaView style={statusBarStyle} />
+          <SafeAreaView style={statusBarStyle}>
+            <Toast />
 
-          <Toast />
-
-          <NavigationContainer ref={navigationRef} linking={linking}>
-            <Stack.Navigator initialRouteName="Home" screenOptions={screenOptions}>
-              <Stack.Screen name="Home" component={HomeScreen} />
-              <Stack.Screen name="Setting" component={SettingScreen} />
-              <Stack.Screen name="Leave" component={LeaveScreen} />
-            </Stack.Navigator>
-          </NavigationContainer>
+            <NavigationContainer ref={navigationRef} linking={linking}>
+              <Stack.Navigator initialRouteName="MainTabs" screenOptions={{headerShown: false}}>
+                <Stack.Screen name="MainTabs" component={BottomTabs} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </SafeAreaView>
         </BottomSheetModalProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>

@@ -2,6 +2,7 @@ import {atom, selector} from 'recoil'
 import {Platform} from 'react-native'
 
 const editScheduleListMinSnapPoint = 150
+const bottomTabHeight = 48
 
 export const loginState = atom({
   key: 'loginState',
@@ -76,7 +77,7 @@ export const timetableWrapperHeightState = selector({
 
     const totalSafeAreaHeight = topSafeAreaHeight + bottomSafeAreaHeight
 
-    return height - (homeHeaderHeight + editScheduleListMinSnapPoint + totalSafeAreaHeight)
+    return height - bottomTabHeight - (homeHeaderHeight + editScheduleListMinSnapPoint + totalSafeAreaHeight)
   }
 })
 
@@ -122,7 +123,7 @@ export const scheduleListSnapPointState = selector({
 
     const totalSafeAreaHeight = topSafeAreaHeight + bottomSafeAreaHeight
 
-    const maxSnapPoint = height - totalSafeAreaHeight - homeHeaderHeight - marginTop
+    const maxSnapPoint = height - (bottomTabHeight + totalSafeAreaHeight + homeHeaderHeight + marginTop)
 
     return [editScheduleListMinSnapPoint, maxSnapPoint]
   }
@@ -141,17 +142,13 @@ export const editScheduleListSnapPointState = selector({
 
     const appBarHeight = 48
     let topSafeAreaHeight = 0
-    let bottomSafeAreaHeight = 0
 
     if (Platform.OS === 'ios') {
       topSafeAreaHeight = safeAreaInsets.top
-      bottomSafeAreaHeight = safeAreaInsets.bottom
     }
 
-    const totalSafeAreaHeight = topSafeAreaHeight + bottomSafeAreaHeight
-
-    const minSnapPoint = height - (totalSafeAreaHeight + appBarHeight + timetableWrapperHeight)
-    const maxSnapPoint = height - (totalSafeAreaHeight + appBarHeight)
+    const minSnapPoint = height - (topSafeAreaHeight + appBarHeight + timetableWrapperHeight)
+    const maxSnapPoint = height - (topSafeAreaHeight + appBarHeight)
 
     return [minSnapPoint, maxSnapPoint]
   }
