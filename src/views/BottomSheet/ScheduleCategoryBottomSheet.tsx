@@ -21,11 +21,11 @@ import {scheduleState} from '@/store/schedule'
 import {SetScheduleCategory, UpdateScheduleCategory} from '@/repository/types/scheduleCategory'
 
 interface Props {
-  refetchScheduleList: Function
+  invalidScheduleList: Function
 }
 
 const shadowOffset: [number, number] = [0, -1]
-const ScheduleCategoryBottomSheet = ({refetchScheduleList}: Props) => {
+const ScheduleCategoryBottomSheet = ({invalidScheduleList}: Props) => {
   const scheduleCategoryBottomSheetRef = React.useRef<BottomSheetModal>(null)
 
   const [pressBehavior, setPressBehavior] = React.useState<'close' | 0>('close')
@@ -74,7 +74,7 @@ const ScheduleCategoryBottomSheet = ({refetchScheduleList}: Props) => {
         setSchedule(prevState => ({...prevState, ...newScheduleCategory}))
       }
 
-      refetchScheduleList()
+      invalidScheduleList()
       await refetch()
       clear()
     }

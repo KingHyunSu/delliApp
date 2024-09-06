@@ -16,16 +16,18 @@ import BottomSheetHandler from '@/components/BottomSheetHandler' // TODO 이름 
 
 interface Props {
   updateScheduleDeletedMutate: Function
+  openEditScheduleBottomSheet: Function
 }
-const EditMenuBottomSheet = ({updateScheduleDeletedMutate}: Props) => {
+const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBottomSheet}: Props) => {
+  const editInfoBottomSheetRef = React.useRef<BottomSheetModal>(null)
+
+  const [showEditScheduleBottomSheet, setShowEditScheduleBottomSheet] = React.useState(false)
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const setShowEditTodoModalState = useSetRecoilState(showEditTodoModalState)
   const schedule = useRecoilValue(scheduleState)
   const resetSchedule = useResetRecoilState(scheduleState)
   const changeScheduleTodo = useSetRecoilState(scheduleTodoState)
-
-  const editInfoBottomSheetRef = React.useRef<BottomSheetModal>(null)
 
   const snapPoints = React.useMemo(() => {
     return [350]
@@ -73,10 +75,10 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate}: Props) => {
     ])
   }, [schedule.title, schedule.schedule_id])
 
-  const openEditScheduleBottomSheet = React.useCallback(() => {
-    setIsEdit(true)
+  const handleOpenEditScheduleBottomSheet = React.useCallback(() => {
+    setShowEditScheduleBottomSheet(true)
     setShowEditMenuBottomSheet(false)
-  }, [setShowEditMenuBottomSheet, setIsEdit])
+  }, [setShowEditScheduleBottomSheet, setShowEditMenuBottomSheet])
 
   const closeEditMenuBottomSheet = React.useCallback(() => {
     setShowEditMenuBottomSheet(false)
@@ -87,9 +89,16 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate}: Props) => {
       editInfoBottomSheetRef.current?.present()
     } else {
       editInfoBottomSheetRef.current?.dismiss()
-      handleReset()
+
+      if (showEditScheduleBottomSheet) {
+        openEditScheduleBottomSheet()
+      } else {
+        handleReset()
+      }
     }
-  }, [showEditMenuBottomSheet, handleReset])
+
+    setShowEditScheduleBottomSheet(false)
+  }, [showEditMenuBottomSheet, showEditScheduleBottomSheet, openEditScheduleBottomSheet, handleReset])
 
   // components
   const bottomSheetBackdrop = React.useCallback((props: BottomSheetBackdropProps) => {
@@ -129,7 +138,7 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate}: Props) => {
           <Text style={styles.text}>할 일 추가하기</Text>
         </Pressable>
 
-        <Pressable style={styles.section} onPress={openEditScheduleBottomSheet}>
+        <Pressable style={styles.section} onPress={handleOpenEditScheduleBottomSheet}>
           <View style={updateButton}>
             <EditIcon width={12} height={12} stroke="#fff" fill="#fff" />
           </View>

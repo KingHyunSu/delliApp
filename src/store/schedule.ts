@@ -73,5 +73,5 @@ export const activeTimeFlagState = atom<RANGE_FLAG | null>({
 
 export const isInputModeState = atom<Boolean>({
   key: 'isInputModeState',
-  default: false
+  default: true
 })

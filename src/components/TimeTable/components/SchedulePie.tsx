@@ -23,8 +23,8 @@ const SchedulePie = ({
   x,
   y,
   radius,
-  startTime = 0,
-  endTime = 0,
+  startTime = -1,
+  endTime = -1,
   opacity,
   isEdit = false,
   disableScheduleList,
@@ -37,6 +37,10 @@ const SchedulePie = ({
 
     return false
   }, [isEdit, disableScheduleList, data.schedule_id])
+
+  const backgroundColor = React.useMemo(() => {
+    return isDisabled ? '#faf0f0' : data.background_color
+  }, [isDisabled, data.background_color])
 
   const startAngle = React.useMemo(() => {
     return startTime * 0.25
@@ -62,10 +66,14 @@ const SchedulePie = ({
     }
   }, [onClick, data])
 
+  if (startTime === -1 && endTime === -1) {
+    return <></>
+  }
+
   return (
     <Path
       d={path}
-      fill={isDisabled ? '#faf0f0' : data.background_color}
+      fill={backgroundColor}
       fillOpacity={opacity}
       strokeWidth={0.4}
       stroke={'#f5f6f8'}

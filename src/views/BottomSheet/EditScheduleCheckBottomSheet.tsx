@@ -23,12 +23,10 @@ import {UpdateScheduleDeleted} from '@/repository/types/schedule'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import {scheduleRepository} from '@/repository'
 
-import type {TimetableRefs} from '@/components/TimeTable'
-import {updateWidgetWithImage} from '@/utils/widget'
+import {widgetWithImageUpdatedState} from '@/store/widget'
 
 interface Props {
-  refetchScheduleList: Function
-  timetableRef: React.RefObject<TimetableRefs>
+  invalidScheduleList: Function
 }
 interface ItemProps {
   schedule: ExistSchedule
@@ -102,7 +100,7 @@ const Item = ({schedule, deletedScheduleIdList, onDelete, onCancelDeleted}: Item
   )
 }
 
-const EditScheduleCheckBottomSheet = ({refetchScheduleList, timetableRef}: Props) => {
+const EditScheduleCheckBottomSheet = ({invalidScheduleList}: Props) => {
   const [showEditScheduleCheckBottomSheet, setShowEditScheduleCheckBottomSheet] = useRecoilState(
     showEditScheduleCheckBottomSheetState
   )
@@ -110,6 +108,7 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList, timetableRef}: Props
   const existScheduleList = useRecoilValue(existScheduleListState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
   const setIsEdit = useSetRecoilState(isEditState)
+  const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
 
   const editScheduleCheckBottomSheet = React.useRef<BottomSheetModal>(null)
 
@@ -195,13 +194,13 @@ const EditScheduleCheckBottomSheet = ({refetchScheduleList, timetableRef}: Props
         })
       )
     },
-    onSuccess: async () => {
-      await refetchScheduleList()
+    onSuccess: () => {
+      invalidScheduleList()
       handleDismiss()
       setIsEdit(false)
 
       if (Platform.OS === 'ios') {
-        await updateWidgetWithImage(timetableRef)
+        setWidgetWithImageUpdated(true)
       }
     },
     onError: error => {

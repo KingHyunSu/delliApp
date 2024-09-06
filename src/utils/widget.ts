@@ -1,11 +1,9 @@
-import React from 'react'
 import {Alert, NativeModules} from 'react-native'
 import RNFS from 'react-native-fs'
 import {format} from 'date-fns'
 import {userRepository} from '@/repository'
 import * as widgetApi from '@/apis/widget'
 import {getScheduleList} from '@/utils/schedule'
-import type {TimetableRefs} from '@/components/TimeTable'
 
 type WidgetSchedule = {
   schedule_id: number | null
@@ -94,8 +92,8 @@ export const updateWidget = async () => {
   }
 }
 
-export const updateWidgetWithImage = async (timetableRefs: React.RefObject<TimetableRefs>) => {
-  if (!timetableRefs.current || !AppGroupModule) {
+export const updateWidgetWithImage = async (imageUri: string) => {
+  if (!imageUri || !AppGroupModule) {
     Alert.alert('위젯 업데이트 실패', '잠시 후 다시 시도해 주세요.', [
       {
         text: '확인'
@@ -105,14 +103,13 @@ export const updateWidgetWithImage = async (timetableRefs: React.RefObject<Timet
     return
   }
 
-  const widgetReloadable = await isWidgetReloadable()
+  // const widgetReloadable = await isWidgetReloadable()
+  //
+  // if (!widgetReloadable) {
+  //   return
+  // }
 
-  if (!widgetReloadable) {
-    return
-  }
-
-  // 이미지 생성 및 이동
-  const imageUri = await timetableRefs.current.getImage()
+  // 이미지 이동
   const fileName = 'timetable.png'
   const appGroupPath = await AppGroupModule.getAppGroupPath()
   const filePath = appGroupPath + '/' + fileName

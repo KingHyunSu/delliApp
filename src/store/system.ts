@@ -142,13 +142,17 @@ export const editScheduleListSnapPointState = selector({
 
     const appBarHeight = 48
     let topSafeAreaHeight = 0
+    let bottomSafeAreaHeight = 0
 
     if (Platform.OS === 'ios') {
       topSafeAreaHeight = safeAreaInsets.top
+      bottomSafeAreaHeight = safeAreaInsets.bottom
     }
 
-    const minSnapPoint = height - (topSafeAreaHeight + appBarHeight + timetableWrapperHeight)
-    const maxSnapPoint = height - (topSafeAreaHeight + appBarHeight)
+    const totalSafeAreaHeight = topSafeAreaHeight + bottomSafeAreaHeight
+
+    const minSnapPoint = height - (totalSafeAreaHeight + appBarHeight + timetableWrapperHeight)
+    const maxSnapPoint = height - (totalSafeAreaHeight + appBarHeight)
 
     return [minSnapPoint, maxSnapPoint]
   }

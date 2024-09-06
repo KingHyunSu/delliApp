@@ -11,12 +11,13 @@ import RotateGuideIcon from '@/assets/icons/rotate_guide.svg'
 
 interface Props {
   data: Schedule
+  isRendered: boolean
   centerX: number
   centerY: number
   radius: number
   onChangeSchedule: Function
 }
-const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Props) => {
+const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeSchedule}: Props) => {
   const gestureHorizontalSafeArea = 70
   const gestureVerticalSafeArea = 100
 
@@ -149,12 +150,12 @@ const EditScheduleText = ({data, centerX, centerY, radius, onChangeSchedule}: Pr
   }, [])
 
   React.useEffect(() => {
-    if (isInputMode) {
+    if (isRendered && isInputMode) {
       opacity.value = withTiming(1)
     } else {
       opacity.value = withTiming(0)
     }
-  }, [isInputMode])
+  }, [isRendered, isInputMode])
 
   return (
     <>

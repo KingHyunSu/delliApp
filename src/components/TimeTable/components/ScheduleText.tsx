@@ -6,7 +6,7 @@ interface Props {
   centerX: number
   centerY: number
   radius: number
-  onClick: (value: Schedule) => void
+  onClick?: (value: Schedule) => void
 }
 const ScheduleText = ({data, centerX, centerY, radius, onClick}: Props) => {
   const {top, left} = React.useMemo(() => {
@@ -25,7 +25,9 @@ const ScheduleText = ({data, centerX, centerY, radius, onClick}: Props) => {
   }, [data.text_color])
 
   const handleClick = React.useCallback(() => {
-    onClick(data)
+    if (onClick) {
+      onClick(data)
+    }
   }, [onClick, data])
 
   return (

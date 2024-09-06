@@ -1,44 +1,29 @@
 import React from 'react'
-import {
-  Platform,
-  Animated,
-  StyleSheet,
-  LayoutChangeEvent,
-  BackHandler,
-  ToastAndroid,
-  Alert,
-  Pressable,
-  View,
-  Text
-} from 'react-native'
+import {Platform, StyleSheet, LayoutChangeEvent, BackHandler, ToastAndroid, Alert, Pressable, View} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import {AdEventType, RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
+import Animated, {useSharedValue, useAnimatedStyle, withTiming, runOnJS} from 'react-native-reanimated'
 import {useQuery, useMutation} from '@tanstack/react-query'
-import {format, addDays, getDay} from 'date-fns'
+import {format} from 'date-fns'
 
 // components
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
-import TimeTable from '@/components/TimeTable'
+import {Timetable} from '@/components/TimeTable'
 import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import EditMenuBottomSheet from '@/views/BottomSheet/EditMenuBottomSheet'
-import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet'
-import EditScheduleCheckBottomSheet from '@/views/BottomSheet/EditScheduleCheckBottomSheet'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
-import TimetableCategoryBottomSheet from '@/views/BottomSheet/TimetableCategoryBottomSheet'
 import EditTodoModal from '@/views/Modal/EditTodoModal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
 // icons
-import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 // import EditIcon from '@/assets/icons/edit3.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
-import CancleIcon from '@/assets/icons/cancle.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
 
 // stores
-import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
+import {useRecoilState, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {
   safeAreaInsetsState,
   isLunchState,
@@ -52,54 +37,41 @@ import {
   scheduleState,
   scheduleListState,
   disableScheduleListState,
-  existScheduleListState,
   isInputModeState
 } from '@/store/schedule'
-import {activeTimeTableCategoryState} from '@/store/timetable'
-import {
-  showEditMenuBottomSheetState,
-  showEditScheduleCheckBottomSheetState,
-  showDatePickerBottomSheetState
-} from '@/store/bottomSheet'
+import {showEditMenuBottomSheetState, showDatePickerBottomSheetState} from '@/store/bottomSheet'
+import {widgetWithImageUpdatedState} from '@/store/widget'
 
-import {updateWidgetWithImage} from '@/utils/widget'
 import {getScheduleList} from '@/utils/schedule'
 import {userRepository, scheduleRepository} from '@/repository'
 
 import * as widgetApi from '@/apis/widget'
 
-import {HomeNavigationProps} from '@/types/navigation'
-import type {TimetableRefs} from '@/components/TimeTable'
-import ScheduleCategoryBottomSheet from '@/views/BottomSheet/ScheduleCategoryBottomSheet'
+import {HomeScreenProps} from '@/types/navigation'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
-const Home = ({navigation, route}: HomeNavigationProps) => {
+const Home = ({navigation, route}: HomeScreenProps) => {
   const safeAreaInsets = useSafeAreaInsets()
-
-  const timetableRef = React.useRef<TimetableRefs>(null)
+  const [isRendered, setIsRendered] = React.useState(false)
 
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
-  const [activeTimeTableCategory, setActiveTimeTableCategory] = useRecoilState(activeTimeTableCategoryState)
-  const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [backPressCount, setBackPressCount] = React.useState(0)
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
-
-  const disableScheduleList = useRecoilValue(disableScheduleListState)
 
   const setIsLunch = useSetRecoilState(isLunchState)
   const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
   const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
   const resetSchedule = useResetRecoilState(scheduleState)
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
-  const setExistScheduleList = useSetRecoilState(existScheduleListState)
-  const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setToast = useSetRecoilState(toastState)
+  const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
 
   // ---------------------------------------------------------------------
   // apis start
@@ -122,50 +94,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
     initialData: []
   })
 
-  const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
-    mutationFn: async () => {
-      const params = {
-        schedule_id: schedule.schedule_id,
-        start_time: schedule.start_time,
-        end_time: schedule.end_time,
-        mon: schedule.mon,
-        tue: schedule.tue,
-        wed: schedule.wed,
-        thu: schedule.thu,
-        fri: schedule.fri,
-        sat: schedule.sat,
-        sun: schedule.sun,
-        start_date: schedule.start_date,
-        end_date: schedule.end_date
-      }
-
-      return await scheduleRepository.getExistScheduleList(params)
-    }
-  })
-
-  const {mutate: setScheduleMutate} = useMutation({
-    mutationFn: async () => {
-      const params = {schedule}
-
-      if (params.schedule.schedule_id) {
-        await scheduleRepository.updateSchedule(params)
-      } else {
-        await scheduleRepository.setSchedule(params)
-      }
-    },
-    onSuccess: async () => {
-      await refetchScheduleList()
-      setIsEdit(false)
-
-      if (Platform.OS === 'ios') {
-        await updateWidgetWithImage(timetableRef)
-      }
-    },
-    onError: e => {
-      console.error('error', e)
-    }
-  })
-
   const {mutate: updateScheduleDeletedMutate} = useMutation({
     mutationFn: async (data: ScheduleDisableReqeust) => {
       await scheduleRepository.updateScheduleDeleted(data)
@@ -174,7 +102,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       await refetchScheduleList()
 
       if (Platform.OS === 'ios') {
-        await updateWidgetWithImage(timetableRef)
+        setWidgetWithImageUpdated(true)
       }
 
       resetSchedule()
@@ -185,44 +113,19 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
   // apis end
   // ---------------------------------------------------------------------
 
-  const handleSubmit = React.useCallback(async () => {
-    // TODO 겹치는 일정 제거 - 2023.08.12
-    const existScheduleList = await getExistScheduleListMutateAsync()
+  const openEditScheduleBottomSheet = React.useCallback(() => {
+    setIsEdit(true)
 
-    setExistScheduleList(existScheduleList)
-
-    if (existScheduleList.length > 0 || disableScheduleList.length > 0) {
-      setShowEditScheduleCheckBottomSheet(true)
-      return
+    if (!schedule.schedule_id) {
+      setSchedule(prevState => ({
+        ...prevState,
+        // timetable_category_id: activeTimeTableCategory.timetable_category_id,
+        start_date: format(scheduleDate, 'yyyy-MM-dd')
+      }))
     }
 
-    setScheduleMutate()
-  }, [
-    setScheduleMutate,
-    getExistScheduleListMutateAsync,
-    setExistScheduleList,
-    setShowEditScheduleCheckBottomSheet,
-    disableScheduleList.length
-  ])
-
-  const openEditScheduleBottomSheet = React.useCallback(
-    (value?: Schedule) => () => {
-      if (value) {
-        setSchedule(value)
-      } else {
-        setSchedule(prevState => {
-          return {
-            ...prevState,
-            // timetable_category_id: activeTimeTableCategory.timetable_category_id,
-            start_date: format(scheduleDate, 'yyyy-MM-dd')
-          }
-        })
-      }
-
-      setIsEdit(true)
-    },
-    [scheduleDate, setIsEdit, setSchedule]
-  )
+    navigation.navigate('EditSchedule')
+  }, [schedule.schedule_id, scheduleDate, setSchedule, setIsEdit, navigation])
 
   const openEditMenuBottomSheet = React.useCallback(
     (value: Schedule) => {
@@ -232,20 +135,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
     [setSchedule, setShowEditMenuBottomSheet]
   )
 
-  const closeEditScheduleBottomSheet = React.useCallback(() => {
-    Alert.alert('나가기', '작성한 내용은 저장되지 않아요.', [
-      {
-        text: '취소'
-      },
-      {
-        text: '나가기',
-        onPress: () => {
-          setIsEdit(false)
-        }
-      }
-    ])
-  }, [setIsEdit])
-
   const handleTopLayout = React.useCallback(
     (layout: LayoutChangeEvent) => {
       setHomeHeaderHeight(layout.nativeEvent.layout.height)
@@ -253,16 +142,22 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
     [setHomeHeaderHeight]
   )
 
-  const headerTranslateY = React.useRef(new Animated.Value(0)).current
-  const timaTableTranslateY = React.useRef(new Animated.Value(0)).current
+  const headerTranslateY = useSharedValue(0)
+  const timeTableTranslateY = useSharedValue(0)
 
-  const translateAnimation = (target: Animated.Value, to: number, duration?: number) => {
-    Animated.timing(target, {
-      toValue: to,
-      duration: duration ? duration : 300,
-      useNativeDriver: true
-    }).start()
-  }
+  const headerAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{translateY: headerTranslateY.value}]
+  }))
+  const timetableAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{translateY: timeTableTranslateY.value}]
+  }))
+
+  const headerStyle = React.useMemo(() => {
+    return [headerAnimatedStyle, homeStyles.homeHeaderContainer]
+  }, [])
+  const timetableStyle = React.useMemo(() => {
+    return [timetableAnimatedStyle]
+  }, [])
 
   // android 뒤로가기 제어
   useFocusEffect(
@@ -270,7 +165,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       const onBackPress = () => {
         if (isEdit) {
           // edit bottom sheet
-          closeEditScheduleBottomSheet()
         } else if (showEditMenuBottomSheet) {
           // edit menu bottom sheet
           setShowEditMenuBottomSheet(false)
@@ -301,7 +195,6 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
       showEditMenuBottomSheet,
       showDatePickerBottomSheet,
       backPressCount,
-      closeEditScheduleBottomSheet,
       setShowEditMenuBottomSheet,
       setShowDatePickerBottomSheet
     ])
@@ -313,8 +206,11 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
 
   React.useEffect(() => {
     const path = route.path
+    const params = route.params
 
-    if (path === 'widget/reload') {
+    if (params?.scheduleUpdated) {
+      setWidgetWithImageUpdated(true)
+    } else if (path === 'widget/reload') {
       const rewardedAd = RewardedAd.createForAdRequest(adUnitId)
 
       setScheduleDate(new Date())
@@ -347,7 +243,7 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
         const params = {id: user.user_id}
         await widgetApi.updateWidgetReloadable(params)
 
-        await updateWidgetWithImage(timetableRef)
+        setWidgetWithImageUpdated(true)
       })
 
       // 광고 닫힘
@@ -368,20 +264,23 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
   }, [route])
 
   React.useEffect(() => {
-    if (isEdit) {
-      const dateBarHeight = 36
+    const dateBarHeight = 36
 
+    if (isEdit) {
+      setIsRendered(false)
       setIsInputMode(true)
-      translateAnimation(headerTranslateY, -200, 350)
-      translateAnimation(timaTableTranslateY, -dateBarHeight)
+      headerTranslateY.value = withTiming(-200)
     } else {
+      timeTableTranslateY.value = -dateBarHeight
       resetDisableScheduleList()
       setIsInputMode(false)
-      translateAnimation(headerTranslateY, 0, 350)
-      translateAnimation(timaTableTranslateY, 0)
+      headerTranslateY.value = withTiming(0)
+      timeTableTranslateY.value = withTiming(0, {duration: 300}, () => {
+        runOnJS(setIsRendered)(true)
+      })
       resetSchedule()
     }
-  }, [isEdit, headerTranslateY, timaTableTranslateY, resetSchedule, resetDisableScheduleList, setIsInputMode])
+  }, [isEdit, resetSchedule, resetDisableScheduleList, setIsInputMode])
 
   React.useEffect(() => {
     if (isError) {
@@ -393,22 +292,9 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
     <View style={homeStyles.container}>
       <View style={homeStyles.wrapper}>
         {/* insert header */}
-        <View style={homeStyles.insertHeaderContainer}>
-          <AppBar>
-            {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
-            {/* <Text style={homeStyles.timetableCategoryText}>{activeTimeTableCategory.title}</Text> */}
-            <View />
-
-            <Pressable style={homeStyles.appBarRightButton} onPress={closeEditScheduleBottomSheet}>
-              <CancleIcon stroke="#242933" />
-            </Pressable>
-          </AppBar>
-        </View>
 
         {/* home header */}
-        <Animated.View
-          style={[homeStyles.homeHeaderContainer, {transform: [{translateY: headerTranslateY}]}]}
-          onLayout={handleTopLayout}>
+        <Animated.View style={headerStyle} onLayout={handleTopLayout}>
           <AppBar>
             {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
             {/* {activeTimeTableCategory.timetable_category_id ? (
@@ -436,26 +322,24 @@ const Home = ({navigation, route}: HomeNavigationProps) => {
           </View>
         </Animated.View>
 
-        <Animated.View style={[{transform: [{translateY: timaTableTranslateY}], opacity: isLoading ? 0.6 : 1}]}>
-          <TimeTable ref={timetableRef} data={scheduleList} isEdit={isEdit} />
+        <Animated.View style={timetableStyle}>
+          <Timetable data={scheduleList} isRendered={isRendered} />
         </Animated.View>
 
         <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
-        <EditScheduleBottomSheet />
-        <EditScheduleCheckBottomSheet refetchScheduleList={refetchScheduleList} timetableRef={timetableRef} />
 
-        <Pressable style={homeStyles.fabContainer} onPress={openEditScheduleBottomSheet()}>
+        <Pressable style={homeStyles.fabContainer} onPress={openEditScheduleBottomSheet}>
           <PlusIcon stroke="#fff" />
         </Pressable>
 
-        {/* bottom sheet */}
-        <EditMenuBottomSheet updateScheduleDeletedMutate={updateScheduleDeletedMutate} />
-        <TimetableCategoryBottomSheet />
-        <ScheduleCategoryBottomSheet refetchScheduleList={refetchScheduleList} />
-
-        {/* modal */}
-        {/* <ScheduleCompleteModal /> */}
+        <EditMenuBottomSheet
+          updateScheduleDeletedMutate={updateScheduleDeletedMutate}
+          openEditScheduleBottomSheet={openEditScheduleBottomSheet}
+        />
         <EditTodoModal />
+
+        {/*<TimetableCategoryBottomSheet />*/}
+        {/* <ScheduleCompleteModal /> */}
 
         <Loading />
       </View>
@@ -474,12 +358,6 @@ const homeStyles = StyleSheet.create({
   },
   homeHeaderContainer: {
     zIndex: -1,
-    backgroundColor: '#fff'
-  },
-  insertHeaderContainer: {
-    zIndex: -2,
-    position: 'absolute',
-    width: '100%',
     backgroundColor: '#fff'
   },
   weekDatePickerSection: {

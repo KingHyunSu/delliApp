@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, View, Text, Image} from 'react-native'
+import {StyleSheet} from 'react-native'
 import Svg, {Circle} from 'react-native-svg'
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {
@@ -7,24 +7,16 @@ import Animated, {
   useAnimatedReaction,
   useAnimatedStyle,
   useDerivedValue,
-  useSharedValue,
-  withTiming
+  useSharedValue
 } from 'react-native-reanimated'
 import {trigger} from 'react-native-haptic-feedback'
 
 import SchedulePie from './SchedulePie'
 
 import {useRecoilValue} from 'recoil'
-import {
-  homeHeaderHeightState,
-  timetableWrapperHeightState,
-  timetableCenterPositionState,
-  editScheduleListStatusState
-} from '@/store/system'
-import {getTimeOfMinute} from '@/utils/helper'
+import {homeHeaderHeightState} from '@/store/system'
 
 interface Props {
-  isEdit: boolean
   data: Schedule
   scheduleList: Schedule[]
   x: number
@@ -33,12 +25,13 @@ interface Props {
   isInputMode: Boolean
   onChangeSchedule: Function
   onChangeScheduleDisabled: (value: ExistSchedule[]) => void
+  onChangeStartTime: (value: number) => void
+  onChangeEndTime: (value: number) => void
 }
 
 const MINUTE_INTERVAL = 10
 const itemSize = 48
 const EditSchedulePie = ({
-  isEdit,
   data,
   scheduleList,
   x,
@@ -46,19 +39,17 @@ const EditSchedulePie = ({
   radius,
   isInputMode,
   onChangeSchedule,
-  onChangeScheduleDisabled
+  onChangeScheduleDisabled,
+  onChangeStartTime,
+  onChangeEndTime
 }: Props) => {
   const homeHeaderHeight = useRecoilValue(homeHeaderHeightState)
-  const timetableWrapperHeight = useRecoilValue(timetableWrapperHeightState)
-  const timetableCenterPosition = useRecoilValue(timetableCenterPositionState)
-  const editScheduleListStatus = useRecoilValue(editScheduleListStatusState)
 
-  const [newStartTimeState, setNewStartTimeState] = React.useState(0)
-  const [newEndTimeState, setNewEndTimeState] = React.useState(0)
+  const [newStartTimeState, setNewStartTimeState] = React.useState(-1)
+  const [newEndTimeState, setNewEndTimeState] = React.useState(-1)
 
   const newStartTime = useSharedValue(data.start_time)
   const newEndTime = useSharedValue(data.end_time)
-  const timeInfoTranslateX = useSharedValue(0)
 
   const startAnchorPosition = useDerivedValue(() => {
     const angle = newStartTime.value * 0.25
@@ -99,37 +90,13 @@ const EditSchedulePie = ({
   const startAnchorStyle = React.useMemo(() => {
     return [styles.anchor, startAnchorAnimatedStyle]
   }, [])
+
   const endAnchorStyle = React.useMemo(() => {
     return [styles.anchor, endAnchorAnimatedStyle]
-  }, [])
-
-  const timeInfoAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{translateX: timeInfoTranslateX.value}]
-    }
-  })
-  const timeInfoContainerStyle = React.useMemo(() => {
-    if (timetableWrapperHeight) {
-      const top = ((timetableWrapperHeight - timetableCenterPosition * 2) / 2 + (48 - 4.5)) * -1
-      return [timeInfoAnimatedStyle, styles.timeIntoContainer, {top, left: -10}]
-    }
-    return null
   }, [])
   /**
    * style end
    */
-
-  const startTimeString = React.useMemo(() => {
-    const timeOfMinute = getTimeOfMinute(newStartTimeState)
-
-    return `${timeOfMinute.meridiem} ${timeOfMinute.hour}시 ${timeOfMinute.minute}분`
-  }, [newStartTimeState])
-
-  const endTimeString = React.useMemo(() => {
-    const timeOfMinute = getTimeOfMinute(newEndTimeState)
-
-    return `${timeOfMinute.meridiem} ${timeOfMinute.hour}시 ${timeOfMinute.minute}분`
-  }, [newEndTimeState])
 
   const getCalcTotalMinute = React.useCallback((angle: number) => {
     const totalMinute = angle / 0.25
@@ -196,6 +163,7 @@ const EditSchedulePie = ({
     (currentValue, previousValue) => {
       if (currentValue !== previousValue) {
         runOnJS(setNewStartTimeState)(currentValue)
+        runOnJS(onChangeStartTime)(currentValue)
 
         runOnJS(trigger)('soft', {
           enableVibrateFallback: true,
@@ -212,6 +180,7 @@ const EditSchedulePie = ({
     (currentValue, previousValue) => {
       if (currentValue !== previousValue) {
         runOnJS(setNewEndTimeState)(currentValue)
+        runOnJS(onChangeEndTime)(currentValue)
 
         runOnJS(trigger)('soft', {
           enableVibrateFallback: true,
@@ -222,23 +191,12 @@ const EditSchedulePie = ({
   )
 
   React.useEffect(() => {
-    if (editScheduleListStatus === 0) {
-      timeInfoTranslateX.value = withTiming(0)
-    } else {
-      timeInfoTranslateX.value = withTiming(-250)
-    }
-  }, [editScheduleListStatus])
-
-  React.useEffect(() => {
     newStartTime.value = data.start_time
-  }, [data.start_time])
-
-  React.useEffect(() => {
     newEndTime.value = data.end_time
-  }, [data.end_time])
+  }, [data.start_time, data.end_time])
 
   React.useLayoutEffect(() => {
-    if (!isEdit) {
+    if (newStartTimeState === -1 || newEndTimeState === -1) {
       return
     }
 
@@ -298,19 +256,10 @@ const EditSchedulePie = ({
       })
 
     onChangeScheduleDisabled(result as ExistSchedule[])
-  }, [isEdit, data.schedule_id, newStartTimeState, newEndTimeState, scheduleList, onChangeScheduleDisabled])
+  }, [data.schedule_id, newStartTimeState, newEndTimeState, scheduleList, onChangeScheduleDisabled])
 
   return (
     <>
-      <Animated.View style={timeInfoContainerStyle}>
-        <View style={styles.timeInfoWrapper}>
-          <Image source={require('@/assets/icons/time.png')} style={styles.timeInfoIcon} />
-          <Text style={styles.timeInfoText}>{startTimeString}</Text>
-          <Text>-</Text>
-          <Text style={styles.timeInfoText}>{endTimeString}</Text>
-        </View>
-      </Animated.View>
-
       <Svg>
         <SchedulePie data={data} x={x} y={y} radius={radius} startTime={newStartTimeState} endTime={newEndTimeState} />
       </Svg>
@@ -346,35 +295,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 999
-  },
-
-  timeIntoContainer: {
-    width: 245,
-    position: 'absolute',
-    padding: 10,
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#00000010',
-    borderRadius: 10,
-
-    shadowColor: '#00000010',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 1
-  },
-  timeInfoWrapper: {
-    paddingLeft: 10,
-    gap: 5,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  timeInfoIcon: {
-    width: 16,
-    height: 16
-  },
-  timeInfoText: {
-    color: '#424242',
-    fontSize: 14,
-    fontFamily: 'Pretendard-Medium'
   }
 })
 

@@ -6,7 +6,6 @@ import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
 import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
-import {QueryClient, QueryCache, QueryClientProvider} from '@tanstack/react-query'
 // import crashlytics from '@react-native-firebase/crashlytics'
 
 // navigations
@@ -19,6 +18,7 @@ import {navigationRef} from '@/utils/navigation'
 import HomeScreen from '@/views/Home'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
+import EditScheduleScreen from '@/views/EditSchedule'
 
 // components
 import Toast from '@/components/Toast'
@@ -87,7 +87,6 @@ function App(): JSX.Element {
 
   const [isActiveApp, setIsActiveApp] = React.useState(false)
   const [isInit, setIsInit] = React.useState(false)
-  const [isServerError, setIsServerError] = React.useState(false)
 
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
   const [isLogin, setIsLogin] = useRecoilState(loginState)
@@ -113,29 +112,6 @@ function App(): JSX.Element {
       paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
     }
   }, [])
-
-  const handleGlobalError = errorCode => {
-    setIsLunch(true)
-
-    // 2024-05-18 서버 제거로인해 비활성화
-    // if (errorCode === 500) {
-    //   setIsServerError(true)
-    // }
-  }
-
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      mutations: {
-        onError: handleGlobalError
-      },
-      queries: {
-        retry: false
-      }
-    },
-    queryCache: new QueryCache({
-      onError: handleGlobalError
-    })
-  })
 
   // 2024-05-18 서버 제거로인해 비활성화
   // React.useEffect(() => {
@@ -178,20 +154,6 @@ function App(): JSX.Element {
   //     // crashlytics().crash()
   //   }
   // }, [isLunch])
-
-  // React.useEffect(() => {
-  //   if (isServerError) {
-  //     Alert.alert('네트워크 연결 실패', '네트워크 연결이 지연되고 있습니다.\n잠시 후 다시 시도해주세요.', [
-  //       {
-  //         text: '확인',
-  //         onPress: () => {
-  //           setIsServerError(false)
-  //         },
-  //         style: 'cancel'
-  //       }
-  //     ])
-  //   }
-  // }, [isServerError])
 
   React.useEffect(() => {
     setWindowDimensions(windowDimensions)
@@ -262,24 +224,23 @@ function App(): JSX.Element {
   // }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <GestureHandlerRootView style={{flex: 1}}>
-        {/* <RecoilDebugObserver /> */}
-        <BottomSheetModalProvider>
-          <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+    <GestureHandlerRootView style={{flex: 1}}>
+      {/* <RecoilDebugObserver /> */}
+      <BottomSheetModalProvider>
+        <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-          <SafeAreaView style={statusBarStyle}>
-            <Toast />
+        <SafeAreaView style={statusBarStyle}>
+          <Toast />
 
-            <NavigationContainer ref={navigationRef} linking={linking}>
-              <Stack.Navigator initialRouteName="MainTabs" screenOptions={{headerShown: false}}>
-                <Stack.Screen name="MainTabs" component={BottomTabs} />
-              </Stack.Navigator>
-            </NavigationContainer>
-          </SafeAreaView>
-        </BottomSheetModalProvider>
-      </GestureHandlerRootView>
-    </QueryClientProvider>
+          <NavigationContainer ref={navigationRef} linking={linking}>
+            <Stack.Navigator initialRouteName="MainTabs" screenOptions={{headerShown: false}}>
+              <Stack.Screen name="MainTabs" component={BottomTabs} />
+              <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animationEnabled: false}} />
+            </Stack.Navigator>
+          </NavigationContainer>
+        </SafeAreaView>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   )
 }
 
