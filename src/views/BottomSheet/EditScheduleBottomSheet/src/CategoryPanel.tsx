@@ -1,6 +1,8 @@
 import React from 'react'
 import Panel from '@/components/Panel'
 import {Image, Text, TextStyle, View, ViewStyle} from 'react-native'
+import {useRecoilValue} from 'recoil'
+import {scheduleCategoryListState} from '@/store/schedule'
 
 interface Props {
   data: Schedule
@@ -18,9 +20,14 @@ const CategoryPanel = ({
   headerTitleStyle,
   handleExpansion
 }: Props) => {
+  const scheduleCategoryList = useRecoilValue(scheduleCategoryListState)
+
   const title = React.useMemo(() => {
-    return data.schedule_category_id ? data.schedule_category_title : '없음'
-  }, [data.schedule_category_id, data.schedule_category_title])
+    const target = scheduleCategoryList.find(scheduleCategory => {
+      return scheduleCategory.schedule_category_id === data.schedule_category_id
+    })
+    return target ? target.title : '미지정'
+  }, [scheduleCategoryList, data.schedule_category_id])
 
   return (
     <Panel

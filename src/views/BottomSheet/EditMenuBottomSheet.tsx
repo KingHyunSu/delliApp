@@ -88,13 +88,12 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
     if (showEditMenuBottomSheet) {
       editInfoBottomSheetRef.current?.present()
     } else {
-      editInfoBottomSheetRef.current?.dismiss()
-
       if (showEditScheduleBottomSheet) {
         openEditScheduleBottomSheet()
       } else {
         handleReset()
       }
+      editInfoBottomSheetRef.current?.dismiss()
     }
 
     setShowEditScheduleBottomSheet(false)

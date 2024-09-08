@@ -2,6 +2,9 @@ import React from 'react'
 import {StyleSheet, Pressable, View, Text, Image} from 'react-native'
 import TodoList from './src/TodoList'
 
+import {useRecoilValue} from 'recoil'
+import {scheduleCategoryListState} from '@/store/schedule'
+
 import {getTimeOfMinute} from '@/utils/helper'
 import RepeatIcon from '@/assets/icons/repeat.svg'
 
@@ -12,6 +15,8 @@ interface Props {
   onClick?: (value: Schedule) => void
 }
 const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
+  const scheduleCategoryList = useRecoilValue(scheduleCategoryListState)
+
   const containerStyle = React.useMemo(() => {
     const color = backgroundColor ? backgroundColor : '#f5f8ff'
 
@@ -30,15 +35,23 @@ const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
     return [styles.contentsText, {color}]
   }, [])
 
+  const getDayOfWeekTextStyle = React.useCallback((value: string) => {
+    return [styles.dayOfWeekText, value === '1' && styles.activeDayOfWeekText]
+  }, [])
+
+  const scheduleCategoryTitle = React.useMemo(() => {
+    const target = scheduleCategoryList.find(scheduleCategory => {
+      return scheduleCategory.schedule_category_id === item.schedule_category_id
+    })
+
+    return target ? target.title : '미지정'
+  }, [scheduleCategoryList, item.schedule_category_id])
+
   const getTimeText = (time: number) => {
     const timeInfo = getTimeOfMinute(time)
 
     return `${timeInfo.meridiem} ${timeInfo.hour}시 ${timeInfo.minute}분`
   }
-
-  const getDayOfWeekTextStyle = React.useCallback((value: string) => {
-    return [styles.dayOfWeekText, value === '1' && styles.activeDayOfWeekText]
-  }, [])
 
   const handleClick = React.useCallback(() => {
     if (!onClick) {
@@ -56,7 +69,7 @@ const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
         <View style={styles.infoWrapper}>
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/folder.png')} style={styles.icon} />
-            <Text style={contentsTextStyle}>{item.schedule_category_title || '없음'}</Text>
+            <Text style={contentsTextStyle}>{scheduleCategoryTitle}</Text>
           </View>
 
           <View style={styles.infoIconRow}>

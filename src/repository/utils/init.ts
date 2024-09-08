@@ -18,14 +18,6 @@ const createTable = async (db: SQLiteDatabase) => {
       );
     `)
 
-    // schedule category table
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS "SCHEDULE_CATEGORY" (
-        "schedule_category_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        "title" TEXT NOT NULL
-      )
-		`)
-
     // schedule table
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "SCHEDULE" (

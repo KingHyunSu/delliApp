@@ -1,37 +1,23 @@
 import React from 'react'
-import {Keyboard, StyleSheet, Alert, ScrollView, View, Text, Pressable, Image} from 'react-native'
-import {
-  BottomSheetBackdropProps,
-  BottomSheetHandleProps,
-  BottomSheetModal,
-  BottomSheetTextInput
-} from '@gorhom/bottom-sheet'
+import {StyleSheet, ScrollView, View, Text, Pressable, Image} from 'react-native'
+import {BottomSheetBackdropProps, BottomSheetHandleProps, BottomSheetModal} from '@gorhom/bottom-sheet'
 import {Shadow} from 'react-native-shadow-2'
-import TrashIcon from '@/assets/icons/trash.svg'
-import InfoIcon from '@/assets/icons/info.svg'
 
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
+
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {showScheduleCategoryBottomSheetState} from '@/store/bottomSheet'
 import {safeAreaInsetsState} from '@/store/system'
-import {useQuery, useMutation} from '@tanstack/react-query'
-import {scheduleCategoryRepository} from '@/repository'
-import {scheduleState} from '@/store/schedule'
-import {SetScheduleCategory, UpdateScheduleCategory} from '@/repository/types/scheduleCategory'
-
-interface Props {
-  invalidScheduleList: Function
-}
+import {scheduleCategoryListState, scheduleState} from '@/store/schedule'
 
 const shadowOffset: [number, number] = [0, -1]
-const ScheduleCategoryBottomSheet = ({invalidScheduleList}: Props) => {
+const ScheduleCategoryBottomSheet = () => {
   const scheduleCategoryBottomSheetRef = React.useRef<BottomSheetModal>(null)
 
-  const [pressBehavior, setPressBehavior] = React.useState<'close' | 0>('close')
-  const [selectedOriginCategory, setSelectedOriginCategory] = React.useState<ScheduleCategory | null>(null)
   const [selectedCategory, setSelectedCategory] = React.useState<ScheduleCategory>({
     schedule_category_id: null,
+    icon: '',
     title: ''
   })
 
@@ -39,72 +25,18 @@ const ScheduleCategoryBottomSheet = ({invalidScheduleList}: Props) => {
     showScheduleCategoryBottomSheetState
   )
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const scheduleCategoryList = useRecoilValue(scheduleCategoryListState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
-
-  const {data: scheduleCategoryList, refetch} = useQuery({
-    queryKey: ['scheduleCategoryList'],
-    queryFn: async () => {
-      const list = await scheduleCategoryRepository.getScheduleCategoryList()
-      const [{seq}] = await scheduleCategoryRepository.getLastScheduleCategorySeq()
-
-      // default data insert
-      if (seq === 0) {
-        await scheduleCategoryRepository.setDefaultScheduleCategory()
-        return await scheduleCategoryRepository.getScheduleCategoryList()
-      }
-
-      return list
-    },
-    initialData: []
-  })
-
-  const deleteScheduleCategoryMutation = useMutation({
-    mutationFn: async (value: number) => {
-      const params = {schedule_category_id: value}
-
-      return await scheduleCategoryRepository.deleteScheduleCategory(params)
-    },
-    onSuccess: async (data, value) => {
-      if (schedule.schedule_category_id === value) {
-        const newScheduleCategory = {
-          schedule_category_id: null,
-          schedule_category_title: ''
-        }
-
-        setSchedule(prevState => ({...prevState, ...newScheduleCategory}))
-      }
-
-      invalidScheduleList()
-      await refetch()
-      clear()
-    }
-  })
-
-  const setScheduleCategoryMutation = useMutation({
-    mutationFn: async (params: SetScheduleCategory) => {
-      return await scheduleCategoryRepository.setScheduleCategory(params)
-    }
-  })
-
-  const updateScheduleCategoryMutation = useMutation({
-    mutationFn: async (params: UpdateScheduleCategory) => {
-      return await scheduleCategoryRepository.updateScheduleCategory(params)
-    }
-  })
 
   const snapPoints = React.useMemo(() => ['50%'], [])
 
-  const selectedCategoryIndex = React.useMemo(() => {
-    if (!scheduleCategoryList || scheduleCategoryList.length === 0) {
-      return -1
-    }
+  const scheduleCategoryTitle = React.useMemo(() => {
+    return selectedCategory.schedule_category_id ? selectedCategory.title : '미지정'
+  }, [selectedCategory])
 
-    return scheduleCategoryList.findIndex(item => item.schedule_category_id === selectedCategory.schedule_category_id)
-  }, [scheduleCategoryList, selectedCategory.schedule_category_id])
-
-  const isUpdatedScheduleCategory = React.useMemo(() => {
-    return selectedOriginCategory && selectedOriginCategory.title !== selectedCategory.title
-  }, [selectedOriginCategory, selectedCategory.title])
+  const titleStyle = React.useMemo(() => {
+    return selectedCategory.schedule_category_id ? styles.title : emptyTitle
+  }, [selectedCategory.schedule_category_id])
 
   const confirmButtonWrapperStyle = React.useMemo(() => {
     const bottom = safeAreaInsets.bottom > 0 ? safeAreaInsets.bottom : 20
@@ -113,32 +45,25 @@ const ScheduleCategoryBottomSheet = ({invalidScheduleList}: Props) => {
   }, [safeAreaInsets.bottom])
 
   const categoryItemStyle = React.useCallback(
-    (index: number) => {
-      return index === selectedCategoryIndex ? activeItem : styles.item
+    (item: ScheduleCategory) => {
+      return item.schedule_category_id === selectedCategory.schedule_category_id ? activeItem : styles.item
     },
-    [selectedCategoryIndex]
+    [selectedCategory.schedule_category_id]
   )
 
   const categoryItemTextStyle = React.useCallback(
-    (index: number) => {
-      return index === selectedCategoryIndex ? activeItemText : styles.itemText
+    (item: ScheduleCategory) => {
+      return item.schedule_category_id === selectedCategory.schedule_category_id ? activeItemText : styles.itemText
     },
-    [selectedCategoryIndex]
+    [selectedCategory.schedule_category_id]
   )
 
   const handleDismiss = React.useCallback(() => {
     setShowScheduleCategoryBottomSheet(false)
   }, [setShowScheduleCategoryBottomSheet])
 
-  const clickBackdrop = React.useCallback(() => {
-    if (pressBehavior === 0) {
-      Keyboard.dismiss()
-    }
-  }, [pressBehavior])
-
   const clear = React.useCallback(() => {
-    setSelectedOriginCategory(null)
-    setSelectedCategory({schedule_category_id: null, title: ''})
+    setSelectedCategory({schedule_category_id: null, icon: '', title: ''})
   }, [])
 
   const selectScheduleCategory = React.useCallback(
@@ -149,82 +74,30 @@ const ScheduleCategoryBottomSheet = ({invalidScheduleList}: Props) => {
         return
       }
 
-      setSelectedOriginCategory(item)
       setSelectedCategory(item)
     },
     [selectedCategory, clear]
   )
 
-  const changeCategoryTitle = React.useCallback((value: string) => {
-    setSelectedCategory(prevState => ({...prevState, title: value}))
-  }, [])
-
-  const deleteCategory = React.useCallback(() => {
-    Alert.alert('카테고리 삭제하기', `"${selectedCategory.title}" 카테고리를 삭제하시겠습니까?`, [
-      {
-        text: '취소',
-        onPress: () => {
-          return
-        },
-        style: 'cancel'
-      },
-      {
-        text: '삭제',
-        onPress: () => {
-          if (selectedCategory.schedule_category_id) {
-            deleteScheduleCategoryMutation.mutate(selectedCategory.schedule_category_id)
-          }
-        },
-        style: 'destructive'
-      }
-    ])
-  }, [selectedCategory.title, selectedCategory.schedule_category_id, deleteScheduleCategoryMutation])
-
   const handleConfirm = React.useCallback(async () => {
-    let schedule_category_id = selectedCategory.schedule_category_id
-
-    if (schedule_category_id && !selectedCategory.title) {
-      deleteScheduleCategoryMutation.mutate(schedule_category_id)
-      handleDismiss()
-      return
-    }
-
-    if (!schedule_category_id && selectedCategory.title) {
-      // insert
-      schedule_category_id = await setScheduleCategoryMutation.mutateAsync({title: selectedCategory.title})
-    } else if (schedule_category_id && isUpdatedScheduleCategory) {
-      // update
-      await updateScheduleCategoryMutation.mutateAsync(selectedCategory as UpdateScheduleCategory)
-    }
-
-    const newScheduleCategory = {
-      schedule_category_id,
+    setSchedule(prevState => ({
+      ...prevState,
+      schedule_category_id: selectedCategory.schedule_category_id,
       schedule_category_title: selectedCategory.title
-    }
-    setSchedule(prevState => ({...prevState, ...newScheduleCategory}))
-    refetch()
+    }))
     handleDismiss()
-  }, [
-    selectedCategory,
-    isUpdatedScheduleCategory,
-    setScheduleCategoryMutation,
-    deleteScheduleCategoryMutation,
-    updateScheduleCategoryMutation,
-    setSchedule,
-    refetch,
-    handleDismiss
-  ])
+  }, [selectedCategory, setSchedule, handleDismiss])
 
   React.useEffect(() => {
     if (showScheduleCategoryBottomSheet) {
       if (schedule.schedule_category_id) {
-        const category = {
-          schedule_category_id: schedule.schedule_category_id,
-          title: schedule.schedule_category_title || ''
-        }
+        const activeCategory = scheduleCategoryList.find(
+          item => item.schedule_category_id === schedule.schedule_category_id
+        )
 
-        setSelectedCategory(category)
-        setSelectedOriginCategory(category)
+        if (activeCategory) {
+          setSelectedCategory(activeCategory)
+        }
       }
       scheduleCategoryBottomSheetRef.current?.present()
     } else {
@@ -233,28 +106,10 @@ const ScheduleCategoryBottomSheet = ({invalidScheduleList}: Props) => {
     }
   }, [schedule.schedule_category_id, schedule.schedule_category_title, showScheduleCategoryBottomSheet, clear])
 
-  React.useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => {
-      setPressBehavior(0)
-    })
-    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-      setPressBehavior('close')
-    })
-
-    // Clean up the event listeners on component unmount
-    return () => {
-      keyboardDidShowListener.remove()
-      keyboardDidHideListener.remove()
-    }
-  }, [])
-
   // components
-  const bottomSheetBackdrop = React.useCallback(
-    (props: BottomSheetBackdropProps) => {
-      return <BottomSheetBackdrop props={props} pressBehavior={pressBehavior} onPress={clickBackdrop} />
-    },
-    [pressBehavior, clickBackdrop]
-  )
+  const bottomSheetBackdrop = React.useCallback((props: BottomSheetBackdropProps) => {
+    return <BottomSheetBackdrop props={props} />
+  }, [])
 
   const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
     return (
@@ -269,24 +124,12 @@ const ScheduleCategoryBottomSheet = ({invalidScheduleList}: Props) => {
 
   const scheduleCategories = React.useMemo(() => {
     return scheduleCategoryList.map((item, index) => (
-      <Pressable key={index} style={categoryItemStyle(index)} onPress={selectScheduleCategory(item)}>
-        <Text style={categoryItemTextStyle(index)}>{item.title}</Text>
+      <Pressable key={index} style={categoryItemStyle(item)} onPress={selectScheduleCategory(item)}>
+        <Text>{item.icon}</Text>
+        <Text style={categoryItemTextStyle(item)}>{item.title}</Text>
       </Pressable>
     ))
   }, [scheduleCategoryList, categoryItemStyle, categoryItemTextStyle, selectScheduleCategory])
-
-  const infoBox = React.useMemo(() => {
-    if (isUpdatedScheduleCategory && selectedOriginCategory) {
-      return (
-        <View style={styles.infoWrapper}>
-          <InfoIcon width={18} height={18} fill="#FD4672" />
-          <Text style={styles.infoText}>"{selectedOriginCategory.title}" 카테고리가 수정되었어요</Text>
-        </View>
-      )
-    }
-
-    return <></>
-  }, [isUpdatedScheduleCategory, selectedOriginCategory])
 
   return (
     <BottomSheetModal
@@ -299,25 +142,11 @@ const ScheduleCategoryBottomSheet = ({invalidScheduleList}: Props) => {
       keyboardBlurBehavior="restore"
       onDismiss={handleDismiss}>
       <View style={styles.container}>
-        <View style={styles.inputWrapper}>
+        <View style={styles.titleWrapper}>
           <Image source={require('@/assets/icons/folder.png')} style={styles.icon} />
 
-          <BottomSheetTextInput
-            value={selectedCategory.title}
-            style={styles.input}
-            placeholder="새로운 일정 카테고리"
-            placeholderTextColor="#c3c5cc"
-            onChangeText={changeCategoryTitle}
-          />
-
-          {selectedCategory.schedule_category_id && (
-            <Pressable style={styles.deleteButton} onPress={deleteCategory}>
-              <TrashIcon fill="#999" />
-            </Pressable>
-          )}
+          <Text style={titleStyle}>{scheduleCategoryTitle}</Text>
         </View>
-
-        {infoBox}
 
         <ScrollView style={styles.categoryListContainer}>
           <View style={styles.categoryListWrapper}>{scheduleCategories}</View>
@@ -348,36 +177,19 @@ const styles = StyleSheet.create({
     width: 24,
     height: 24
   },
-  inputWrapper: {
+  titleWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
+    paddingVertical: 15,
     borderBottomWidth: 2,
     borderBottomColor: '#eeeded'
   },
-  input: {
+  title: {
     flex: 1,
-    paddingVertical: 15,
     fontSize: 20,
     fontFamily: 'Pretendard-SemiBold',
     color: '#424242'
-  },
-  deleteButton: {
-    width: 48,
-    height: 48,
-    alignItems: 'flex-end',
-    justifyContent: 'center'
-  },
-  infoWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    marginTop: 10
-  },
-  infoText: {
-    fontSize: 14,
-    fontFamily: 'Pretendard-Medium',
-    color: '#FD4672'
   },
   categoryListContainer: {
     marginTop: 20
@@ -390,9 +202,10 @@ const styles = StyleSheet.create({
   },
 
   item: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
     height: 38,
-    alignSelf: 'flex-start',
-    justifyContent: 'center',
     paddingHorizontal: 15,
     borderWidth: 1,
     borderColor: '#eeeded',
@@ -423,6 +236,7 @@ const styles = StyleSheet.create({
   }
 })
 
+const emptyTitle = StyleSheet.compose(styles.title, {color: '#c3c5cc'})
 const activeItem = StyleSheet.compose(styles.item, {borderColor: '#424242'})
 const activeItemText = StyleSheet.compose(styles.itemText, {color: '#424242', fontFamily: 'Pretendard-Bold'})
 

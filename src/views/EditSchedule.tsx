@@ -241,7 +241,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       </Pressable>
 
       <EditScheduleBottomSheet />
-      <ScheduleCategoryBottomSheet invalidScheduleList={invalidScheduleList} />
+      <ScheduleCategoryBottomSheet />
       <EditScheduleCheckBottomSheet invalidScheduleList={invalidScheduleList} />
     </View>
   )

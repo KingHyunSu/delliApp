@@ -57,14 +57,13 @@ const EditScheduleBottomSheet = () => {
   }, [])
 
   const handleCategoryPanel = React.useCallback(() => {
-    setShowScheduleCategoryBottomSheet(true)
     closeAllPanel()
-  }, [setShowScheduleCategoryBottomSheet])
+    setShowScheduleCategoryBottomSheet(true)
+  }, [])
 
   const handleColorPanel = React.useCallback(() => {
+    closeAllPanel()
     setActiveColorPanel(!activeColorPanel)
-    setActiveDatePanel(false)
-    setActiveDayOfWeekPanel(false)
   }, [activeColorPanel])
 
   const handleTimePanel = React.useCallback(() => {
@@ -73,14 +72,12 @@ const EditScheduleBottomSheet = () => {
   }, [setShowTimeWheelModal])
 
   const handleDatePanel = React.useCallback(() => {
-    setActiveColorPanel(false)
-    setActiveDayOfWeekPanel(false)
+    closeAllPanel()
     setActiveDatePanel(!activeDatePanel)
   }, [activeDatePanel])
 
   const handleDayOfWeekPanel = React.useCallback(() => {
-    setActiveColorPanel(false)
-    setActiveDatePanel(false)
+    closeAllPanel()
     setActiveDayOfWeekPanel(!activeDayOfWeekPanel)
   }, [activeDayOfWeekPanel])
 

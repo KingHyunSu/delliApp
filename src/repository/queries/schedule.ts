@@ -1,9 +1,9 @@
 import {GetScheduleList, GetExistScheduleList, UpdateScheduleDisable, UpdateScheduleDeleted} from '../types/schedule'
-import {DeleteScheduleCategory} from '@/repository/types/scheduleCategory'
 
 export const getScheduleListQuery = (params: GetScheduleList) => {
   let query = `
     SELECT
+      A.schedule_category_id,
       A.schedule_id,
       A.title,
       A.start_time,
@@ -37,9 +37,7 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
             'complete_date', C.complete_date
           )
         )
-      END) as todo_list,
-      D.schedule_category_id,
-      D.title as schedule_category_title
+      END) as todo_list
     FROM
       SCHEDULE A
     LEFT OUTER JOIN
@@ -56,10 +54,6 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       B.todo_id = C.todo_id
     AND
       C.complete_date = "${params.date}"
-    LEFT OUTER JOIN 
-      SCHEDULE_CATEGORY D
-    ON
-      A.schedule_category_id = D.schedule_category_id
     WHERE
       A.deleted = '0'
     AND
@@ -367,13 +361,4 @@ export const getTextColorListQuery = () => {
   `
 
   return query
-}
-
-export const updateScheduleCategory = (params: DeleteScheduleCategory) => {
-  return `
-    UPDATE
-			SCHEDULE 
-    SET schedule_category_id = null 
-    WHERE schedule_category_id = ${params.schedule_category_id}
-  `
 }
