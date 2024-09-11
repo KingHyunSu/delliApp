@@ -46,14 +46,14 @@ const BottomTabs = React.memo(() => {
   return (
     <Tab.Navigator
       initialRouteName="Home"
-      screenOptions={{headerShown: false, tabBarShowLabel: false, tabBarStyle: {height: 48}}} // 탭의 상단 바 제거
+      screenOptions={{headerShown: false, tabBarShowLabel: false, tabBarStyle: {height: 56}}} // 탭의 상단 바 제거
     >
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
           tabBarIcon: ({focused}) => {
-            return <HomeIcon fill={focused ? '#424242' : '#babfc5'} />
+            return <HomeIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
           }
         }}
       />
@@ -62,7 +62,7 @@ const BottomTabs = React.memo(() => {
         component={StatsScreen}
         options={{
           tabBarIcon: ({focused}) => {
-            return <ChartIcon fill={focused ? '#424242' : '#babfc5'} />
+            return <ChartIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
           }
         }}
       />
@@ -71,7 +71,7 @@ const BottomTabs = React.memo(() => {
         component={SettingScreen}
         options={{
           tabBarIcon: ({focused}) => {
-            return <MyIcon fill={focused ? '#424242' : '#babfc5'} />
+            return <MyIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
           }
         }}
       />

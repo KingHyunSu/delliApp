@@ -261,8 +261,7 @@ const styles = StyleSheet.create({
   labelWrapper: {
     marginBottom: 20,
     flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3
+    alignItems: 'center'
   },
   label: {
     fontFamily: 'Pretendard-SemiBold',

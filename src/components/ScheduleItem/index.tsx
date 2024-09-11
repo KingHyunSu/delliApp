@@ -23,18 +23,6 @@ const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
     return [styles.container, {backgroundColor: color}]
   }, [])
 
-  const titleTextStyle = React.useMemo(() => {
-    const color = textColor ? textColor : '#424242'
-
-    return [styles.titleText, {color}]
-  }, [])
-
-  const contentsTextStyle = React.useMemo(() => {
-    const color = textColor ? textColor : '#424242'
-
-    return [styles.contentsText, {color}]
-  }, [])
-
   const getDayOfWeekTextStyle = React.useCallback((value: string) => {
     return [styles.dayOfWeekText, value === '1' && styles.activeDayOfWeekText]
   }, [])
@@ -64,23 +52,23 @@ const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
   return (
     <View style={containerStyle}>
       <Pressable onPress={handleClick}>
-        <Text style={titleTextStyle}>{item.title}</Text>
+        <Text style={styles.titleText}>{item.title}</Text>
 
         <View style={styles.infoWrapper}>
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/folder.png')} style={styles.icon} />
-            <Text style={contentsTextStyle}>{scheduleCategoryTitle}</Text>
+            <Text style={styles.contentsText}>{scheduleCategoryTitle}</Text>
           </View>
 
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/time.png')} style={styles.icon} />
 
-            <Text style={contentsTextStyle}>{`${getTimeText(item.start_time)} ~ ${getTimeText(item.end_time)}`}</Text>
+            <Text style={styles.contentsText}>{`${getTimeText(item.start_time)} ~ ${getTimeText(item.end_time)}`}</Text>
           </View>
 
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/calendar.png')} style={styles.icon} />
-            <Text style={contentsTextStyle}>
+            <Text style={styles.contentsText}>
               {`${item.start_date} ~ ${item.end_date === '9999-12-31' ? '없음' : item.end_date}`}
             </Text>
           </View>
@@ -121,14 +109,14 @@ const styles = StyleSheet.create({
     gap: 5
   },
   titleText: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 16,
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 18,
     color: '#424242'
   },
 
   contentsText: {
-    fontFamily: 'Pretendard-Regular',
-    fontSize: 12,
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 14,
     color: '#424242'
   },
 
@@ -138,7 +126,7 @@ const styles = StyleSheet.create({
   },
   dayOfWeekText: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 11,
+    fontSize: 14,
     color: '#babfc5'
   },
   activeDayOfWeekText: {

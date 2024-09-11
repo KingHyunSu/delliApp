@@ -2,7 +2,7 @@ import {atom, selector} from 'recoil'
 import {Platform} from 'react-native'
 
 const editScheduleListMinSnapPoint = 150
-const bottomTabHeight = 48
+const bottomTabHeight = 56
 
 export const loginState = atom({
   key: 'loginState',
