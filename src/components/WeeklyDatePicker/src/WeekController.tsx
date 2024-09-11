@@ -1,67 +1,33 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
+import {format} from 'date-fns'
 import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
-
-import {setDate, format} from 'date-fns'
+import RightArrowIcon from '@/assets/icons/arrow_right.svg'
 
 interface Props {
   date: Date
-  currentWeeklyDateList: Date[]
   onChange: Function
 }
-const WeekController = ({date, currentWeeklyDateList, onChange}: Props) => {
-  const THURSDAY_NUMBER = 4
+const WeekController = ({date, onChange}: Props) => {
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토']
 
   const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = React.useState(false)
   const screenDateStr = React.useMemo(() => format(date, 'yyyy-MM-dd'), [date])
-  const screenYear = React.useMemo(() => date.getFullYear(), [date])
-  const [screenMonth, setScreenMonth] = React.useState(date.getMonth() + 1)
-  const [screenWeek, setScreenWeek] = React.useState(0)
 
-  const getWeekOfMonth = (value: Date) => {
-    const dateOfFirstDate = setDate(value, 1)
-    const dateOfFirstDayOfWeek = dateOfFirstDate.getDay()
-    let weekNumber = Math.ceil((value.getDate() + (dateOfFirstDayOfWeek - 1)) / 7)
+  const dateString = React.useMemo(() => {
+    const dayOfWeekIndex = date.getDay()
+    return format(date, 'yyyy년 MM월 dd일') + ' ' + `${weekdays[dayOfWeekIndex]}요일`
+  }, [date])
 
-    if (dateOfFirstDayOfWeek > THURSDAY_NUMBER) {
-      weekNumber = Math.ceil((value.getDate() - (7 - dateOfFirstDayOfWeek + 1)) / 7)
-    }
-
-    return weekNumber
-  }
-
-  const changeDate = (data: string) => {
+  const changeDate = React.useCallback((data: string) => {
     onChange(new Date(data))
-  }
-
-  React.useEffect(() => {
-    const firstDate = currentWeeklyDateList.find(item => {
-      return item.getDate() === 1
-    })
-
-    let month = date.getMonth() + 1
-    let weekOfMonth = getWeekOfMonth(date)
-
-    if (firstDate) {
-      const thursdayDate = currentWeeklyDateList.find(item => {
-        return item.getDay() === THURSDAY_NUMBER
-      })
-
-      if (thursdayDate) {
-        month = thursdayDate.getMonth() + 1
-        weekOfMonth = getWeekOfMonth(thursdayDate)
-      }
-    }
-
-    setScreenMonth(month)
-    setScreenWeek(weekOfMonth)
-  }, [date, currentWeeklyDateList])
+  }, [])
 
   return (
     <View style={styles.wrapper}>
-      <Pressable onPress={() => setShowDatePickerBottomSheet(true)}>
-        {/*<Text style={styles.text}>{`${screenYear}년 ${screenMonth}월 ${screenWeek}주차`}</Text>*/}
-        <Text style={styles.text}>{`${screenYear}년 ${screenMonth}월 4일 수요일`}</Text>
+      <Pressable style={styles.button} onPress={() => setShowDatePickerBottomSheet(true)}>
+        <Text style={styles.text}>{dateString}</Text>
+        <RightArrowIcon stroke="#424242" strokeWidth={3} />
       </Pressable>
 
       <DatePickerBottomSheet
@@ -79,6 +45,10 @@ const styles = StyleSheet.create({
     height: 36,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  button: {
+    flexDirection: 'row',
     alignItems: 'center'
   },
   text: {
