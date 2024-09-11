@@ -11,12 +11,12 @@ export type StackNavigator = {
 }
 export type BottomTabNavigator = {
   Home: {scheduleUpdated: boolean}
+  Stats: undefined
   Setting: undefined
-  Leave: undefined
 }
 
 export type SettingNavigationProps = StackScreenProps<BottomTabNavigator, 'Setting'>
-export type LeaveNavigationProps = StackScreenProps<BottomTabNavigator, 'Leave'>
+export type StatsNavigationProps = StackScreenProps<BottomTabNavigator, 'Stats'>
 // export type LoginNavigationProps = StackScreenProps<RootStackParamList, 'Login'>
 // export type JoinTermsNavigationProps = StackScreenProps<RootStackParamList, 'JoinTerms'>
 

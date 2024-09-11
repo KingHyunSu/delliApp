@@ -56,15 +56,15 @@ export const scheduleState = atom<Schedule>({
 export const scheduleCategoryListState = atom<ScheduleCategory[]>({
   key: 'scheduleCategoryListState',
   default: [
-    {schedule_category_id: 1, icon: '📖', title: '공부'},
-    {schedule_category_id: 2, icon: '💪', title: '운동'},
-    {schedule_category_id: 3, icon: '🧸', title: '취미'},
-    // {schedule_category_id: 4, icon: '✈️', title: '여행'},
-    {schedule_category_id: 5, icon: '💼', title: '업무'},
-    // {schedule_category_id: 6, icon: '🥂', title: '모임'},
-    {schedule_category_id: 7, icon: '🌱', title: '자기개발'},
-    {schedule_category_id: 8, icon: '🫧', title: '휴식'}
-    // {schedule_category_id: 9, icon: '💌', title: '연애'}
+    {schedule_category_id: 1, icon: '📖', title: '공부', color: '#4A90E2'},
+    {schedule_category_id: 2, icon: '💪', title: '운동', color: '#E94E77'},
+    {schedule_category_id: 3, icon: '🧸', title: '취미', color: '#F5A623'},
+    // {schedule_category_id: 4, icon: '✈️', title: '여행', color: ''},
+    {schedule_category_id: 5, icon: '💼', title: '업무', color: '#7B8D8E'},
+    // {schedule_category_id: 6, icon: '🥂', title: '모임', color: ''},
+    {schedule_category_id: 7, icon: '🌱', title: '자기개발', color: '#50E3C2'},
+    {schedule_category_id: 8, icon: '🫧', title: '휴식', color: '#B8E986'}
+    // {schedule_category_id: 9, icon: '💌', title: '연애', color: ''}
   ]
 })
 

@@ -18,7 +18,8 @@ const ScheduleCategoryBottomSheet = () => {
   const [selectedCategory, setSelectedCategory] = React.useState<ScheduleCategory>({
     schedule_category_id: null,
     icon: '',
-    title: ''
+    title: '',
+    color: ''
   })
 
   const [showScheduleCategoryBottomSheet, setShowScheduleCategoryBottomSheet] = useRecoilState(
@@ -63,7 +64,7 @@ const ScheduleCategoryBottomSheet = () => {
   }, [setShowScheduleCategoryBottomSheet])
 
   const clear = React.useCallback(() => {
-    setSelectedCategory({schedule_category_id: null, icon: '', title: ''})
+    setSelectedCategory({schedule_category_id: null, icon: '', title: '', color: ''})
   }, [])
 
   const selectScheduleCategory = React.useCallback(

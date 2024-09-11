@@ -1,7 +1,7 @@
 import React from 'react'
 import {StyleSheet, View} from 'react-native'
 import Svg, {G, Circle, Text} from 'react-native-svg'
-import {polarToCartesian} from '../util'
+import {polarToCartesian} from '@/utils/pieHelper'
 import {useRecoilValue} from 'recoil'
 import {timetableCenterPositionState} from '@/store/system'
 

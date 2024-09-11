@@ -16,6 +16,7 @@ import {navigationRef} from '@/utils/navigation'
 
 // views
 import HomeScreen from '@/views/Home'
+import StatsScreen from '@/views/Stats'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
 import EditScheduleScreen from '@/views/EditSchedule'
@@ -57,8 +58,8 @@ const BottomTabs = React.memo(() => {
         }}
       />
       <Tab.Screen
-        name="Leave"
-        component={LeaveScreen}
+        name="Stats"
+        component={StatsScreen}
         options={{
           tabBarIcon: ({focused}) => {
             return <ChartIcon fill={focused ? '#424242' : '#babfc5'} />

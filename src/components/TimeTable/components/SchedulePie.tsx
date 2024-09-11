@@ -1,7 +1,7 @@
 import React from 'react'
 import {Path} from 'react-native-svg'
 
-import {describeArc} from '../util'
+import {describeArc} from '@/utils/pieHelper'
 
 interface Props {
   data: Schedule

@@ -47,6 +47,16 @@ const createTable = async (db: SQLiteDatabase) => {
       )
     `)
 
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS "SCHEDULE_ACTIVITY_LOG" (
+        "schedule_activity_log_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        "schedule_id" INTEGER NOT NULL,
+        "active_time" INTEGER DEFAULT 0,
+        "complete_state" INTEGER DEFAULT 0,
+        "date" TEXT
+      )
+    `)
+
     // todo table
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "TODO" (
