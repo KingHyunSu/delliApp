@@ -1,7 +1,6 @@
 import {atom, selector} from 'recoil'
 import {Platform} from 'react-native'
 
-const editScheduleListMinSnapPoint = 150
 const bottomTabHeight = 56
 
 export const loginState = atom({
@@ -56,12 +55,27 @@ export const homeHeaderHeightState = atom({
   default: 0
 })
 
+const editScheduleListMinSnapPointState = selector({
+  key: 'editScheduleListMinSnapPointState',
+  get: ({get}) => {
+    const {width, height} = get(windowDimensionsState)
+    const aspectRatio = height / width
+
+    if (aspectRatio < 2) {
+      return 90
+    }
+
+    return 150
+  }
+})
+
 export const timetableWrapperHeightState = selector({
   key: 'timetableWrapperHeightState',
   get: ({get}) => {
     const {height} = get(windowDimensionsState)
     const homeHeaderHeight = get(homeHeaderHeightState)
     const safeAreaInsets = get(safeAreaInsetsState)
+    const editScheduleListMinSnapPoint = get(editScheduleListMinSnapPointState)
 
     if (!homeHeaderHeight) {
       return null
@@ -115,6 +129,7 @@ export const scheduleListSnapPointState = selector({
 
     const safeAreaInsets = get(safeAreaInsetsState)
     const homeHeaderHeight = get(homeHeaderHeightState) // include status bar height
+    const editScheduleListMinSnapPoint = get(editScheduleListMinSnapPointState)
 
     if (Platform.OS === 'ios') {
       topSafeAreaHeight = safeAreaInsets.top
