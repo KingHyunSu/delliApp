@@ -1,12 +1,13 @@
 import React from 'react'
 import {StyleSheet, View} from 'react-native'
-import {Svg, Text} from 'react-native-svg'
+import Svg, {G, Text} from 'react-native-svg'
 import {captureRef} from 'react-native-view-shot'
 
 import TimeBackground from '../components/TimeBackground'
 import Background from '../components/Background'
 import SchedulePie from '../components/SchedulePie'
 import ScheduleText from '../components/ScheduleText'
+import DefaultTimeAnchor from '@/assets/icons/default_time_anchor.svg'
 
 import {useSetRecoilState, useRecoilValue, useRecoilState} from 'recoil'
 import {timetableWrapperHeightState, timetableCenterPositionState} from '@/store/system'
@@ -14,6 +15,7 @@ import {scheduleState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {updateWidgetWithImage} from '@/utils/widget'
 import {widgetWithImageUpdatedState} from '@/store/widget'
+import {polarToCartesian} from '@/utils/pieHelper'
 
 interface Props {
   data: Schedule[]
@@ -21,6 +23,7 @@ interface Props {
 }
 const Timetable = ({data, isRendered}: Props) => {
   const refs = React.useRef<View>(null)
+  const [currentTime, setCurrentTime] = React.useState(new Date())
 
   const [widgetWithImageUpdated, setWidgetWithImageUpdated] = useRecoilState(widgetWithImageUpdatedState)
 
@@ -45,7 +48,7 @@ const Timetable = ({data, isRendered}: Props) => {
   }, [timetableCenterPosition])
 
   const radius = React.useMemo(() => {
-    return timetableCenterPosition - 32
+    return timetableCenterPosition - 40
   }, [timetableCenterPosition])
 
   const openEditMenuBottomSheet = React.useCallback(
@@ -72,6 +75,29 @@ const Timetable = ({data, isRendered}: Props) => {
       setWidgetWithImageUpdated(false)
     }
   }, [isRendered, widgetWithImageUpdated, setWidgetWithImageUpdated])
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date())
+    }, 1000 * 60)
+
+    return () => clearInterval(timer)
+  }, [])
+
+  const arcLengthForOneDegree = React.useMemo(() => {
+    return (2 * Math.PI * radius) / 360
+  }, [radius])
+
+  const currentTimeAngle = React.useMemo(() => {
+    const hour = currentTime.getHours()
+    const minute = currentTime.getMinutes()
+
+    return (hour * 60 + minute) * 0.25 - Math.round(11 / arcLengthForOneDegree)
+  }, [currentTime, arcLengthForOneDegree])
+
+  const currentTimePosition = React.useMemo(() => {
+    return polarToCartesian(timetableCenterPosition, timetableCenterPosition, radius + 24, currentTimeAngle)
+  }, [timetableCenterPosition, radius, currentTimeAngle])
 
   const emptyTextComponent = React.useMemo(() => {
     if (data.length > 0) {
@@ -130,6 +156,15 @@ const Timetable = ({data, isRendered}: Props) => {
             )
           })}
         </View>
+
+        <Svg
+          width={timetableCenterPosition * 2}
+          height={timetableCenterPosition * 2}
+          style={styles.currentTimeAnchorIcon}>
+          <G x={currentTimePosition.x} y={currentTimePosition.y} rotation={currentTimeAngle}>
+            <DefaultTimeAnchor width={20} height={20} fill="#1E90FF" />
+          </G>
+        </Svg>
       </View>
     </View>
   )
@@ -143,6 +178,9 @@ const styles = StyleSheet.create({
   wrapper: {
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  currentTimeAnchorIcon: {
+    position: 'absolute'
   }
 })
 

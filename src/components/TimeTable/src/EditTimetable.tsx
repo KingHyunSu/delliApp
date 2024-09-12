@@ -45,7 +45,7 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
   }, [timetableCenterPosition])
 
   const radius = React.useMemo(() => {
-    return timetableCenterPosition - 32
+    return timetableCenterPosition - 40
   }, [timetableCenterPosition])
 
   const closeKeyboard = React.useCallback(() => {
