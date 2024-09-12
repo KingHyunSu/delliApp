@@ -5,7 +5,8 @@ import {
   GetExistScheduleList,
   SetSchedule,
   UpdateScheduleDisable,
-  UpdateScheduleDeleted
+  UpdateScheduleDeleted,
+  SetScheduleCompleteParams
 } from '../types/schedule'
 
 export const getScheduleList = async (params: GetScheduleList) => {
@@ -74,4 +75,11 @@ export const getTextColorList = async () => {
   const [result] = await db.executeSql(query)
 
   return result.rows.raw()
+}
+
+export const setScheduleComplete = async (params: SetScheduleCompleteParams) => {
+  const query = scheduleQueries.setScheduleCompleteQuery(params)
+  const db = await openDatabase()
+
+  await db.executeSql(query)
 }

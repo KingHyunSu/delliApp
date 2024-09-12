@@ -19,3 +19,8 @@ export const showColorModalState = atom({
   key: 'showColorModalState',
   default: false
 })
+
+export const showCompleteModalState = atom({
+  key: 'showCompleteModalState',
+  default: false
+})

@@ -49,7 +49,8 @@ export const scheduleState = atom<Schedule>({
     background_color: '#ffffff',
     text_color: '#000000',
     schedule_category_id: null,
-    schedule_category_title: ''
+    schedule_category_title: '',
+    complete_state: null
   }
 })
 

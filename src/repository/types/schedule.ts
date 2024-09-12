@@ -36,3 +36,8 @@ export interface UpdateScheduleDisable {
 export interface UpdateScheduleDeleted {
   schedule_id: number
 }
+
+export interface SetScheduleCompleteParams {
+  schedule_id: number
+  date: string
+}

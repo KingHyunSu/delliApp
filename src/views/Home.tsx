@@ -15,6 +15,7 @@ import WeeklyDatePicker from '@/components/WeeklyDatePicker'
 import EditMenuBottomSheet from '@/views/BottomSheet/EditMenuBottomSheet'
 import ScheduleListBottomSheet from '@/views/BottomSheet/ScheduleListBottomSheet'
 import EditTodoModal from '@/views/Modal/EditTodoModal'
+import CompleteModal from '@/views/Modal/CompleteModal'
 // import ScheduleCompleteModal from '@/views/Modal/ScheduleCompleteModal'
 
 // icons
@@ -337,7 +338,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
           openEditScheduleBottomSheet={openEditScheduleBottomSheet}
         />
         <EditTodoModal />
-
+        <CompleteModal />
         {/*<TimetableCategoryBottomSheet />*/}
         {/* <ScheduleCompleteModal /> */}
 

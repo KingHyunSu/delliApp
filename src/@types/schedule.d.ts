@@ -40,6 +40,7 @@ declare interface Schedule {
   todo_list: Todo[]
   schedule_category_id?: number | null
   schedule_category_title?: string
+  complete_state: number | null
 
   alarm?: number | null
 }

@@ -1,4 +1,10 @@
-import {GetScheduleList, GetExistScheduleList, UpdateScheduleDisable, UpdateScheduleDeleted} from '../types/schedule'
+import {
+  GetScheduleList,
+  GetExistScheduleList,
+  UpdateScheduleDisable,
+  UpdateScheduleDeleted,
+  SetScheduleCompleteParams
+} from '../types/schedule'
 
 export const getScheduleListQuery = (params: GetScheduleList) => {
   let query = `
@@ -24,6 +30,7 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.background_color as background_color,
       A.text_color as text_color,
       A.alarm,
+      sal.complete_state,
       (CASE WHEN (COUNT(B.todo_id) = 0)
         THEN JSON_ARRAY()
         ELSE JSON_GROUP_ARRAY(
@@ -40,6 +47,12 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       END) as todo_list
     FROM
       SCHEDULE A
+    LEFT OUTER JOIN
+      SCHEDULE_ACTIVITY_LOG sal
+    ON
+      sal.schedule_id = A.schedule_id
+    AND
+      sal.date = "${params.date}"
     LEFT OUTER JOIN
       TODO B
     ON
@@ -361,4 +374,11 @@ export const getTextColorListQuery = () => {
   `
 
   return query
+}
+
+export const setScheduleCompleteQuery = (params: SetScheduleCompleteParams) => {
+  return `
+    INSERT INTO SCHEDULE_ACTIVITY_LOG (schedule_id, complete_state, date) 
+    VALUES (${params.schedule_id}, 1, "${params.date}")
+  `
 }

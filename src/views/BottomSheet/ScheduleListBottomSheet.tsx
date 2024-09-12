@@ -46,7 +46,7 @@ const ScheduleListBottomSheet = ({data, onClick}: Props) => {
 
   const renderItem: ListRenderItem<Schedule> = React.useCallback(
     ({item}) => {
-      return <ScheduleListItem item={item} backgroundColor="#f9f9f9" onClick={onClick} />
+      return <ScheduleListItem item={item} onClick={onClick} />
     },
     [onClick]
   )

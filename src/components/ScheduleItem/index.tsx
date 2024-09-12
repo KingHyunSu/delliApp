@@ -10,18 +10,10 @@ import RepeatIcon from '@/assets/icons/repeat.svg'
 
 interface Props {
   item: Schedule
-  backgroundColor?: string
-  textColor?: string
   onClick?: (value: Schedule) => void
 }
-const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
+const ScheduleItem = ({item, onClick}: Props) => {
   const scheduleCategoryList = useRecoilValue(scheduleCategoryListState)
-
-  const containerStyle = React.useMemo(() => {
-    const color = backgroundColor ? backgroundColor : '#f5f8ff'
-
-    return [styles.container, {backgroundColor: color}]
-  }, [])
 
   const getDayOfWeekTextStyle = React.useCallback((value: string) => {
     return [styles.dayOfWeekText, value === '1' && styles.activeDayOfWeekText]
@@ -50,8 +42,14 @@ const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
   }, [onClick, item])
 
   return (
-    <View style={containerStyle}>
+    <View style={styles.container}>
       <Pressable onPress={handleClick}>
+        {item.complete_state && (
+          <View style={styles.badge}>
+            <Text style={styles.badgeText}>완료</Text>
+          </View>
+        )}
+
         <Text style={styles.titleText}>{item.title}</Text>
 
         <View style={styles.infoWrapper}>
@@ -96,8 +94,22 @@ const ScheduleItem = ({item, backgroundColor, textColor, onClick}: Props) => {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#f9f9f9',
     borderRadius: 10,
     padding: 16
+  },
+  badge: {
+    paddingVertical: 3,
+    paddingHorizontal: 7,
+    backgroundColor: '#32CD3220',
+    borderRadius: 5,
+    alignSelf: 'flex-start',
+    marginBottom: 5
+  },
+  badgeText: {
+    fontSize: 12,
+    fontFamily: 'Pretendard-Medium',
+    color: '#32CD32'
   },
   infoWrapper: {
     gap: 7,
