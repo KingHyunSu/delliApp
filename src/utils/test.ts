@@ -4,6 +4,7 @@ import {setTodo} from '@/repository/modules/todo'
 
 const testScheduleList: Schedule[] = [
   {
+    schedule_category_id: null,
     alarm: null,
     background_color: '#FFF0B3',
     disable: '0',
@@ -46,6 +47,7 @@ const testScheduleList: Schedule[] = [
     wed: '1'
   },
   {
+    schedule_category_id: null,
     alarm: null,
     background_color: '#FFE0CC',
     disable: '0',
@@ -79,6 +81,7 @@ const testScheduleList: Schedule[] = [
     wed: '1'
   },
   {
+    schedule_category_id: null,
     alarm: null,
     background_color: '#FFD1B3',
     disable: '0',
@@ -102,6 +105,7 @@ const testScheduleList: Schedule[] = [
     wed: '1'
   },
   {
+    schedule_category_id: null,
     alarm: null,
     background_color: '#FFE0CC',
     disable: '0',
@@ -125,6 +129,7 @@ const testScheduleList: Schedule[] = [
     wed: '1'
   },
   {
+    schedule_category_id: null,
     alarm: null,
     background_color: '#FFF0B3',
     disable: '0',
@@ -148,6 +153,7 @@ const testScheduleList: Schedule[] = [
     wed: '1'
   },
   {
+    schedule_category_id: null,
     alarm: null,
     background_color: '#B4F99E',
     disable: '0',
@@ -171,6 +177,7 @@ const testScheduleList: Schedule[] = [
     wed: '1'
   },
   {
+    schedule_category_id: null,
     alarm: null,
     background_color: '#C6A8ED',
     disable: '0',
