@@ -41,3 +41,18 @@ export interface SetScheduleCompleteParams {
   schedule_id: number
   date: string
 }
+
+export interface UpdateScheduleCompleteParams {
+  schedule_activity_log_id: number
+}
+
+export interface SetScheduleFocusTimeParams {
+  schedule_id: number
+  active_time: number
+  date: string
+}
+
+export interface UpdateScheduleFocusTimeParams {
+  schedule_activity_log_id: number
+  active_time: number
+}

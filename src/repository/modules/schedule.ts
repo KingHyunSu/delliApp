@@ -6,7 +6,10 @@ import {
   SetSchedule,
   UpdateScheduleDisable,
   UpdateScheduleDeleted,
-  SetScheduleCompleteParams
+  SetScheduleCompleteParams,
+  SetScheduleFocusTimeParams,
+  UpdateScheduleCompleteParams,
+  UpdateScheduleFocusTimeParams
 } from '../types/schedule'
 
 export const getScheduleList = async (params: GetScheduleList) => {
@@ -79,6 +82,27 @@ export const getTextColorList = async () => {
 
 export const setScheduleComplete = async (params: SetScheduleCompleteParams) => {
   const query = scheduleQueries.setScheduleCompleteQuery(params)
+  const db = await openDatabase()
+
+  await db.executeSql(query)
+}
+
+export const updateScheduleComplete = async (params: UpdateScheduleCompleteParams) => {
+  const query = scheduleQueries.updateScheduleCompleteQuery(params)
+  const db = await openDatabase()
+
+  await db.executeSql(query)
+}
+
+export const setScheduleFocusTime = async (params: SetScheduleFocusTimeParams) => {
+  const query = scheduleQueries.setScheduleFocusTimeQuery(params)
+  const db = await openDatabase()
+
+  await db.executeSql(query)
+}
+
+export const updateScheduleFocusTime = async (params: UpdateScheduleFocusTimeParams) => {
+  const query = scheduleQueries.updateScheduleFocusTimeQuery(params)
   const db = await openDatabase()
 
   await db.executeSql(query)

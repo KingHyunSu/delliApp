@@ -40,7 +40,9 @@ declare interface Schedule {
   todo_list: Todo[]
   schedule_category_id?: number | null
   schedule_category_title?: string
+  schedule_activity_log_id: null
   complete_state: number | null
+  active_time: number | null
 
   alarm?: number | null
 }
@@ -72,4 +74,10 @@ declare interface ExistSchedule {
 
 declare interface UsedColor {
   color: string
+}
+
+declare interface FocusModeInfo {
+  schedule_activity_log_id: number | null
+  schedule_id: number
+  seconds: number
 }

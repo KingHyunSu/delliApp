@@ -6,7 +6,13 @@ import BottomSheetHandler from '@/components/BottomSheetHandler'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
-import {scheduleDateState, scheduleListState, scheduleState, scheduleTodoState} from '@/store/schedule'
+import {
+  focusModeInfoState,
+  scheduleDateState,
+  scheduleListState,
+  scheduleState,
+  scheduleTodoState
+} from '@/store/schedule'
 import {showCompleteModalState, showEditTodoModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
@@ -14,6 +20,7 @@ import EditIcon from '@/assets/icons/edit3.svg'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import TodoIcon from '@/assets/icons/priority.svg'
 import PlayIcon from '@/assets/icons/play.svg'
+import PauseIcon from '@/assets/icons/pause.svg'
 import CheckIcon from '@/assets/icons/check.svg'
 
 import {useMutation} from '@tanstack/react-query'
@@ -28,11 +35,13 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
   const editInfoBottomSheetRef = React.useRef<BottomSheetModal>(null)
 
   const [showEditScheduleBottomSheet, setShowEditScheduleBottomSheet] = React.useState(false)
+  const [isRelayFocusTime, setIsRelayFocusTime] = React.useState(false)
 
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
+  const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
 
-  const schedule = useRecoilValue(scheduleState)
   const scheduleDate = useRecoilValue(scheduleDateState)
 
   const resetSchedule = useResetRecoilState(scheduleState)
@@ -43,12 +52,20 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
 
   const {mutate: setScheduleCompleteMutation} = useMutation({
     mutationFn: () => {
-      const params = {
-        schedule_id: schedule.schedule_id!,
-        date: format(scheduleDate, 'yyyy-MM-dd')
-      }
+      if (schedule.schedule_activity_log_id) {
+        const params = {
+          schedule_activity_log_id: schedule.schedule_activity_log_id
+        }
 
-      return scheduleRepository.setScheduleComplete(params)
+        return scheduleRepository.updateScheduleComplete(params)
+      } else {
+        const params = {
+          schedule_id: schedule.schedule_id!,
+          date: format(scheduleDate, 'yyyy-MM-dd')
+        }
+
+        return scheduleRepository.setScheduleComplete(params)
+      }
     },
     onSuccess: () => {
       setScheduleList(prevState => {
@@ -71,9 +88,70 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
     }
   })
 
+  const {mutate: setScheduleFocusTimeMutation} = useMutation({
+    mutationFn: () => {
+      if (!focusModeInfo) {
+        throw new Error('focusModeInfo empty')
+      }
+
+      if (focusModeInfo.schedule_activity_log_id) {
+        const params = {
+          schedule_activity_log_id: focusModeInfo.schedule_activity_log_id,
+          active_time: focusModeInfo.seconds
+        }
+
+        return scheduleRepository.updateScheduleFocusTime(params)
+      } else {
+        const params = {
+          schedule_id: focusModeInfo.schedule_id,
+          active_time: focusModeInfo.seconds,
+          date: format(scheduleDate, 'yyyy-MM-dd')
+        }
+
+        return scheduleRepository.setScheduleFocusTime(params)
+      }
+    },
+    onSuccess: () => {
+      setSchedule(prevState => ({
+        ...prevState,
+        active_time: focusModeInfo?.seconds || 0
+      }))
+
+      setScheduleList(prevState => {
+        const targetIndex = prevState.findIndex(item => item.schedule_id === focusModeInfo?.schedule_id)
+
+        if (targetIndex !== -1) {
+          const updateList = [...prevState]
+
+          updateList[targetIndex] = {
+            ...updateList[targetIndex],
+            active_time: focusModeInfo?.seconds || 0
+          }
+          return updateList
+        }
+
+        return prevState
+      })
+      setFocusModeInfo(null)
+
+      if (isRelayFocusTime) {
+        setFocusModeInfo({
+          schedule_activity_log_id: schedule.schedule_activity_log_id,
+          schedule_id: schedule.schedule_id!,
+          seconds: schedule.active_time || 0
+        })
+        setIsRelayFocusTime(false)
+      }
+    }
+  })
+
   const snapPoints = React.useMemo(() => {
     return [500]
   }, [])
+
+  const isFocusMode = React.useMemo(() => {
+    return focusModeInfo?.schedule_id === schedule.schedule_id
+  }, [schedule.schedule_id, focusModeInfo])
 
   const completeActionButtonStyle = React.useMemo(() => {
     const backgroundColor = schedule.complete_state ? '#f5f6f8' : '#32CD3220'
@@ -136,9 +214,56 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
     setShowEditMenuBottomSheet(false)
   }, [setShowEditMenuBottomSheet])
 
+  const handleStartFocusMode = React.useCallback(() => {
+    if (schedule.schedule_id) {
+      if (focusModeInfo) {
+        Alert.alert('집중하고 있는 일정이 있어요', '멈추고 시작할까요?', [
+          {
+            text: '취소',
+            onPress: () => {
+              return
+            },
+            style: 'cancel'
+          },
+          {
+            text: '시작하기',
+            onPress: () => {
+              setIsRelayFocusTime(true)
+
+              setScheduleFocusTimeMutation()
+            }
+          }
+        ])
+      } else {
+        setFocusModeInfo({
+          schedule_activity_log_id: schedule.schedule_activity_log_id,
+          schedule_id: schedule.schedule_id,
+          seconds: schedule.active_time || 0
+        })
+      }
+    }
+  }, [schedule.schedule_id, focusModeInfo, setFocusModeInfo])
+
+  const handleStopFocusMode = React.useCallback(() => {
+    setScheduleFocusTimeMutation()
+  }, [setScheduleFocusTimeMutation])
+
   const doComplete = React.useCallback(() => {
     setScheduleCompleteMutation()
   }, [setScheduleCompleteMutation])
+
+  const getFocusTime = React.useCallback((seconds: number | null) => {
+    if (seconds === null) {
+      return ''
+    }
+
+    const hours = Math.floor(seconds / 3600) // 전체 초에서 시간을 계산
+    const minutes = Math.floor((seconds % 3600) / 60) // 남은 초에서 분을 계산
+    const secs = seconds % 60 // 남은 초
+
+    const hoursStr = hours === 0 ? '' : String(hours).padStart(2, '0') + ':'
+    return `${hoursStr}${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+  }, [])
 
   React.useEffect(() => {
     if (showEditMenuBottomSheet) {
@@ -171,6 +296,13 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
     )
   }, [])
 
+  const focusTimeTextComponent = React.useMemo(() => {
+    const focusTimeText = getFocusTime(schedule.active_time)
+    const text = focusTimeText ? focusTimeText : '집중하기'
+
+    return <Text style={playFocusModeButtonText}>{text}</Text>
+  }, [getFocusTime, schedule.active_time])
+
   return (
     <BottomSheetModal
       name="editMenu"
@@ -187,12 +319,23 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
           </View>
 
           <View style={styles.actionWrapper}>
-            <View style={timeActionButton}>
-              <View style={styles.timeActionIcon}>
-                <PlayIcon width={32} height={32} fill="#FF0000" />
-              </View>
-              <Text style={timeActionButtonText}>집중하기</Text>
-            </View>
+            {isFocusMode ? (
+              <Pressable style={pauseFocusModeButton} onPress={handleStopFocusMode}>
+                <View style={styles.timeActionIcon}>
+                  <PauseIcon width={32} height={32} fill="#1E90FF" />
+                </View>
+
+                <Text style={pauseFocusModeButtonText}>{getFocusTime(focusModeInfo?.seconds || 0)}</Text>
+              </Pressable>
+            ) : (
+              <Pressable style={playFocusModeButton} onPress={handleStartFocusMode}>
+                <View style={styles.timeActionIcon}>
+                  <PlayIcon width={32} height={32} fill="#FF0000" />
+                </View>
+
+                <Text style={playFocusModeButtonText}>{focusTimeTextComponent}</Text>
+              </Pressable>
+            )}
 
             <Pressable style={completeActionButtonStyle} disabled={!!schedule.complete_state} onPress={doComplete}>
               <View style={styles.timeActionIcon}>
@@ -203,6 +346,7 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
                   stroke={schedule.complete_state ? '#babfc5' : '#32CD32'}
                 />
               </View>
+
               <Text style={completeActionButtonTextStyle}>{schedule.complete_state ? '완료했어요' : '완료하기'}</Text>
             </Pressable>
           </View>
@@ -308,8 +452,10 @@ const styles = StyleSheet.create({
   }
 })
 
-const timeActionButton = StyleSheet.compose(styles.actionButton, {backgroundColor: '#FF000015'})
-const timeActionButtonText = StyleSheet.compose(styles.actionButtonText, {color: '#FF0000'})
+const playFocusModeButton = StyleSheet.compose(styles.actionButton, {backgroundColor: '#FF000015'})
+const playFocusModeButtonText = StyleSheet.compose(styles.actionButtonText, {color: '#FF0000'})
+const pauseFocusModeButton = StyleSheet.compose(styles.actionButton, {backgroundColor: '#1E90FF15'})
+const pauseFocusModeButtonText = StyleSheet.compose(styles.actionButtonText, {color: '#1E90FF'})
 
 const todoButton = StyleSheet.compose(styles.iconWrapper, {backgroundColor: '#76d672'})
 const updateButton = StyleSheet.compose(styles.iconWrapper, {backgroundColor: '#1E90FF'})

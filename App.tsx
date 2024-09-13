@@ -36,6 +36,7 @@ import {loginState, isLunchState, windowDimensionsState} from '@/store/system'
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
 
 import initDatabase from '@/repository/utils/init'
+import {focusModeInfoState} from '@/store/schedule'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
@@ -85,13 +86,15 @@ function App(): JSX.Element {
   const {isLoaded, load, show} = useAppOpenAd(adUnitId)
 
   const appState = React.useRef(AppState.currentState)
+  const focusModeIntervalRef = React.useRef<NodeJS.Timeout | null>(null)
 
   const [isActiveApp, setIsActiveApp] = React.useState(false)
   const [isInit, setIsInit] = React.useState(false)
 
-  const setWindowDimensions = useSetRecoilState(windowDimensionsState)
+  const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
+  const setWindowDimensions = useSetRecoilState(windowDimensionsState)
 
   const linking: LinkingOptions<BottomTabNavigator> = {
     prefixes: ['delli://'],
@@ -210,6 +213,74 @@ function App(): JSX.Element {
       subscription.remove()
     }
   }, [])
+
+  // handle focus timer
+  React.useEffect(() => {
+    if (focusModeInfo) {
+      focusModeIntervalRef.current = setInterval(() => {
+        setFocusModeInfo(prevState => {
+          if (prevState) {
+            return {
+              schedule_activity_log_id: prevState.schedule_activity_log_id,
+              schedule_id: prevState.schedule_id,
+              seconds: prevState.seconds + 1
+            }
+          }
+          return prevState
+        })
+      }, 1000)
+    } else {
+      if (focusModeIntervalRef.current) {
+        setFocusModeInfo(null)
+        clearInterval(focusModeIntervalRef.current)
+      }
+    }
+
+    return () => {
+      if (focusModeIntervalRef.current) {
+        clearInterval(focusModeIntervalRef.current)
+      }
+    }
+  }, [focusModeInfo])
+
+  React.useEffect(() => {
+    if (isActiveApp) {
+      const handleFocusMode = async () => {
+        const jsonValue = await AsyncStorage.getItem('focusModeInfo')
+
+        if (jsonValue) {
+          const value = JSON.parse(jsonValue)
+          const now = Date.now()
+          const timePassed = Math.floor((now - value.saveDate) / 1000)
+
+          setFocusModeInfo({
+            schedule_activity_log_id: value.schedule_activity_log_id,
+            schedule_id: value.schedule_id,
+            seconds: value.seconds + timePassed
+          })
+
+          await AsyncStorage.removeItem('focusModeInfo')
+        }
+      }
+
+      handleFocusMode()
+    } else {
+      if (focusModeInfo) {
+        const saveFocusMode = async () => {
+          const value = {
+            schedule_id: focusModeInfo.schedule_id,
+            seconds: focusModeInfo.seconds,
+            saveDate: Date.now()
+          }
+          const jsonValue = JSON.stringify(value)
+
+          await AsyncStorage.setItem('focusModeInfo', jsonValue)
+        }
+
+        saveFocusMode()
+      }
+    }
+  }, [isActiveApp])
 
   // recoil debug
   // function RecoilDebugObserver(): React.ReactNode {

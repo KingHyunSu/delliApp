@@ -11,7 +11,7 @@ import DefaultTimeAnchor from '@/assets/icons/default_time_anchor.svg'
 
 import {useSetRecoilState, useRecoilValue, useRecoilState} from 'recoil'
 import {timetableWrapperHeightState, timetableCenterPositionState} from '@/store/system'
-import {scheduleState} from '@/store/schedule'
+import {focusModeInfoState, scheduleState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {updateWidgetWithImage} from '@/utils/widget'
 import {widgetWithImageUpdatedState} from '@/store/widget'
@@ -29,6 +29,7 @@ const Timetable = ({data, isRendered}: Props) => {
 
   const timetableWrapperHeight = useRecoilValue(timetableWrapperHeightState)
   const timetableCenterPosition = useRecoilValue(timetableCenterPositionState)
+  const focusModeInfo = useRecoilValue(focusModeInfoState)
   const setSchedule = useSetRecoilState(scheduleState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
@@ -50,6 +51,10 @@ const Timetable = ({data, isRendered}: Props) => {
   const radius = React.useMemo(() => {
     return timetableCenterPosition - 40
   }, [timetableCenterPosition])
+
+  const anchorIconColor = React.useMemo(() => {
+    return focusModeInfo ? '#FF0000' : '#1E90FF'
+  }, [focusModeInfo])
 
   const openEditMenuBottomSheet = React.useCallback(
     (value: Schedule) => {
@@ -162,7 +167,7 @@ const Timetable = ({data, isRendered}: Props) => {
           height={timetableCenterPosition * 2}
           style={styles.currentTimeAnchorIcon}>
           <G x={currentTimePosition.x} y={currentTimePosition.y} rotation={currentTimeAngle}>
-            <DefaultTimeAnchor width={20} height={20} fill="#1E90FF" />
+            <DefaultTimeAnchor width={20} height={20} fill={anchorIconColor} />
           </G>
         </Svg>
       </View>

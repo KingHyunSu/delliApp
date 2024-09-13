@@ -3,7 +3,10 @@ import {
   GetExistScheduleList,
   UpdateScheduleDisable,
   UpdateScheduleDeleted,
-  SetScheduleCompleteParams
+  SetScheduleCompleteParams,
+  SetScheduleFocusTimeParams,
+  UpdateScheduleCompleteParams,
+  UpdateScheduleFocusTimeParams
 } from '../types/schedule'
 
 export const getScheduleListQuery = (params: GetScheduleList) => {
@@ -30,6 +33,8 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.background_color as background_color,
       A.text_color as text_color,
       A.alarm,
+      sal.schedule_activity_log_id,
+      sal.active_time,
       sal.complete_state,
       (CASE WHEN (COUNT(B.todo_id) = 0)
         THEN JSON_ARRAY()
@@ -380,5 +385,34 @@ export const setScheduleCompleteQuery = (params: SetScheduleCompleteParams) => {
   return `
     INSERT INTO SCHEDULE_ACTIVITY_LOG (schedule_id, complete_state, date) 
     VALUES (${params.schedule_id}, 1, "${params.date}")
+  `
+}
+
+export const updateScheduleCompleteQuery = (params: UpdateScheduleCompleteParams) => {
+  return `
+    UPDATE
+      SCHEDULE_ACTIVITY_LOG
+    SET
+      complete_state = 1
+    WHERE
+      schedule_activity_log_id = ${params.schedule_activity_log_id}
+  `
+}
+
+export const setScheduleFocusTimeQuery = (params: SetScheduleFocusTimeParams) => {
+  return `
+    INSERT INTO SCHEDULE_ACTIVITY_LOG (schedule_id, active_time, date)
+    VALUES (${params.schedule_id}, ${params.active_time}, "${params.date}")
+  `
+}
+
+export const updateScheduleFocusTimeQuery = (params: UpdateScheduleFocusTimeParams) => {
+  return `
+    UPDATE
+      SCHEDULE_ACTIVITY_LOG
+    SET
+      active_time = ${params.active_time}
+    WHERE
+      schedule_activity_log_id = ${params.schedule_activity_log_id}
   `
 }

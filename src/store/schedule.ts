@@ -50,7 +50,9 @@ export const scheduleState = atom<Schedule>({
     text_color: '#000000',
     schedule_category_id: null,
     schedule_category_title: '',
-    complete_state: null
+    schedule_activity_log_id: null,
+    complete_state: null,
+    active_time: null
   }
 })
 
@@ -90,4 +92,9 @@ export const activeTimeFlagState = atom<RANGE_FLAG | null>({
 export const isInputModeState = atom<Boolean>({
   key: 'isInputModeState',
   default: true
+})
+
+export const focusModeInfoState = atom<FocusModeInfo | null>({
+  key: 'focusModeInfoState',
+  default: null
 })
