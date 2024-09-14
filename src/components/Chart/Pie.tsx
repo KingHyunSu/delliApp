@@ -9,19 +9,27 @@ interface Props {
   data: CategoryStatsList[]
 }
 const Pie = ({size, totalTime, data}: Props) => {
-  const getDescribeArc = React.useCallback((startAngle: number, endAngle: number) => {
-    return describeArc({
-      x: size / 2,
-      y: size / 2,
-      radius: size / 2,
-      startAngle,
-      endAngle
-    })
-  }, [])
+  const getDescribeArc = React.useCallback(
+    (startAngle: number, endAngle: number) => {
+      return describeArc({
+        x: size / 2,
+        y: size / 2,
+        radius: size / 2,
+        startAngle,
+        endAngle
+      })
+    },
+    [size]
+  )
 
   const PieList = React.useMemo(() => {
     if (totalTime === -1) {
       return <></>
+    }
+
+    if (data.length === 1) {
+      const item = data[0]
+      return <Circle cx={size / 2} cy={size / 2} r={size / 2} fill={item.color} />
     }
 
     let prevPercentage = 0
@@ -32,14 +40,14 @@ const Pie = ({size, totalTime, data}: Props) => {
 
       prevPercentage = percentage + prevPercentage
 
-      return <Path key={index} d={path} fill={item.color} />
+      return <Path key={index} d={path} fill={item.color} strokeWidth={2} stroke="#ffffff" />
     })
   }, [totalTime, data])
 
   return (
     <Svg width={size} height={size}>
       {PieList}
-      <Circle cx={size / 2} cy={size / 2} r={size / 2 - 25} fill="#ffffff" />
+      <Circle cx={size / 2} cy={size / 2} r={size / 2 - 30} fill="#ffffff" />
     </Svg>
   )
 }
