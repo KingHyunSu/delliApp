@@ -15,8 +15,8 @@ export const showTimePickerBototmSheetState = atom({
   default: false
 })
 
-export const showEditScheduleCheckBottomSheetState = atom({
-  key: 'showEditScheduleCheckBottomSheetState',
+export const showOverlapScheduleListBottomSheetState = atom({
+  key: 'showOverlapScheduleListBottomSheetState',
   default: false
 })
 

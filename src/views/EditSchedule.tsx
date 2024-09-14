@@ -10,7 +10,7 @@ import CancleIcon from '@/assets/icons/cancle.svg'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {isEditState, isLoadingState, editScheduleListStatusState} from '@/store/system'
-import {showEditScheduleCheckBottomSheetState} from '@/store/bottomSheet'
+import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
 import {
   disableScheduleListState,
   existScheduleListState,
@@ -23,7 +23,7 @@ import {EditScheduleProps} from '@/types/navigation'
 import {scheduleRepository} from '@/repository'
 import {getTimeOfMinute} from '@/utils/helper'
 import ScheduleCategoryBottomSheet from '@/views/BottomSheet/ScheduleCategoryBottomSheet'
-import EditScheduleCheckBottomSheet from '@/views/BottomSheet/EditScheduleCheckBottomSheet'
+import OverlapScheduleListBottomSheet from '@/views/BottomSheet/OverlapScheduleListBottomSheet'
 
 const EditSchedule = ({navigation}: EditScheduleProps) => {
   const queryClient = useQueryClient()
@@ -40,7 +40,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
   const setIsEdit = useSetRecoilState(isEditState)
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
-  const setShowEditScheduleCheckBottomSheet = useSetRecoilState(showEditScheduleCheckBottomSheetState)
+  const setShowOverlapScheduleListBottomSheet = useSetRecoilState(showOverlapScheduleListBottomSheetState)
 
   const [newStartTime, setNewStartTime] = React.useState(schedule.start_time)
   const [newEndTime, setNewEndTime] = React.useState(schedule.end_time)
@@ -169,7 +169,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       setExistScheduleList(existScheduleList)
 
       if (existScheduleList.length > 0 || disableScheduleList.length > 0) {
-        setShowEditScheduleCheckBottomSheet(true)
+        setShowOverlapScheduleListBottomSheet(true)
         return
       }
     } catch (e) {
@@ -181,7 +181,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     setScheduleMutate,
     getExistScheduleListMutateAsync,
     setExistScheduleList,
-    setShowEditScheduleCheckBottomSheet,
+    setShowOverlapScheduleListBottomSheet,
     disableScheduleList.length
   ])
 
@@ -242,7 +242,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
       <EditScheduleBottomSheet />
       <ScheduleCategoryBottomSheet />
-      <EditScheduleCheckBottomSheet invalidScheduleList={invalidScheduleList} />
+      <OverlapScheduleListBottomSheet setScheduleMutate={setScheduleMutate} />
     </View>
   )
 }
