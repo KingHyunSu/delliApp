@@ -203,57 +203,45 @@ const EditSchedulePie = ({
     const pStartTime = newStartTimeState
     const pEndTime = newEndTimeState
 
-    const result = scheduleList
-      .filter(item => {
-        if (data.schedule_id === item.schedule_id) {
-          return false
-        }
-
-        const sStartTime = item.start_time
-        const sEndTime = item.end_time
-
-        if (sStartTime > sEndTime) {
-          if (sStartTime < pStartTime || sEndTime > pStartTime || sStartTime < pEndTime || sEndTime > pEndTime) {
-            return true
-          }
-
-          if (pStartTime > pEndTime) {
-            if (sStartTime > pStartTime && sEndTime < pEndTime) {
-              return true
-            }
-          }
-        }
-
-        // Case 2: start_time < end_time (does not span midnight)
-        if (sStartTime < sEndTime) {
-          if (
-            (sStartTime < pStartTime && sEndTime > pStartTime) ||
-            (sStartTime < pEndTime && sEndTime > pEndTime) ||
-            (sStartTime >= pStartTime && sEndTime <= pEndTime)
-          ) {
-            return true
-          }
-        }
-
+    const result = scheduleList.filter(item => {
+      if (data.schedule_id === item.schedule_id) {
         return false
-      })
-      .map(item => {
-        return {
-          schedule_id: item.schedule_id,
-          title: item.title,
-          start_time: item.start_time,
-          end_time: item.end_time,
-          start_date: item.start_date,
-          end_date: item.end_date,
-          mon: item.mon,
-          tue: item.tue,
-          wed: item.wed,
-          thu: item.thu,
-          fri: item.fri,
-          sat: item.sat,
-          sun: item.sun
+      }
+
+      const sStartTime = item.start_time
+      const sEndTime = item.end_time
+
+      if (pStartTime > pEndTime) {
+        if (sStartTime <= pStartTime && sEndTime <= pEndTime) {
+          return true
         }
-      })
+      }
+
+      if (sStartTime > sEndTime) {
+        if (sStartTime < pStartTime || sEndTime > pStartTime || sStartTime < pEndTime || sEndTime > pEndTime) {
+          return true
+        }
+
+        if (pStartTime > pEndTime) {
+          if (sStartTime >= pStartTime && sEndTime <= pEndTime) {
+            return true
+          }
+        }
+      }
+
+      // Case 2: start_time < end_time (does not span midnight)
+      if (sStartTime < sEndTime) {
+        if (
+          (sStartTime < pStartTime && sEndTime > pStartTime) ||
+          (sStartTime < pEndTime && sEndTime > pEndTime) ||
+          (sStartTime >= pStartTime && sEndTime <= pEndTime)
+        ) {
+          return true
+        }
+      }
+
+      return false
+    })
 
     onChangeScheduleDisabled(result as ExistSchedule[])
   }, [data.schedule_id, newStartTimeState, newEndTimeState, scheduleList, onChangeScheduleDisabled])

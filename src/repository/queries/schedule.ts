@@ -167,45 +167,53 @@ export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
 
   query += `
     AND (
+      -- Case 1: pStartTime > pEndTime (spans midnight)
+      (
+        ${params.start_time} > ${params.end_time} AND (
+          (
+            start_time <= ${params.start_time}
+            AND end_time <= ${params.end_time}
+          )
+        )
+      )
+    
+      OR
+    
+      -- Case 2: sStartTime > sEndTime (spans midnight)
       (
         start_time > end_time AND (
           (
             start_time < ${params.start_time}
-            OR
-            end_time > ${params.start_time}
-          ) OR (
-            start_time < ${params.end_time}
-            OR
-            end_time > ${params.end_time}
+            OR end_time > ${params.start_time}
           )
-  `
-
-  if (params.start_time > params.end_time) {
-    query += `
-      OR (
-        start_time > ${params.start_time}
-        AND
-        end_time < ${params.end_time}
-      ) 
-    `
-  }
-
-  query += `
-    )
-      ) OR (
+          OR (
+            start_time < ${params.end_time}
+            OR end_time > ${params.end_time}
+          )
+          OR (
+            ${params.start_time} > ${params.end_time} 
+            AND start_time >= ${params.start_time}
+            AND end_time <= ${params.end_time}
+          )
+        )
+      )
+    
+      OR
+    
+      -- Case 3: start_time < end_time (does not span midnight)
+      (
         start_time < end_time AND (
           (
-            start_time < ${params.start_time} 
-            AND 
-            end_time > ${params.start_time}
-          ) OR (
-            start_time < ${params.end_time} 
-            AND 
-            end_time > ${params.end_time}
-          ) OR (
-            start_time >= ${params.start_time} 
-            AND 
-            end_time <= ${params.end_time}
+            start_time < ${params.start_time}
+            AND end_time > ${params.start_time}
+          )
+          OR (
+            start_time < ${params.end_time}
+            AND end_time > ${params.end_time}
+          )
+          OR (
+            start_time >= ${params.start_time}
+            AND end_time <= ${params.end_time}
           )
         )
       )
