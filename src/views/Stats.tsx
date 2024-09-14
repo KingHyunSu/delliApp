@@ -161,14 +161,22 @@ const Stats = () => {
     }
 
     return data.map((item, index) => {
+      const hour = Math.floor(item.totalTime / 60)
+      const minute = item.totalTime % 60
+      const time = `총 ${hour}시간` + ' ' + (minute ? `${minute}분` : '')
+
       return (
         <View key={index} style={pieChartStyles.itemContainer}>
           <View style={pieChartStyles.itemWrapper}>
-            <View style={[pieChartStyles.itemColor, {backgroundColor: item.color}]} />
-            <Text style={pieChartStyles.itemText}>{item.categoryTitle}</Text>
+            <View style={pieChartStyles.itemTitleWrapper}>
+              <View style={[pieChartStyles.itemColor, {backgroundColor: item.color}]} />
+              <Text style={pieChartStyles.itemText}>{item.categoryTitle}</Text>
+            </View>
+
+            <Text style={pieChartStyles.itemPercentageText}>{item.percentage}%</Text>
           </View>
 
-          <Text style={pieChartStyles.itemPercentageText}>{item.percentage}%</Text>
+          <Text style={pieChartStyles.itemTimeText}>{time}</Text>
         </View>
       )
     })
@@ -280,12 +288,14 @@ const pieChartStyles = StyleSheet.create({
     paddingVertical: 5
   },
   itemContainer: {
-    paddingBottom: 10,
+    paddingBottom: 5
+  },
+  itemWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center'
   },
-  itemWrapper: {
+  itemTitleWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10
@@ -304,6 +314,12 @@ const pieChartStyles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 14,
     color: '#424242'
+  },
+  itemTimeText: {
+    textAlign: 'right',
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 12,
+    color: '#9E9E9E'
   }
 })
 
