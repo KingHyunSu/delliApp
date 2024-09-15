@@ -48,83 +48,97 @@ const Timetable = ({data, isRendered}: Props) => {
     ]
   }, [timetableCenterPosition])
 
-  const overlapScheduleList = React.useMemo(() => {
-    const _scheduleList = [...data] // update date로 정렬 필요
-    const result: Schedule[] = []
-
-    const getExistOverlapSchedule = (item: Schedule) => result.some(sItem => item.schedule_id === sItem.schedule_id)
-
-    const setOverlapSchedule = (item: Schedule) => {
-      const existOverlapSchedule = getExistOverlapSchedule(item)
-
-      if (!existOverlapSchedule) {
-        const targetSubIndex = _scheduleList.findIndex(sItem => item.schedule_id === sItem.schedule_id)
-
-        _scheduleList.splice(targetSubIndex, 1)
-        result.push(item)
-      }
-    }
-
-    for (let i = 0; i < data.length; i++) {
-      const item = data[i]
-
-      const startTime = item.start_time
-      const endTime = item.end_time
-
-      for (let j = 0; j < _scheduleList.length; j++) {
-        const sItem = _scheduleList[j]
-
-        if (item.schedule_id === sItem.schedule_id) {
-          continue
-        }
-
-        const sStartTime = sItem.start_time
-        const sEndTime = sItem.end_time
-
-        if (startTime > endTime) {
-          if (sStartTime <= startTime && sEndTime <= endTime) {
-            setOverlapSchedule(sItem)
-            continue
-          }
-        }
-
-        if (sStartTime > sEndTime) {
-          if (sStartTime < startTime || sEndTime > startTime || sStartTime < endTime || sEndTime > endTime) {
-            setOverlapSchedule(sItem)
-            continue
-          }
-
-          if (startTime > endTime) {
-            if (sStartTime >= startTime && sEndTime <= endTime) {
-              setOverlapSchedule(sItem)
-              continue
-            }
-          }
-        }
-
-        if (sStartTime < sEndTime) {
-          if (
-            (sStartTime < startTime && sEndTime > startTime) ||
-            (sStartTime < endTime && sEndTime > endTime) ||
-            (sStartTime >= startTime && sEndTime <= endTime)
-          ) {
-            setOverlapSchedule(sItem)
-          }
-        }
-      }
-
-      const targetIndex = _scheduleList.findIndex(sItem => item.schedule_id === sItem.schedule_id)
-      _scheduleList.splice(targetIndex, 1)
-    }
-
-    return result.reverse()
-  }, [data])
+  // TODO - 겹치는 일정만 뽑아내는 코드 (활용할 수 있을거 같아서 임시 주석)
+  // const overlapScheduleList = React.useMemo(() => {
+  //   const _scheduleList = [...data] // update date로 정렬 필요
+  //   const result: Schedule[] = []
+  //
+  //   const getExistOverlapSchedule = (item: Schedule) => result.some(sItem => item.schedule_id === sItem.schedule_id)
+  //
+  //   const setOverlapSchedule = (item: Schedule) => {
+  //     const existOverlapSchedule = getExistOverlapSchedule(item)
+  //
+  //     if (!existOverlapSchedule) {
+  //       const targetSubIndex = _scheduleList.findIndex(sItem => item.schedule_id === sItem.schedule_id)
+  //
+  //       _scheduleList.splice(targetSubIndex, 1)
+  //       result.push(item)
+  //     }
+  //   }
+  //
+  //   for (let i = 0; i < data.length; i++) {
+  //     const item = data[i]
+  //
+  //     const startTime = item.start_time
+  //     const endTime = item.end_time
+  //
+  //     for (let j = 0; j < _scheduleList.length; j++) {
+  //       const sItem = _scheduleList[j]
+  //
+  //       if (item.schedule_id === sItem.schedule_id) {
+  //         continue
+  //       }
+  //
+  //       const sStartTime = sItem.start_time
+  //       const sEndTime = sItem.end_time
+  //
+  //       if (startTime > endTime) {
+  //         if (sStartTime <= startTime && sEndTime <= endTime) {
+  //           setOverlapSchedule(sItem)
+  //           continue
+  //         }
+  //       }
+  //
+  //       if (sStartTime > sEndTime) {
+  //         if (sStartTime < startTime || sEndTime > startTime || sStartTime < endTime || sEndTime > endTime) {
+  //           setOverlapSchedule(sItem)
+  //           continue
+  //         }
+  //
+  //         if (startTime > endTime) {
+  //           if (sStartTime >= startTime && sEndTime <= endTime) {
+  //             setOverlapSchedule(sItem)
+  //             continue
+  //           }
+  //         }
+  //       }
+  //
+  //       if (sStartTime < sEndTime) {
+  //         if (
+  //           (sStartTime < startTime && sEndTime > startTime) ||
+  //           (sStartTime < endTime && sEndTime > endTime) ||
+  //           (sStartTime >= startTime && sEndTime <= endTime)
+  //         ) {
+  //           setOverlapSchedule(sItem)
+  //         }
+  //       }
+  //     }
+  //
+  //     const targetIndex = _scheduleList.findIndex(sItem => item.schedule_id === sItem.schedule_id)
+  //     _scheduleList.splice(targetIndex, 1)
+  //   }
+  //
+  //   return result.reverse()
+  // }, [data])
+  //
+  // const scheduleList = React.useMemo(() => {
+  //   return data.filter(item => {
+  //     return !overlapScheduleList.some(sItem => item.schedule_id === sItem.schedule_id)
+  //   })
+  // }, [data, overlapScheduleList])
 
   const scheduleList = React.useMemo(() => {
-    return data.filter(item => {
-      return !overlapScheduleList.some(sItem => item.schedule_id === sItem.schedule_id)
+    return [...data].sort((a, b) => {
+      if (a.update_date && b.update_date) {
+        return new Date(a.update_date).getTime() - new Date(b.update_date).getTime()
+      }
+
+      if (!a.update_date) return -1
+      if (!b.update_date) return 1
+
+      return 0
     })
-  }, [data, overlapScheduleList])
+  }, [data])
 
   const radius = React.useMemo(() => {
     return timetableCenterPosition - 40
@@ -224,24 +238,6 @@ const Timetable = ({data, isRendered}: Props) => {
             })}
 
             {emptyTextComponent}
-          </Svg>
-
-          <Svg width={radius * 2} height={radius * 2} style={{position: 'absolute'}}>
-            {overlapScheduleList.map((item, index) => {
-              return (
-                <SchedulePie
-                  key={index}
-                  data={item}
-                  x={radius}
-                  y={radius}
-                  radius={radius}
-                  startTime={item.start_time}
-                  endTime={item.end_time}
-                  isEdit={false}
-                  onClick={openEditMenuBottomSheet}
-                />
-              )
-            })}
           </Svg>
 
           {data.map((item, index) => {

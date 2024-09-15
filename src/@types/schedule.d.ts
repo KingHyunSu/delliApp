@@ -43,6 +43,8 @@ declare interface Schedule {
   schedule_activity_log_id: null
   complete_state: number | null
   active_time: number | null
+  create_date?: string
+  update_date?: string
 
   alarm?: number | null
 }

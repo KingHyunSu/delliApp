@@ -49,7 +49,8 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
             'complete_date', C.complete_date
           )
         )
-      END) as todo_list
+      END) as todo_list,
+      A.update_date
     FROM
       SCHEDULE A
     LEFT OUTER JOIN
@@ -300,8 +301,8 @@ export const setScheduleQuery = (params: Schedule) => {
       ${params.schedule_category_id},
       "0",
       "0",
-      (SELECT strftime('%Y-%m-%d', datetime('now', 'localtime'))),
-      (SELECT strftime('%Y-%m-%d', datetime('now', 'localtime')))
+      (SELECT datetime('now', 'localtime')),
+      (SELECT datetime('now', 'localtime'))
     )
   `
 

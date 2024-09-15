@@ -41,91 +41,20 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
     ]
   }, [timetableCenterPosition])
 
-  const list = React.useMemo(() => {
-    if (schedule.schedule_id) {
-      return data.filter(item => item.schedule_id !== schedule.schedule_id)
-    }
-
-    return data
-  }, [data, schedule.schedule_id])
-
-  const overlapScheduleList = React.useMemo(() => {
-    const _scheduleList = [...list] // update date로 정렬 필요
-    const result: Schedule[] = []
-
-    const getExistOverlapSchedule = (item: Schedule) => result.some(sItem => item.schedule_id === sItem.schedule_id)
-
-    const setOverlapSchedule = (item: Schedule) => {
-      const existOverlapSchedule = getExistOverlapSchedule(item)
-
-      if (!existOverlapSchedule) {
-        const targetSubIndex = _scheduleList.findIndex(sItem => item.schedule_id === sItem.schedule_id)
-
-        _scheduleList.splice(targetSubIndex, 1)
-        result.push(item)
-      }
-    }
-
-    for (let i = 0; i < list.length; i++) {
-      const item = list[i]
-
-      const startTime = item.start_time
-      const endTime = item.end_time
-
-      for (let j = 0; j < _scheduleList.length; j++) {
-        const sItem = _scheduleList[j]
-
-        if (item.schedule_id === sItem.schedule_id) {
-          continue
-        }
-
-        const sStartTime = sItem.start_time
-        const sEndTime = sItem.end_time
-
-        if (startTime > endTime) {
-          if (sStartTime <= startTime && sEndTime <= endTime) {
-            setOverlapSchedule(sItem)
-            continue
-          }
-        }
-
-        if (sStartTime > sEndTime) {
-          if (sStartTime < startTime || sEndTime > startTime || sStartTime < endTime || sEndTime > endTime) {
-            setOverlapSchedule(sItem)
-            continue
-          }
-
-          if (startTime > endTime) {
-            if (sStartTime >= startTime && sEndTime <= endTime) {
-              setOverlapSchedule(sItem)
-              continue
-            }
-          }
-        }
-
-        if (sStartTime < sEndTime) {
-          if (
-            (sStartTime < startTime && sEndTime > startTime) ||
-            (sStartTime < endTime && sEndTime > endTime) ||
-            (sStartTime >= startTime && sEndTime <= endTime)
-          ) {
-            setOverlapSchedule(sItem)
-          }
-        }
-      }
-
-      const targetIndex = _scheduleList.findIndex(sItem => item.schedule_id === sItem.schedule_id)
-      _scheduleList.splice(targetIndex, 1)
-    }
-
-    return result.reverse()
-  }, [list])
-
   const scheduleList = React.useMemo(() => {
-    return list.filter(item => {
-      return !overlapScheduleList.some(sItem => item.schedule_id === sItem.schedule_id)
-    })
-  }, [list, overlapScheduleList])
+    return data
+      .filter(item => item.schedule_id !== schedule.schedule_id)
+      .sort((a, b) => {
+        if (a.update_date && b.update_date) {
+          return new Date(a.update_date).getTime() - new Date(b.update_date).getTime()
+        }
+
+        if (!a.update_date) return -1
+        if (!b.update_date) return 1
+
+        return 0
+      })
+  }, [data, schedule.schedule_id])
 
   const radius = React.useMemo(() => {
     return timetableCenterPosition - 40
@@ -191,25 +120,7 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
             })}
           </Svg>
 
-          <Svg width={radius * 2} height={radius * 2} style={{position: 'absolute'}}>
-            {overlapScheduleList.map((item, index) => {
-              return (
-                <SchedulePie
-                  key={index}
-                  data={item}
-                  x={radius}
-                  y={radius}
-                  radius={radius}
-                  startTime={item.start_time}
-                  endTime={item.end_time}
-                  isEdit={true}
-                  disableScheduleList={disableScheduleList}
-                />
-              )
-            })}
-          </Svg>
-
-          {list.map((item, index) => {
+          {scheduleList.map((item, index) => {
             return <ScheduleText key={index} data={item} centerX={radius} centerY={radius} radius={radius} />
           })}
         </View>
