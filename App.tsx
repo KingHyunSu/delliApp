@@ -30,13 +30,13 @@ import MyIcon from '@/assets/icons/my.svg'
 import ChartIcon from '@/assets/icons/chart.svg'
 
 // stores
-import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
-import {loginState, isLunchState, windowDimensionsState} from '@/store/system'
+import {useRecoilState, useSetRecoilState, useRecoilSnapshot, useRecoilValue} from 'recoil'
+import {loginState, isLunchState, windowDimensionsState, isEditState} from '@/store/system'
 
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
 
 import initDatabase from '@/repository/utils/init'
-import {focusModeInfoState} from '@/store/schedule'
+import {activeScheduleSubmitState, focusModeInfoState} from '@/store/schedule'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
@@ -80,6 +80,15 @@ const BottomTabs = React.memo(() => {
   )
 })
 
+const linking: LinkingOptions<BottomTabNavigator> = {
+  prefixes: ['delli://'],
+  config: {
+    screens: {
+      Home: 'widget/reload'
+    }
+  }
+}
+
 function App(): JSX.Element {
   const windowDimensions = useWindowDimensions()
 
@@ -94,16 +103,9 @@ function App(): JSX.Element {
   const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
+  const isScheduleEdit = useRecoilValue(isEditState)
+  const activeScheduleSubmit = useRecoilValue(activeScheduleSubmitState)
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
-
-  const linking: LinkingOptions<BottomTabNavigator> = {
-    prefixes: ['delli://'],
-    config: {
-      screens: {
-        Home: 'widget/reload'
-      }
-    }
-  }
 
   const screenOptions = React.useMemo(() => {
     return {headerShown: false}
@@ -111,11 +113,22 @@ function App(): JSX.Element {
 
   const statusBarStyle = React.useMemo(() => {
     return {
-      flex: 1,
-      backgroundColor: '#fff',
+      flex: 0,
+      backgroundColor: '#ffffff',
       paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
     }
   }, [])
+
+  const bottomSafeAreaColor = React.useMemo(() => {
+    if (isScheduleEdit) {
+      return activeScheduleSubmit ? '#1E90FF' : '#f5f6f8'
+    }
+    return '#ffffff'
+  }, [isScheduleEdit, activeScheduleSubmit])
+
+  const containerStyle = React.useMemo(() => {
+    return {flex: 1, backgroundColor: bottomSafeAreaColor}
+  }, [bottomSafeAreaColor])
 
   // 2024-05-18 서버 제거로인해 비활성화
   // React.useEffect(() => {
@@ -301,9 +314,11 @@ function App(): JSX.Element {
       <BottomSheetModalProvider>
         <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-        <SafeAreaView style={statusBarStyle}>
-          <Toast />
+        <SafeAreaView style={statusBarStyle} />
 
+        <Toast />
+
+        <SafeAreaView style={containerStyle}>
           <NavigationContainer ref={navigationRef} linking={linking}>
             <Stack.Navigator initialRouteName="MainTabs" screenOptions={{headerShown: false}}>
               <Stack.Screen name="MainTabs" component={BottomTabs} />
