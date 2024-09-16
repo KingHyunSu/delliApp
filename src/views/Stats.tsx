@@ -209,11 +209,7 @@ const Stats = ({navigation}: StatsScreenProps) => {
 
   return (
     <View style={styles.container}>
-      <AppBar>
-        {/*<View />*/}
-        {/*<Text style={styles.title}>통계</Text>*/}
-        {/*<View />*/}
-      </AppBar>
+      <AppBar title="통계" color="#f5f6f8" />
 
       <View style={styles.wrapper}>
         {/* 카테고리별 통계 */}

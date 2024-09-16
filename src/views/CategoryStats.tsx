@@ -1,8 +1,7 @@
 import {useMemo} from 'react'
-import {StyleSheet, View, Text, Pressable} from 'react-native'
+import {StyleSheet, View, Text} from 'react-native'
 import PieChart from '@/components/Chart/Pie'
 import AppBar from '@/components/AppBar'
-import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 
 import {useRecoilValue} from 'recoil'
 import {categoryStatsListState, categoryTotalTimeState} from '@/store/stats'
@@ -19,13 +18,7 @@ const CategoryStats = () => {
 
   return (
     <View style={styles.container}>
-      <AppBar>
-        <Pressable style={styles.backButton} onPress={() => console.log('tresae')}>
-          <ArrowLeftIcon stroke="#424242" strokeWidth={3} />
-        </Pressable>
-
-        <Text style={styles.title}>카테고리별 통계</Text>
-      </AppBar>
+      <AppBar title="카테고리별 통계" backPress />
 
       <View style={styles.pieChartWrapper}>
         <PieChart size={pieSize} totalTime={categoryTotalTime} data={categoryStatsList} />
@@ -44,23 +37,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#ffffff'
-  },
-  backButton: {
-    zIndex: 999,
-    width: 48,
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center'
-    // paddingLeft: 10
-  },
-  title: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-    fontFamily: 'Pretendard-Bold',
-    fontSize: 18,
-    color: '#424242'
   },
   pieChartWrapper: {
     alignItems: 'center',
