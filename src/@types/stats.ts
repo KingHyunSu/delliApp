@@ -3,6 +3,7 @@ import type {GetCategoryStatsListResponse, GetScheduleActivityLogListResponse} f
 export interface CategoryStatsList {
   schedule_category_id: number | null
   categoryTitle: string
+  categoryIcon: string | null
   totalTime: number
   color: string
   percentage?: number

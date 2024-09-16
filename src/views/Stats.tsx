@@ -59,6 +59,7 @@ const Stats = ({navigation}: StatsScreenProps) => {
           result.push({
             schedule_category_id: item.schedule_category_id,
             categoryTitle: scheduleCategory ? scheduleCategory.title : '미지정',
+            categoryIcon: scheduleCategory && scheduleCategory.icon ? scheduleCategory.icon : null,
             totalTime: time,
             color: scheduleCategory ? scheduleCategory.color : '#D3D3D3',
             data: [item]
@@ -196,6 +197,7 @@ const Stats = ({navigation}: StatsScreenProps) => {
             <View style={pieChartStyles.itemTitleWrapper}>
               <View style={[pieChartStyles.itemColor, {backgroundColor: item.color}]} />
               <Text style={pieChartStyles.itemText}>{item.categoryTitle}</Text>
+              <Text>{item.data.length}</Text>
             </View>
 
             <Text style={pieChartStyles.itemPercentageText}>{item.percentage}%</Text>
