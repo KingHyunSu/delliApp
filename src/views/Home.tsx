@@ -291,14 +291,13 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   return (
     <View style={homeStyles.container}>
-      <View style={homeStyles.wrapper}>
-        {/* insert header */}
+      {/* insert header */}
 
-        {/* home header */}
-        <Animated.View style={headerStyle} onLayout={handleTopLayout}>
-          <AppBar>
-            {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
-            {/* {activeTimeTableCategory.timetable_category_id ? (
+      {/* home header */}
+      <Animated.View style={headerStyle} onLayout={handleTopLayout}>
+        <AppBar>
+          {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
+          {/* {activeTimeTableCategory.timetable_category_id ? (
             <Pressable
               style={homeStyles.timetableCategoryButton}
               onPress={() => setShowTimeTableCategoryBottomSheet(true)}>
@@ -311,39 +310,38 @@ const Home = ({navigation, route}: HomeScreenProps) => {
             <View />
           )} */}
 
-            <View />
+          <View />
 
-            <Pressable style={homeStyles.appBarRightButton} onPress={() => navigation.navigate('Setting')}>
-              <SettingIcon fill="#babfc5" />
-            </Pressable>
-          </AppBar>
+          <Pressable style={homeStyles.appBarRightButton} onPress={() => navigation.navigate('Setting')}>
+            <SettingIcon fill="#babfc5" />
+          </Pressable>
+        </AppBar>
 
-          <View style={homeStyles.weekDatePickerSection}>
-            <WeeklyDatePicker />
-          </View>
-        </Animated.View>
+        <View style={homeStyles.weekDatePickerSection}>
+          <WeeklyDatePicker />
+        </View>
+      </Animated.View>
 
-        <Animated.View style={timetableStyle}>
-          <Timetable data={scheduleList} isRendered={isRendered} />
-        </Animated.View>
+      <Animated.View style={timetableStyle}>
+        <Timetable data={scheduleList} isRendered={isRendered} />
+      </Animated.View>
 
-        <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
+      <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
 
-        <Pressable style={homeStyles.fabContainer} onPress={openEditScheduleBottomSheet}>
-          <PlusIcon stroke="#fff" />
-        </Pressable>
+      <Pressable style={homeStyles.fabContainer} onPress={openEditScheduleBottomSheet}>
+        <PlusIcon stroke="#fff" />
+      </Pressable>
 
-        <EditMenuBottomSheet
-          updateScheduleDeletedMutate={updateScheduleDeletedMutate}
-          openEditScheduleBottomSheet={openEditScheduleBottomSheet}
-        />
-        <EditTodoModal />
-        <CompleteModal />
-        {/*<TimetableCategoryBottomSheet />*/}
-        {/* <ScheduleCompleteModal /> */}
+      <EditMenuBottomSheet
+        updateScheduleDeletedMutate={updateScheduleDeletedMutate}
+        openEditScheduleBottomSheet={openEditScheduleBottomSheet}
+      />
+      <EditTodoModal />
+      <CompleteModal />
+      {/*<TimetableCategoryBottomSheet />*/}
+      {/* <ScheduleCompleteModal /> */}
 
-        <Loading />
-      </View>
+      <Loading />
     </View>
   )
 }
@@ -351,15 +349,10 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 const homeStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
-  },
-  wrapper: {
-    flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#ffffff'
   },
   homeHeaderContainer: {
-    zIndex: -1,
-    backgroundColor: '#fff'
+    zIndex: -1
   },
   weekDatePickerSection: {
     paddingHorizontal: 16,
