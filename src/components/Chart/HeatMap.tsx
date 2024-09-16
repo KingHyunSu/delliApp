@@ -22,7 +22,7 @@ const HeatMap = ({data, height}: Props) => {
         <View key={index}>
           {row.map((item, sIndex) => {
             const activeStyle = item.totalCompleteCount > 0 && {
-              backgroundColor: '#1E90FF',
+              backgroundColor: '#32CD32',
               opacity: item.totalCompleteCount / 5 > 1 ? 1 : item.totalCompleteCount / 5
             }
 

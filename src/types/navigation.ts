@@ -8,6 +8,7 @@ export type StackNavigator = {
     params?: BottomTabNavigator[keyof BottomTabNavigator]
   }
   EditSchedule: undefined
+  CategoryStats: undefined
 }
 export type BottomTabNavigator = {
   Home: {scheduleUpdated: boolean}
@@ -22,6 +23,10 @@ export type StatsNavigationProps = StackScreenProps<BottomTabNavigator, 'Stats'>
 
 export type HomeScreenProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'Home'>,
+  StackScreenProps<StackNavigator>
+>
+export type StatsScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<BottomTabNavigator, 'Stats'>,
   StackScreenProps<StackNavigator>
 >
 export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>

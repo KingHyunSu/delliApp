@@ -20,6 +20,7 @@ import StatsScreen from '@/views/Stats'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
 import EditScheduleScreen from '@/views/EditSchedule'
+import CategoryStats from '@/views/CategoryStats'
 
 // components
 import Toast from '@/components/Toast'
@@ -323,6 +324,7 @@ function App(): JSX.Element {
             <Stack.Navigator initialRouteName="MainTabs" screenOptions={{headerShown: false}}>
               <Stack.Screen name="MainTabs" component={BottomTabs} />
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animationEnabled: false}} />
+              <Stack.Screen name="CategoryStats" component={CategoryStats} />
             </Stack.Navigator>
           </NavigationContainer>
         </SafeAreaView>

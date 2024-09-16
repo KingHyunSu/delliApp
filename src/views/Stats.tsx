@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, View, Text} from 'react-native'
+import {StyleSheet, View, Text, Pressable} from 'react-native'
 import AppBar from '@/components/AppBar'
 import PieChart from '@/components/Chart/Pie'
 import BarChart from '@/components/Chart/Bar'
@@ -9,17 +9,21 @@ import RightArrowIcon from '@/assets/icons/arrow_right.svg'
 
 import {subDays, format, eachDayOfInterval} from 'date-fns'
 import {useQuery} from '@tanstack/react-query'
-import {useRecoilValue} from 'recoil'
+import {useRecoilValue, useSetRecoilState} from 'recoil'
 import {scheduleCategoryListState} from '@/store/schedule'
 import {windowDimensionsState} from '@/store/system'
 import {statsRepository} from '@/repository'
 import type {CategoryStatsList, ScheduleActivityLog} from '@/@types/stats'
+import {StatsScreenProps} from '@/types/navigation'
+import {categoryStatsListState, categoryTotalTimeState} from '@/store/stats'
 
-const Stats = () => {
-  const [categoryTotalTime, setCategoryTotalTime] = React.useState(-1)
+const Stats = ({navigation}: StatsScreenProps) => {
+  const [_categoryTotalTime, _setCategoryTotalTime] = React.useState(-1)
 
   const windowDimensions = useRecoilValue(windowDimensionsState)
   const scheduleCategoryList = useRecoilValue(scheduleCategoryListState)
+  const setCategoryStatsList = useSetRecoilState(categoryStatsListState)
+  const setCategoryTotalTime = useSetRecoilState(categoryTotalTimeState)
 
   const pieSize = React.useMemo(() => {
     const totalPaddingHorizontal = 72
@@ -70,7 +74,7 @@ const Stats = () => {
 
       result = result.sort((a, b) => b.totalTime - a.totalTime)
 
-      setCategoryTotalTime(_totalTime)
+      _setCategoryTotalTime(_totalTime)
       return result
     },
     initialData: []
@@ -141,6 +145,27 @@ const Stats = () => {
     return allDateScheduleActivityLogList.slice(0, 7).reverse()
   }, [allDateScheduleActivityLogList])
 
+  const moveDetail = React.useCallback(
+    (type: 'category') => () => {
+      if (type === 'category') {
+        navigation.navigate('CategoryStats')
+      }
+    },
+    []
+  )
+
+  React.useEffect(() => {
+    if (categoryStatsList.length > 0) {
+      setCategoryStatsList(categoryStatsList)
+    }
+  }, [categoryStatsList, setCategoryStatsList])
+
+  React.useEffect(() => {
+    if (_categoryTotalTime > -1) {
+      setCategoryTotalTime(_categoryTotalTime)
+    }
+  }, [_categoryTotalTime, setCategoryTotalTime])
+
   // components
   const pieChartItemListComponent = React.useMemo(() => {
     if (categoryStatsList.length === 0) {
@@ -155,7 +180,7 @@ const Stats = () => {
       }
 
       const item = categoryStatsList[i]
-      const percentage = Math.round((item.totalTime / categoryTotalTime) * 100)
+      const percentage = Math.round((item.totalTime / _categoryTotalTime) * 100)
 
       data.push({...item, percentage})
     }
@@ -180,30 +205,32 @@ const Stats = () => {
         </View>
       )
     })
-  }, [categoryStatsList, categoryTotalTime])
+  }, [categoryStatsList, _categoryTotalTime])
 
   return (
     <View style={styles.container}>
       <AppBar>
-        <View />
-        <Text style={styles.title}>통계</Text>
-        <View />
+        {/*<View />*/}
+        {/*<Text style={styles.title}>통계</Text>*/}
+        {/*<View />*/}
       </AppBar>
 
       <View style={styles.wrapper}>
         {/* 카테고리별 통계 */}
-        <Shadow style={styles.card} stretch startColor="#00000010" distance={3} offset={[0, 1]}>
-          <View style={styles.labelWrapper}>
-            <Text style={styles.label}>카테고리별 통계</Text>
-            <RightArrowIcon width={18} height={18} strokeWidth={3} stroke="#424242" />
-          </View>
+        <Pressable onPress={moveDetail('category')}>
+          <Shadow style={styles.card} stretch startColor="#00000010" distance={3} offset={[0, 1]}>
+            <View style={styles.labelWrapper}>
+              <Text style={styles.label}>카테고리별 통계</Text>
+              <RightArrowIcon width={18} height={18} strokeWidth={3} stroke="#424242" />
+            </View>
 
-          <View style={pieChartStyles.container}>
-            <PieChart size={pieSize} totalTime={categoryTotalTime} data={categoryStatsList} />
+            <View style={pieChartStyles.container}>
+              <PieChart size={pieSize} totalTime={_categoryTotalTime} data={categoryStatsList} />
 
-            <View style={pieChartStyles.itemListContainer}>{pieChartItemListComponent}</View>
-          </View>
-        </Shadow>
+              <View style={pieChartStyles.itemListContainer}>{pieChartItemListComponent}</View>
+            </View>
+          </Shadow>
+        </Pressable>
 
         <View style={{flexDirection: 'row', gap: 10, marginTop: 20}}>
           <Shadow

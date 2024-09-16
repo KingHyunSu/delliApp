@@ -47,7 +47,7 @@ const Pie = ({size, totalTime, data}: Props) => {
   return (
     <Svg width={size} height={size}>
       {PieList}
-      <Circle cx={size / 2} cy={size / 2} r={size / 2 - 30} fill="#ffffff" />
+      <Circle cx={size / 2} cy={size / 2} r={size * 0.25} fill="#ffffff" />
     </Svg>
   )
 }
