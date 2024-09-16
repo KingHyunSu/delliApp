@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, Platform, AppState, StatusBar, SafeAreaView, Alert} from 'react-native'
+import {useWindowDimensions, Platform, AppState, StatusBar, StyleSheet, SafeAreaView, Alert} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SplashScreen from 'react-native-splash-screen'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
@@ -100,6 +100,7 @@ function App(): JSX.Element {
 
   const [isActiveApp, setIsActiveApp] = React.useState(false)
   const [isInit, setIsInit] = React.useState(false)
+  const [statusBarColor, setStatusBarColor] = React.useState('#ffffff')
 
   const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
   const [isLogin, setIsLogin] = useRecoilState(loginState)
@@ -112,13 +113,17 @@ function App(): JSX.Element {
     return {headerShown: false}
   }, [])
 
+  const editScheduleScreenOptions = React.useMemo(() => {
+    return {animationEnabled: false}
+  }, [])
+
   const statusBarStyle = React.useMemo(() => {
     return {
       flex: 0,
-      backgroundColor: '#ffffff',
+      backgroundColor: statusBarColor,
       paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0
     }
-  }, [])
+  }, [statusBarColor])
 
   const bottomSafeAreaColor = React.useMemo(() => {
     if (isScheduleEdit) {
@@ -130,6 +135,23 @@ function App(): JSX.Element {
   const containerStyle = React.useMemo(() => {
     return {flex: 1, backgroundColor: bottomSafeAreaColor}
   }, [bottomSafeAreaColor])
+
+  const changeRoute = React.useCallback(() => {
+    const route = navigationRef.current?.getCurrentRoute()
+
+    let color = '#ffffff'
+
+    switch (route?.name) {
+      case 'Home':
+        color = '#ffffff'
+        break
+      case 'Stats':
+        color = '#f5f6f8'
+        break
+    }
+
+    setStatusBarColor(color)
+  }, [])
 
   // 2024-05-18 서버 제거로인해 비활성화
   // React.useEffect(() => {
@@ -310,7 +332,7 @@ function App(): JSX.Element {
   // }
 
   return (
-    <GestureHandlerRootView style={{flex: 1}}>
+    <GestureHandlerRootView style={styles.container}>
       {/* <RecoilDebugObserver /> */}
       <BottomSheetModalProvider>
         <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
@@ -320,10 +342,10 @@ function App(): JSX.Element {
         <Toast />
 
         <SafeAreaView style={containerStyle}>
-          <NavigationContainer ref={navigationRef} linking={linking}>
-            <Stack.Navigator initialRouteName="MainTabs" screenOptions={{headerShown: false}}>
+          <NavigationContainer ref={navigationRef} linking={linking} onStateChange={changeRoute}>
+            <Stack.Navigator initialRouteName="MainTabs" screenOptions={screenOptions}>
               <Stack.Screen name="MainTabs" component={BottomTabs} />
-              <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animationEnabled: false}} />
+              <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
               <Stack.Screen name="CategoryStats" component={CategoryStats} />
             </Stack.Navigator>
           </NavigationContainer>
@@ -332,5 +354,11 @@ function App(): JSX.Element {
     </GestureHandlerRootView>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1
+  }
+})
 
 export default App
