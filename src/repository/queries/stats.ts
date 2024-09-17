@@ -7,7 +7,16 @@ export const getCategoryStatsListQuery = () => {
       schedule_category_id,
     	title,
     	start_time,
-    	end_time
+    	end_time,
+      mon,
+      tue,
+      wed,
+      thu,
+      fri,
+      sat,
+      sun,
+      start_date,
+      end_date
     FROM 
       SCHEDULE
     WHERE

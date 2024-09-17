@@ -60,8 +60,9 @@ const Stats = ({navigation}: StatsScreenProps) => {
             schedule_category_id: item.schedule_category_id,
             categoryTitle: scheduleCategory ? scheduleCategory.title : '미지정',
             categoryIcon: scheduleCategory && scheduleCategory.icon ? scheduleCategory.icon : null,
+            image: scheduleCategory ? scheduleCategory.image : null,
             totalTime: time,
-            color: scheduleCategory ? scheduleCategory.color : '#D3D3D3',
+            color: scheduleCategory ? scheduleCategory.color : '#dfdfdf',
             data: [item]
           })
         } else {
