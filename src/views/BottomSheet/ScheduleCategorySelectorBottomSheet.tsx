@@ -135,13 +135,12 @@ const ScheduleCategorySelectorBottomSheet = () => {
 
   return (
     <BottomSheetModal
-      name="scheduleCategoryBottomSheet"
+      name="scheduleCategoryModal"
       ref={scheduleCategorySelectorBottomSheetRef}
       backdropComponent={getBackdropComponent}
       handleComponent={getHandleComponent}
       index={0}
       snapPoints={snapPoints}
-      keyboardBlurBehavior="restore"
       onDismiss={handleDismiss}>
       <View style={styles.container}>
         <Text style={styles.title}>카테고리 선택하기</Text>
