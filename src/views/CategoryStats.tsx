@@ -2,7 +2,7 @@ import {useState, useMemo, useCallback} from 'react'
 import {ViewStyle, StyleSheet, ScrollView, FlatList, Pressable, View, Text, Image} from 'react-native'
 import PieChart from '@/components/Chart/Pie'
 import AppBar from '@/components/AppBar'
-import CategoryStatsDetailBottomSheet from '@/views/BottomSheet/CategoryStatsDetailBottomSheet'
+import CategoryStatsDetailBottomSheet from '@/components/bottomSheet/CategoryStatsDetailBottomSheet'
 import ArrowRight from '@/assets/icons/arrow_right.svg'
 
 import {useRecoilValue} from 'recoil'

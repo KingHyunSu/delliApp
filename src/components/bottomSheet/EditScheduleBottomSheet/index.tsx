@@ -3,7 +3,7 @@ import {StyleSheet, ScrollView, Text, Pressable} from 'react-native'
 import BottomSheet, {BottomSheetHandleProps, BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import {isAfter} from 'date-fns'
 
-import TimeWheelModal from '@/views/Modal/TimeWheelModal'
+import TimeWheelModal from '@/components/modal/TimeWheelModal'
 
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ColorPanel from './src/ColorPanel'

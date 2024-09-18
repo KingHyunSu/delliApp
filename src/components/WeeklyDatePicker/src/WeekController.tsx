@@ -1,7 +1,7 @@
 import React from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
 import {format} from 'date-fns'
-import DatePickerBottomSheet from '@/views/BottomSheet/DatePickerBottomSheet'
+import DatePickerBottomSheet from '@/components/bottomSheet/DatePickerBottomSheet'
 import RightArrowIcon from '@/assets/icons/arrow_right.svg'
 
 interface Props {

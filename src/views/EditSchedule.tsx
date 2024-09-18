@@ -1,9 +1,9 @@
 import React from 'react'
 import {StyleSheet, Pressable, View, Text, Alert, Platform, Image} from 'react-native'
 import Animated, {runOnJS, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
-import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet'
-import OverlapScheduleListBottomSheet from '@/views/BottomSheet/OverlapScheduleListBottomSheet'
-import ScheduleCategorySelectorBottomSheet from '@/views/BottomSheet/ScheduleCategorySelectorBottomSheet'
+import EditScheduleBottomSheet from '@/components/bottomSheet/EditScheduleBottomSheet'
+import OverlapScheduleListBottomSheet from '@/components/bottomSheet/OverlapScheduleListBottomSheet'
+import ScheduleCategorySelectorBottomSheet from '@/components/bottomSheet/ScheduleCategorySelectorBottomSheet'
 import AppBar from '@/components/AppBar'
 import EditTimetable from '@/components/TimeTable/src/EditTimetable'
 
