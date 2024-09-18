@@ -23,6 +23,7 @@ export const getCategoryStatsListQuery = () => {
       disabled = '0'
     AND
       deleted = '0'
+    ORDER BY update_date desc
   `
 }
 

@@ -1,5 +1,5 @@
 import React, {useRef, useEffect, useMemo, useCallback} from 'react'
-import {StyleSheet, View, Text, Image, ListRenderItem} from 'react-native'
+import {ListRenderItem, StyleSheet, View, Text, Image, Platform} from 'react-native'
 import {
   BottomSheetModal,
   BottomSheetFlatList,
@@ -8,16 +8,35 @@ import {
 } from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
+import ScheduleItem from '@/components/ScheduleItem'
+
 import type {CategoryStatsList} from '@/@types/stats'
 import {GetCategoryStatsListResponse} from '@/repository/types/stats'
+import {useRecoilValue} from 'recoil'
+import {safeAreaInsetsState} from '@/store/system'
 
 interface Props {
   visible: boolean
   data: CategoryStatsList | null
   onClose: () => void
 }
+const snapPoint = ['80%']
 const CategoryStatsDetailBottomSheet = ({visible, data, onClose}: Props) => {
   const categoryStatsDetailBottomSheetRef = useRef<BottomSheetModal>(null)
+
+  const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
+
+  const bottomSafeArea = useMemo(() => {
+    if (Platform.OS === 'ios') {
+      return safeAreaInsets.bottom
+    }
+
+    return 0
+  }, [safeAreaInsets.bottom])
+
+  const listContainerStyle = useMemo(() => {
+    return [styles.listContainer, {paddingBottom: bottomSafeArea + 40}]
+  }, [bottomSafeArea])
 
   const handleClose = useCallback(() => {
     onClose()
@@ -29,7 +48,6 @@ const CategoryStatsDetailBottomSheet = ({visible, data, onClose}: Props) => {
 
   useEffect(() => {
     if (visible) {
-      console.log('visible', visible)
       categoryStatsDetailBottomSheetRef.current?.present()
     } else {
       categoryStatsDetailBottomSheetRef.current?.dismiss()
@@ -59,22 +77,16 @@ const CategoryStatsDetailBottomSheet = ({visible, data, onClose}: Props) => {
 
     return (
       <View style={styles.header}>
-        <View style={styles.titleWrapper}>
-          <Image source={image} style={styles.icon} />
-          <Text style={styles.title}>{data.categoryTitle}</Text>
-        </View>
+        <Image source={image} style={styles.icon} />
+        <Text style={styles.title}>{data.categoryTitle}</Text>
 
-        <Text>총 {data.data.length}개</Text>
+        <Text style={styles.subTitle}>{data.data.length}개</Text>
       </View>
     )
   }, [data])
 
-  const renderItem: ListRenderItem<Schedule> = useCallback(({item}) => {
-    return (
-      <View>
-        <Text>item</Text>
-      </View>
-    )
+  const renderItem: ListRenderItem<GetCategoryStatsListResponse> = useCallback(({item, index}) => {
+    return <ScheduleItem key={index} item={item as Schedule} />
   }, [])
 
   if (!data) {
@@ -88,13 +100,16 @@ const CategoryStatsDetailBottomSheet = ({visible, data, onClose}: Props) => {
       backdropComponent={backdropComponent}
       handleComponent={handleComponent}
       index={0}
-      snapPoints={['80%']}
+      snapPoints={snapPoint}
       onDismiss={handleClose}>
       <View style={styles.container}>
+        {listHeaderComponent}
+
         <BottomSheetFlatList
           data={data.data}
           keyExtractor={getKeyExtractor}
-          ListHeaderComponent={listHeaderComponent}
+          contentContainerStyle={listContainerStyle}
+          showsVerticalScrollIndicator={false}
           renderItem={renderItem}
         />
       </View>
@@ -104,16 +119,13 @@ const CategoryStatsDetailBottomSheet = ({visible, data, onClose}: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    paddingHorizontal: 16
+    flex: 1
   },
   header: {
-    paddingVertical: 10,
-    gap: 20
-  },
-  titleWrapper: {
+    backgroundColor: '#ffffff',
     alignItems: 'center',
-    gap: 10
+    gap: 10,
+    paddingBottom: 20
   },
   icon: {
     width: 48,
@@ -123,6 +135,15 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 22,
     color: '#424242'
+  },
+  subTitle: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 14,
+    color: '#424242'
+  },
+  listContainer: {
+    gap: 20,
+    paddingHorizontal: 16
   }
 })
 

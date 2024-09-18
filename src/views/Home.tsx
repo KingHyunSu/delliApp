@@ -54,7 +54,9 @@ const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/56892
 
 const Home = ({navigation, route}: HomeScreenProps) => {
   const safeAreaInsets = useSafeAreaInsets()
+
   const [isRendered, setIsRendered] = React.useState(false)
+  const [backPressCount, setBackPressCount] = React.useState(0)
 
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
@@ -62,7 +64,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
-  const [backPressCount, setBackPressCount] = React.useState(0)
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
 
   const setIsLunch = useSetRecoilState(isLunchState)
