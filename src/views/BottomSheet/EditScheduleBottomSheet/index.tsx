@@ -20,7 +20,7 @@ import {showTimeWheelModalState} from '@/store/modal'
 import {RANGE_FLAG} from '@/utils/types'
 
 import {DAY_OF_WEEK} from '@/types/common'
-import {showScheduleCategoryBottomSheetState} from '@/store/bottomSheet'
+import {showScheduleCategorySelectorBottomSheetState} from '@/store/bottomSheet'
 
 const EditScheduleBottomSheet = () => {
   const defaultItemPanelHeight = 56
@@ -34,7 +34,7 @@ const EditScheduleBottomSheet = () => {
   const editScheduleListSnapPoint = useRecoilValue(editScheduleListSnapPointState)
 
   const setIsInputMode = useSetRecoilState(isInputModeState)
-  const setShowScheduleCategoryBottomSheet = useSetRecoilState(showScheduleCategoryBottomSheetState)
+  const showScheduleCategorySelectorBottomSheet = useSetRecoilState(showScheduleCategorySelectorBottomSheetState)
   const setShowTimeWheelModal = useSetRecoilState(showTimeWheelModalState)
   const setEditScheduleListStatus = useSetRecoilState(editScheduleListStatusState)
 
@@ -58,7 +58,7 @@ const EditScheduleBottomSheet = () => {
 
   const handleCategoryPanel = React.useCallback(() => {
     closeAllPanel()
-    setShowScheduleCategoryBottomSheet(true)
+    showScheduleCategorySelectorBottomSheet(true)
   }, [])
 
   const handleColorPanel = React.useCallback(() => {

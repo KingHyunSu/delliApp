@@ -25,7 +25,7 @@ export const showDatePickerBottomSheetState = atom({
   default: false
 })
 
-export const showScheduleCategoryBottomSheetState = atom({
-  key: 'showScheduleCategoryBottomSheetState',
+export const showScheduleCategorySelectorBottomSheetState = atom({
+  key: 'showScheduleCategorySelectorBottomSheetState',
   default: false
 })

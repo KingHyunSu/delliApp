@@ -2,11 +2,13 @@ import React from 'react'
 import {StyleSheet, Pressable, View, Text, Alert, Platform, Image} from 'react-native'
 import Animated, {runOnJS, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
 import EditScheduleBottomSheet from '@/views/BottomSheet/EditScheduleBottomSheet'
+import OverlapScheduleListBottomSheet from '@/views/BottomSheet/OverlapScheduleListBottomSheet'
+import ScheduleCategorySelectorBottomSheet from '@/views/BottomSheet/ScheduleCategorySelectorBottomSheet'
 import AppBar from '@/components/AppBar'
 import EditTimetable from '@/components/TimeTable/src/EditTimetable'
-import {useQueryClient, useMutation} from '@tanstack/react-query'
 
-import CancleIcon from '@/assets/icons/cancle.svg'
+import CancelIcon from '@/assets/icons/cancle.svg'
+import {useQueryClient, useMutation} from '@tanstack/react-query'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {isEditState, isLoadingState, editScheduleListStatusState} from '@/store/system'
@@ -23,8 +25,6 @@ import {
 import {EditScheduleProps} from '@/types/navigation'
 import {scheduleRepository} from '@/repository'
 import {getTimeOfMinute} from '@/utils/helper'
-import ScheduleCategoryBottomSheet from '@/views/BottomSheet/ScheduleCategoryBottomSheet'
-import OverlapScheduleListBottomSheet from '@/views/BottomSheet/OverlapScheduleListBottomSheet'
 
 const EditSchedule = ({navigation}: EditScheduleProps) => {
   const queryClient = useQueryClient()
@@ -209,7 +209,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         <View />
 
         <Pressable style={styles.appBarRightButton} onPress={closeEditScheduleBottomSheet}>
-          <CancleIcon stroke="#242933" />
+          <CancelIcon stroke="#242933" />
         </Pressable>
       </AppBar>
 
@@ -229,7 +229,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       </Pressable>
 
       <EditScheduleBottomSheet />
-      <ScheduleCategoryBottomSheet />
+      <ScheduleCategorySelectorBottomSheet />
       <OverlapScheduleListBottomSheet setScheduleMutate={setScheduleMutate} />
     </View>
   )
