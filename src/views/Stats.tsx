@@ -148,9 +148,13 @@ const Stats = ({navigation}: StatsScreenProps) => {
   }, [allDateScheduleActivityLogList])
 
   const moveDetail = React.useCallback(
-    (type: 'category') => () => {
-      if (type === 'category') {
-        navigation.navigate('CategoryStats')
+    (type: 'category' | 'focusTime') => () => {
+      switch (type) {
+        case 'category':
+          navigation.navigate('CategoryStats')
+          break
+        default:
+          break
       }
     },
     []
@@ -216,8 +220,8 @@ const Stats = ({navigation}: StatsScreenProps) => {
 
       <View style={styles.wrapper}>
         {/* 카테고리별 통계 */}
-        <Pressable onPress={moveDetail('category')}>
-          <Shadow style={styles.card} stretch startColor="#00000010" distance={3} offset={[0, 1]}>
+        <Shadow style={styles.card} stretch startColor="#00000010" distance={3} offset={[0, 1]}>
+          <Pressable style={styles.cardWrapper} onPress={moveDetail('category')}>
             <View style={styles.labelWrapper}>
               <Text style={styles.label}>카테고리별 통계</Text>
               <RightArrowIcon width={18} height={18} strokeWidth={3} stroke="#424242" />
@@ -228,40 +232,42 @@ const Stats = ({navigation}: StatsScreenProps) => {
 
               <View style={pieChartStyles.itemListContainer}>{pieChartItemListComponent}</View>
             </View>
-          </Shadow>
-        </Pressable>
+          </Pressable>
+        </Shadow>
 
         <View style={{flexDirection: 'row', gap: 10, marginTop: 20}}>
           <Shadow
             style={styles.card}
-            containerStyle={styles.cardWrapper}
+            containerStyle={styles.cardContainer}
             stretch
             startColor="#00000010"
             distance={3}
             offset={[0, 1]}>
-            <View style={styles.labelWrapper}>
-              <Text style={styles.label}>집중 시간</Text>
-              <RightArrowIcon width={18} height={18} strokeWidth={3} stroke="#424242" />
-            </View>
+            <Pressable style={styles.cardWrapper}>
+              <View style={styles.labelWrapper}>
+                <Text style={styles.label}>집중 시간</Text>
+                <RightArrowIcon width={18} height={18} strokeWidth={3} stroke="#424242" />
+              </View>
 
-            <BarChart data={activeTimeList} height={chartHeight - 22} />
+              <BarChart data={activeTimeList} height={chartHeight - 22} />
+            </Pressable>
           </Shadow>
 
           <Shadow
             style={styles.card}
-            containerStyle={styles.cardWrapper}
+            containerStyle={styles.cardContainer}
             stretch
             startColor="#00000010"
             distance={3}
             offset={[0, 1]}>
-            <View>
+            <Pressable style={styles.cardWrapper}>
               <View style={styles.labelWrapper}>
                 <Text style={styles.label}>일정 완료</Text>
                 <RightArrowIcon width={18} height={18} strokeWidth={3} stroke="#424242" />
               </View>
 
               <HeatMapChart data={allDateScheduleActivityLogList} height={chartHeight} />
-            </View>
+            </Pressable>
           </Shadow>
         </View>
       </View>
@@ -285,12 +291,14 @@ const styles = StyleSheet.create({
     color: '#424242'
   },
   card: {
-    padding: 20,
     borderRadius: 20,
     backgroundColor: '#ffffff'
   },
-  cardWrapper: {
+  cardContainer: {
     flex: 1
+  },
+  cardWrapper: {
+    padding: 20
   },
   labelWrapper: {
     marginBottom: 20,
