@@ -13,7 +13,7 @@ interface DateItemParams {
   item: Item
 }
 interface Props {
-  value: string
+  value: string | null
   hasNull?: boolean
   disableDate?: string
   onChange: Function
@@ -35,12 +35,10 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disable
   }, [datePickerValue])
 
   React.useEffect(() => {
-    if (date) {
-      if (hasNull && date === '9999-12-31') {
-        setCurrentDate(new Date())
-      } else {
-        setCurrentDate(new Date(date))
-      }
+    if ((hasNull && date === '9999-12-31') || !date) {
+      setCurrentDate(new Date())
+    } else {
+      setCurrentDate(new Date(date))
     }
   }, [date, hasNull])
 

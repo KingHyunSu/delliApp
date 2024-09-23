@@ -330,7 +330,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
 
       <Pressable style={homeStyles.fabContainer} onPress={openEditScheduleBottomSheet}>
-        <PlusIcon stroke="#fff" />
+        <PlusIcon stroke="#ffffff" strokeWidth={3} />
       </Pressable>
 
       <EditMenuBottomSheet
@@ -382,9 +382,9 @@ const homeStyles = StyleSheet.create({
     position: 'absolute',
     bottom: 20,
     right: 20,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
     backgroundColor: '#1E90FF',
     justifyContent: 'center',
     alignItems: 'center',

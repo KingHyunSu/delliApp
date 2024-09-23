@@ -16,6 +16,9 @@ import {navigationRef} from '@/utils/navigation'
 
 // views
 import HomeScreen from '@/views/Home'
+import GoalScreen from '@/views/Goal'
+import SproutScreen from '@/views/Sprout'
+import EditGoalScreen from '@/views/Sprout/Goal/views/EditGoal'
 import StatsScreen from '@/views/Stats'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
@@ -29,6 +32,7 @@ import Toast from '@/components/Toast'
 import HomeIcon from '@/assets/icons/home.svg'
 import MyIcon from '@/assets/icons/my.svg'
 import ChartIcon from '@/assets/icons/chart.svg'
+import SproutIcon from '@/assets/icons/sprout.svg'
 
 // stores
 import {useRecoilState, useSetRecoilState, useRecoilSnapshot, useRecoilValue} from 'recoil'
@@ -60,11 +64,11 @@ const BottomTabs = React.memo(() => {
         }}
       />
       <Tab.Screen
-        name="Stats"
-        component={StatsScreen}
+        name="Sprout"
+        component={SproutScreen}
         options={{
           tabBarIcon: ({focused}) => {
-            return <ChartIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
+            return <SproutIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
           }
         }}
       />
@@ -347,6 +351,7 @@ function App(): JSX.Element {
               <Stack.Screen name="MainTabs" component={BottomTabs} />
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
               <Stack.Screen name="CategoryStats" component={CategoryStats} />
+              <Stack.Screen name="EditGoal" component={EditGoalScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </SafeAreaView>

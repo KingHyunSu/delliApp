@@ -1,11 +1,11 @@
-import React from 'react'
+import {useCallback} from 'react'
 import {StyleSheet, Pressable} from 'react-native'
 
 import Animated, {useDerivedValue, withTiming, useAnimatedStyle, interpolateColor} from 'react-native-reanimated'
 
 interface Props {
   value: boolean
-  onChange: Function
+  onChange: (value: boolean) => void
 }
 const Switch = ({value = false, onChange}: Props) => {
   const duration = 200
@@ -28,9 +28,13 @@ const Switch = ({value = false, onChange}: Props) => {
     }
   })
 
+  const change = useCallback(() => {
+    onChange(!value)
+  }, [onChange, value])
+
   return (
     <Animated.View style={[backgroundStyle, styles.container]}>
-      <Pressable style={styles.wrapper} onPress={() => onChange(!value)}>
+      <Pressable style={styles.wrapper} onPress={change}>
         <Animated.View style={[translateStyle, styles.circle]} />
       </Pressable>
     </Animated.View>

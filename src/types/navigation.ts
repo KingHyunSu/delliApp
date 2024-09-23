@@ -9,15 +9,15 @@ export type StackNavigator = {
   }
   EditSchedule: undefined
   CategoryStats: undefined
+  EditGoal: {id: number | null}
 }
 export type BottomTabNavigator = {
   Home: {scheduleUpdated: boolean}
-  Stats: undefined
+  Sprout: undefined
   Setting: undefined
 }
 
 export type SettingNavigationProps = StackScreenProps<BottomTabNavigator, 'Setting'>
-export type StatsNavigationProps = StackScreenProps<BottomTabNavigator, 'Stats'>
 // export type LoginNavigationProps = StackScreenProps<RootStackParamList, 'Login'>
 // export type JoinTermsNavigationProps = StackScreenProps<RootStackParamList, 'JoinTerms'>
 
@@ -25,10 +25,16 @@ export type HomeScreenProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'Home'>,
   StackScreenProps<StackNavigator>
 >
+export type SproutNavigationProps = CompositeScreenProps<
+  BottomTabScreenProps<BottomTabNavigator, 'Sprout'>,
+  StackScreenProps<StackNavigator>
+>
+
+export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
+export type EditGoalScreenProps = StackScreenProps<StackNavigator, 'EditGoal'>
+
 export type StatsScreenProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'Stats'>,
   StackScreenProps<StackNavigator>
 >
-export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
-
 // export type HomeTabProps = BottomTabScreenProps<BottomTabNavigator, 'Home'>
