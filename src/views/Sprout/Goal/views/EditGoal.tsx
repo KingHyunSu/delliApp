@@ -5,6 +5,7 @@ import AppBar from '@/components/AppBar'
 import Panel from '@/components/Panel'
 import Switch from '@/components/Swtich'
 import DatePicker from '@/components/DatePicker'
+import EditGoalScheduleItem from '@/views/Sprout/Goal/components/EditGoalScheduleItem'
 import PushpineIcon from '@/assets/icons/pushpin.svg'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
@@ -14,9 +15,7 @@ import {scheduleDateState} from '@/store/schedule'
 import {useQuery} from '@tanstack/react-query'
 import {goalRepository} from '@/repository'
 import {EditGoalScreenProps} from '@/types/navigation'
-import {Goal} from '@/@types/goal'
-import EditGoalScheduleItem from '@/views/Sprout/Goal/components/EditGoalScheduleItem'
-import {GetGoalScheduleListResponse} from '@/repository/types/goal'
+import {Goal, GoalSchedule} from '@/@types/goal'
 
 const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   const [expandDDayPanel, setExpandDDayPanel] = useState(false)
@@ -143,7 +142,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   }, [])
 
   const changeItemValue = useCallback(
-    (value: GetGoalScheduleListResponse, index: number) => {
+    (value: GoalSchedule, index: number) => {
       const newScheduleList = [...form.scheduleList]
       newScheduleList[index] = value
 

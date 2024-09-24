@@ -1,12 +1,12 @@
 import {useCallback, useMemo} from 'react'
 import {StyleSheet, View, Text, TextInput} from 'react-native'
 import ScheduleItem from '@/components/ScheduleItem'
-import {GetGoalScheduleListResponse} from '@/repository/types/goal'
+import {GoalSchedule} from '@/@types/goal'
 
 interface Props {
-  item: GetGoalScheduleListResponse
+  item: GoalSchedule
   index: number
-  onChange: (value: GetGoalScheduleListResponse, index: number) => void
+  onChange: (value: GoalSchedule, index: number) => void
 }
 const EditGoalScheduleItem = ({item, index, onChange}: Props) => {
   const hours = useMemo(() => {

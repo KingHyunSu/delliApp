@@ -1,22 +1,29 @@
-import {useCallback} from 'react'
+import {useState, useCallback, useEffect, useRef} from 'react'
 import {ListRenderItem, StyleSheet, View, Text, TextInput, FlatList, Pressable} from 'react-native'
+import {trigger} from 'react-native-haptic-feedback'
+import {Shadow} from 'react-native-shadow-2'
 import AppBar from '@/components/AppBar'
 import ScheduleItem from '@/components/ScheduleItem'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 
 import {useQuery} from '@tanstack/react-query'
 import {scheduleRepository} from '@/repository'
-import {GetSearchScheduleListResponse} from '@/repository/types/schedule'
 import SearchScheduleCategoryFilterBottomSheet from '@/components/bottomSheet/SearchScheduleCategoryFilterBottomSheet'
 import {useSetRecoilState} from 'recoil'
 import {showSearchScheduleCategoryFilterBottomSheetState} from '@/store/bottomSheet'
+import {GoalSchedule} from '@/@types/goal'
 
 const SearchEditGoalSchedule = () => {
+  const [searchScheduleList, setSearchScheduleList] = useState<GoalSchedule[]>([])
+  const [searchText, setSearchText] = useState('')
+  const [selectedList, setSelectedList] = useState<GoalSchedule[]>([])
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
+
   const setShowSearchScheduleCategoryFilterBottomSheet = useSetRecoilState(
     showSearchScheduleCategoryFilterBottomSheetState
   )
 
-  const {data: getSearchScheduleList} = useQuery({
+  const {data: result} = useQuery({
     queryKey: ['getSearchScheduleList'],
     queryFn: () => {
       return scheduleRepository.getSearchScheduleList()
@@ -28,44 +35,100 @@ const SearchEditGoalSchedule = () => {
     setShowSearchScheduleCategoryFilterBottomSheet(true)
   }, [setShowSearchScheduleCategoryFilterBottomSheet])
 
-  const handleSelected = useCallback(() => {
-    console.log('item select')
-  }, [])
+  const handleSelected = useCallback(
+    (item: GoalSchedule) => () => {
+      const target = selectedList.find(sItem => item.schedule_id === sItem.schedule_id)
 
-  const getKeyExtractor = useCallback((item: GetSearchScheduleListResponse, index: number) => {
+      if (target) {
+        const newSelectedList = selectedList.filter(sItem => item.schedule_id !== sItem.schedule_id)
+        setSelectedList(newSelectedList)
+      } else {
+        trigger('soft', {
+          enableVibrateFallback: true,
+          ignoreAndroidSystemSettings: false
+        })
+
+        setSelectedList(prevState => [...prevState, item])
+      }
+    },
+    [selectedList, setSelectedList]
+  )
+
+  const getKeyExtractor = useCallback((item: GoalSchedule, index: number) => {
     return index.toString()
   }, [])
 
-  const getRenderItem: ListRenderItem<GetSearchScheduleListResponse> = useCallback(({item}) => {
-    return (
-      <Pressable>
-        <ScheduleItem
-          title={item.title}
-          categoryId={item.schedule_category_id}
-          time={{startTime: item.start_time, endTime: item.end_time}}
-          date={{startDate: item.start_date, endDate: item.end_date}}
-          dayOfWeek={{
-            mon: item.mon,
-            tue: item.tue,
-            wed: item.wed,
-            thu: item.thu,
-            fri: item.fri,
-            sat: item.sat,
-            sun: item.sun
-          }}
-        />
-      </Pressable>
-    )
-  }, [])
+  useEffect(() => {
+    if (result.length > 0) {
+      setSearchScheduleList(result)
+    }
+  }, [result])
+
+  useEffect(() => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current)
+    }
+
+    debounceTimeout.current = setTimeout(() => {
+      const newSearchScheduleList = result.filter(item => {
+        return item.title.includes(searchText)
+      })
+      setSearchScheduleList(newSearchScheduleList)
+    }, 300)
+
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current)
+      }
+    }
+  }, [searchText, result])
+
+  // components
+  const getRenderItem: ListRenderItem<GoalSchedule> = useCallback(
+    ({item}) => {
+      const isSelected = selectedList.find(sItem => item.schedule_id === sItem.schedule_id)
+      const selectedColor = isSelected ? '#f5f8ff' : null
+
+      return (
+        <Pressable onPress={handleSelected(item)}>
+          <ScheduleItem
+            title={item.title}
+            categoryId={item.schedule_category_id}
+            time={{startTime: item.start_time, endTime: item.end_time}}
+            date={{startDate: item.start_date, endDate: item.end_date}}
+            dayOfWeek={{
+              mon: item.mon,
+              tue: item.tue,
+              wed: item.wed,
+              thu: item.thu,
+              fri: item.fri,
+              sat: item.sat,
+              sun: item.sun
+            }}
+            backgroundColor={selectedColor}
+          />
+        </Pressable>
+      )
+    },
+    [selectedList, handleSelected]
+  )
 
   return (
     <View style={styles.container}>
       <View style={styles.appBarContainer}>
         <AppBar backPress>
-          <TextInput style={styles.input} placeholder="검색어를 입력해주세요" placeholderTextColor="#7c8698" />
+          <TextInput
+            value={searchText}
+            style={styles.input}
+            placeholder="검색어를 입력해주세요"
+            placeholderTextColor="#7c8698"
+            onChangeText={setSearchText}
+          />
         </AppBar>
 
         <View style={styles.searchCategoryButtonWrapper}>
+          <Text style={styles.searchCategoryButtonText}>{`선택된 일정 ${selectedList.length}개`}</Text>
+
           <Pressable style={styles.searchCategoryButton} onPress={showSearchScheduleCategoryFilterBottomSheet}>
             <Text style={styles.searchCategoryButtonText}>전체</Text>
             <ArrowDownIcon stroke="#424242" />
@@ -78,10 +141,16 @@ const SearchEditGoalSchedule = () => {
           contentContainerStyle={styles.listContainer}
           showsVerticalScrollIndicator={false}
           keyExtractor={getKeyExtractor}
-          data={getSearchScheduleList}
+          data={searchScheduleList}
           renderItem={getRenderItem}
         />
       </View>
+
+      <Shadow stretch containerStyle={styles.confirmButtonWrapper} startColor="#ffffff" distance={30}>
+        <Pressable style={styles.confirmButton}>
+          <Text style={styles.confirmButtonText}>선택하기</Text>
+        </Pressable>
+      </Shadow>
 
       <SearchScheduleCategoryFilterBottomSheet />
     </View>
@@ -90,7 +159,6 @@ const SearchEditGoalSchedule = () => {
 
 const styles = StyleSheet.create({
   appBarContainer: {
-    // height: 58,
     backgroundColor: '#ffffff'
   },
   container: {
@@ -112,8 +180,10 @@ const styles = StyleSheet.create({
     color: '#424242'
   },
   searchCategoryButtonWrapper: {
-    alignItems: 'flex-end',
-    paddingRight: 16
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16
   },
   searchCategoryButton: {
     flexDirection: 'row',
@@ -129,7 +199,28 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     gap: 15,
-    paddingVertical: 20
+    paddingTop: 20,
+    paddingBottom: 83
+  },
+
+  confirmButtonWrapper: {
+    position: 'absolute',
+    bottom: 10,
+    left: 0,
+    right: 0,
+    marginHorizontal: 16
+  },
+  confirmButton: {
+    height: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1E90FF',
+    borderRadius: 10
+  },
+  confirmButtonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 18,
+    color: '#ffffff'
   }
 })
 

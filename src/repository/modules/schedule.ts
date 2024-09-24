@@ -9,9 +9,9 @@ import {
   SetScheduleCompleteParams,
   SetScheduleFocusTimeParams,
   UpdateScheduleCompleteParams,
-  UpdateScheduleFocusTimeParams,
-  GetSearchScheduleListResponse
+  UpdateScheduleFocusTimeParams
 } from '../types/schedule'
+import {GoalSchedule} from '@/@types/goal'
 
 export const getScheduleList = async (params: GetScheduleList) => {
   const query = scheduleQueries.getScheduleListQuery(params)
@@ -35,7 +35,7 @@ export const getSearchScheduleList = async () => {
   const db = await openDatabase()
   const [result] = await db.executeSql(query)
 
-  return result.rows.raw() as GetSearchScheduleListResponse[]
+  return result.rows.raw() as GoalSchedule[]
 }
 
 export const setSchedule = async (params: SetSchedule) => {

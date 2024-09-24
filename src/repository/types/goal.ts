@@ -19,22 +19,3 @@ export interface GetGoalDetailResponse {
   end_date: string
   state: number
 }
-
-export interface GetGoalScheduleListResponse {
-  focus_time: number | null
-  complete_count: number | null
-  schedule_category_id: number | null
-  schedule_id: number
-  title: string
-  start_time: number
-  end_time: number
-  mon: string
-  tue: string
-  wed: string
-  thu: string
-  fri: string
-  sat: string
-  sun: string
-  start_date: string
-  end_date: string
-}
