@@ -1,4 +1,4 @@
-import React, {ReactNode} from 'react'
+import {ReactNode, useMemo, useCallback} from 'react'
 import {StyleSheet, View, Text, Image} from 'react-native'
 import TodoList from './src/TodoList'
 
@@ -33,15 +33,27 @@ interface Props {
   dayOfWeek?: ScheduleDayOfWeek
   todoList?: Todo[]
   headerComponent?: ReactNode
+  backgroundColor?: string | null
 }
-const ScheduleItem = ({title, categoryId, time, date, dayOfWeek, headerComponent, todoList}: Props) => {
+const ScheduleItem = ({
+  title,
+  categoryId,
+  time,
+  date,
+  dayOfWeek,
+  todoList,
+  headerComponent,
+  backgroundColor
+}: Props) => {
   const scheduleCategoryList = useRecoilValue(scheduleCategoryListState)
 
-  const getDayOfWeekTextStyle = React.useCallback((value: string) => {
-    return [styles.dayOfWeekText, value === '1' && styles.activeDayOfWeekText]
-  }, [])
+  const containerStyle = useMemo(() => {
+    const _backgroundColor = backgroundColor ? backgroundColor : '#f9f9f9'
 
-  const scheduleCategoryTitle = React.useMemo(() => {
+    return [styles.container, {backgroundColor: _backgroundColor}]
+  }, [backgroundColor])
+
+  const scheduleCategoryTitle = useMemo(() => {
     const target = scheduleCategoryList.find(scheduleCategory => {
       return scheduleCategory.schedule_category_id === categoryId
     })
@@ -49,27 +61,31 @@ const ScheduleItem = ({title, categoryId, time, date, dayOfWeek, headerComponent
     return target ? target.title : '미지정'
   }, [scheduleCategoryList, categoryId])
 
-  const getTimeText = (value: number) => {
+  const getDayOfWeekTextStyle = useCallback((value: string) => {
+    return [styles.dayOfWeekText, value === '1' && styles.activeDayOfWeekText]
+  }, [])
+
+  const getTimeText = useCallback((value: number) => {
     const timeInfo = getTimeOfMinute(value)
 
     return `${timeInfo.meridiem} ${timeInfo.hour}시 ${timeInfo.minute}분`
-  }
+  }, [])
 
   return (
-    <View style={styles.container}>
+    <View style={containerStyle}>
       {headerComponent}
 
       <Text style={styles.titleText}>{title}</Text>
 
       <View style={styles.infoWrapper}>
-        {categoryId && (
+        {categoryId !== undefined && (
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/folder.png')} style={styles.icon} />
             <Text style={styles.contentsText}>{scheduleCategoryTitle}</Text>
           </View>
         )}
 
-        {time && (
+        {time !== undefined && (
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/time.png')} style={styles.icon} />
 
@@ -77,7 +93,7 @@ const ScheduleItem = ({title, categoryId, time, date, dayOfWeek, headerComponent
           </View>
         )}
 
-        {date && (
+        {date !== undefined && (
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/calendar.png')} style={styles.icon} />
             <Text style={styles.contentsText}>
@@ -86,7 +102,7 @@ const ScheduleItem = ({title, categoryId, time, date, dayOfWeek, headerComponent
           </View>
         )}
 
-        {dayOfWeek && (
+        {dayOfWeek !== undefined && (
           <View style={styles.infoIconRow}>
             <RepeatIcon width={16} height={16} fill="#03cf5d" />
 
@@ -103,14 +119,13 @@ const ScheduleItem = ({title, categoryId, time, date, dayOfWeek, headerComponent
         )}
       </View>
 
-      {todoList && todoList.length > 0 && <TodoList data={todoList} />}
+      {todoList !== undefined && todoList.length > 0 && <TodoList data={todoList} />}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f9f9f9',
     borderRadius: 10,
     padding: 16
   },
