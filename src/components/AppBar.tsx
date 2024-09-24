@@ -1,4 +1,4 @@
-import {useMemo, useCallback} from 'react'
+import {ReactNode, useMemo, useCallback} from 'react'
 import {Pressable, StyleSheet, Text, View} from 'react-native'
 import {navigationRef} from '@/utils/navigation'
 import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
@@ -7,7 +7,7 @@ interface Props {
   title?: string
   color?: string
   backPress?: boolean
-  children?: React.ReactNode
+  children?: ReactNode
 }
 const AppBar = ({title, color, backPress = false, children}: Props) => {
   const containerStyle = useMemo(() => {

@@ -37,7 +37,25 @@ const SearchEditGoalSchedule = () => {
   }, [])
 
   const getRenderItem: ListRenderItem<GetSearchScheduleListResponse> = useCallback(({item}) => {
-    return <ScheduleItem item={item} onClick={handleSelected} />
+    return (
+      <Pressable>
+        <ScheduleItem
+          title={item.title}
+          categoryId={item.schedule_category_id}
+          time={{startTime: item.start_time, endTime: item.end_time}}
+          date={{startDate: item.start_date, endDate: item.end_date}}
+          dayOfWeek={{
+            mon: item.mon,
+            tue: item.tue,
+            wed: item.wed,
+            thu: item.thu,
+            fri: item.fri,
+            sat: item.sat,
+            sun: item.sun
+          }}
+        />
+      </Pressable>
+    )
   }, [])
 
   return (

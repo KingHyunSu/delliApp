@@ -94,7 +94,20 @@ const OverlapSchedule = ({
     <View style={styles.container}>
       {StateBox}
 
-      <ScheduleItem item={schedule as Schedule} />
+      <ScheduleItem
+        title={schedule.title}
+        time={{startTime: schedule.start_time, endTime: schedule.end_time}}
+        date={{startDate: schedule.start_date, endDate: schedule.end_date}}
+        dayOfWeek={{
+          mon: schedule.mon,
+          tue: schedule.tue,
+          wed: schedule.wed,
+          thu: schedule.thu,
+          fri: schedule.fri,
+          sat: schedule.sat,
+          sun: schedule.sun
+        }}
+      />
 
       <View style={styles.buttonContainer}>
         <Pressable style={disabledButton} onPress={handleDisabled}>

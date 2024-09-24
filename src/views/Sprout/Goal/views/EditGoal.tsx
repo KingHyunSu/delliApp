@@ -157,7 +157,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
 
   const moveSearchSchedule = useCallback(() => {
     navigation.navigate('SearchEditGoalSchedule')
-  }, [])
+  }, [navigation])
 
   return (
     <View style={styles.container}>
