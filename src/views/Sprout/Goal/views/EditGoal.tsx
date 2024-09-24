@@ -9,13 +9,15 @@ import EditGoalScheduleItem from '@/views/Sprout/Goal/components/EditGoalSchedul
 import PushpineIcon from '@/assets/icons/pushpin.svg'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
-import {useRecoilValue} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
 import {scheduleDateState} from '@/store/schedule'
 
-import {useQuery} from '@tanstack/react-query'
+import {useMutation, useQuery} from '@tanstack/react-query'
 import {goalRepository} from '@/repository'
 import {EditGoalScreenProps} from '@/types/navigation'
 import {Goal, GoalSchedule} from '@/@types/goal'
+import {selectGoalScheduleListState} from '@/store/goal'
+import {SetGoalDetailParams} from '@/repository/types/goal'
 
 const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   const [expandDDayPanel, setExpandDDayPanel] = useState(false)
@@ -26,46 +28,10 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     end_date: null,
     active_end_date: 0,
     state: 0,
-    scheduleList: [
-      {
-        complete_count: null,
-        end_date: '9999-12-31',
-        end_time: 1280,
-        focus_time: 212,
-        fri: '1',
-        mon: '1',
-        sat: '1',
-        schedule_category_id: 3,
-        schedule_id: 16,
-        start_date: '2024-09-15',
-        start_time: 1100,
-        sun: '1',
-        thu: '1',
-        title: '13',
-        tue: '1',
-        wed: '1'
-      },
-      {
-        complete_count: null,
-        end_date: '9999-12-31',
-        end_time: 1110,
-        focus_time: null,
-        fri: '1',
-        mon: '1',
-        sat: '1',
-        schedule_category_id: null,
-        schedule_id: 17,
-        start_date: '2024-09-18',
-        start_time: 770,
-        sun: '1',
-        thu: '1',
-        title: 'Aaa',
-        tue: '1',
-        wed: '1'
-      }
-    ]
+    scheduleList: []
   })
 
+  const [selectGoalScheduleList, setSelectGoalScheduleList] = useRecoilState(selectGoalScheduleListState)
   const scheduleDate = useRecoilValue(scheduleDateState)
 
   const {data: goalDetail} = useQuery({
@@ -85,9 +51,26 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     enabled: !!route.params.id
   })
 
+  const {mutate: setGoalDetailMutate} = useMutation({
+    mutationFn: () => {
+      const params: SetGoalDetailParams = {
+        title: form.title,
+        end_date: form.end_date,
+        active_end_date: form.active_end_date,
+        state: form.state
+      }
+
+      return goalRepository.setGoalDetail(params)
+    },
+    onSuccess: () => {
+      console.log('Success!!')
+    }
+  })
+
   useEffect(() => {
     if (goalDetail) {
       setForm(goalDetail)
+      setSelectGoalScheduleList(goalDetail.scheduleList)
     }
   }, [goalDetail])
 
@@ -97,7 +80,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     let totalFocusTime = 0
     let totalCompleteCount = 0
 
-    form.scheduleList.forEach(item => {
+    selectGoalScheduleList.forEach(item => {
       totalFocusTime += item.focus_time || 0
       totalCompleteCount += item.complete_count || 0
     })
@@ -120,7 +103,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     }
 
     return `총 ${timeStr} / ${totalCompleteCount}회`
-  }, [form.scheduleList])
+  }, [selectGoalScheduleList])
 
   const handleExpandDatePanel = useCallback(() => {
     setExpandDDayPanel(!expandDDayPanel)
@@ -143,20 +126,43 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
 
   const changeItemValue = useCallback(
     (value: GoalSchedule, index: number) => {
-      const newScheduleList = [...form.scheduleList]
+      const newScheduleList = [...selectGoalScheduleList]
       newScheduleList[index] = value
 
-      setForm(prevState => ({
-        ...prevState,
-        scheduleList: newScheduleList
-      }))
+      setSelectGoalScheduleList(newScheduleList)
     },
-    [form.scheduleList]
+    [selectGoalScheduleList]
   )
 
   const moveSearchSchedule = useCallback(() => {
     navigation.navigate('SearchEditGoalSchedule')
   }, [navigation])
+
+  const handleConfirm = useCallback(() => {
+    const insertedList = []
+    const updatedList = []
+    const deletedList = []
+
+    for (let i = 0; selectGoalScheduleList.length; i++) {
+      const item = selectGoalScheduleList[i]
+
+      if (!item.goal_schedule_id) {
+        insertedList.push(item)
+        continue
+      }
+
+      const targetItem = form.scheduleList.find(sItem => item.schedule_id === sItem.schedule_id)
+
+      if (targetItem) {
+        if (targetItem.focus_time !== item.focus_time || targetItem.complete_count !== item.complete_count) {
+          updatedList.push(item)
+        }
+      } else {
+        deletedList.push(item)
+      }
+    }
+    setGoalDetailMutate()
+  }, [])
 
   return (
     <View style={styles.container}>
@@ -173,6 +179,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
             placeholder="새로운 목표명"
             placeholderTextColor="#c3c5cc"
             style={styles.input}
+            onChangeText={(value: string) => setForm(prevState => ({...prevState, title: value}))}
           />
 
           {/* 디데이 */}
@@ -230,11 +237,15 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
         </View>
 
         <View style={scheduleListStyle.listContainer}>
-          {form.scheduleList.map((item, index) => {
+          {selectGoalScheduleList.map((item, index) => {
             return <EditGoalScheduleItem key={index} item={item} index={index} onChange={changeItemValue} />
           })}
         </View>
       </ScrollView>
+
+      <Pressable onPress={handleConfirm}>
+        <Text>등록하기</Text>
+      </Pressable>
     </View>
   )
 }

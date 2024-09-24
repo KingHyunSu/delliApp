@@ -19,3 +19,10 @@ export interface GetGoalDetailResponse {
   end_date: string
   state: number
 }
+
+export interface SetGoalDetailParams {
+  title: string
+  end_date: string | null
+  active_end_date: number | null
+  state: number | null
+}

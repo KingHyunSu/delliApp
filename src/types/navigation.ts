@@ -33,6 +33,7 @@ export type SproutNavigationProps = CompositeScreenProps<
 
 export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
 export type EditGoalScreenProps = StackScreenProps<StackNavigator, 'EditGoal'>
+export type SearchEditGoalScheduleScreenProps = StackScreenProps<StackNavigator, 'SearchEditGoalSchedule'>
 
 export type StatsScreenProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'Stats'>,

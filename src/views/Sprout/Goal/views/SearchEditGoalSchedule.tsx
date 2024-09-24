@@ -9,11 +9,13 @@ import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import {useQuery} from '@tanstack/react-query'
 import {scheduleRepository} from '@/repository'
 import SearchScheduleCategoryFilterBottomSheet from '@/components/bottomSheet/SearchScheduleCategoryFilterBottomSheet'
-import {useSetRecoilState} from 'recoil'
+import {useRecoilState, useSetRecoilState} from 'recoil'
 import {showSearchScheduleCategoryFilterBottomSheetState} from '@/store/bottomSheet'
+import {selectGoalScheduleListState} from '@/store/goal'
 import {GoalSchedule} from '@/@types/goal'
+import {SearchEditGoalScheduleScreenProps} from '@/types/navigation'
 
-const SearchEditGoalSchedule = () => {
+const SearchEditGoalSchedule = ({navigation}: SearchEditGoalScheduleScreenProps) => {
   const [searchScheduleList, setSearchScheduleList] = useState<GoalSchedule[]>([])
   const [searchText, setSearchText] = useState('')
   const [selectedList, setSelectedList] = useState<GoalSchedule[]>([])
@@ -22,6 +24,7 @@ const SearchEditGoalSchedule = () => {
   const setShowSearchScheduleCategoryFilterBottomSheet = useSetRecoilState(
     showSearchScheduleCategoryFilterBottomSheetState
   )
+  const [selectGoalScheduleList, setSelectGoalScheduleList] = useRecoilState(selectGoalScheduleListState)
 
   const {data: result} = useQuery({
     queryKey: ['getSearchScheduleList'],
@@ -57,6 +60,15 @@ const SearchEditGoalSchedule = () => {
   const getKeyExtractor = useCallback((item: GoalSchedule, index: number) => {
     return index.toString()
   }, [])
+
+  const handleConfirm = useCallback(() => {
+    setSelectGoalScheduleList(selectedList)
+    navigation.goBack()
+  }, [selectedList, setSearchScheduleList])
+
+  useEffect(() => {
+    setSelectedList(selectGoalScheduleList)
+  }, [selectGoalScheduleList, setSelectedList])
 
   useEffect(() => {
     if (result.length > 0) {
@@ -147,7 +159,7 @@ const SearchEditGoalSchedule = () => {
       </View>
 
       <Shadow stretch containerStyle={styles.confirmButtonWrapper} startColor="#ffffff" distance={30}>
-        <Pressable style={styles.confirmButton}>
+        <Pressable style={styles.confirmButton} onPress={handleConfirm}>
           <Text style={styles.confirmButtonText}>선택하기</Text>
         </Pressable>
       </Shadow>

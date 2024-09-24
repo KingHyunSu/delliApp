@@ -70,3 +70,10 @@ export const getGoalScheduleListQuery = (params: GetGoalDetailRequest) => {
       GS.goal_id = ${params.goal_id}
   `
 }
+
+export const setGoalDetailQuery = () => {
+  return `
+		INSERT INTO GOAL (title, end_date, active_end_date, state)
+		VALUES (?, ?, ?, ?)
+	`
+}
