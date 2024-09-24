@@ -19,6 +19,7 @@ import HomeScreen from '@/views/Home'
 import GoalScreen from '@/views/Goal'
 import SproutScreen from '@/views/Sprout'
 import EditGoalScreen from '@/views/Sprout/Goal/views/EditGoal'
+import SearchEditGoalScheduleScreen from '@/views/Sprout/Goal/views/SearchEditGoalSchedule'
 import StatsScreen from '@/views/Stats'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
@@ -352,6 +353,7 @@ function App(): JSX.Element {
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
               <Stack.Screen name="CategoryStats" component={CategoryStats} />
               <Stack.Screen name="EditGoal" component={EditGoalScreen} />
+              <Stack.Screen name="SearchEditGoalSchedule" component={SearchEditGoalScheduleScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </SafeAreaView>

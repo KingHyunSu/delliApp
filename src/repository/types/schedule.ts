@@ -25,6 +25,23 @@ export interface GetExistScheduleList {
   end_date: string
 }
 
+export interface GetSearchScheduleListResponse {
+  schedule_category_id: number
+  schedule_id: number
+  title: string
+  start_time: number
+  end_time: number
+  mon: string
+  tue: string
+  wed: string
+  thu: string
+  fri: string
+  sat: string
+  sun: string
+  start_date: string
+  end_date: string
+}
+
 export interface SetSchedule {
   schedule: Schedule
 }

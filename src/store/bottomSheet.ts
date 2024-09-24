@@ -29,3 +29,8 @@ export const showScheduleCategorySelectorBottomSheetState = atom({
   key: 'showScheduleCategorySelectorBottomSheetState',
   default: false
 })
+
+export const showSearchScheduleCategoryFilterBottomSheetState = atom({
+  key: 'showSearchScheduleCategoryFilterBottomSheetState',
+  default: false
+})

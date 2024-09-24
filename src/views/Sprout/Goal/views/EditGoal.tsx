@@ -18,7 +18,7 @@ import {Goal} from '@/@types/goal'
 import EditGoalScheduleItem from '@/views/Sprout/Goal/components/EditGoalScheduleItem'
 import {GetGoalScheduleListResponse} from '@/repository/types/goal'
 
-const EditGoal = ({route}: EditGoalScreenProps) => {
+const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   const [expandDDayPanel, setExpandDDayPanel] = useState(false)
   const [activeDDay, setActiveDDay] = useState(false)
   const [form, setForm] = useState<Goal>({
@@ -155,6 +155,10 @@ const EditGoal = ({route}: EditGoalScreenProps) => {
     [form.scheduleList]
   )
 
+  const moveSearchSchedule = useCallback(() => {
+    navigation.navigate('SearchEditGoalSchedule')
+  }, [])
+
   return (
     <View style={styles.container}>
       <AppBar backPress />
@@ -220,7 +224,7 @@ const EditGoal = ({route}: EditGoalScreenProps) => {
           <View style={scheduleListStyle.header}>
             <Text style={scheduleListStyle.headerLabel}>포함된 일정 목록</Text>
 
-            <Pressable style={scheduleListStyle.addButton}>
+            <Pressable style={scheduleListStyle.addButton} onPress={moveSearchSchedule}>
               <Text style={scheduleListStyle.addButtonText}>일정 추가하기</Text>
             </Pressable>
           </View>

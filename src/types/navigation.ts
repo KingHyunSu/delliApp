@@ -10,6 +10,7 @@ export type StackNavigator = {
   EditSchedule: undefined
   CategoryStats: undefined
   EditGoal: {id: number | null}
+  SearchEditGoalSchedule: undefined
 }
 export type BottomTabNavigator = {
   Home: {scheduleUpdated: boolean}

@@ -9,7 +9,8 @@ import {
   SetScheduleCompleteParams,
   SetScheduleFocusTimeParams,
   UpdateScheduleCompleteParams,
-  UpdateScheduleFocusTimeParams
+  UpdateScheduleFocusTimeParams,
+  GetSearchScheduleListResponse
 } from '../types/schedule'
 
 export const getScheduleList = async (params: GetScheduleList) => {
@@ -27,6 +28,14 @@ export const getExistScheduleList = async (params: GetExistScheduleList) => {
   const [result] = await db.executeSql(query)
 
   return result.rows.raw()
+}
+
+export const getSearchScheduleList = async () => {
+  const query = scheduleQueries.getSearchScheduleListQuery()
+  const db = await openDatabase()
+  const [result] = await db.executeSql(query)
+
+  return result.rows.raw() as GetSearchScheduleListResponse[]
 }
 
 export const setSchedule = async (params: SetSchedule) => {

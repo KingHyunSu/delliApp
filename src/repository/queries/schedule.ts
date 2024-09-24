@@ -255,6 +255,32 @@ export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
   return query
 }
 
+export const getSearchScheduleListQuery = () => {
+  return `
+    SELECT
+      schedule_category_id,
+      schedule_id,
+      title,
+      start_time,
+      end_time,
+      mon,
+      tue,
+      wed,
+      thu,
+      fri,
+      sat,
+      sun,
+      start_date,
+      end_date
+    FROM
+      SCHEDULE
+    WHERE
+      disabled = '0'
+    AND
+      deleted = '0'
+  `
+}
+
 export const setScheduleQuery = (params: Schedule) => {
   let query = `
     INSERT INTO SCHEDULE (
