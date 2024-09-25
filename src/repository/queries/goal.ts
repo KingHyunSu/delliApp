@@ -6,6 +6,7 @@ export const getGoalListQuery = () => {
 			G.goal_id,
 			G.title,
 			G.end_date,
+      G.active_end_date,
 			G.state,
 			SUM(GS.focus_time) AS focus_time_state,
 			SUM(GS.complete_count) AS complete_state,

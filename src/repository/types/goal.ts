@@ -4,6 +4,7 @@ export interface GetGoalResponse {
   goal_id: number
   title: string
   end_date: string
+  active_end_date: number
   state: number
   focus_time_state: number
   complete_state: number

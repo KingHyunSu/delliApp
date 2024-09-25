@@ -82,7 +82,7 @@ const GoalItem = ({item, moveEdit}: Props) => {
       }
     }
 
-    if (day) {
+    if (day && item.active_end_date === 1) {
       return (
         <View style={dDayLabelWrapper}>
           <Text style={dDayLabelText}>D</Text>
@@ -93,7 +93,7 @@ const GoalItem = ({item, moveEdit}: Props) => {
     }
 
     return <></>
-  }, [isComplete, item.end_date])
+  }, [isComplete, item.end_date, item.active_end_date])
 
   // const remainComponent = useMemo(() => {
   //   let remainCompleteCount = null

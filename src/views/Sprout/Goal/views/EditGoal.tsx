@@ -22,7 +22,6 @@ import {Goal, GoalSchedule} from '@/@types/goal'
 
 const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   const [expandDDayPanel, setExpandDDayPanel] = useState(false)
-  const [activeDDay, setActiveDDay] = useState(false)
   const [form, setForm] = useState<Goal>({
     goal_id: null,
     title: '',
@@ -125,20 +124,29 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     setExpandDDayPanel(!expandDDayPanel)
   }, [expandDDayPanel, setExpandDDayPanel])
 
-  const changeActiveDDay = useCallback(() => {
-    setActiveDDay(!activeDDay)
-
-    if (!activeDDay) {
-      setExpandDDayPanel(true)
-    }
-  }, [activeDDay, setActiveDDay, setExpandDDayPanel])
-
-  const changeDDay = useCallback((date: string) => {
+  const changeEndDate = useCallback((date: string) => {
     setForm(prevState => ({
       ...prevState,
       end_date: date
     }))
   }, [])
+
+  const changeActiveEndDate = useCallback(() => {
+    const newActiveEndDate = form.active_end_date === 1 ? 0 : 1
+
+    setForm(prevState => ({
+      ...prevState,
+      active_end_date: newActiveEndDate
+    }))
+
+    if (newActiveEndDate === 1) {
+      setExpandDDayPanel(true)
+
+      if (!form.end_date) {
+        changeEndDate(format(new Date(), 'yyyy-MM-dd'))
+      }
+    }
+  }, [form.active_end_date, form.end_date, changeEndDate])
 
   const changeItemValue = useCallback(
     (value: GoalSchedule, index: number) => {
@@ -234,7 +242,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
                   </View>
                 </View>
 
-                <Switch value={activeDDay} onChange={changeActiveDDay} />
+                <Switch value={!!form.active_end_date} onChange={changeActiveEndDate} />
               </View>
             }
             contentsComponent={
@@ -243,7 +251,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
                   value={form.end_date}
                   hasNull
                   disableDate={format(scheduleDate, 'yyyy-MM-dd')}
-                  onChange={changeDDay}
+                  onChange={changeEndDate}
                 />
               </View>
             }
