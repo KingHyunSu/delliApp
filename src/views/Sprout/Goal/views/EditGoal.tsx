@@ -1,5 +1,5 @@
 import {useState, useMemo, useCallback, useEffect} from 'react'
-import {StyleSheet, ScrollView, View, Text, TextInput, Pressable} from 'react-native'
+import {StyleSheet, ScrollView, View, Text, TextInput, Pressable, Image} from 'react-native'
 import {format} from 'date-fns'
 import AppBar from '@/components/AppBar'
 import Panel from '@/components/Panel'
@@ -9,9 +9,8 @@ import EditGoalScheduleItem from '@/views/Sprout/Goal/components/EditGoalSchedul
 import PushpineIcon from '@/assets/icons/pushpin.svg'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {useRecoilState, useSetRecoilState} from 'recoil'
 import {bottomSafeAreaColorState} from '@/store/system'
-import {scheduleDateState} from '@/store/schedule'
 import {selectGoalScheduleListState} from '@/store/goal'
 
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
@@ -21,10 +20,12 @@ import {EditGoalScreenProps} from '@/types/navigation'
 import {Goal, GoalSchedule} from '@/@types/goal'
 
 const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
-  const [expandDDayPanel, setExpandDDayPanel] = useState(false)
+  const [expandStartDatePanel, setExpandStartDatePanel] = useState(false)
+  const [expandEndDatePanel, setExpandEndDatePanel] = useState(false)
   const [form, setForm] = useState<Goal>({
     goal_id: null,
     title: '',
+    start_date: null,
     end_date: null,
     active_end_date: 0,
     state: 0,
@@ -32,7 +33,6 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   })
 
   const [selectGoalScheduleList, setSelectGoalScheduleList] = useRecoilState(selectGoalScheduleListState)
-  const scheduleDate = useRecoilValue(scheduleDateState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
 
   const queryClient = useQueryClient()
@@ -64,9 +64,6 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['goalList']})
       navigation.goBack()
-    },
-    onError: () => {
-      console.log('error!!!!')
     }
   })
 
@@ -120,14 +117,27 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     return `총 ${timeStr} / ${totalCompleteCount}회`
   }, [selectGoalScheduleList])
 
-  const handleExpandDatePanel = useCallback(() => {
-    setExpandDDayPanel(!expandDDayPanel)
-  }, [expandDDayPanel, setExpandDDayPanel])
+  const handleExpandStartDatePanel = useCallback(() => {
+    setExpandStartDatePanel(!expandStartDatePanel)
+    setExpandEndDatePanel(false)
+  }, [expandStartDatePanel, setExpandStartDatePanel, setExpandEndDatePanel])
+
+  const handleExpandEndDatePanel = useCallback(() => {
+    setExpandStartDatePanel(false)
+    setExpandEndDatePanel(!expandEndDatePanel)
+  }, [expandEndDatePanel, setExpandStartDatePanel, setExpandEndDatePanel])
+
+  const changeStartDate = useCallback((date: string) => {
+    setForm(prevState => ({
+      ...prevState,
+      start_date: date === '9999-12-31' ? null : date
+    }))
+  }, [])
 
   const changeEndDate = useCallback((date: string) => {
     setForm(prevState => ({
       ...prevState,
-      end_date: date
+      end_date: date === '9999-12-31' ? null : date
     }))
   }, [])
 
@@ -140,7 +150,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     }))
 
     if (newActiveEndDate === 1) {
-      setExpandDDayPanel(true)
+      setExpandEndDatePanel(true)
 
       if (!form.end_date) {
         changeEndDate(format(new Date(), 'yyyy-MM-dd'))
@@ -188,9 +198,9 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     const params: SetGoalDetailParams = {
       goal_id: form.goal_id,
       title: form.title,
-      active_end_date: form.active_end_date,
+      start_date: form.start_date,
       end_date: form.end_date,
-      state: form.state,
+      active_end_date: form.active_end_date,
       insertedList,
       updatedList,
       deletedList
@@ -225,12 +235,42 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
             onChangeText={(value: string) => setForm(prevState => ({...prevState, title: value}))}
           />
 
+          {/* 시작일 */}
+          <Panel
+            type="container"
+            value={expandStartDatePanel}
+            contentsHeight={390}
+            handleExpansion={handleExpandStartDatePanel}
+            headerComponent={
+              <View style={styles.panelHeaderContainer}>
+                <View style={styles.panelHeaderWrapper}>
+                  <Image source={require('@/assets/icons/calendar.png')} style={{width: 24, height: 24}} />
+
+                  <View style={styles.panelHeaderInfoWrapper}>
+                    <Text style={styles.panelHeaderLabelText}>시작일</Text>
+                    <Text style={styles.panelHeaderValueText}>{form.start_date || '없음'}</Text>
+                  </View>
+                </View>
+              </View>
+            }
+            contentsComponent={
+              <View style={styles.panelDateContentsWrapper}>
+                <DatePicker
+                  value={form.start_date}
+                  hasNull
+                  disableDate={format(new Date(), 'yyyy-MM-dd')}
+                  onChange={changeStartDate}
+                />
+              </View>
+            }
+          />
+
           {/* 디데이 */}
           <Panel
             type="container"
-            value={expandDDayPanel}
+            value={expandEndDatePanel}
             contentsHeight={390}
-            handleExpansion={handleExpandDatePanel}
+            handleExpansion={handleExpandEndDatePanel}
             headerComponent={
               <View style={styles.panelHeaderContainer}>
                 <View style={styles.panelHeaderWrapper}>
@@ -250,7 +290,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
                 <DatePicker
                   value={form.end_date}
                   hasNull
-                  disableDate={format(scheduleDate, 'yyyy-MM-dd')}
+                  disableDate={format(new Date(), 'yyyy-MM-dd')}
                   onChange={changeEndDate}
                 />
               </View>
@@ -271,7 +311,10 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
 
         <View>
           <View style={scheduleListStyle.header}>
-            <Text style={scheduleListStyle.headerLabel}>포함된 일정 목록</Text>
+            <View style={scheduleListStyle.headerLabelWrapper}>
+              <Text style={scheduleListStyle.headerLabel}>포함된 일정 목록</Text>
+              <Text style={scheduleListStyle.headerCountLabel}>{selectGoalScheduleList.length}</Text>
+            </View>
 
             <Pressable style={scheduleListStyle.addButton} onPress={moveSearchSchedule}>
               <Text style={scheduleListStyle.addButtonText}>일정 추가하기</Text>
@@ -393,10 +436,20 @@ const scheduleListStyle = StyleSheet.create({
     borderTopColor: '#f5f6f8',
     borderBottomColor: '#f5f6f8'
   },
+  headerLabelWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7
+  },
   headerLabel: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#424242'
+  },
+  headerCountLabel: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    color: '#babfc5'
   },
   addButton: {
     paddingHorizontal: 15,

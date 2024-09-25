@@ -20,8 +20,9 @@ export const getGoalDetail = async (params: GetGoalDetailRequest) => {
   let result: Goal = {
     goal_id: null,
     title: '',
-    active_end_date: 0,
+    start_date: null,
     end_date: null,
+    active_end_date: 0,
     state: 0,
     scheduleList: []
   }
@@ -53,33 +54,37 @@ export const setGoalDetail = async (params: SetGoalDetailParams) => {
   const db = await openDatabase()
 
   return db.transaction(tx => {
-    tx.executeSql(setGoalDetailQuery, [params.title, params.end_date, params.active_end_date], (tx1, result) => {
-      // insert goal schedule
-      if (params.insertedList.length > 0) {
-        params.insertedList.forEach(item => {
-          tx1.executeSql(setGoalScheduleQuery, [
-            result.insertId,
-            item.schedule_id,
-            item.focus_time,
-            item.complete_count
-          ])
-        })
-      }
+    tx.executeSql(
+      setGoalDetailQuery,
+      [params.title, params.start_date, params.end_date, params.active_end_date],
+      (tx1, result) => {
+        // insert goal schedule
+        if (params.insertedList.length > 0) {
+          params.insertedList.forEach(item => {
+            tx1.executeSql(setGoalScheduleQuery, [
+              result.insertId,
+              item.schedule_id,
+              item.focus_time,
+              item.complete_count
+            ])
+          })
+        }
 
-      // update goal schedule
-      if (params.updatedList.length > 0) {
-        params.updatedList.forEach(item => {
-          tx1.executeSql(updateGoalScheduleQuery, [item.focus_time, item.complete_count, item.goal_schedule_id])
-        })
-      }
+        // update goal schedule
+        if (params.updatedList.length > 0) {
+          params.updatedList.forEach(item => {
+            tx1.executeSql(updateGoalScheduleQuery, [item.focus_time, item.complete_count, item.goal_schedule_id])
+          })
+        }
 
-      // delete goal schedule
-      if (params.deletedList.length > 0) {
-        params.deletedList.forEach(item => {
-          tx1.executeSql(deleteGoalScheduleQuery, [item.goal_schedule_id])
-        })
+        // delete goal schedule
+        if (params.deletedList.length > 0) {
+          params.deletedList.forEach(item => {
+            tx1.executeSql(deleteGoalScheduleQuery, [item.goal_schedule_id])
+          })
+        }
       }
-    })
+    )
   })
 }
 
@@ -94,7 +99,7 @@ export const updateGoalDetail = async (params: SetGoalDetailParams) => {
   return db.transaction(tx => {
     tx.executeSql(
       updateGoalDetailQuery,
-      [params.title, params.end_date, params.active_end_date, params.goal_id],
+      [params.title, params.start_date, params.end_date, params.active_end_date, params.goal_id],
       tx1 => {
         // insert goal schedule
         if (params.insertedList.length > 0) {

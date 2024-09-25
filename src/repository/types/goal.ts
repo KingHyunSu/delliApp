@@ -3,7 +3,8 @@ import {GoalSchedule} from '@/@types/goal'
 export interface GetGoalResponse {
   goal_id: number
   title: string
-  end_date: string
+  start_date: string | null
+  end_date: string | null
   active_end_date: number
   state: number
   focus_time_state: number
@@ -19,9 +20,9 @@ export interface GetGoalDetailRequest {
 export interface SetGoalDetailParams {
   goal_id: number | null
   title: string
-  active_end_date: number | null
+  start_date: string | null
   end_date: string | null
-  state: number | null
+  active_end_date: number | null
   insertedList: GoalSchedule[]
   updatedList: GoalSchedule[]
   deletedList: GoalSchedule[]

@@ -1,5 +1,5 @@
 import {useMemo, useCallback} from 'react'
-import {StyleSheet, Pressable, View, Text} from 'react-native'
+import {StyleSheet, Pressable, View, Text, Image} from 'react-native'
 
 import {differenceInDays, formatISO9075, isEqual, isAfter} from 'date-fns'
 import {GetGoalResponse} from '@/repository/types/goal'
@@ -145,9 +145,11 @@ const GoalItem = ({item, moveEdit}: Props) => {
     <Pressable style={styles.container} onPress={handleMoveEdit}>
       <View style={styles.labelContainer}>{labelComponent}</View>
 
-      <View style={styles.titleWrapper}>
-        <Text style={styles.title}>{item.title}</Text>
-        {/*{remainComponent}*/}
+      <Text style={styles.title}>{item.title}</Text>
+      {/*{remainComponent}*/}
+      <View style={styles.startDateWrapper}>
+        <Image source={require('@/assets/icons/calendar.png')} style={{width: 16, height: 16}} />
+        <Text style={styles.startDateText}>{item.start_date || '없음'}</Text>
       </View>
 
       <View style={styles.infoContainer}>
@@ -171,10 +173,11 @@ const styles = StyleSheet.create({
   container: {
     padding: 15,
     borderRadius: 15,
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
+    gap: 10
   },
   labelContainer: {
-    marginBottom: 10
+    // marginBottom: 10
   },
   labelWrapper: {
     flexDirection: 'row',
@@ -189,13 +192,19 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: 'Pretendard-Bold'
   },
-  titleWrapper: {
-    marginBottom: 15,
-    gap: 5
-  },
   title: {
     fontSize: 18,
     fontFamily: 'Pretendard-Medium',
+    color: '#424242'
+  },
+  startDateWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5
+  },
+  startDateText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 14,
     color: '#424242'
   },
   remainText: {
@@ -205,7 +214,8 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     flexDirection: 'row',
-    gap: 10
+    gap: 10,
+    marginTop: 5
   },
   infoWrapper: {
     flex: 1,

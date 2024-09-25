@@ -5,6 +5,7 @@ export const getGoalListQuery = () => {
 		SELECT
 			G.goal_id,
 			G.title,
+			G.start_date,
 			G.end_date,
       G.active_end_date,
 			G.state,
@@ -22,6 +23,8 @@ export const getGoalListQuery = () => {
       SCHEDULE_ACTIVITY_LOG SAL
 		ON
 			GS.schedule_id = SAL.schedule_id
+		AND
+			SAL.date >= G.start_date
 		GROUP BY
 		  G.goal_id, G.title, G.end_date, G.state
 	`
@@ -32,6 +35,7 @@ export const getGoalDetailQuery = (params: GetGoalDetailRequest) => {
 		SELECT
 			G.goal_id,
 			G.title,
+			G.start_date,
 			G.end_date,
 			G.active_end_date,
 			G.state
@@ -75,14 +79,14 @@ export const getGoalScheduleListQuery = (params: GetGoalDetailRequest) => {
 
 export const setGoalDetailQuery = () => {
   return `
-		INSERT INTO GOAL (title, end_date, active_end_date)
+		INSERT INTO GOAL (title, start_date, end_date, active_end_date)
 		VALUES (?, ?, ?, ?)
 	`
 }
 
 export const updateGoalDetailQuery = () => {
   return `
-		UPDATE GOAL SET title = ?, end_date = ?, active_end_date = ? WHERE goal_id = ?
+		UPDATE GOAL SET title = ?, start_date = ?, end_date = ?, active_end_date = ? WHERE goal_id = ?
 	`
 }
 

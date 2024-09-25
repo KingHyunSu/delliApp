@@ -63,6 +63,7 @@ const createTable = async (db: SQLiteDatabase) => {
       CREATE TABLE IF NOT EXISTS "GOAL" (
         "goal_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         "title" TEXT NOT NULL,
+        "start_date" TEXT, -- 시작일
         "end_date" TEXT, -- 디데이
         "active_end_date" INTEGER DEFAULT 0, -- 디데이 활성 상태 (0: 비활성화, 1: 활성화) 
         "state" INTEGER DEFAULT 0 -- 목표 상태 (0: 완료 전, 1: 완료)
