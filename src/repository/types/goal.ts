@@ -7,10 +7,10 @@ export interface GetGoalResponse {
   end_date: string | null
   active_end_date: number
   state: number
-  focus_time_state: number
-  complete_state: number
-  total_focus_time: number
-  total_complete_count: number
+  total_focus_time: number | null
+  total_complete_count: number | null
+  activity_focus_time: number | null
+  activity_complete_count: number | null
 }
 
 export interface GetGoalDetailRequest {

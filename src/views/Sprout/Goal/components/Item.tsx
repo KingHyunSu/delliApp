@@ -1,7 +1,7 @@
 import {useMemo, useCallback} from 'react'
 import {StyleSheet, Pressable, View, Text, Image} from 'react-native'
-
 import {differenceInDays, formatISO9075, isEqual, isAfter} from 'date-fns'
+import BullseyeIcon from '@/assets/icons/bullseye.svg'
 import {GetGoalResponse} from '@/repository/types/goal'
 
 interface Props {
@@ -13,33 +13,25 @@ const GoalItem = ({item, moveEdit}: Props) => {
     let backgroundColor = '#f9f9f9'
     let borderColor = '#f9f9f9'
 
-    if (item.complete_state === 1) {
-      backgroundColor = '#ffffff'
-      borderColor = '#f1f1f1'
-    }
+    // if (item.complete_state === 1) {
+    //   backgroundColor = '#ffffff'
+    //   borderColor = '#f1f1f1'
+    // }
 
-    return [styles.infoWrapper, {backgroundColor, borderColor}]
-  }, [item.complete_state])
+    return [styles.activityInfoWrapper, {backgroundColor, borderColor}]
+  }, [])
 
   const focusTimeInfoWrapperStyle = useMemo(() => {
     let backgroundColor = '#f9f9f9'
     let borderColor = '#f9f9f9'
 
-    if (item.focus_time_state === 1) {
-      backgroundColor = '#ffffff'
-      borderColor = '#f1f1f1'
-    }
+    // if (item.focus_time_state === 1) {
+    //   backgroundColor = '#ffffff'
+    //   borderColor = '#f1f1f1'
+    // }
 
-    return [styles.infoWrapper, {backgroundColor, borderColor}]
-  }, [item.focus_time_state])
-
-  const isComplete = useMemo(() => {
-    return item.complete_state === 1
-  }, [item.complete_state])
-
-  const completeCount = useMemo(() => {
-    return item.total_complete_count ? Number(item.total_complete_count).toLocaleString() : 0
-  }, [item.total_complete_count])
+    return [styles.activityInfoWrapper, {backgroundColor, borderColor}]
+  }, [])
 
   const getFocusTime = useCallback((time: number | null) => {
     if (!time || time < 60) {
@@ -55,8 +47,13 @@ const GoalItem = ({item, moveEdit}: Props) => {
     return `${hoursStr}${minutesStr}`
   }, [])
 
+  const handleMoveEdit = useCallback(() => {
+    moveEdit(item.goal_id)
+  }, [item.goal_id, moveEdit])
+
+  // components
   const labelComponent = useMemo(() => {
-    if (isComplete) {
+    if (item.state === 1) {
       return (
         <View style={completeLabelWrapper}>
           <Text style={completeLabelText}>완료</Text>
@@ -93,7 +90,32 @@ const GoalItem = ({item, moveEdit}: Props) => {
     }
 
     return <></>
-  }, [isComplete, item.end_date, item.active_end_date])
+  }, [item.state, item.end_date, item.active_end_date])
+
+  const goalTextComponent = useMemo(() => {
+    const totalFocusTime = item.total_focus_time || 0
+    const totalCompleteCount = item.total_complete_count || 0
+
+    const hours = Math.floor(totalFocusTime / 60)
+    const minutes = Math.floor(totalFocusTime % 60)
+
+    let hoursStr = ''
+    let minutesStr = ''
+
+    if (hours > 0) {
+      hoursStr = `${hours}시간 `
+    }
+    if (minutes > 0) {
+      minutesStr = `${minutes}분`
+    }
+
+    let timeStr = `${hoursStr}${minutesStr}`
+    if (hours === 0 && minutes === 0) {
+      timeStr = '0분'
+    }
+
+    return `총 ${totalCompleteCount}회 / ${timeStr}`
+  }, [item.total_focus_time, item.total_complete_count])
 
   // const remainComponent = useMemo(() => {
   //   let remainCompleteCount = null
@@ -137,32 +159,34 @@ const GoalItem = ({item, moveEdit}: Props) => {
   //   getFocusTime
   // ])
 
-  const handleMoveEdit = useCallback(() => {
-    moveEdit(item.goal_id)
-  }, [item.goal_id, moveEdit])
-
   return (
     <Pressable style={styles.container} onPress={handleMoveEdit}>
-      <View style={styles.labelContainer}>{labelComponent}</View>
+      {labelComponent}
 
       <Text style={styles.title}>{item.title}</Text>
       {/*{remainComponent}*/}
-      <View style={styles.startDateWrapper}>
+
+      <View style={styles.infoWrapper}>
         <Image source={require('@/assets/icons/calendar.png')} style={{width: 16, height: 16}} />
-        <Text style={styles.startDateText}>{item.start_date || '없음'}</Text>
+        <Text style={styles.infoText}>{item.start_date || '없음'}</Text>
       </View>
 
-      <View style={styles.infoContainer}>
-        <View style={completeCountInfoWrapperStyle}>
-          <Text style={styles.infoTitle}>일정 완료</Text>
+      <View style={styles.infoWrapper}>
+        <BullseyeIcon width={16} height={16} />
+        <Text style={styles.infoText}>{goalTextComponent}</Text>
+      </View>
 
-          <Text style={styles.infoSubTitle}>{completeCount}회</Text>
+      <View style={styles.activityInfoContainer}>
+        <View style={completeCountInfoWrapperStyle}>
+          <Text style={styles.activityInfoTitle}>일정 완료</Text>
+
+          <Text style={styles.activityInfoSubTitle}>{Number(item.activity_complete_count).toLocaleString()}회</Text>
         </View>
 
         <View style={focusTimeInfoWrapperStyle}>
-          <Text style={styles.infoTitle}>집중한 시간</Text>
+          <Text style={styles.activityInfoTitle}>집중한 시간</Text>
 
-          <Text style={styles.infoSubTitle}>{getFocusTime(item.total_focus_time)}</Text>
+          <Text style={styles.activityInfoSubTitle}>{getFocusTime(item.activity_focus_time)}</Text>
         </View>
       </View>
     </Pressable>
@@ -175,9 +199,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: '#ffffff',
     gap: 10
-  },
-  labelContainer: {
-    // marginBottom: 10
   },
   labelWrapper: {
     flexDirection: 'row',
@@ -197,12 +218,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Medium',
     color: '#424242'
   },
-  startDateWrapper: {
+  infoWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5
   },
-  startDateText: {
+  infoText: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 14,
     color: '#424242'
@@ -212,12 +233,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Medium',
     color: '#7c8698'
   },
-  infoContainer: {
+  activityInfoContainer: {
     flexDirection: 'row',
     gap: 10,
     marginTop: 5
   },
-  infoWrapper: {
+  activityInfoWrapper: {
     flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 15,
@@ -225,12 +246,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 15
   },
-  infoTitle: {
+  activityInfoTitle: {
     fontSize: 12,
     fontFamily: 'Pretendard-SemiBold',
     color: '#8d9195'
   },
-  infoSubTitle: {
+  activityInfoSubTitle: {
     fontSize: 16,
     fontFamily: 'Pretendard-SemiBold',
     color: '#424242'

@@ -117,7 +117,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
       timeStr = '0분'
     }
 
-    return `총 ${timeStr} / ${totalCompleteCount}회`
+    return `총 ${totalCompleteCount}회 / ${timeStr}`
   }, [selectGoalScheduleList])
 
   const handleExpandStartDatePanel = useCallback(() => {

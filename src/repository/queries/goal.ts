@@ -9,10 +9,10 @@ export const getGoalListQuery = () => {
 			G.end_date,
       G.active_end_date,
 			G.state,
-			SUM(GS.focus_time) AS focus_time_state,
-			SUM(GS.complete_count) AS complete_state,
-			SUM(SAL.active_time) AS total_focus_time,
-			SUM(SAL.complete_state) AS total_complete_count
+			SUM(GS.focus_time) AS total_focus_time,
+			SUM(GS.complete_count) AS total_complete_count,
+			SUM(SAL.active_time) AS activity_focus_time,
+			SUM(SAL.complete_state) AS activity_complete_count
 		FROM
 			GOAL G
 		LEFT OUTER JOIN
