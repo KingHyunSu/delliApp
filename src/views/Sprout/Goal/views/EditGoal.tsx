@@ -1,5 +1,6 @@
 import {useState, useMemo, useCallback, useEffect} from 'react'
 import {StyleSheet, ScrollView, View, Text, TextInput, Pressable, Image} from 'react-native'
+import {useIsFocused} from '@react-navigation/native'
 import {format} from 'date-fns'
 import AppBar from '@/components/AppBar'
 import Panel from '@/components/Panel'
@@ -20,6 +21,8 @@ import {EditGoalScreenProps} from '@/types/navigation'
 import {Goal, GoalSchedule} from '@/@types/goal'
 
 const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
+  const isFocused = useIsFocused()
+
   const [expandStartDatePanel, setExpandStartDatePanel] = useState(false)
   const [expandEndDatePanel, setExpandEndDatePanel] = useState(false)
   const [form, setForm] = useState<Goal>({
@@ -210,12 +213,14 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   }, [form, selectGoalScheduleList, setGoalDetailMutate])
 
   useEffect(() => {
-    if (activeSubmit) {
-      setBottomSafeAreaColor('#1E90FF')
-    } else {
-      setBottomSafeAreaColor('#f5f6f8')
+    if (isFocused) {
+      if (activeSubmit) {
+        setBottomSafeAreaColor('#1E90FF')
+      } else {
+        setBottomSafeAreaColor('#f5f6f8')
+      }
     }
-  }, [activeSubmit, setBottomSafeAreaColor])
+  }, [isFocused, activeSubmit, setBottomSafeAreaColor])
 
   return (
     <View style={styles.container}>
