@@ -1,4 +1,4 @@
-import {atom, selector} from 'recoil'
+import {atom} from 'recoil'
 
 import {RANGE_FLAG} from '@/utils/types'
 
@@ -53,25 +53,6 @@ export const scheduleState = atom<Schedule>({
     schedule_activity_log_id: null,
     complete_state: null,
     active_time: null
-  }
-})
-
-export const activeScheduleSubmitState = selector({
-  key: 'activeScheduleSubmitState',
-  get: ({get}) => {
-    const schedule = get(scheduleState)
-
-    const dayOfWeekList = [
-      schedule.mon,
-      schedule.tue,
-      schedule.wed,
-      schedule.thu,
-      schedule.fri,
-      schedule.sat,
-      schedule.sun
-    ]
-
-    return !!(schedule.title && dayOfWeekList.some(item => item === '1'))
   }
 })
 

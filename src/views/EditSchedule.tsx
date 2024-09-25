@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, Pressable, View, Text, Alert, Platform, Image} from 'react-native'
+import {StyleSheet, Pressable, View, Text, Alert, Image} from 'react-native'
 import Animated, {runOnJS, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
 import EditScheduleBottomSheet from '@/components/bottomSheet/EditScheduleBottomSheet'
 import OverlapScheduleListBottomSheet from '@/components/bottomSheet/OverlapScheduleListBottomSheet'
@@ -11,10 +11,9 @@ import CancelIcon from '@/assets/icons/cancle.svg'
 import {useQueryClient, useMutation} from '@tanstack/react-query'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {isEditState, isLoadingState, editScheduleListStatusState} from '@/store/system'
+import {isEditState, isLoadingState, editScheduleListStatusState, bottomSafeAreaColorState} from '@/store/system'
 import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
 import {
-  activeScheduleSubmitState,
   disableScheduleListState,
   existScheduleListState,
   scheduleDateState,
@@ -38,17 +37,31 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const disableScheduleList = useRecoilValue(disableScheduleListState)
   const editScheduleListStatus = useRecoilValue(editScheduleListStatusState)
   const scheduleDate = useRecoilValue(scheduleDateState)
-  const activeScheduleSubmit = useRecoilValue(activeScheduleSubmitState)
 
   const setIsEdit = useSetRecoilState(isEditState)
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowOverlapScheduleListBottomSheet = useSetRecoilState(showOverlapScheduleListBottomSheetState)
+  const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
 
   const [newStartTime, setNewStartTime] = React.useState(schedule.start_time)
   const [newEndTime, setNewEndTime] = React.useState(schedule.end_time)
 
   const timeTableTranslateY = useSharedValue(0)
   const timeInfoTranslateX = useSharedValue(-250)
+
+  const activeSubmit = React.useMemo(() => {
+    const dayOfWeekList = [
+      schedule.mon,
+      schedule.tue,
+      schedule.wed,
+      schedule.thu,
+      schedule.fri,
+      schedule.sat,
+      schedule.sun
+    ]
+
+    return !!(schedule.title && dayOfWeekList.some(item => item === '1'))
+  }, [schedule.title, schedule.mon, schedule.tue, schedule.wed, schedule.thu, schedule.fri, schedule.sat, schedule.sun])
 
   const timeInfoAnimatedStyle = useAnimatedStyle(() => {
     return {
@@ -62,17 +75,18 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const timeInfoContainerStyle = React.useMemo(() => {
     return [timeInfoAnimatedStyle, styles.timeIntoContainer]
   }, [])
+
   const timetableStyle = React.useMemo(() => {
     return [timetableAnimatedStyle, {opacity: isLoading ? 0.6 : 1}]
   }, [isLoading])
 
   const submitButtonStyle = React.useMemo(() => {
-    return [styles.submitButton, activeScheduleSubmit && styles.activeSubmitBtn]
-  }, [activeScheduleSubmit])
+    return [styles.submitButton, activeSubmit && styles.activeSubmitBtn]
+  }, [activeSubmit])
 
   const submitTextStyle = React.useMemo(() => {
-    return [styles.submitText, activeScheduleSubmit && styles.activeSubmitText]
-  }, [activeScheduleSubmit])
+    return [styles.submitText, activeSubmit && styles.activeSubmitText]
+  }, [activeSubmit])
 
   const startTimeString = React.useMemo(() => {
     const timeOfMinute = getTimeOfMinute(newStartTime)
@@ -174,6 +188,14 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   ])
 
   React.useEffect(() => {
+    if (activeSubmit) {
+      setBottomSafeAreaColor('#1E90FF')
+    } else {
+      setBottomSafeAreaColor('#f5f6f8')
+    }
+  }, [activeSubmit, setBottomSafeAreaColor])
+
+  React.useEffect(() => {
     if (editScheduleListStatus === 0) {
       timeInfoTranslateX.value = withTiming(-10)
     } else {
@@ -224,7 +246,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         />
       </Animated.View>
 
-      <Pressable style={submitButtonStyle} onPress={handleSubmit} disabled={!activeScheduleSubmit}>
+      <Pressable style={submitButtonStyle} onPress={handleSubmit} disabled={!activeSubmit}>
         <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
       </Pressable>
 

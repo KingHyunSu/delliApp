@@ -9,15 +9,16 @@ import EditGoalScheduleItem from '@/views/Sprout/Goal/components/EditGoalSchedul
 import PushpineIcon from '@/assets/icons/pushpin.svg'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
-import {useRecoilState, useRecoilValue} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {bottomSafeAreaColorState} from '@/store/system'
 import {scheduleDateState} from '@/store/schedule'
+import {selectGoalScheduleListState} from '@/store/goal'
 
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {goalRepository} from '@/repository'
+import {SetGoalDetailParams} from '@/repository/types/goal'
 import {EditGoalScreenProps} from '@/types/navigation'
 import {Goal, GoalSchedule} from '@/@types/goal'
-import {selectGoalScheduleListState} from '@/store/goal'
-import {SetGoalDetailParams} from '@/repository/types/goal'
 
 const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   const [expandDDayPanel, setExpandDDayPanel] = useState(false)
@@ -33,6 +34,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
 
   const [selectGoalScheduleList, setSelectGoalScheduleList] = useRecoilState(selectGoalScheduleListState)
   const scheduleDate = useRecoilValue(scheduleDateState)
+  const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
 
   const queryClient = useQueryClient()
 
@@ -76,17 +78,17 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     }
   }, [goalDetail, setForm, setSelectGoalScheduleList])
 
-  const activeScheduleSubmit = useMemo(() => {
+  const activeSubmit = useMemo(() => {
     return !!form.title
   }, [form.title])
 
   const submitButtonStyle = useMemo(() => {
-    return activeScheduleSubmit ? activeSubmitButton : styles.submitButton
-  }, [activeScheduleSubmit])
+    return activeSubmit ? activeSubmitButton : styles.submitButton
+  }, [activeSubmit])
 
   const submitButtonTextStyle = useMemo(() => {
-    return activeScheduleSubmit ? activeSubmitButtonText : styles.submitButtonText
-  }, [activeScheduleSubmit])
+    return activeSubmit ? activeSubmitButtonText : styles.submitButtonText
+  }, [activeSubmit])
 
   const stickyHeaderIndices = useMemo(() => [1], [])
 
@@ -189,6 +191,14 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     setGoalDetailMutate(params)
   }, [form, selectGoalScheduleList, setGoalDetailMutate])
 
+  useEffect(() => {
+    if (activeSubmit) {
+      setBottomSafeAreaColor('#1E90FF')
+    } else {
+      setBottomSafeAreaColor('#f5f6f8')
+    }
+  }, [activeSubmit, setBottomSafeAreaColor])
+
   return (
     <View style={styles.container}>
       <AppBar backPress />
@@ -269,7 +279,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
       </ScrollView>
 
       <Pressable style={submitButtonStyle} onPress={handleConfirm}>
-        <Text style={submitButtonTextStyle}>등록하기</Text>
+        <Text style={submitButtonTextStyle}>{form.goal_id ? '수정하기' : '등록하기'}</Text>
       </Pressable>
     </View>
   )
@@ -281,7 +291,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff'
   },
   listContainer: {
-    paddingBottom: 40
+    paddingBottom: 80
   },
   wrapper: {
     paddingHorizontal: 16,

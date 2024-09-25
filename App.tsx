@@ -36,13 +36,13 @@ import ChartIcon from '@/assets/icons/chart.svg'
 import SproutIcon from '@/assets/icons/sprout.svg'
 
 // stores
-import {useRecoilState, useSetRecoilState, useRecoilSnapshot, useRecoilValue} from 'recoil'
-import {loginState, isLunchState, windowDimensionsState, isEditState} from '@/store/system'
+import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
+import {loginState, isLunchState, windowDimensionsState, bottomSafeAreaColorState} from '@/store/system'
 
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
 
 import initDatabase from '@/repository/utils/init'
-import {activeScheduleSubmitState, focusModeInfoState} from '@/store/schedule'
+import {focusModeInfoState} from '@/store/schedule'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
@@ -110,8 +110,7 @@ function App(): JSX.Element {
   const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
-  const isScheduleEdit = useRecoilValue(isEditState)
-  const activeScheduleSubmit = useRecoilValue(activeScheduleSubmitState)
+  const [bottomSafeAreaColor, setBottomSafeAreaColor] = useRecoilState(bottomSafeAreaColorState)
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
 
   const screenOptions = React.useMemo(() => {
@@ -130,13 +129,6 @@ function App(): JSX.Element {
     }
   }, [statusBarColor])
 
-  const bottomSafeAreaColor = React.useMemo(() => {
-    if (isScheduleEdit) {
-      return activeScheduleSubmit ? '#1E90FF' : '#f5f6f8'
-    }
-    return '#ffffff'
-  }, [isScheduleEdit, activeScheduleSubmit])
-
   const containerStyle = React.useMemo(() => {
     return {flex: 1, backgroundColor: bottomSafeAreaColor}
   }, [bottomSafeAreaColor])
@@ -144,19 +136,25 @@ function App(): JSX.Element {
   const changeRoute = React.useCallback(() => {
     const route = navigationRef.current?.getCurrentRoute()
 
-    let color = '#ffffff'
+    let _statusBarColor = '#ffffff'
+    let _bottomSafeAreaColor: string | null = '#ffffff'
 
     switch (route?.name) {
-      case 'Home':
-        color = '#ffffff'
-        break
       case 'Stats':
-        color = '#f5f6f8'
+        _statusBarColor = '#f5f6f8'
+        break
+      case 'EditSchedule':
+      case 'EditGoal':
+        // 화면의 useEffect 보다 늦게 실행됨...
+        _bottomSafeAreaColor = null
         break
     }
 
-    setStatusBarColor(color)
-  }, [])
+    setStatusBarColor(_statusBarColor)
+    if (_bottomSafeAreaColor) {
+      setBottomSafeAreaColor(_bottomSafeAreaColor)
+    }
+  }, [setStatusBarColor, setBottomSafeAreaColor])
 
   // 2024-05-18 서버 제거로인해 비활성화
   // React.useEffect(() => {

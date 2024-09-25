@@ -23,6 +23,11 @@ export const isLoadingState = atom({
   default: false
 })
 
+export const bottomSafeAreaColorState = atom({
+  key: 'bottomSafeAreaColorState',
+  default: '#ffffff'
+})
+
 type Toast = {visible: boolean; message: string}
 export const toastState = atom<Toast>({
   key: 'toastState',
