@@ -51,7 +51,7 @@ const SearchEditGoalSchedule = ({navigation}: SearchEditGoalScheduleScreenProps)
           ignoreAndroidSystemSettings: false
         })
 
-        setSelectedList(prevState => [...prevState, item])
+        setSelectedList(prevState => [...prevState, {...item, goal_schedule_id: null}])
       }
     },
     [selectedList, setSelectedList]
@@ -64,7 +64,7 @@ const SearchEditGoalSchedule = ({navigation}: SearchEditGoalScheduleScreenProps)
   const handleConfirm = useCallback(() => {
     setSelectGoalScheduleList(selectedList)
     navigation.goBack()
-  }, [selectedList, setSearchScheduleList])
+  }, [navigation, selectedList, setSelectGoalScheduleList])
 
   useEffect(() => {
     setSelectedList(selectGoalScheduleList)

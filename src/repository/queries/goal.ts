@@ -44,6 +44,7 @@ export const getGoalDetailQuery = (params: GetGoalDetailRequest) => {
 export const getGoalScheduleListQuery = (params: GetGoalDetailRequest) => {
   return `
     SELECT
+      GS.goal_schedule_id,
       GS.focus_time,
       GS.complete_count,
       S.schedule_category_id,
@@ -73,7 +74,32 @@ export const getGoalScheduleListQuery = (params: GetGoalDetailRequest) => {
 
 export const setGoalDetailQuery = () => {
   return `
-		INSERT INTO GOAL (title, end_date, active_end_date, state)
+		INSERT INTO GOAL (title, end_date, active_end_date)
 		VALUES (?, ?, ?, ?)
+	`
+}
+
+export const updateGoalDetailQuery = () => {
+  return `
+		UPDATE GOAL SET title = ?, end_date = ?, active_end_date = ? WHERE goal_id = ?
+	`
+}
+
+export const setGoalScheduleQuery = () => {
+  return `
+		INSERT INTO GOAL_SCHEDULE (goal_id, schedule_id, focus_time, complete_count)
+		VALUES (?, ?, ?, ?)
+	`
+}
+
+export const updateGoalScheduleQuery = () => {
+  return `
+		UPDATE GOAL_SCHEDULE SET focus_time = ?, complete_count = ? WHERE goal_schedule_id = ?
+	`
+}
+
+export const deleteGoalScheduleQuery = () => {
+  return `
+		DELETE FROM GOAL_SCHEDULE WHERE goal_schedule_id = ?
 	`
 }

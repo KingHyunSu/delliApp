@@ -12,7 +12,7 @@ import BullseyeIcon from '@/assets/icons/bullseye.svg'
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {scheduleDateState} from '@/store/schedule'
 
-import {useMutation, useQuery} from '@tanstack/react-query'
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {goalRepository} from '@/repository'
 import {EditGoalScreenProps} from '@/types/navigation'
 import {Goal, GoalSchedule} from '@/@types/goal'
@@ -34,6 +34,8 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   const [selectGoalScheduleList, setSelectGoalScheduleList] = useRecoilState(selectGoalScheduleListState)
   const scheduleDate = useRecoilValue(scheduleDateState)
 
+  const queryClient = useQueryClient()
+
   const {data: goalDetail} = useQuery({
     queryKey: ['goalDetail', route.params.id],
     queryFn: async () => {
@@ -52,18 +54,18 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   })
 
   const {mutate: setGoalDetailMutate} = useMutation({
-    mutationFn: () => {
-      const params: SetGoalDetailParams = {
-        title: form.title,
-        end_date: form.end_date,
-        active_end_date: form.active_end_date,
-        state: form.state
+    mutationFn: (params: SetGoalDetailParams) => {
+      if (params.goal_id) {
+        return goalRepository.updateGoalDetail(params)
       }
-
       return goalRepository.setGoalDetail(params)
     },
     onSuccess: () => {
-      console.log('Success!!')
+      queryClient.invalidateQueries({queryKey: ['goalList']})
+      navigation.goBack()
+    },
+    onError: () => {
+      console.log('error!!!!')
     }
   })
 
@@ -72,7 +74,19 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
       setForm(goalDetail)
       setSelectGoalScheduleList(goalDetail.scheduleList)
     }
-  }, [goalDetail])
+  }, [goalDetail, setForm, setSelectGoalScheduleList])
+
+  const activeScheduleSubmit = useMemo(() => {
+    return !!form.title
+  }, [form.title])
+
+  const submitButtonStyle = useMemo(() => {
+    return activeScheduleSubmit ? activeSubmitButton : styles.submitButton
+  }, [activeScheduleSubmit])
+
+  const submitButtonTextStyle = useMemo(() => {
+    return activeScheduleSubmit ? activeSubmitButtonText : styles.submitButtonText
+  }, [activeScheduleSubmit])
 
   const stickyHeaderIndices = useMemo(() => [1], [])
 
@@ -131,7 +145,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
 
       setSelectGoalScheduleList(newScheduleList)
     },
-    [selectGoalScheduleList]
+    [selectGoalScheduleList, setSelectGoalScheduleList]
   )
 
   const moveSearchSchedule = useCallback(() => {
@@ -139,13 +153,12 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   }, [navigation])
 
   const handleConfirm = useCallback(() => {
-    const insertedList = []
-    const updatedList = []
-    const deletedList = []
+    const insertedList: GoalSchedule[] = []
+    const updatedList: GoalSchedule[] = []
+    const deletedList: GoalSchedule[] = []
 
-    for (let i = 0; selectGoalScheduleList.length; i++) {
+    for (let i = 0; i < selectGoalScheduleList.length; i++) {
       const item = selectGoalScheduleList[i]
-
       if (!item.goal_schedule_id) {
         insertedList.push(item)
         continue
@@ -161,8 +174,20 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
         deletedList.push(item)
       }
     }
-    setGoalDetailMutate()
-  }, [])
+
+    const params: SetGoalDetailParams = {
+      goal_id: form.goal_id,
+      title: form.title,
+      active_end_date: form.active_end_date,
+      end_date: form.end_date,
+      state: form.state,
+      insertedList,
+      updatedList,
+      deletedList
+    }
+
+    setGoalDetailMutate(params)
+  }, [form, selectGoalScheduleList, setGoalDetailMutate])
 
   return (
     <View style={styles.container}>
@@ -243,8 +268,8 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
         </View>
       </ScrollView>
 
-      <Pressable onPress={handleConfirm}>
-        <Text>등록하기</Text>
+      <Pressable style={submitButtonStyle} onPress={handleConfirm}>
+        <Text style={submitButtonTextStyle}>등록하기</Text>
       </Pressable>
     </View>
   )
@@ -315,8 +340,27 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 10,
     gap: 10
+  },
+  submitButton: {
+    height: 56,
+    zIndex: 999,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f6f8'
+  },
+  submitButtonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 18,
+    color: '#babfc5'
   }
 })
+
+const activeSubmitButton = StyleSheet.compose(styles.submitButton, {backgroundColor: '#1E90FF'})
+const activeSubmitButtonText = StyleSheet.compose(styles.submitButtonText, {color: '#ffffff'})
 
 const scheduleListStyle = StyleSheet.create({
   header: {

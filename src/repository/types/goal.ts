@@ -1,3 +1,5 @@
+import {GoalSchedule} from '@/@types/goal'
+
 export interface GetGoalResponse {
   goal_id: number
   title: string
@@ -13,16 +15,13 @@ export interface GetGoalDetailRequest {
   goal_id: number
 }
 
-export interface GetGoalDetailResponse {
-  goal_id: number
-  title: string
-  end_date: string
-  state: number
-}
-
 export interface SetGoalDetailParams {
+  goal_id: number | null
   title: string
-  end_date: string | null
   active_end_date: number | null
+  end_date: string | null
   state: number | null
+  insertedList: GoalSchedule[]
+  updatedList: GoalSchedule[]
+  deletedList: GoalSchedule[]
 }

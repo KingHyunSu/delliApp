@@ -8,7 +8,7 @@ export interface Goal {
 }
 
 export interface GoalSchedule {
-  goal_schedule_id?: number
+  goal_schedule_id: number | null
   schedule_category_id: number | null
   schedule_id: number
   title: string
