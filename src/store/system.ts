@@ -37,6 +37,20 @@ export const toastState = atom<Toast>({
   }
 })
 
+type Alert = {
+  type?: 'primary' | 'danger'
+  title?: string
+  desc?: string
+  cancelButtonText?: string
+  confirmButtonText?: string
+  cancelFn?: () => void
+  confirmFn?: () => void
+}
+export const alertState = atom<Alert | null>({
+  key: 'alertState',
+  default: null
+})
+
 export const windowDimensionsState = atom({
   key: 'windowDimensionsState',
   default: {

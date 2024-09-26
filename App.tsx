@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, Platform, AppState, StatusBar, StyleSheet, SafeAreaView, Alert} from 'react-native'
+import {useWindowDimensions, Platform, AppState, StatusBar, StyleSheet, SafeAreaView} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SplashScreen from 'react-native-splash-screen'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
@@ -28,6 +28,7 @@ import CategoryStats from '@/views/CategoryStats'
 
 // components
 import Toast from '@/components/Toast'
+import {Alert} from '@/components/messageBox'
 
 // icons
 import HomeIcon from '@/assets/icons/home.svg'
@@ -343,6 +344,7 @@ function App(): JSX.Element {
         <SafeAreaView style={statusBarStyle} />
 
         <Toast />
+        <Alert />
 
         <SafeAreaView style={containerStyle}>
           <NavigationContainer ref={navigationRef} linking={linking} onStateChange={changeRoute}>

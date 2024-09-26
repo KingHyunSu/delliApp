@@ -11,7 +11,7 @@ import PushpineIcon from '@/assets/icons/pushpin.svg'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
 import {useRecoilState, useSetRecoilState} from 'recoil'
-import {bottomSafeAreaColorState} from '@/store/system'
+import {bottomSafeAreaColorState, alertState} from '@/store/system'
 import {selectGoalScheduleListState} from '@/store/goal'
 
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
@@ -35,6 +35,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     scheduleList: []
   })
   const [deletedList, setDeletedList] = useState<GoalSchedule[]>([])
+  const alert = useSetRecoilState(alertState)
 
   const [selectGoalScheduleList, setSelectGoalScheduleList] = useRecoilState(selectGoalScheduleListState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
@@ -205,9 +206,16 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   }, [navigation])
 
   const deleteGoal = useCallback(() => {
-    if (form.goal_id) {
-      deleteGoalDetailMutate({goal_id: form.goal_id})
-    }
+    alert({
+      type: 'danger',
+      title: '목표를 삭제할까요?',
+      confirmButtonText: '삭제하기',
+      confirmFn: () => {
+        if (form.goal_id) {
+          deleteGoalDetailMutate({goal_id: form.goal_id})
+        }
+      }
+    })
   }, [form.goal_id, deleteGoalDetailMutate])
 
   const handleConfirm = useCallback(() => {
@@ -461,7 +469,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 16,
-    color: '#FD4672'
+    color: '#fe5267' // #ff5050
   },
   submitButton: {
     height: 56,
