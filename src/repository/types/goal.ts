@@ -27,3 +27,7 @@ export interface SetGoalDetailParams {
   updatedList: GoalSchedule[]
   deletedList: GoalSchedule[]
 }
+
+export interface DeleteGoalDetailRequest {
+  goal_id: number
+}

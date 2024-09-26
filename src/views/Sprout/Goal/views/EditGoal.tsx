@@ -1,5 +1,5 @@
 import {useState, useMemo, useCallback, useEffect} from 'react'
-import {StyleSheet, ScrollView, View, Text, TextInput, Pressable, Image} from 'react-native'
+import {StyleSheet, ScrollView, View, Text, TextInput, Pressable, Image, Alert} from 'react-native'
 import {useIsFocused} from '@react-navigation/native'
 import {format} from 'date-fns'
 import AppBar from '@/components/AppBar'
@@ -16,7 +16,7 @@ import {selectGoalScheduleListState} from '@/store/goal'
 
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {goalRepository} from '@/repository'
-import {SetGoalDetailParams} from '@/repository/types/goal'
+import {DeleteGoalDetailRequest, SetGoalDetailParams} from '@/repository/types/goal'
 import {EditGoalScreenProps} from '@/types/navigation'
 import {Goal, GoalSchedule} from '@/@types/goal'
 
@@ -34,6 +34,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     state: 0,
     scheduleList: []
   })
+  const [deletedList, setDeletedList] = useState<GoalSchedule[]>([])
 
   const [selectGoalScheduleList, setSelectGoalScheduleList] = useRecoilState(selectGoalScheduleListState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
@@ -59,10 +60,20 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
 
   const {mutate: setGoalDetailMutate} = useMutation({
     mutationFn: (params: SetGoalDetailParams) => {
-      if (params.goal_id) {
+      if (isUpdate) {
         return goalRepository.updateGoalDetail(params)
       }
       return goalRepository.setGoalDetail(params)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['goalList']})
+      navigation.goBack()
+    }
+  })
+
+  const {mutate: deleteGoalDetailMutate} = useMutation({
+    mutationFn: (params: DeleteGoalDetailRequest) => {
+      return goalRepository.deleteGoalDetail(params)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['goalList']})
@@ -76,6 +87,10 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
       setSelectGoalScheduleList(goalDetail.scheduleList)
     }
   }, [goalDetail, setForm, setSelectGoalScheduleList])
+
+  const isUpdate = useMemo(() => {
+    return !!form.goal_id
+  }, [form.goal_id])
 
   const activeSubmit = useMemo(() => {
     return !!form.title
@@ -171,14 +186,33 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     [selectGoalScheduleList, setSelectGoalScheduleList]
   )
 
+  const deleteItem = useCallback(
+    (value: GoalSchedule) => {
+      const targetItem = form.scheduleList.find(item => item.schedule_id === value.schedule_id)
+
+      if (targetItem) {
+        setDeletedList(prevState => [...prevState, targetItem])
+      }
+
+      const newSelectGoalScheduleList = selectGoalScheduleList.filter(item => item.schedule_id !== value.schedule_id)
+      setSelectGoalScheduleList(newSelectGoalScheduleList)
+    },
+    [form.scheduleList, selectGoalScheduleList, setSelectGoalScheduleList]
+  )
+
   const moveSearchSchedule = useCallback(() => {
     navigation.navigate('SearchEditGoalSchedule')
   }, [navigation])
 
+  const deleteGoal = useCallback(() => {
+    if (form.goal_id) {
+      deleteGoalDetailMutate({goal_id: form.goal_id})
+    }
+  }, [form.goal_id, deleteGoalDetailMutate])
+
   const handleConfirm = useCallback(() => {
     const insertedList: GoalSchedule[] = []
     const updatedList: GoalSchedule[] = []
-    const deletedList: GoalSchedule[] = []
 
     for (let i = 0; i < selectGoalScheduleList.length; i++) {
       const item = selectGoalScheduleList[i]
@@ -193,8 +227,6 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
         if (targetItem.focus_time !== item.focus_time || targetItem.complete_count !== item.complete_count) {
           updatedList.push(item)
         }
-      } else {
-        deletedList.push(item)
       }
     }
 
@@ -210,7 +242,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     }
 
     setGoalDetailMutate(params)
-  }, [form, selectGoalScheduleList, setGoalDetailMutate])
+  }, [form, selectGoalScheduleList, deletedList, setGoalDetailMutate])
 
   useEffect(() => {
     if (isFocused) {
@@ -224,7 +256,13 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
 
   return (
     <View style={styles.container}>
-      <AppBar backPress />
+      <AppBar backPress>
+        {isUpdate && (
+          <Pressable style={styles.deleteButton} onPress={deleteGoal}>
+            <Text style={styles.deleteButtonText}>삭제하기</Text>
+          </Pressable>
+        )}
+      </AppBar>
 
       <ScrollView
         contentContainerStyle={styles.listContainer}
@@ -329,7 +367,15 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
 
         <View style={scheduleListStyle.listContainer}>
           {selectGoalScheduleList.map((item, index) => {
-            return <EditGoalScheduleItem key={index} item={item} index={index} onChange={changeItemValue} />
+            return (
+              <EditGoalScheduleItem
+                key={index}
+                item={item}
+                index={index}
+                onChange={changeItemValue}
+                onDelete={deleteItem}
+              />
+            )
           })}
         </View>
       </ScrollView>
@@ -406,6 +452,16 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 10,
     gap: 10
+  },
+  deleteButton: {
+    height: 42,
+    justifyContent: 'center'
+  },
+  deleteButtonText: {
+    paddingHorizontal: 16,
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    color: '#FD4672'
   },
   submitButton: {
     height: 56,

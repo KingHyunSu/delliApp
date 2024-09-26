@@ -1,5 +1,5 @@
 import {useCallback, useMemo} from 'react'
-import {StyleSheet, View, Text, TextInput} from 'react-native'
+import {StyleSheet, View, Text, TextInput, Pressable} from 'react-native'
 import ScheduleItem from '@/components/ScheduleItem'
 import {GoalSchedule} from '@/@types/goal'
 
@@ -7,8 +7,9 @@ interface Props {
   item: GoalSchedule
   index: number
   onChange: (value: GoalSchedule, index: number) => void
+  onDelete: (value: GoalSchedule) => void
 }
-const EditGoalScheduleItem = ({item, index, onChange}: Props) => {
+const EditGoalScheduleItem = ({item, index, onChange, onDelete}: Props) => {
   const hours = useMemo(() => {
     if (item.focus_time) {
       const value = Math.floor(item.focus_time / 60)
@@ -146,6 +147,12 @@ const EditGoalScheduleItem = ({item, index, onChange}: Props) => {
           </View>
         </View>
       </View>
+
+      <View style={styles.deleteButtonWrapper}>
+        <Pressable style={styles.deleteButton} onPress={() => onDelete(item)}>
+          <Text style={styles.deleteButtonText}>삭제하기</Text>
+        </Pressable>
+      </View>
     </View>
   )
 }
@@ -153,7 +160,7 @@ const EditGoalScheduleItem = ({item, index, onChange}: Props) => {
 const styles = StyleSheet.create({
   itemContainer: {
     backgroundColor: '#ffffff',
-    paddingVertical: 20,
+    paddingTop: 20,
     paddingHorizontal: 16,
     marginTop: 10
   },
@@ -210,6 +217,20 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#424242'
+  },
+  deleteButtonWrapper: {
+    alignItems: 'center',
+    marginTop: 10
+  },
+  deleteButton: {
+    paddingHorizontal: 20,
+    height: 48,
+    justifyContent: 'center'
+  },
+  deleteButtonText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 14,
+    color: '#babfc5'
   }
 })
 

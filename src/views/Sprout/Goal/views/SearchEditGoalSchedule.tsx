@@ -42,10 +42,7 @@ const SearchEditGoalSchedule = ({navigation}: SearchEditGoalScheduleScreenProps)
     (item: GoalSchedule) => () => {
       const target = selectedList.find(sItem => item.schedule_id === sItem.schedule_id)
 
-      if (target) {
-        const newSelectedList = selectedList.filter(sItem => item.schedule_id !== sItem.schedule_id)
-        setSelectedList(newSelectedList)
-      } else {
+      if (!target) {
         trigger('soft', {
           enableVibrateFallback: true,
           ignoreAndroidSystemSettings: false

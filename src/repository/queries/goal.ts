@@ -90,6 +90,12 @@ export const updateGoalDetailQuery = () => {
 	`
 }
 
+export const deleteGoalDetailQuery = () => {
+  return `
+		DELETE FROM GOAL WHERE goal_id = ?
+	`
+}
+
 export const setGoalScheduleQuery = () => {
   return `
 		INSERT INTO GOAL_SCHEDULE (goal_id, schedule_id, focus_time, complete_count)
@@ -105,6 +111,6 @@ export const updateGoalScheduleQuery = () => {
 
 export const deleteGoalScheduleQuery = () => {
   return `
-		DELETE FROM GOAL_SCHEDULE WHERE goal_schedule_id = ?
+		DELETE FROM GOAL_SCHEDULE WHERE goal_schedule_id = ? OR goal_id = ?
 	`
 }

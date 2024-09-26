@@ -1,6 +1,11 @@
 import {openDatabase} from '../utils/helper'
 import * as goalQueries from '../queries/goal'
-import {GetGoalDetailRequest, GetGoalResponse, SetGoalDetailParams} from '@/repository/types/goal'
+import {
+  DeleteGoalDetailRequest,
+  GetGoalDetailRequest,
+  GetGoalResponse,
+  SetGoalDetailParams
+} from '@/repository/types/goal'
 import {Goal} from '@/@types/goal'
 
 export const getGoalList = async () => {
@@ -123,10 +128,22 @@ export const updateGoalDetail = async (params: SetGoalDetailParams) => {
         // delete goal schedule
         if (params.deletedList.length > 0) {
           params.deletedList.forEach(item => {
-            tx1.executeSql(deleteGoalScheduleQuery, [item.goal_schedule_id])
+            tx1.executeSql(deleteGoalScheduleQuery, [item.goal_schedule_id, null])
           })
         }
       }
     )
+  })
+}
+
+export const deleteGoalDetail = async (params: DeleteGoalDetailRequest) => {
+  const deleteGoalDetailQuery = goalQueries.deleteGoalDetailQuery()
+  const deleteGoalScheduleQuery = goalQueries.deleteGoalScheduleQuery()
+
+  const db = await openDatabase()
+
+  return db.transaction(tx => {
+    tx.executeSql(deleteGoalDetailQuery, [params.goal_id])
+    tx.executeSql(deleteGoalScheduleQuery, [null, params.goal_id])
   })
 }
