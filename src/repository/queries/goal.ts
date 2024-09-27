@@ -1,4 +1,4 @@
-import {GetGoalDetailRequest} from '@/repository/types/goal'
+import {GetGoalDetailRequest, GetGoalScheduleListRequest} from '@/repository/types/goal'
 
 export const getGoalListQuery = () => {
   return `
@@ -46,12 +46,14 @@ export const getGoalDetailQuery = (params: GetGoalDetailRequest) => {
 	`
 }
 
-export const getGoalScheduleListQuery = (params: GetGoalDetailRequest) => {
-  return `
+export const getGoalScheduleListQuery = (params: GetGoalScheduleListRequest) => {
+  let query = `
     SELECT
       GS.goal_schedule_id,
-      GS.focus_time,
-      GS.complete_count,
+      GS.focus_time AS total_focus_time,
+      GS.complete_count AS total_complete_count,
+      SUM(SAL.active_time) AS activity_focus_time,
+      SUM(SAL.complete_state) AS activity_complete_count,
       S.schedule_category_id,
       S.schedule_id,
       S.title,
@@ -72,9 +74,40 @@ export const getGoalScheduleListQuery = (params: GetGoalDetailRequest) => {
       SCHEDULE S
     ON
 		  GS.schedule_id = S.schedule_id
+    LEFT OUTER JOIN
+      SCHEDULE_ACTIVITY_LOG SAL
+    ON
+      GS.schedule_id = SAL.schedule_id
     WHERE
       GS.goal_id = ${params.goal_id}
   `
+
+  if (params.start_date) {
+    query += `AND SAL.date >= '${params.start_date}'`
+  }
+
+  query += `
+		GROUP BY
+			GS.goal_schedule_id,
+		  GS.focus_time,
+		  GS.complete_count,
+		  S.schedule_category_id,
+		  S.schedule_id,
+		  S.title,
+		  S.start_time,
+		  S.end_time,
+		  S.mon,
+		  S.tue,
+		  S.wed,
+		  S.thu,
+		  S.fri,
+		  S.sat,
+		  S.sun,
+		  S.start_date,
+		  S.end_date
+	`
+
+  return query
 }
 
 export const setGoalDetailQuery = () => {

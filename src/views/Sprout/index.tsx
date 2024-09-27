@@ -25,12 +25,16 @@ const Sprout = ({navigation}: SproutNavigationProps) => {
     {key: 'routine', title: '루틴'}
   ])
 
-  const moveEditGoal = useCallback(
+  const moveGoalDetail = useCallback(
     (id: number | null) => {
-      navigation.navigate('EditGoal', {id})
+      navigation.navigate('GoalDetail', {id})
     },
     [navigation]
   )
+
+  const moveEditGoalDetail = useCallback(() => {
+    navigation.navigate('EditGoal', {data: null})
+  }, [navigation])
 
   const getRenderTabBar = useCallback((props: RenderTabBar) => {
     return (
@@ -48,14 +52,14 @@ const Sprout = ({navigation}: SproutNavigationProps) => {
     ({route}: RenderScene) => {
       switch (route.key) {
         case 'goal':
-          return <Goal moveEdit={moveEditGoal} />
+          return <Goal moveDetail={moveGoalDetail} moveEditGoalDetail={moveEditGoalDetail} />
         case 'routine':
           return <SecondRoute />
         default:
           return null
       }
     },
-    [moveEditGoal]
+    [moveGoalDetail]
   )
 
   return (

@@ -17,6 +17,7 @@ import {selectGoalScheduleListState} from '@/store/goal'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {goalRepository} from '@/repository'
 import {DeleteGoalDetailRequest, SetGoalDetailParams} from '@/repository/types/goal'
+import {getTimeString} from '../util'
 import {EditGoalScreenProps} from '@/types/navigation'
 import {Goal, GoalSchedule} from '@/@types/goal'
 
@@ -42,23 +43,6 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
 
   const queryClient = useQueryClient()
 
-  const {data: goalDetail} = useQuery({
-    queryKey: ['goalDetail', route.params.id],
-    queryFn: async () => {
-      if (route.params.id) {
-        const params = {
-          goal_id: route.params.id
-        }
-
-        return await goalRepository.getGoalDetail(params)
-      }
-
-      return null
-    },
-    initialData: null,
-    enabled: !!route.params.id
-  })
-
   const {mutate: setGoalDetailMutate} = useMutation({
     mutationFn: (params: SetGoalDetailParams) => {
       if (isUpdate) {
@@ -68,7 +52,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['goalList']})
-      navigation.goBack()
+      navigation.navigate('MainTabs', {screen: 'Sprout'})
     }
   })
 
@@ -78,16 +62,18 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['goalList']})
-      navigation.goBack()
+      navigation.navigate('MainTabs', {screen: 'Sprout'})
     }
   })
 
   useEffect(() => {
-    if (goalDetail) {
-      setForm(goalDetail)
-      setSelectGoalScheduleList(goalDetail.scheduleList)
+    const params = route.params.data
+
+    if (params) {
+      setForm(params)
+      setSelectGoalScheduleList(params.scheduleList)
     }
-  }, [goalDetail, setForm, setSelectGoalScheduleList])
+  }, [route.params.data, setForm, setSelectGoalScheduleList])
 
   const isUpdate = useMemo(() => {
     return !!form.goal_id
@@ -112,28 +98,13 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     let totalCompleteCount = 0
 
     selectGoalScheduleList.forEach(item => {
-      totalFocusTime += item.focus_time || 0
-      totalCompleteCount += item.complete_count || 0
+      totalFocusTime += item.total_focus_time || 0
+      totalCompleteCount += item.total_complete_count || 0
     })
 
-    const hours = Math.floor(totalFocusTime / 60)
-    const minutes = Math.floor(totalFocusTime % 60)
-    let hoursStr = ''
-    let minutesStr = ''
+    const timeString = getTimeString(totalFocusTime)
 
-    if (hours > 0) {
-      hoursStr = `${hours}시간 `
-    }
-    if (minutes > 0) {
-      minutesStr = `${minutes}분`
-    }
-
-    let timeStr = `${hoursStr}${minutesStr}`
-    if (hours === 0 && minutes === 0) {
-      timeStr = '0분'
-    }
-
-    return `총 ${totalCompleteCount}회 / ${timeStr}`
+    return `총 ${totalCompleteCount}회 / ${timeString}`
   }, [selectGoalScheduleList])
 
   const handleExpandStartDatePanel = useCallback(() => {
@@ -232,7 +203,10 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
       const targetItem = form.scheduleList.find(sItem => item.schedule_id === sItem.schedule_id)
 
       if (targetItem) {
-        if (targetItem.focus_time !== item.focus_time || targetItem.complete_count !== item.complete_count) {
+        if (
+          targetItem.total_focus_time !== item.total_focus_time ||
+          targetItem.total_complete_count !== item.total_complete_count
+        ) {
           updatedList.push(item)
         }
       }
@@ -469,7 +443,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 16,
-    color: '#fe5267' // #ff5050
+    color: '#ff4160'
   },
   submitButton: {
     height: 56,

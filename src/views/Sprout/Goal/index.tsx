@@ -7,9 +7,10 @@ import {goalRepository} from '@/repository'
 import {GetGoalResponse} from '@/repository/types/goal'
 
 interface Props {
-  moveEdit: (id: number | null) => void
+  moveDetail: (id: number | null) => void
+  moveEditGoalDetail: () => void
 }
-const Goal = ({moveEdit}: Props) => {
+const Goal = ({moveDetail, moveEditGoalDetail}: Props) => {
   const {data: goalList} = useQuery({
     queryKey: ['goalList'],
     queryFn: () => {
@@ -18,15 +19,11 @@ const Goal = ({moveEdit}: Props) => {
     initialData: []
   })
 
-  const moveNewEdit = useCallback(() => {
-    moveEdit(null)
-  }, [moveEdit])
-
   const getRenderItem: ListRenderItem<GetGoalResponse> = useCallback(
     ({item}) => {
-      return <Item item={item} moveEdit={moveEdit} />
+      return <Item item={item} moveDetail={moveDetail} />
     },
-    [moveEdit]
+    [moveDetail]
   )
 
   return (
@@ -39,7 +36,7 @@ const Goal = ({moveEdit}: Props) => {
           showsVerticalScrollIndicator={false}
         />
 
-        <Pressable style={styles.fabContainer} onPress={moveNewEdit}>
+        <Pressable style={styles.fabContainer} onPress={moveEditGoalDetail}>
           <PlusIcon stroke="#fff" strokeWidth={3} />
         </Pressable>
       </View>

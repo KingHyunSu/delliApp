@@ -11,22 +11,22 @@ interface Props {
 }
 const EditGoalScheduleItem = ({item, index, onChange, onDelete}: Props) => {
   const hours = useMemo(() => {
-    if (item.focus_time) {
-      const value = Math.floor(item.focus_time / 60)
+    if (item.total_focus_time) {
+      const value = Math.floor(item.total_focus_time / 60)
 
       return value > 0 ? value.toString() : ''
     }
     return ''
-  }, [item.focus_time])
+  }, [item.total_focus_time])
 
   const minutes = useMemo(() => {
-    if (item.focus_time) {
-      const value = Math.floor(item.focus_time % 60)
+    if (item.total_focus_time) {
+      const value = Math.floor(item.total_focus_time % 60)
 
       return value > 0 ? value.toString() : ''
     }
     return ''
-  }, [item.focus_time])
+  }, [item.total_focus_time])
 
   const getNumericValue = useCallback((value: string) => {
     return Number(value.replace(/[^0-9]/g, ''))
@@ -39,7 +39,7 @@ const EditGoalScheduleItem = ({item, index, onChange, onDelete}: Props) => {
       onChange(
         {
           ...item,
-          focus_time: numericValue + Number(minutes)
+          total_focus_time: numericValue + Number(minutes)
         },
         index
       )
@@ -58,7 +58,7 @@ const EditGoalScheduleItem = ({item, index, onChange, onDelete}: Props) => {
       onChange(
         {
           ...item,
-          focus_time: Number(hours) * 60 + numericValue
+          total_focus_time: Number(hours) * 60 + numericValue
         },
         index
       )
@@ -73,7 +73,7 @@ const EditGoalScheduleItem = ({item, index, onChange, onDelete}: Props) => {
       onChange(
         {
           ...item,
-          complete_count: numericValue
+          total_complete_count: numericValue
         },
         index
       )
@@ -136,7 +136,7 @@ const EditGoalScheduleItem = ({item, index, onChange, onDelete}: Props) => {
 
           <View style={styles.completeCountInputWrapper}>
             <TextInput
-              value={(item.complete_count || '').toString()}
+              value={(item.total_complete_count || '').toString()}
               style={styles.completeCountInput}
               keyboardType="number-pad"
               placeholder="0"
@@ -173,8 +173,8 @@ const styles = StyleSheet.create({
   },
   itemLabel: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 14,
-    color: '#7c8698'
+    fontSize: 16,
+    color: '#424242'
   },
   itemInput: {
     flex: 1,

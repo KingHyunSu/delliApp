@@ -24,6 +24,8 @@ export interface GoalSchedule {
   sun: string
   start_date: string
   end_date: string
-  focus_time: number | null
-  complete_count: number | null
+  total_focus_time: number | null
+  total_complete_count: number | null
+  activity_focus_time: number | null
+  activity_complete_count: number | null
 }

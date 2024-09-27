@@ -5,9 +5,10 @@ import Animated, {useDerivedValue, withTiming, useAnimatedStyle, interpolateColo
 
 interface Props {
   value: boolean
-  onChange: (value: boolean) => void
+  readonly?: boolean
+  onChange?: (value: boolean) => void
 }
-const Switch = ({value = false, onChange}: Props) => {
+const Switch = ({value = false, readonly = false, onChange}: Props) => {
   const duration = 200
   const precess = useDerivedValue(() => {
     return withTiming(value ? 1 : 0, {duration})
@@ -29,8 +30,10 @@ const Switch = ({value = false, onChange}: Props) => {
   })
 
   const change = useCallback(() => {
-    onChange(!value)
-  }, [onChange, value])
+    if (!readonly && onChange) {
+      onChange(!value)
+    }
+  }, [readonly, onChange, value])
 
   return (
     <Animated.View style={[backgroundStyle, styles.container]}>

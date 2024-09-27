@@ -6,9 +6,9 @@ import {GetGoalResponse} from '@/repository/types/goal'
 
 interface Props {
   item: GetGoalResponse
-  moveEdit: (id: number | null) => void
+  moveDetail: (id: number | null) => void
 }
-const GoalItem = ({item, moveEdit}: Props) => {
+const GoalItem = ({item, moveDetail}: Props) => {
   const completeCountInfoWrapperStyle = useMemo(() => {
     let backgroundColor = '#f9f9f9'
     let borderColor = '#f9f9f9'
@@ -48,8 +48,8 @@ const GoalItem = ({item, moveEdit}: Props) => {
   }, [])
 
   const handleMoveEdit = useCallback(() => {
-    moveEdit(item.goal_id)
-  }, [item.goal_id, moveEdit])
+    moveDetail(item.goal_id)
+  }, [item.goal_id, moveDetail])
 
   // components
   const labelComponent = useMemo(() => {

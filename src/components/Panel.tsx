@@ -6,12 +6,12 @@ import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
 
 interface Props {
-  type: 'container' | 'item'
+  type?: 'container' | 'item'
   value?: boolean
   expandable?: boolean
   headerHeight?: number
   contentsHeight?: number
-  handleExpansion: () => void
+  handleExpansion?: () => void
   headerComponent: React.ReactNode
   contentsComponent?: React.ReactNode
 }

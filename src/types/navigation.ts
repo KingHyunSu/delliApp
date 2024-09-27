@@ -1,6 +1,7 @@
 import type {CompositeScreenProps} from '@react-navigation/native'
 import type {StackScreenProps} from '@react-navigation/stack'
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs'
+import {Goal} from '@/@types/goal'
 
 export type StackNavigator = {
   MainTabs: {
@@ -9,7 +10,8 @@ export type StackNavigator = {
   }
   EditSchedule: undefined
   CategoryStats: undefined
-  EditGoal: {id: number | null}
+  GoalDetail: {id: number | null}
+  EditGoal: {data: Goal | null}
   SearchEditGoalSchedule: undefined
 }
 export type BottomTabNavigator = {
@@ -32,6 +34,7 @@ export type SproutNavigationProps = CompositeScreenProps<
 >
 
 export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
+export type GoalDetailScreenProps = StackScreenProps<StackNavigator, 'GoalDetail'>
 export type EditGoalScreenProps = StackScreenProps<StackNavigator, 'EditGoal'>
 export type SearchEditGoalScheduleScreenProps = StackScreenProps<StackNavigator, 'SearchEditGoalSchedule'>
 

@@ -19,7 +19,6 @@ export const getGoalList = async () => {
 
 export const getGoalDetail = async (params: GetGoalDetailRequest) => {
   const goalDetailQuery = goalQueries.getGoalDetailQuery(params)
-  const goalScheduleListQuery = goalQueries.getGoalScheduleListQuery(params)
   const db = await openDatabase()
 
   let result: Goal = {
@@ -35,6 +34,12 @@ export const getGoalDetail = async (params: GetGoalDetailRequest) => {
   try {
     await db.transaction(tx => {
       tx.executeSql(goalDetailQuery, [], (tx1, result1) => {
+        const goalDetailResponse = result1.rows.item(0)
+        const goalScheduleListQuery = goalQueries.getGoalScheduleListQuery({
+          goal_id: goalDetailResponse.goal_id,
+          start_date: goalDetailResponse.start_date
+        })
+
         tx.executeSql(goalScheduleListQuery, [], (tx2, result2) => {
           result = {
             ...result1.rows.item(0),
@@ -69,8 +74,8 @@ export const setGoalDetail = async (params: SetGoalDetailParams) => {
             tx1.executeSql(setGoalScheduleQuery, [
               result.insertId,
               item.schedule_id,
-              item.focus_time,
-              item.complete_count
+              item.total_focus_time,
+              item.total_complete_count
             ])
           })
         }
@@ -78,7 +83,11 @@ export const setGoalDetail = async (params: SetGoalDetailParams) => {
         // update goal schedule
         if (params.updatedList.length > 0) {
           params.updatedList.forEach(item => {
-            tx1.executeSql(updateGoalScheduleQuery, [item.focus_time, item.complete_count, item.goal_schedule_id])
+            tx1.executeSql(updateGoalScheduleQuery, [
+              item.total_focus_time,
+              item.total_complete_count,
+              item.goal_schedule_id
+            ])
           })
         }
 
@@ -112,8 +121,8 @@ export const updateGoalDetail = async (params: SetGoalDetailParams) => {
             tx1.executeSql(setGoalScheduleQuery, [
               params.goal_id,
               item.schedule_id,
-              item.focus_time,
-              item.complete_count
+              item.total_focus_time,
+              item.total_complete_count
             ])
           })
         }
@@ -121,7 +130,11 @@ export const updateGoalDetail = async (params: SetGoalDetailParams) => {
         // update goal schedule
         if (params.updatedList.length > 0) {
           params.updatedList.forEach(item => {
-            tx1.executeSql(updateGoalScheduleQuery, [item.focus_time, item.complete_count, item.goal_schedule_id])
+            tx1.executeSql(updateGoalScheduleQuery, [
+              item.total_focus_time,
+              item.total_complete_count,
+              item.goal_schedule_id
+            ])
           })
         }
 
