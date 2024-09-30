@@ -1,5 +1,6 @@
 import {openDatabase} from '../utils/helper'
 import {GetTodoList, SetTodo, DeleteTodo} from '../types/todo'
+import {Routine} from '@/@types/todo'
 import * as todoQueries from '../queries/todo'
 
 export const getTodo = async (params: GetTodoList) => {
@@ -33,4 +34,23 @@ export const deleteTodo = async (params: DeleteTodo) => {
   await db.executeSql(query)
 
   return {todo_id: params.todo_id}
+}
+
+export const getRoutineListQuery = async () => {
+  const query = todoQueries.getRoutineListQuery()
+  const db = await openDatabase()
+  const [result] = await db.executeSql(query)
+
+  return result.rows.raw().map(item => {
+    let completeDateList: string[] = []
+
+    if (item.complete_date_list) {
+      completeDateList = item.complete_date_list.split(',')
+    }
+
+    return {
+      ...item,
+      complete_date_list: completeDateList
+    } as Routine
+  })
 }

@@ -2,21 +2,16 @@ import {useCallback, useState} from 'react'
 import {StyleSheet, View, Text, useWindowDimensions} from 'react-native'
 import {TabView, TabBar, NavigationState} from 'react-native-tab-view'
 import Goal from './Goal'
+import Routine from './Routine'
 import AppBar from '@/components/AppBar'
 import {SproutNavigationProps} from '@/types/navigation'
 import type {SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types'
-
-const SecondRoute = () => (
-  <View style={{flex: 1, backgroundColor: '#673ab7'}}>
-    <Text>Second</Text>
-  </View>
-)
 
 type Route = {key: string; title: string}
 type RenderTabBar = SceneRendererProps & {navigationState: NavigationState<Route>}
 type RenderScene = SceneRendererProps & {route: Route}
 
-const Sprout = ({navigation}: SproutNavigationProps) => {
+const Sprout = (navigator: SproutNavigationProps) => {
   const layout = useWindowDimensions()
 
   const [index, setIndex] = useState(0)
@@ -27,14 +22,14 @@ const Sprout = ({navigation}: SproutNavigationProps) => {
 
   const moveGoalDetail = useCallback(
     (id: number | null) => {
-      navigation.navigate('GoalDetail', {id})
+      navigator.navigation.navigate('GoalDetail', {id})
     },
-    [navigation]
+    [navigator.navigation]
   )
 
   const moveEditGoalDetail = useCallback(() => {
-    navigation.navigate('EditGoal', {data: null})
-  }, [navigation])
+    navigator.navigation.navigate('EditGoal', {data: null})
+  }, [navigator.navigation])
 
   const getRenderTabBar = useCallback((props: RenderTabBar) => {
     return (
@@ -54,7 +49,7 @@ const Sprout = ({navigation}: SproutNavigationProps) => {
         case 'goal':
           return <Goal moveDetail={moveGoalDetail} moveEditGoalDetail={moveEditGoalDetail} />
         case 'routine':
-          return <SecondRoute />
+          return <Routine navigator={navigator} />
         default:
           return null
       }

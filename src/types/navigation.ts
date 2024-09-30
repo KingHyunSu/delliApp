@@ -13,6 +13,7 @@ export type StackNavigator = {
   GoalDetail: {id: number | null}
   EditGoal: {data: Goal | null}
   SearchEditGoalSchedule: undefined
+  EditRoutine: undefined
 }
 export type BottomTabNavigator = {
   Home: {scheduleUpdated: boolean}

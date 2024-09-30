@@ -15,3 +15,10 @@ export interface SetTodo {
 export interface DeleteTodo {
   todo_id: number
 }
+
+export interface SetRoutine {
+  title: string
+  repeat_complete_type: number // 1: 매일, 2: 이틀, 3: 일주일
+  repeat_complete_count: 1 | 2 | 3 | 4 | 5 | 6
+  schedule_id: number | null
+}

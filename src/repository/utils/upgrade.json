@@ -8,7 +8,9 @@
       "ALTER TABLE SCHEDULE ADD COLUMN disabled_date text"
     ],
     "v3": [
-      "ALTER TABLE SCHEDULE ADD COLUMN schedule_category_id INTEGER"
+      "ALTER TABLE SCHEDULE ADD COLUMN schedule_category_id INTEGER",
+      "ALTER TABLE TODO ADD COLUMN repeat_complete_type INTEGER",
+      "ALTER TABLE TODO ADD COLUMN repeat_complete_count INTEGER"
     ]
   }
 }

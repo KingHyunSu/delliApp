@@ -78,3 +78,25 @@ export const deleteTodoQuery = (params: DeleteTodo) => {
 
   return query
 }
+
+export const getRoutineListQuery = () => {
+  return `
+    SELECT
+      T.todo_id,
+      T.title,
+      T.start_date,
+      T.end_date,
+      T.repeat_complete_type,
+      T.repeat_complete_count,
+      (
+        SELECT GROUP_CONCAT(TC.complete_date)
+        FROM TODO_COMPLETE TC
+        WHERE TC.todo_id = T.todo_id
+        AND TC.complete_date >= DATE('now', '-' || (T.repeat_complete_type * 7) || ' days')
+      ) AS complete_date_list
+    FROM
+      TODO T
+    WHERE
+      T.repeat_complete_type IS NOT NULL
+  `
+}
