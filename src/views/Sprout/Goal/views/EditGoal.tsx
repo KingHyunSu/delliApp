@@ -251,10 +251,10 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
         stickyHeaderIndices={stickyHeaderIndices}
         showsVerticalScrollIndicator={false}>
         <View style={styles.wrapper}>
-          {/* 목표목 */}
+          {/* 목표명 */}
           <TextInput
             value={form.title}
-            placeholder="새로운 목표명"
+            placeholder="새로운 목표"
             placeholderTextColor="#c3c5cc"
             style={styles.input}
             onChangeText={(value: string) => setForm(prevState => ({...prevState, title: value}))}

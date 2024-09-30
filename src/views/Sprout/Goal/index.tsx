@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react'
+import {useCallback} from 'react'
 import {ListRenderItem, StyleSheet, FlatList, Pressable, View, Platform} from 'react-native'
 import Item from './components/Item'
 import PlusIcon from '@/assets/icons/plus.svg'

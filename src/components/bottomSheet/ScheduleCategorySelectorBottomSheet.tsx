@@ -1,4 +1,4 @@
-import React, {useRef, useState, useMemo, useCallback, useEffect} from 'react'
+import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
 import {ListRenderItem, StyleSheet, View, Text, Pressable, Image, Platform} from 'react-native'
 import {Shadow} from 'react-native-shadow-2'
 import {
