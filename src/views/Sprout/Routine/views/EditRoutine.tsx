@@ -2,7 +2,6 @@ import {useState, useMemo, useCallback, useEffect} from 'react'
 import {StyleSheet, ScrollView, View, Text, TextInput, Pressable} from 'react-native'
 import {useIsFocused} from '@react-navigation/native'
 import RepeatCountSelectorBottomSheet from '@/components/bottomSheet/RepeatCountSelectorBottomSheet'
-import type {Count} from '@/components/bottomSheet/RepeatCountSelectorBottomSheet'
 import AppBar from '@/components/AppBar'
 import ScheduleItem from '@/components/ScheduleItem'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
@@ -13,18 +12,20 @@ import {showRepeatCountSelectorBottomSheetState} from '@/store/bottomSheet'
 import {searchScheduleResultListState} from '@/store/schedule'
 import {bottomSafeAreaColorState} from '@/store/system'
 
-import {SetRoutine} from '@/repository/types/todo'
+import {useMutation} from '@tanstack/react-query'
+import {routineRepository} from '@/repository'
 import {EditRoutineScreenProps} from '@/types/navigation'
+import {EditRoutineForm} from '@/@types/routine'
 
 const RepeatCompleteType = {DAILY: 1, TWO_DAYS: 2, WEEK: 3} as const
 const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
   const isFocused = useIsFocused()
 
-  const [form, setForm] = useState<SetRoutine>({
+  const [form, setForm] = useState<EditRoutineForm>({
     routine_id: null,
     title: '',
-    repeat_complete_type: 1,
-    repeat_complete_count: 1,
+    routine_type: 1,
+    routine_count: 1,
     schedule_id: null,
     schedule_title: null,
     schedule_category_id: null,
@@ -41,34 +42,57 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
     schedule_end_date: null
   })
 
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null)
+
   const [searchScheduleResultList, setSearchScheduleResultList] = useRecoilState(searchScheduleResultListState)
   const setShowRepeatCountSelectorBottomSheet = useSetRecoilState(showRepeatCountSelectorBottomSheetState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
 
+  const {mutate: setRoutineMutate} = useMutation({
+    mutationFn: () => {
+      const params = {
+        routine_id: form.routine_id,
+        title: form.title,
+        routine_type: form.routine_type,
+        routine_count: form.routine_count,
+        schedule_id: form.schedule_id!
+      }
+
+      if (form.schedule_id) {
+        return routineRepository.updateRoutine(params)
+      } else {
+        return routineRepository.setRoutine(params)
+      }
+    },
+    onSuccess: () => {
+      navigation.navigate('MainTabs', {screen: 'Sprout'})
+    }
+  })
+
   const disabledChangeRepeatCount = useMemo(() => {
-    return form.repeat_complete_type !== RepeatCompleteType.WEEK
-  }, [form.repeat_complete_type])
+    return form.routine_type !== RepeatCompleteType.WEEK
+  }, [form.routine_type])
 
   const getRepeatTypeButtonStyle = useCallback(
     (type: (typeof RepeatCompleteType)[keyof typeof RepeatCompleteType]) => {
-      if (type === form.repeat_complete_type) {
+      if (type === form.routine_type) {
         return activeRepeatTypeButtonStyle
       }
 
       return styles.repeatTypeButton
     },
-    [form.repeat_complete_type]
+    [form.routine_type]
   )
 
   const getRepeatTypeButtonTextStyle = useCallback(
     (type: (typeof RepeatCompleteType)[keyof typeof RepeatCompleteType]) => {
-      if (type === form.repeat_complete_type) {
+      if (type === form.routine_type) {
         return activeRepeatTypeButtonTextStyle
       }
 
       return styles.repeatTypeButtonText
     },
-    [form.repeat_complete_type]
+    [form.routine_type]
   )
 
   const repeatCountButtonTextStyle = useMemo(() => {
@@ -91,7 +115,7 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
     return activeSubmit ? activeSubmitButtonText : styles.submitButtonText
   }, [activeSubmit])
 
-  const getRepeatCountString = useCallback((value: Count) => {
+  const getRepeatCountString = useCallback((value: number) => {
     switch (value) {
       case 1:
         return '한 번'
@@ -112,22 +136,22 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
 
   const changeRepeatType = useCallback(
     (type: (typeof RepeatCompleteType)[keyof typeof RepeatCompleteType]) => () => {
-      const repeatCompleteCount = type !== RepeatCompleteType.WEEK ? 1 : form.repeat_complete_count
+      const repeatCompleteCount = type !== RepeatCompleteType.WEEK ? 1 : form.routine_count
 
       setForm(prevState => ({
         ...prevState,
-        repeat_complete_type: type,
-        repeat_complete_count: repeatCompleteCount
+        routine_type: type,
+        routine_count: repeatCompleteCount
       }))
     },
-    [form.repeat_complete_count, setForm]
+    [form.routine_count, setForm]
   )
 
   const changeRepeatCount = useCallback(
-    (value: Count) => {
+    (value: number) => {
       setForm(prevState => ({
         ...prevState,
-        repeat_complete_count: value
+        routine_count: value
       }))
     },
     [setForm]
@@ -158,7 +182,9 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
     }))
   }, [setSearchScheduleResultList, setForm])
 
-  const handleConfirm = useCallback(() => {}, [])
+  const handleConfirm = useCallback(() => {
+    setRoutineMutate()
+  }, [])
 
   useEffect(() => {
     if (searchScheduleResultList.length > 0) {
@@ -237,7 +263,7 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
                 style={styles.repeatCountButton}
                 disabled={disabledChangeRepeatCount}
                 onPress={showRepeatCountSelectorBottomSheet}>
-                <Text style={repeatCountButtonTextStyle}>{getRepeatCountString(form.repeat_complete_count)}</Text>
+                <Text style={repeatCountButtonTextStyle}>{getRepeatCountString(form.routine_count)}</Text>
 
                 <ArrowDownIcon stroke={disabledChangeRepeatCount ? '#c3c5cc' : '#424242'} />
               </Pressable>
@@ -291,7 +317,8 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
       <Pressable style={submitButtonStyle} onPress={handleConfirm}>
         <Text style={submitButtonTextStyle}>{form.routine_id ? '수정하기' : '등록하기'}</Text>
       </Pressable>
-      <RepeatCountSelectorBottomSheet value={form.repeat_complete_count} onChange={changeRepeatCount} />
+
+      <RepeatCountSelectorBottomSheet value={form.routine_count} onChange={changeRepeatCount} />
     </View>
   )
 }

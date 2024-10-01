@@ -6,10 +6,9 @@ import BottomSheetHandler from '@/components/BottomSheetHandler'
 import {showRepeatCountSelectorBottomSheetState} from '@/store/bottomSheet'
 import {useRecoilState} from 'recoil'
 
-export type Count = 1 | 2 | 3 | 4 | 5 | 6
 interface Props {
-  value: Count
-  onChange: (value: Count) => void
+  value: number
+  onChange: (value: number) => void
 }
 const RepeatCountSelectorBottomSheet = ({value, onChange}: Props) => {
   const repeatCountSelectorModalRef = useRef<BottomSheetModal>(null)
@@ -23,7 +22,7 @@ const RepeatCountSelectorBottomSheet = ({value, onChange}: Props) => {
   }, [setShowRepeatCountSelectorBottomSheet])
 
   const changeValue = useCallback(
-    (val: Count) => () => {
+    (val: number) => () => {
       onChange(val)
       handleDismiss()
     },
@@ -66,7 +65,7 @@ const RepeatCountSelectorBottomSheet = ({value, onChange}: Props) => {
 
     return values.map(item => {
       return (
-        <Pressable key={item.value} style={styles.item} onPress={changeValue(item.value as Count)}>
+        <Pressable key={item.value} style={styles.item} onPress={changeValue(item.value)}>
           <View style={value === item.value ? activeItemSelectIconStyle : styles.itemSelectIcon}>
             <View style={styles.itemSelectInnerIcon} />
           </View>

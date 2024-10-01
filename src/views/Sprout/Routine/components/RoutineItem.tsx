@@ -1,14 +1,14 @@
 import {useMemo} from 'react'
 import {StyleSheet, Pressable, View, Text} from 'react-native'
-import {Routine} from '@/@types/todo'
 import {startOfWeek, formatISO9075} from 'date-fns'
+import {Routine} from '@/@types/routine'
 
 interface Props {
   item: Routine
 }
 const RoutineItem = ({item}: Props) => {
   const repeatTypeString = useMemo(() => {
-    switch (item.repeat_complete_type) {
+    switch (item.routine_type) {
       case 1:
         return '매일'
       case 2:
@@ -18,10 +18,10 @@ const RoutineItem = ({item}: Props) => {
       default:
         return ''
     }
-  }, [item.repeat_complete_type])
+  }, [item.routine_type])
 
   const repeatCountString = useMemo(() => {
-    switch (item.repeat_complete_count) {
+    switch (item.routine_count) {
       case 1:
         return '한 번'
       case 2:
@@ -37,7 +37,7 @@ const RoutineItem = ({item}: Props) => {
       default:
         return ''
     }
-  }, [item.repeat_complete_count])
+  }, [item.routine_count])
 
   const repeatCompleteItemList = useMemo(() => {
     const startDate = startOfWeek(new Date(), {weekStartsOn: 1})
@@ -53,7 +53,7 @@ const RoutineItem = ({item}: Props) => {
 
     const result = []
 
-    for (let i = 1; i <= item.repeat_complete_count; i++) {
+    for (let i = 1; i <= item.routine_count; i++) {
       const isComplete = i <= completeCount
       const backgroundColor = isComplete ? '#FFD54F' : '#f5f6f8'
       result.push(<View key={i} style={[styles.subCompleteItem, {backgroundColor}]} />)
@@ -72,7 +72,7 @@ const RoutineItem = ({item}: Props) => {
       </View>
 
       <View style={styles.completeItemContainer}>
-        {item.repeat_complete_count && <View style={styles.completeSubItemWrapper}>{repeatCompleteItemList}</View>}
+        {item.routine_count && <View style={styles.completeSubItemWrapper}>{repeatCompleteItemList}</View>}
 
         <View style={styles.completeItemWrapper}>
           <View style={styles.completeItem} />

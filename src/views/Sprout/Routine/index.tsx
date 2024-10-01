@@ -6,9 +6,9 @@ import PlusIcon from '@/assets/icons/plus.svg'
 import {useSetRecoilState} from 'recoil'
 import {searchScheduleResultListState} from '@/store/schedule'
 import {useQuery} from '@tanstack/react-query'
-import {todoRepository} from '@/repository'
+import {routineRepository} from '@/repository'
+import {Routine} from '@/@types/routine'
 import {SproutNavigationProps} from '@/types/navigation'
-import {Routine} from '@/@types/todo'
 
 interface Props {
   navigator: SproutNavigationProps
@@ -20,7 +20,7 @@ const RoutineList = ({navigator}: Props) => {
   const {data: routineList} = useQuery({
     queryKey: ['routineList'],
     queryFn: () => {
-      return todoRepository.getRoutineListQuery()
+      return routineRepository.getRoutineList()
     },
     initialData: []
   })
