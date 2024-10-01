@@ -35,7 +35,7 @@ export const getSearchScheduleList = async () => {
   const db = await openDatabase()
   const [result] = await db.executeSql(query)
 
-  return result.rows.raw() as GoalSchedule[]
+  return result.rows.raw() as Schedule[]
 }
 
 export const setSchedule = async (params: SetSchedule) => {

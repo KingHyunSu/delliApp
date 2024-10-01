@@ -55,7 +55,7 @@ const RoutineItem = ({item}: Props) => {
 
     for (let i = 1; i <= item.repeat_complete_count; i++) {
       const isComplete = i <= completeCount
-      const backgroundColor = isComplete ? '#76d67250' : '#f5f6f8'
+      const backgroundColor = isComplete ? '#FFD54F' : '#f5f6f8'
       result.push(<View key={i} style={[styles.subCompleteItem, {backgroundColor}]} />)
     }
 

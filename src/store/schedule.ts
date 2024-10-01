@@ -134,3 +134,8 @@ export const focusModeInfoState = atom<FocusModeInfo | null>({
   key: 'focusModeInfoState',
   default: null
 })
+
+export const searchScheduleResultListState = atom<Schedule[]>({
+  key: 'searchScheduleResultListState',
+  default: []
+})

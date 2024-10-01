@@ -22,6 +22,7 @@ import EditGoalScreen from '@/views/Sprout/Goal/views/EditGoal'
 import SearchEditGoalScheduleScreen from '@/views/Sprout/Goal/views/SearchEditGoalSchedule'
 import EditRoutineScreen from '@/views/Sprout/Routine/views/EditRoutine'
 import StatsScreen from '@/views/Stats'
+import SearchScheduleScreen from '@/views/SearchSchedule'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
 import EditScheduleScreen from '@/views/EditSchedule'
@@ -147,6 +148,7 @@ function App(): JSX.Element {
         break
       case 'EditSchedule':
       case 'EditGoal':
+      case 'EditRoutine':
         // 화면의 useEffect 보다 늦게 실행됨...
         _bottomSafeAreaColor = null
         break
@@ -357,6 +359,7 @@ function App(): JSX.Element {
               <Stack.Screen name="EditGoal" component={EditGoalScreen} />
               <Stack.Screen name="SearchEditGoalSchedule" component={SearchEditGoalScheduleScreen} />
               <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
+              <Stack.Screen name="SearchSchedule" component={SearchScheduleScreen} />
             </Stack.Navigator>
           </NavigationContainer>
         </SafeAreaView>

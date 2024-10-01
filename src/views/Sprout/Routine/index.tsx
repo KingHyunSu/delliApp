@@ -1,16 +1,22 @@
 import {useCallback, useEffect} from 'react'
-import {ListRenderItem, Platform, StyleSheet, FlatList, Pressable, View, Text} from 'react-native'
+import {ListRenderItem, Platform, StyleSheet, FlatList, Pressable, View} from 'react-native'
+import {useIsFocused} from '@react-navigation/native'
 import RoutineItem from './components/RoutineItem'
 import PlusIcon from '@/assets/icons/plus.svg'
-import {Routine} from '@/@types/todo'
+import {useSetRecoilState} from 'recoil'
+import {searchScheduleResultListState} from '@/store/schedule'
 import {useQuery} from '@tanstack/react-query'
 import {todoRepository} from '@/repository'
 import {SproutNavigationProps} from '@/types/navigation'
+import {Routine} from '@/@types/todo'
 
 interface Props {
   navigator: SproutNavigationProps
 }
 const RoutineList = ({navigator}: Props) => {
+  const isFocused = useIsFocused()
+  const setSearchScheduleResultList = useSetRecoilState(searchScheduleResultListState)
+
   const {data: routineList} = useQuery({
     queryKey: ['routineList'],
     queryFn: () => {
@@ -21,7 +27,13 @@ const RoutineList = ({navigator}: Props) => {
 
   const moveEditRoutine = useCallback(() => {
     navigator.navigation.navigate('EditRoutine')
-  }, [navigator.navigation.navigate])
+  }, [navigator.navigation])
+
+  useEffect(() => {
+    if (isFocused) {
+      setSearchScheduleResultList([])
+    }
+  }, [isFocused, setSearchScheduleResultList])
 
   const getRenderItem: ListRenderItem<Routine> = useCallback(({item}) => {
     return <RoutineItem item={item} />
