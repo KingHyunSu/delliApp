@@ -8,7 +8,7 @@ import {userRepository} from '@/repository'
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {
     // tx.executeSql(`
-    //   DROP TABLE GOAL
+    //   DROP TABLE ROUTINE_COMPLETE
     // `)
 
     // user table
@@ -80,6 +80,29 @@ const createTable = async (db: SQLiteDatabase) => {
         "complete_count" INTEGER -- 목표 완료 횟수
       )         
     `)
+
+    // routine table
+    tx.executeSql(`
+			CREATE TABLE IF NOT EXISTS "ROUTINE" (
+				"routine_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+				"title" TEXT NOT NULL,
+				"routine_type" INTEGER NOT NULL,
+				"routine_count" INTEGER NOT NULL,
+        "schedule_id"	INTEGER NOT NULL
+      )
+		`)
+
+    // routine_complete table
+    tx.executeSql(`
+        CREATE TABLE IF NOT EXISTS "ROUTINE_COMPLETE" (
+				 "complete_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+				 "complete_date"	TEXT NOT NULL,
+				 "routine_id"	INTEGER NOT NULL,
+				 FOREIGN KEY("routine_id")
+					 REFERENCES ROUTINE("routine_id")
+					 ON DELETE CASCADE
+        )
+		`)
 
     // todo table
     tx.executeSql(`
