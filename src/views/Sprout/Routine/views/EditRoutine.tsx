@@ -42,8 +42,6 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
     schedule_end_date: null
   })
 
-  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(null)
-
   const [searchScheduleResultList, setSearchScheduleResultList] = useRecoilState(searchScheduleResultListState)
   const setShowRepeatCountSelectorBottomSheet = useSetRecoilState(showRepeatCountSelectorBottomSheetState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
@@ -184,7 +182,7 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
 
   const handleConfirm = useCallback(() => {
     setRoutineMutate()
-  }, [])
+  }, [setRoutineMutate])
 
   useEffect(() => {
     if (searchScheduleResultList.length > 0) {

@@ -21,6 +21,7 @@ import GoalDetailScreen from '@/views/Sprout/Goal/views/GoalDetail'
 import EditGoalScreen from '@/views/Sprout/Goal/views/EditGoal'
 import SearchEditGoalScheduleScreen from '@/views/Sprout/Goal/views/SearchEditGoalSchedule'
 import EditRoutineScreen from '@/views/Sprout/Routine/views/EditRoutine'
+import RoutineDetailScreen from '@/views/Sprout/Routine/views/RoutineDetail'
 import StatsScreen from '@/views/Stats'
 import SearchScheduleScreen from '@/views/SearchSchedule'
 import SettingScreen from '@/views/Setting'
@@ -359,6 +360,7 @@ function App(): JSX.Element {
               <Stack.Screen name="EditGoal" component={EditGoalScreen} />
               <Stack.Screen name="SearchEditGoalSchedule" component={SearchEditGoalScheduleScreen} />
               <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
+              <Stack.Screen name="RoutineDetail" component={RoutineDetailScreen} />
               <Stack.Screen name="SearchSchedule" component={SearchScheduleScreen} />
             </Stack.Navigator>
           </NavigationContainer>

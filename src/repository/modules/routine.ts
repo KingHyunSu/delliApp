@@ -1,7 +1,7 @@
 import * as routineQueries from '@/repository/queries/routine'
 import {openDatabase} from '../utils/helper'
-import {Routine} from '@/@types/routine'
-import {EditRoutineRequest} from '@/repository/types/routine'
+import {Routine, RoutineDetail} from '@/@types/routine'
+import {EditRoutineRequest, GetRoutineDetailRequest} from '@/repository/types/routine'
 
 export const getRoutineList = async () => {
   const query = routineQueries.getRoutineListQuery()
@@ -20,6 +20,14 @@ export const getRoutineList = async () => {
       complete_date_list: completeDateList
     } as Routine
   })
+}
+
+export const getRoutineDetail = async (params: GetRoutineDetailRequest) => {
+  const query = routineQueries.getRoutineDetailQuery()
+  const db = await openDatabase()
+  const [result] = await db.executeSql(query, [params.routine_id])
+
+  return result.rows.item(0) as RoutineDetail
 }
 
 export const setRoutine = async (params: EditRoutineRequest) => {

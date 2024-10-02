@@ -14,7 +14,8 @@ export type StackNavigator = {
   GoalDetail: {id: number | null}
   EditGoal: {data: Goal | null}
   SearchEditGoalSchedule: undefined
-  EditRoutine: undefined
+  EditRoutine: {id: number | null}
+  RoutineDetail: {id: number}
   SearchSchedule: {options: SearchScheduleOptions}
 }
 export type BottomTabNavigator = {
@@ -40,6 +41,7 @@ export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
 export type GoalDetailScreenProps = StackScreenProps<StackNavigator, 'GoalDetail'>
 export type EditGoalScreenProps = StackScreenProps<StackNavigator, 'EditGoal'>
 export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>
+export type RoutineDetailScreenProps = StackScreenProps<StackNavigator, 'RoutineDetail'>
 export type SearchEditGoalScheduleScreenProps = StackScreenProps<StackNavigator, 'SearchEditGoalSchedule'>
 export type SearchScheduleScreenProps = StackScreenProps<StackNavigator, 'SearchSchedule'>
 

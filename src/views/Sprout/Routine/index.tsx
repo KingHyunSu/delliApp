@@ -25,9 +25,19 @@ const RoutineList = ({navigator}: Props) => {
     initialData: []
   })
 
-  const moveEditRoutine = useCallback(() => {
-    navigator.navigation.navigate('EditRoutine')
-  }, [navigator.navigation])
+  const moveEditRoutine = useCallback(
+    (id: number | null) => () => {
+      navigator.navigation.navigate('EditRoutine', {id})
+    },
+    [navigator.navigation]
+  )
+
+  const moveDetail = useCallback(
+    (id: number) => () => {
+      navigator.navigation.navigate('RoutineDetail', {id})
+    },
+    [navigator.navigation]
+  )
 
   useEffect(() => {
     if (isFocused) {
@@ -35,9 +45,12 @@ const RoutineList = ({navigator}: Props) => {
     }
   }, [isFocused, setSearchScheduleResultList])
 
-  const getRenderItem: ListRenderItem<Routine> = useCallback(({item}) => {
-    return <RoutineItem item={item} />
-  }, [])
+  const getRenderItem: ListRenderItem<Routine> = useCallback(
+    ({item}) => {
+      return <RoutineItem item={item} moveDetail={moveDetail(item.routine_id)} />
+    },
+    [moveDetail]
+  )
 
   return (
     <View style={styles.container}>
@@ -50,7 +63,7 @@ const RoutineList = ({navigator}: Props) => {
         />
       </View>
 
-      <Pressable style={styles.fabContainer} onPress={moveEditRoutine}>
+      <Pressable style={styles.fabContainer} onPress={moveEditRoutine(null)}>
         <PlusIcon stroke="#fff" strokeWidth={3} />
       </Pressable>
     </View>

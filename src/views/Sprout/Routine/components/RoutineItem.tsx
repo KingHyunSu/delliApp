@@ -1,12 +1,13 @@
 import {useMemo} from 'react'
 import {StyleSheet, Pressable, View, Text} from 'react-native'
-import {startOfWeek, formatISO9075} from 'date-fns'
+import {startOfWeek} from 'date-fns'
 import {Routine} from '@/@types/routine'
 
 interface Props {
   item: Routine
+  moveDetail: (id: number) => void
 }
-const RoutineItem = ({item}: Props) => {
+const RoutineItem = ({item, moveDetail}: Props) => {
   const repeatTypeString = useMemo(() => {
     switch (item.routine_type) {
       case 1:
@@ -63,7 +64,7 @@ const RoutineItem = ({item}: Props) => {
   }, [item.complete_date_list])
 
   return (
-    <Pressable style={styles.container}>
+    <Pressable style={styles.container} onPress={() => moveDetail(item.routine_id)}>
       <View style={styles.titleWrapper}>
         <Text style={styles.repeatText}>
           {repeatTypeString} {repeatCountString}{' '}

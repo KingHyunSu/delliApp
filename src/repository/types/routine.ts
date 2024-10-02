@@ -5,3 +5,7 @@ export interface EditRoutineRequest {
   routine_count: number
   schedule_id: number
 }
+
+export interface GetRoutineDetailRequest {
+  routine_id: number
+}
