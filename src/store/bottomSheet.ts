@@ -34,8 +34,3 @@ export const showSearchScheduleCategoryFilterBottomSheetState = atom({
   key: 'showSearchScheduleCategoryFilterBottomSheetState',
   default: false
 })
-
-export const showRepeatCountSelectorBottomSheetState = atom({
-  key: 'showRepeatCountSelectorBottomSheetState',
-  default: false
-})

@@ -1,5 +1,4 @@
 import {atom} from 'recoil'
-
 import {RANGE_FLAG} from '@/utils/types'
 
 export const scheduleDateState = atom<Date>({
@@ -116,7 +115,8 @@ export const scheduleTodoState = atom<Todo>({
     start_date: '',
     end_date: null,
     complete_id: null,
-    complete_date: null
+    complete_date: null,
+    complete_date_List: null
   }
 })
 

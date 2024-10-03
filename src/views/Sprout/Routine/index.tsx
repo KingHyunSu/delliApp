@@ -6,9 +6,8 @@ import PlusIcon from '@/assets/icons/plus.svg'
 import {useSetRecoilState} from 'recoil'
 import {searchScheduleResultListState} from '@/store/schedule'
 import {useQuery} from '@tanstack/react-query'
-import {routineRepository} from '@/repository'
-import {Routine} from '@/@types/routine'
 import {SproutNavigationProps} from '@/types/navigation'
+import {todoRepository} from '@/repository'
 
 interface Props {
   navigator: SproutNavigationProps
@@ -20,7 +19,7 @@ const RoutineList = ({navigator}: Props) => {
   const {data: routineList} = useQuery({
     queryKey: ['routineList'],
     queryFn: () => {
-      return routineRepository.getRoutineList()
+      return todoRepository.getRoutineList()
     },
     initialData: []
   })
@@ -45,9 +44,9 @@ const RoutineList = ({navigator}: Props) => {
     }
   }, [isFocused, setSearchScheduleResultList])
 
-  const getRenderItem: ListRenderItem<Routine> = useCallback(
+  const getRenderItem: ListRenderItem<Todo> = useCallback(
     ({item}) => {
-      return <RoutineItem item={item} moveDetail={moveDetail(item.routine_id)} />
+      return <RoutineItem item={item} moveDetail={moveDetail(item.todo_id!)} />
     },
     [moveDetail]
   )

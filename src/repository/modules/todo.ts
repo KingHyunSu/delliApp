@@ -1,6 +1,7 @@
 import {openDatabase} from '../utils/helper'
-import {GetTodoList, SetTodo, DeleteTodo} from '../types/todo'
+import {GetTodoList, SetTodo, DeleteTodo, SetRoutineRequest, GetRoutineDetailRequest} from '../types/todo'
 import * as todoQueries from '../queries/todo'
+import {setRoutineQuery} from '../queries/todo'
 
 export const getTodo = async (params: GetTodoList) => {
   const query = todoQueries.getTodoQuery(params)
@@ -33,4 +34,34 @@ export const deleteTodo = async (params: DeleteTodo) => {
   await db.executeSql(query)
 
   return {todo_id: params.todo_id}
+}
+
+export const getRoutineList = async () => {
+  const query = todoQueries.getRoutineListQuery()
+  const db = await openDatabase()
+  const [result] = await db.executeSql(query)
+
+  return result.rows.raw() as Todo[]
+}
+
+export const getRoutineDetail = async (params: GetRoutineDetailRequest) => {
+  const query = todoQueries.getRoutineDetailQuery()
+  const db = await openDatabase()
+  const [result] = await db.executeSql(query, [params.todo_id])
+
+  return result.rows.item(0) as TodoDetail
+}
+
+export const setRoutine = async (params: SetRoutineRequest) => {
+  const query = todoQueries.setRoutineQuery()
+  const db = await openDatabase()
+
+  return db.executeSql(query, [params.title, params.start_date, params.schedule_id])
+}
+
+export const updateRoutine = async (params: SetRoutineRequest) => {
+  const query = todoQueries.updateRoutineQuery()
+  const db = await openDatabase()
+
+  return db.executeSql(query, [params.title, params.schedule_id])
 }

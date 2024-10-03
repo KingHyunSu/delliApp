@@ -15,3 +15,13 @@ export interface SetTodo {
 export interface DeleteTodo {
   todo_id: number
 }
+
+export interface GetRoutineDetailRequest {
+  todo_id: number
+}
+
+export interface SetRoutineRequest {
+  title: string
+  start_date: string
+  schedule_id: number
+}

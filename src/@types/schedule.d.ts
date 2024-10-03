@@ -1,17 +1,3 @@
-declare interface Todo {
-  schedule_id: number | null
-  todo_id?: number | null
-  title: string
-  start_date: string
-  end_date: string | null
-  complete_id: number | null
-  complete_date: string | null
-}
-
-declare interface Todos {
-  todoList: Todos[]
-}
-
 declare interface Schedule {
   schedule_id: number | null
   // timetable_category_id: number | null

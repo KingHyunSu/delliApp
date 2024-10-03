@@ -3,17 +3,15 @@ import {StyleSheet, ScrollView, View, Text, Pressable} from 'react-native'
 import AppBar from '@/components/AppBar'
 import ScheduleItem from '@/components/ScheduleItem'
 
-import {getRepeatTypeString, getRepeatCountString} from '../util'
-
 import {useQuery} from '@tanstack/react-query'
-import {routineRepository} from '@/repository'
 import {RoutineDetailScreenProps} from '@/types/navigation'
+import {todoRepository} from '@/repository'
 
 const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
   const {data: detail} = useQuery({
     queryKey: ['routineDetail', route.params.id],
     queryFn: () => {
-      return routineRepository.getRoutineDetail({routine_id: route.params.id})
+      return todoRepository.getRoutineDetail({todo_id: route.params.id})
     },
     initialData: null,
     enabled: !!route.params.id
@@ -29,15 +27,10 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
 
       <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} bounces={false}>
         <View style={styles.section}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.subTitle}>
-              {getRepeatTypeString(detail.routine_type)} {getRepeatCountString(detail.routine_count)}{' '}
-            </Text>
-            <Text style={styles.title}>{detail.title}</Text>
-          </View>
+          <Text style={styles.title}>{detail.title}</Text>
 
           <ScheduleItem
-            title={detail.schedule_title}
+            title={detail.schedule_title!}
             categoryId={detail.schedule_category_id}
             time={{startTime: detail.schedule_start_time!, endTime: detail.schedule_end_time!}}
             date={{startDate: detail.schedule_start_date!, endDate: detail.schedule_end_date!}}
@@ -76,15 +69,7 @@ const styles = StyleSheet.create({
     gap: 20,
     backgroundColor: '#ffffff'
   },
-  titleWrapper: {
-    flexDirection: 'row'
-  },
   title: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 24,
-    color: '#424242'
-  },
-  subTitle: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 24,
     color: '#424242'

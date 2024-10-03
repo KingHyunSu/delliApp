@@ -78,3 +78,66 @@ export const deleteTodoQuery = (params: DeleteTodo) => {
 
   return query
 }
+
+export const getRoutineListQuery = () => {
+  return `
+    SELECT
+      T.todo_id,
+      T.title,
+      T.start_date,
+      T.end_date,
+      T.schedule_id,
+      GROUP_CONCAT(TC.complete_date) AS complete_date_list
+    FROM TODO T
+    LEFT JOIN TODO_COMPLETE TC
+      ON T.todo_id = TC.todo_id
+      AND TC.complete_date >= DATE('now', '-7 days')
+    WHERE T.end_date = '9999-12-31'
+    GROUP BY T.todo_id, T.title, T.start_date, T.end_date, T.schedule_id
+  `
+}
+
+export const getRoutineDetailQuery = () => {
+  return `
+    SELECT
+      T.todo_id,
+      T.title,
+      T.schedule_id,
+      S.title AS schedule_title,
+      S.schedule_category_id,
+      S.start_time AS schedule_start_time,
+      S.end_time AS schedule_end_time,
+      S.mon AS schedule_mon,
+      S.tue AS schedule_tue,
+      S.wed AS schedule_wed,
+      S.thu AS schedule_thu,
+      S.fri AS schedule_fri,
+      S.sat AS schedule_sat,
+      S.sun AS schedule_sun,
+      S.start_date AS schedule_start_date,
+      S.end_date AS schedule_end_date,
+      GROUP_CONCAT(TC.complete_date) AS complete_date_list
+    FROM TODO T
+    JOIN
+      SCHEDULE S
+    ON
+      S.schedule_id = T.schedule_id
+    LEFT JOIN TODO_COMPLETE TC
+      ON T.todo_id = TC.todo_id
+      AND TC.complete_date >= DATE('now', 'start of month')
+    WHERE T.todo_id = ?
+    GROUP BY T.todo_id, T.title, T.schedule_id
+  `
+}
+
+export const setRoutineQuery = () => {
+  return `
+    INSERT INTO TODO (title, start_date, schedule_id) VALUES (?, ?, ?)  
+  `
+}
+
+export const updateRoutineQuery = () => {
+  return `
+    UPDATE TODO SET title = ?, schedule_id = ? WHERE todo_id = ?
+  `
+}
