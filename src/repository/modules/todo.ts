@@ -63,5 +63,5 @@ export const updateRoutine = async (params: SetRoutineRequest) => {
   const query = todoQueries.updateRoutineQuery()
   const db = await openDatabase()
 
-  return db.executeSql(query, [params.title, params.schedule_id])
+  return db.executeSql(query, [params.title, params.schedule_id, params.todo_id])
 }

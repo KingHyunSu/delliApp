@@ -21,6 +21,7 @@ export interface GetRoutineDetailRequest {
 }
 
 export interface SetRoutineRequest {
+  todo_id: number | null
   title: string
   start_date: string
   schedule_id: number

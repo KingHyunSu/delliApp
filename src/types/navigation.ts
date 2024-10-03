@@ -14,7 +14,7 @@ export type StackNavigator = {
   GoalDetail: {id: number | null}
   EditGoal: {data: Goal | null}
   SearchEditGoalSchedule: undefined
-  EditRoutine: {id: number | null}
+  EditRoutine: {data: TodoDetail | null}
   RoutineDetail: {id: number}
   SearchSchedule: {options: SearchScheduleOptions}
 }

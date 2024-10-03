@@ -17,13 +17,21 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
     enabled: !!route.params.id
   })
 
+  const moveEdit = useCallback(() => {
+    navigation.navigate('EditRoutine', {data: detail})
+  }, [navigation.navigate, detail])
+
   if (!detail) {
     return <></>
   }
 
   return (
     <View style={styles.container}>
-      <AppBar backPress />
+      <AppBar backPress>
+        <Pressable style={styles.editButton} onPress={moveEdit}>
+          <Text style={styles.editButtonText}>수정하기</Text>
+        </Pressable>
+      </AppBar>
 
       <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} bounces={false}>
         <View style={styles.section}>
@@ -58,6 +66,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f6f8'
+  },
+  editButton: {
+    height: 42,
+    justifyContent: 'center'
+  },
+  editButtonText: {
+    paddingHorizontal: 16,
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    color: '#1E90FF'
   },
   listContainer: {
     flex: 1,

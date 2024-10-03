@@ -5,16 +5,17 @@ import AppBar from '@/components/AppBar'
 import ScheduleItem from '@/components/ScheduleItem'
 import PlusIcon from '@/assets/icons/plus.svg'
 
-import {useRecoilState, useSetRecoilState} from 'recoil'
-import {searchScheduleResultListState} from '@/store/schedule'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {scheduleDateState, searchScheduleResultListState} from '@/store/schedule'
 import {bottomSafeAreaColorState} from '@/store/system'
 
-import {useMutation} from '@tanstack/react-query'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {todoRepository} from '@/repository'
 import {EditRoutineScreenProps} from '@/types/navigation'
 
-const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
+const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   const isFocused = useIsFocused()
+  const queryClient = useQueryClient()
 
   const [form, setForm] = useState<TodoDetail>({
     todo_id: null,
@@ -38,11 +39,13 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
   })
 
   const [searchScheduleResultList, setSearchScheduleResultList] = useRecoilState(searchScheduleResultListState)
+  const scheduleDate = useRecoilValue(scheduleDateState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
 
   const {mutate: setRoutineMutate} = useMutation({
     mutationFn: () => {
       const params = {
+        todo_id: form.todo_id,
         title: form.title,
         start_date: form.schedule_start_date!,
         schedule_id: form.schedule_id!
@@ -55,6 +58,8 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
       }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['routineList']})
+      queryClient.invalidateQueries({queryKey: ['scheduleList', scheduleDate]})
       navigation.navigate('MainTabs', {screen: 'Sprout'})
     }
   })
@@ -96,6 +101,7 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
     setRoutineMutate()
   }, [setRoutineMutate])
 
+  // 일정 선택
   useEffect(() => {
     if (searchScheduleResultList.length > 0) {
       const searchScheduleResult = searchScheduleResultList[0]
@@ -121,6 +127,7 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
     }
   }, [searchScheduleResultList, form.schedule_id])
 
+  // bottom safe area color 제어
   useEffect(() => {
     if (isFocused) {
       if (activeSubmit) {
@@ -131,12 +138,20 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
     }
   }, [isFocused, activeSubmit, setBottomSafeAreaColor])
 
+  useEffect(() => {
+    const {data} = route.params
+
+    if (data) {
+      setForm(data)
+    }
+  }, [route.params.data, setForm])
+
   return (
     <View style={styles.container}>
       <AppBar backPress />
       <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} bounces={false}>
-        {/* 루틴명 */}
         <TextInput
+          value={form.title}
           placeholder="새로운 루틴"
           placeholderTextColor="#c3c5cc"
           autoFocus
@@ -144,41 +159,44 @@ const EditRoutine = ({navigation}: EditRoutineScreenProps) => {
           onChangeText={(value: string) => setForm(prevState => ({...prevState, title: value}))}
         />
 
-        {form.schedule_id ? (
-          <View style={styles.scheduleWrapper}>
-            <ScheduleItem
-              title={form.schedule_title!}
-              categoryId={form.schedule_category_id}
-              time={{startTime: form.schedule_start_time!, endTime: form.schedule_end_time!}}
-              date={{startDate: form.schedule_start_date!, endDate: form.schedule_end_date!}}
-              dayOfWeek={{
-                mon: form.schedule_mon!,
-                tue: form.schedule_tue!,
-                wed: form.schedule_wed!,
-                thu: form.schedule_thu!,
-                fri: form.schedule_fri!,
-                sat: form.schedule_sat!,
-                sun: form.schedule_sun!
-              }}
-            />
+        <View style={styles.scheduleContainer}>
+          <Text style={styles.scheduleLabel}>어떤 일정에 루틴을 추가할까요?</Text>
+          {form.schedule_id ? (
+            <View style={styles.scheduleWrapper}>
+              <ScheduleItem
+                title={form.schedule_title!}
+                categoryId={form.schedule_category_id}
+                time={{startTime: form.schedule_start_time!, endTime: form.schedule_end_time!}}
+                date={{startDate: form.schedule_start_date!, endDate: form.schedule_end_date!}}
+                dayOfWeek={{
+                  mon: form.schedule_mon!,
+                  tue: form.schedule_tue!,
+                  wed: form.schedule_wed!,
+                  thu: form.schedule_thu!,
+                  fri: form.schedule_fri!,
+                  sat: form.schedule_sat!,
+                  sun: form.schedule_sun!
+                }}
+              />
 
-            <View style={styles.deleteScheduleButtonWrapper}>
-              <Pressable style={styles.deleteScheduleButton} onPress={deleteSchedule}>
-                <Text style={styles.deleteScheduleButtonText}>삭제하기</Text>
-              </Pressable>
+              <View style={styles.deleteScheduleButtonWrapper}>
+                <Pressable style={styles.deleteScheduleButton} onPress={deleteSchedule}>
+                  <Text style={styles.deleteScheduleButtonText}>삭제하기</Text>
+                </Pressable>
+              </View>
             </View>
-          </View>
-        ) : (
-          <Pressable
-            style={styles.addScheduleButton}
-            onPress={() => navigation.navigate('SearchSchedule', {options: {multiple: false}})}>
-            <View style={styles.addScheduleIcon}>
-              <PlusIcon width={18} height={18} stroke="#ffffff" strokeWidth={3} />
-            </View>
+          ) : (
+            <Pressable
+              style={styles.addScheduleButton}
+              onPress={() => navigation.navigate('SearchSchedule', {options: {multiple: false}})}>
+              <View style={styles.addScheduleIcon}>
+                <PlusIcon width={18} height={18} stroke="#ffffff" strokeWidth={3} />
+              </View>
 
-            <Text style={styles.addScheduleButtonText}>일정 선택하기</Text>
-          </Pressable>
-        )}
+              <Text style={styles.addScheduleButtonText}>일정 선택하기</Text>
+            </Pressable>
+          )}
+        </View>
       </ScrollView>
 
       <Pressable style={submitButtonStyle} onPress={handleConfirm}>
@@ -195,7 +213,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     flex: 1,
-    gap: 20,
+    gap: 40,
     paddingBottom: 80,
     paddingHorizontal: 16
   },
@@ -207,13 +225,16 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#424242'
   },
-  label: {
-    fontSize: 14,
-    fontFamily: 'Pretendard-Medium',
-    color: '#6B727E'
+  scheduleContainer: {
+    gap: 10
   },
   scheduleWrapper: {
     gap: 10
+  },
+  scheduleLabel: {
+    fontSize: 14,
+    fontFamily: 'Pretendard-Medium',
+    color: '#6B727E'
   },
   deleteScheduleButtonWrapper: {
     alignItems: 'center'
