@@ -1,9 +1,12 @@
-import {useCallback, useState} from 'react'
-import {StyleSheet, View, Text, useWindowDimensions} from 'react-native'
+import {useCallback, useState, useEffect} from 'react'
+import {StyleSheet, View, useWindowDimensions} from 'react-native'
 import {TabView, TabBar, NavigationState} from 'react-native-tab-view'
+import {useIsFocused} from '@react-navigation/native'
 import Goal from './Goal'
 import Routine from './Routine'
 import AppBar from '@/components/AppBar'
+import {useSetRecoilState} from 'recoil'
+import {searchScheduleResultListState} from '@/store/schedule'
 import {SproutNavigationProps} from '@/types/navigation'
 import type {SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types'
 
@@ -12,6 +15,8 @@ type RenderTabBar = SceneRendererProps & {navigationState: NavigationState<Route
 type RenderScene = SceneRendererProps & {route: Route}
 
 const Sprout = (navigator: SproutNavigationProps) => {
+  const isFocused = useIsFocused()
+
   const layout = useWindowDimensions()
 
   const [index, setIndex] = useState(0)
@@ -19,6 +24,8 @@ const Sprout = (navigator: SproutNavigationProps) => {
     {key: 'goal', title: '목표'},
     {key: 'routine', title: '루틴'}
   ])
+
+  const setSearchScheduleResultList = useSetRecoilState(searchScheduleResultListState)
 
   const moveGoalDetail = useCallback(
     (id: number | null) => {
@@ -30,6 +37,12 @@ const Sprout = (navigator: SproutNavigationProps) => {
   const moveEditGoalDetail = useCallback(() => {
     navigator.navigation.navigate('EditGoal', {data: null})
   }, [navigator.navigation])
+
+  useEffect(() => {
+    if (isFocused) {
+      setSearchScheduleResultList([])
+    }
+  }, [isFocused, setSearchScheduleResultList])
 
   const getRenderTabBar = useCallback((props: RenderTabBar) => {
     return (

@@ -1,10 +1,7 @@
-import {useCallback, useEffect} from 'react'
+import {useCallback} from 'react'
 import {ListRenderItem, Platform, StyleSheet, FlatList, Pressable, View} from 'react-native'
-import {useIsFocused} from '@react-navigation/native'
 import RoutineItem from './components/RoutineItem'
 import PlusIcon from '@/assets/icons/plus.svg'
-import {useSetRecoilState} from 'recoil'
-import {searchScheduleResultListState} from '@/store/schedule'
 import {useQuery} from '@tanstack/react-query'
 import {SproutNavigationProps} from '@/types/navigation'
 import {todoRepository} from '@/repository'
@@ -13,9 +10,6 @@ interface Props {
   navigator: SproutNavigationProps
 }
 const RoutineList = ({navigator}: Props) => {
-  const isFocused = useIsFocused()
-  const setSearchScheduleResultList = useSetRecoilState(searchScheduleResultListState)
-
   const {data: routineList} = useQuery({
     queryKey: ['routineList'],
     queryFn: () => {
@@ -24,12 +18,9 @@ const RoutineList = ({navigator}: Props) => {
     initialData: []
   })
 
-  const moveEditRoutine = useCallback(
-    (id: number | null) => () => {
-      navigator.navigation.navigate('EditRoutine', {id})
-    },
-    [navigator.navigation]
-  )
+  const moveEditRoutine = useCallback(() => {
+    navigator.navigation.navigate('EditRoutine', {data: null})
+  }, [navigator.navigation])
 
   const moveDetail = useCallback(
     (id: number) => () => {
@@ -37,12 +28,6 @@ const RoutineList = ({navigator}: Props) => {
     },
     [navigator.navigation]
   )
-
-  useEffect(() => {
-    if (isFocused) {
-      setSearchScheduleResultList([])
-    }
-  }, [isFocused, setSearchScheduleResultList])
 
   const getRenderItem: ListRenderItem<Routine> = useCallback(
     ({item}) => {
@@ -62,7 +47,7 @@ const RoutineList = ({navigator}: Props) => {
         />
       </View>
 
-      <Pressable style={styles.fabContainer} onPress={moveEditRoutine(null)}>
+      <Pressable style={styles.fabContainer} onPress={moveEditRoutine}>
         <PlusIcon stroke="#fff" strokeWidth={3} />
       </Pressable>
     </View>

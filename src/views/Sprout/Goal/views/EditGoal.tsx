@@ -91,6 +91,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
           end_date: item.end_date
         }
       })
+
       setSearchScheduleResultList(_searchScheduleResultList)
     }
   }, [route.params, setForm, setSearchScheduleResultList])
@@ -186,10 +187,12 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
         setDeletedList(prevState => [...prevState, targetItem])
       }
 
-      const newSelectGoalScheduleList = selectGoalScheduleList.filter(item => item.schedule_id !== value.schedule_id)
-      setSelectGoalScheduleList(newSelectGoalScheduleList)
+      const newSearchScheduleResultList = searchScheduleResultList.filter(
+        item => item.schedule_id !== value.schedule_id
+      )
+      setSearchScheduleResultList(newSearchScheduleResultList)
     },
-    [form.scheduleList, selectGoalScheduleList, setSelectGoalScheduleList]
+    [form.scheduleList, searchScheduleResultList, setSearchScheduleResultList]
   )
 
   const moveSearchSchedule = useCallback(() => {
@@ -272,10 +275,8 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
       } else {
         setBottomSafeAreaColor('#f5f6f8')
       }
-    } else {
-      setSearchScheduleResultList([])
     }
-  }, [isFocused, activeSubmit, setBottomSafeAreaColor, setSearchScheduleResultList])
+  }, [isFocused, activeSubmit, setBottomSafeAreaColor])
 
   return (
     <View style={styles.container}>

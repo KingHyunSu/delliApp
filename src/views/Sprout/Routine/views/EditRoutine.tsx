@@ -13,6 +13,7 @@ import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {todoRepository} from '@/repository'
 import {EditRoutineScreenProps} from '@/types/navigation'
 import {DeleteTodo} from '@/repository/types/todo'
+import type {SearchSchedule} from '@/views/SearchSchedule'
 
 const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   const isFocused = useIsFocused()
@@ -21,7 +22,6 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   const [form, setForm] = useState<TodoDetail>({
     todo_id: null,
     title: '',
-
     schedule_id: null,
     schedule_title: null,
     schedule_category_id: null,
@@ -168,8 +168,28 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
 
     if (data) {
       setForm(data)
+
+      const _searchScheduleResultList: SearchSchedule[] = [
+        {
+          schedule_id: data.schedule_id!,
+          schedule_category_id: data.schedule_category_id,
+          title: data.schedule_title!,
+          start_time: data.schedule_start_time!,
+          end_time: data.schedule_end_time!,
+          mon: data.schedule_mon!,
+          tue: data.schedule_tue!,
+          wed: data.schedule_wed!,
+          thu: data.schedule_thu!,
+          fri: data.schedule_fri!,
+          sat: data.schedule_sat!,
+          sun: data.schedule_sun!,
+          start_date: data.schedule_start_date!,
+          end_date: data.schedule_end_date!
+        }
+      ]
+      setSearchScheduleResultList(_searchScheduleResultList)
     }
-  }, [route.params, setForm])
+  }, [route.params, setForm, setSearchScheduleResultList])
 
   return (
     <View style={styles.container}>
