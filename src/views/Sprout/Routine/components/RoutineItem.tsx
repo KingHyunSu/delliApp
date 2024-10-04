@@ -1,9 +1,10 @@
 import {useMemo} from 'react'
 import {StyleSheet, Pressable, View, Text} from 'react-native'
 import {eachDayOfInterval, format, subDays} from 'date-fns'
+import ScheduleItem from '@/components/ScheduleItem'
 
 interface Props {
-  item: Todo
+  item: Routine
   moveDetail: (id: number) => void
 }
 const RoutineItem = ({item, moveDetail}: Props) => {
@@ -26,24 +27,47 @@ const RoutineItem = ({item, moveDetail}: Props) => {
 
   return (
     <Pressable style={styles.container} onPress={() => moveDetail(item.todo_id!)}>
-      <Text style={styles.title}>{item.title}</Text>
+      <View style={styles.wrapper}>
+        <Text style={styles.title}>{item.title}</Text>
 
-      <View style={styles.completeItemContainer}>
-        <View style={styles.completeItemWrapper}>{completeListComponent}</View>
+        <View style={styles.completeItemContainer}>
+          <View style={styles.completeItemWrapper}>{completeListComponent}</View>
+        </View>
       </View>
+
+      <ScheduleItem
+        title={item.schedule_title}
+        categoryId={item.schedule_category_id}
+        time={{startTime: item.schedule_start_time, endTime: item.schedule_end_time}}
+        date={{startDate: item.schedule_start_date, endDate: item.schedule_end_date}}
+        dayOfWeek={{
+          mon: item.schedule_mon,
+          tue: item.schedule_tue,
+          wed: item.schedule_wed,
+          thu: item.schedule_thu,
+          fri: item.schedule_fri,
+          sat: item.schedule_sat,
+          sun: item.schedule_sun
+        }}
+      />
     </Pressable>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
+    gap: 20,
+    paddingHorizontal: 15,
+    paddingBottom: 15,
+    paddingTop: 20,
+    borderRadius: 15,
+    backgroundColor: '#ffffff'
+  },
+  wrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 20,
-    padding: 15,
-    borderRadius: 15,
-    backgroundColor: '#ffffff'
+    gap: 20
   },
   repeatText: {
     fontSize: 18,
@@ -52,7 +76,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontFamily: 'Pretendard-Medium',
+    fontFamily: 'Pretendard-SemiBold',
     color: '#424242',
     flexShrink: 1
   },

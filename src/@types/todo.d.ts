@@ -9,6 +9,27 @@ declare interface Todo {
   schedule_id: number | null
 }
 
+declare interface Routine {
+  todo_id: number
+  title: string
+  complete_date_list: string[] | null
+
+  schedule_id: number
+  schedule_title: string
+  schedule_category_id: number | null
+  schedule_start_time: number
+  schedule_end_time: number
+  schedule_mon: string
+  schedule_tue: string
+  schedule_wed: string
+  schedule_thu: string
+  schedule_fri: string
+  schedule_sat: string
+  schedule_sun: string
+  schedule_start_date: string
+  schedule_end_date: string
+}
+
 declare interface TodoDetail {
   todo_id: number | null
   title: string

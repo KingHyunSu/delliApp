@@ -84,8 +84,23 @@ export const getRoutineListQuery = () => {
       T.start_date,
       T.end_date,
       T.schedule_id,
+      S.title AS schedule_title,
+      S.schedule_category_id,
+      S.start_time AS schedule_start_time,
+      S.end_time AS schedule_end_time,
+      S.mon AS schedule_mon,
+      S.tue AS schedule_tue,
+      S.wed AS schedule_wed,
+      S.thu AS schedule_thu,
+      S.fri AS schedule_fri,
+      S.sat AS schedule_sat,
+      S.sun AS schedule_sun,
+      S.start_date AS schedule_start_date,
+      S.end_date AS schedule_end_date,
       GROUP_CONCAT(TC.complete_date) AS complete_date_list
     FROM TODO T
+    JOIN SCHEDULE S
+      ON S.schedule_id = T.schedule_id
     LEFT JOIN TODO_COMPLETE TC
       ON T.todo_id = TC.todo_id
       AND TC.complete_date >= DATE('now', '-7 days')
