@@ -7,11 +7,12 @@ import PlusIcon from '@/assets/icons/plus.svg'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {scheduleDateState, searchScheduleResultListState} from '@/store/schedule'
-import {bottomSafeAreaColorState} from '@/store/system'
+import {alertState, bottomSafeAreaColorState} from '@/store/system'
 
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {todoRepository} from '@/repository'
 import {EditRoutineScreenProps} from '@/types/navigation'
+import {DeleteTodo} from '@/repository/types/todo'
 
 const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   const isFocused = useIsFocused()
@@ -20,7 +21,6 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   const [form, setForm] = useState<TodoDetail>({
     todo_id: null,
     title: '',
-    complete_date_List: null,
 
     schedule_id: null,
     schedule_title: null,
@@ -41,6 +41,7 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   const [searchScheduleResultList, setSearchScheduleResultList] = useRecoilState(searchScheduleResultListState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
+  const alert = useSetRecoilState(alertState)
 
   const {mutate: setRoutineMutate} = useMutation({
     mutationFn: () => {
@@ -56,6 +57,17 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
       } else {
         return todoRepository.setRoutine(params)
       }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({queryKey: ['routineList']})
+      queryClient.invalidateQueries({queryKey: ['scheduleList', scheduleDate]})
+      navigation.navigate('MainTabs', {screen: 'Sprout'})
+    }
+  })
+
+  const {mutate: deleteRoutineMutate} = useMutation({
+    mutationFn: (params: DeleteTodo) => {
+      return todoRepository.deleteTodo(params)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({queryKey: ['routineList']})
@@ -100,6 +112,19 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   const handleConfirm = useCallback(() => {
     setRoutineMutate()
   }, [setRoutineMutate])
+
+  const handleDelete = useCallback(() => {
+    alert({
+      type: 'danger',
+      title: '루틴을 삭제할까요?',
+      confirmButtonText: '삭제하기',
+      confirmFn: () => {
+        if (form.todo_id) {
+          deleteRoutineMutate({todo_id: form.todo_id})
+        }
+      }
+    })
+  }, [form.todo_id, deleteRoutineMutate])
 
   // 일정 선택
   useEffect(() => {
@@ -148,7 +173,14 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
 
   return (
     <View style={styles.container}>
-      <AppBar backPress />
+      <AppBar backPress>
+        {form.todo_id && (
+          <Pressable style={styles.deleteButton} onPress={handleDelete}>
+            <Text style={styles.deleteButtonText}>삭제하기</Text>
+          </Pressable>
+        )}
+      </AppBar>
+
       <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} bounces={false}>
         <TextInput
           value={form.title}
@@ -285,6 +317,16 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 18,
     color: '#babfc5'
+  },
+  deleteButton: {
+    height: 42,
+    justifyContent: 'center'
+  },
+  deleteButtonText: {
+    paddingHorizontal: 16,
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    color: '#ff4160'
   }
 })
 

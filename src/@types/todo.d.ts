@@ -5,14 +5,13 @@ declare interface Todo {
   end_date: string | null
   complete_id: number | null
   complete_date: string | null
-  complete_date_List: string[] | null
+  complete_date_list: string[] | null
   schedule_id: number | null
 }
 
 declare interface TodoDetail {
   todo_id: number | null
   title: string
-  complete_date_List: string[] | null
 
   schedule_id: number | null
   schedule_title: string | null
@@ -28,4 +27,8 @@ declare interface TodoDetail {
   schedule_sun: string | null
   schedule_start_date: string | null
   schedule_end_date: string | null
+}
+
+declare interface TodoComplete {
+  complete_date: string
 }

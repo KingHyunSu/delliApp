@@ -20,6 +20,11 @@ export interface GetRoutineDetailRequest {
   todo_id: number
 }
 
+export interface GetRoutineCompleteListRequest {
+  todo_id: number
+  startDate: string
+}
+
 export interface SetRoutineRequest {
   todo_id: number | null
   title: string

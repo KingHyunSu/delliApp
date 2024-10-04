@@ -1,7 +1,13 @@
 import {openDatabase} from '../utils/helper'
-import {GetTodoList, SetTodo, DeleteTodo, SetRoutineRequest, GetRoutineDetailRequest} from '../types/todo'
+import {
+  GetTodoList,
+  SetTodo,
+  DeleteTodo,
+  SetRoutineRequest,
+  GetRoutineDetailRequest,
+  GetRoutineCompleteListRequest
+} from '../types/todo'
 import * as todoQueries from '../queries/todo'
-import {setRoutineQuery} from '../queries/todo'
 
 export const getTodo = async (params: GetTodoList) => {
   const query = todoQueries.getTodoQuery(params)
@@ -29,9 +35,9 @@ export const updateTodo = async (params: SetTodo) => {
 }
 
 export const deleteTodo = async (params: DeleteTodo) => {
-  const query = todoQueries.deleteTodoQuery(params)
+  const query = todoQueries.deleteTodoQuery()
   const db = await openDatabase()
-  await db.executeSql(query)
+  await db.executeSql(query, [params.todo_id])
 
   return {todo_id: params.todo_id}
 }
@@ -41,7 +47,18 @@ export const getRoutineList = async () => {
   const db = await openDatabase()
   const [result] = await db.executeSql(query)
 
-  return result.rows.raw() as Todo[]
+  return result.rows.raw().map(item => {
+    let completeDateList: string[] = []
+
+    if (item.complete_date_list) {
+      completeDateList = item.complete_date_list.split(',')
+    }
+
+    return {
+      ...item,
+      complete_date_list: completeDateList
+    }
+  }) as Todo[]
 }
 
 export const getRoutineDetail = async (params: GetRoutineDetailRequest) => {
@@ -50,6 +67,14 @@ export const getRoutineDetail = async (params: GetRoutineDetailRequest) => {
   const [result] = await db.executeSql(query, [params.todo_id])
 
   return result.rows.item(0) as TodoDetail
+}
+
+export const getRoutineCompleteList = async (params: GetRoutineCompleteListRequest) => {
+  const query = todoQueries.getRoutineCompleteListQuery()
+  const db = await openDatabase()
+  const [result] = await db.executeSql(query, [params.todo_id, params.startDate])
+
+  return result.rows.raw() as TodoComplete[]
 }
 
 export const setRoutine = async (params: SetRoutineRequest) => {

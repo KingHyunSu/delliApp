@@ -70,13 +70,10 @@ export const updateTodoQuery = (params: SetTodo) => {
   return query
 }
 
-export const deleteTodoQuery = (params: DeleteTodo) => {
-  let query = `
-    DELETE FROM TODO
-    WHERE todo_id = ${params.todo_id}
+export const deleteTodoQuery = () => {
+  return `
+    DELETE FROM TODO WHERE todo_id = ?
   `
-
-  return query
 }
 
 export const getRoutineListQuery = () => {
@@ -115,18 +112,17 @@ export const getRoutineDetailQuery = () => {
       S.sat AS schedule_sat,
       S.sun AS schedule_sun,
       S.start_date AS schedule_start_date,
-      S.end_date AS schedule_end_date,
-      GROUP_CONCAT(TC.complete_date) AS complete_date_list
+      S.end_date AS schedule_end_date
     FROM TODO T
-    JOIN
-      SCHEDULE S
-    ON
-      S.schedule_id = T.schedule_id
-    LEFT JOIN TODO_COMPLETE TC
-      ON T.todo_id = TC.todo_id
-      AND TC.complete_date >= DATE('now', 'start of month')
+    JOIN SCHEDULE S
+        ON S.schedule_id = T.schedule_id
     WHERE T.todo_id = ?
-    GROUP BY T.todo_id, T.title, T.schedule_id
+  `
+}
+
+export const getRoutineCompleteListQuery = () => {
+  return `
+    SELECT complete_date FROM TODO_COMPLETE WHERE todo_id = ? AND complete_date >= ?
   `
 }
 
