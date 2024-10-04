@@ -113,7 +113,10 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
         </Pressable>
       </AppBar>
 
-      <ScrollView contentContainerStyle={styles.listContainer} showsVerticalScrollIndicator={false} bounces={false}>
+      <ScrollView
+        contentContainerStyle={styles.listContentContainer}
+        showsVerticalScrollIndicator={false}
+        bounces={false}>
         <View style={topSectionStyle}>
           <Text style={styles.title}>{detail.title}</Text>
 
@@ -133,6 +136,8 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
             }}
           />
         </View>
+
+        <View style={styles.separator} />
 
         <View style={bottomSectionStyle}>
           <View style={styles.dateHeaderWrapper}>
@@ -154,6 +159,7 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
               </Pressable>
             </View>
           </View>
+
           <FlatList
             scrollEnabled={false}
             data={currentMonthDateList}
@@ -171,7 +177,7 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f6f8'
+    backgroundColor: '#ffffff'
   },
   editButton: {
     height: 42,
@@ -183,14 +189,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1E90FF'
   },
-  listContainer: {
-    flex: 1,
-    gap: 10
+  listContentContainer: {
+    paddingBottom: 40
   },
   section: {
     paddingHorizontal: 16,
     paddingVertical: 20,
     backgroundColor: '#ffffff'
+  },
+  separator: {
+    height: 10,
+    backgroundColor: '#f5f6f8'
   },
   label: {
     fontSize: 14,

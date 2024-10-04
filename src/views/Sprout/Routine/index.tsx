@@ -44,7 +44,7 @@ const RoutineList = ({navigator}: Props) => {
     }
   }, [isFocused, setSearchScheduleResultList])
 
-  const getRenderItem: ListRenderItem<Todo> = useCallback(
+  const getRenderItem: ListRenderItem<Routine> = useCallback(
     ({item}) => {
       return <RoutineItem item={item} moveDetail={moveDetail(item.todo_id!)} />
     },
