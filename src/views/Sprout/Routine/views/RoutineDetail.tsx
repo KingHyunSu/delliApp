@@ -60,6 +60,10 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
     })
   }, [targetDate])
 
+  const completeCountText = useMemo(() => {
+    return completeList.length === currentMonthDateList.length ? '전체' : `${completeList.length}번`
+  }, [completeList.length, currentMonthDateList.length])
+
   const moveEdit = useCallback(() => {
     navigation.navigate('EditRoutine', {data: detail})
   }, [detail])
@@ -131,10 +135,14 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
         </View>
 
         <View style={bottomSectionStyle}>
-          <View style={styles.dateTitleWrapper}>
-            <Text style={styles.dateTitle}>
-              {targetDate.getFullYear()}년 {targetDate.getMonth() + 1}월
-            </Text>
+          <View style={styles.dateHeaderWrapper}>
+            <View style={styles.dateTitleWrapper}>
+              <Text style={styles.dateTitle}>
+                {targetDate.getFullYear()}년 {targetDate.getMonth() + 1}월
+              </Text>
+
+              <Text style={styles.dateSubTitle}>{completeCountText} 완료</Text>
+            </View>
 
             <View style={styles.dateButtonWrapper}>
               <Pressable style={styles.dateButton} onPress={handlePrevDate}>
@@ -194,16 +202,24 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: '#424242'
   },
-  dateTitleWrapper: {
+  dateHeaderWrapper: {
     paddingTop: 5,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%'
   },
+  dateTitleWrapper: {
+    gap: 3
+  },
   dateTitle: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 20,
+    color: '#424242'
+  },
+  dateSubTitle: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 14,
     color: '#6B727E'
   },
   dateButtonWrapper: {
@@ -211,8 +227,8 @@ const styles = StyleSheet.create({
     gap: 10
   },
   dateButton: {
-    width: 32,
-    height: 32,
+    width: 34,
+    height: 34,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 7,
