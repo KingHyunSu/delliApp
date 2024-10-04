@@ -169,7 +169,7 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
     if (data) {
       setForm(data)
     }
-  }, [route.params.data, setForm])
+  }, [route.params, setForm])
 
   return (
     <View style={styles.container}>

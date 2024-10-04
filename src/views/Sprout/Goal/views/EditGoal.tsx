@@ -12,17 +12,19 @@ import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
 import {useRecoilState, useSetRecoilState} from 'recoil'
 import {bottomSafeAreaColorState, alertState} from '@/store/system'
-import {selectGoalScheduleListState} from '@/store/goal'
+import {searchScheduleResultListState} from '@/store/schedule'
 
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {goalRepository} from '@/repository'
 import {DeleteGoalDetailRequest, SetGoalDetailParams} from '@/repository/types/goal'
 import {getTimeString} from '../util'
 import {EditGoalScreenProps} from '@/types/navigation'
 import {Goal, GoalSchedule} from '@/@types/goal'
+import type {SearchSchedule} from '@/views/SearchSchedule'
 
 const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   const isFocused = useIsFocused()
+  const queryClient = useQueryClient()
 
   const [expandStartDatePanel, setExpandStartDatePanel] = useState(false)
   const [expandEndDatePanel, setExpandEndDatePanel] = useState(false)
@@ -35,13 +37,12 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
     state: 0,
     scheduleList: []
   })
+  const [selectGoalScheduleList, setSelectGoalScheduleList] = useState<GoalSchedule[]>([])
   const [deletedList, setDeletedList] = useState<GoalSchedule[]>([])
-  const alert = useSetRecoilState(alertState)
 
-  const [selectGoalScheduleList, setSelectGoalScheduleList] = useRecoilState(selectGoalScheduleListState)
+  const [searchScheduleResultList, setSearchScheduleResultList] = useRecoilState(searchScheduleResultListState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
-
-  const queryClient = useQueryClient()
+  const alert = useSetRecoilState(alertState)
 
   const {mutate: setGoalDetailMutate} = useMutation({
     mutationFn: (params: SetGoalDetailParams) => {
@@ -67,13 +68,32 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   })
 
   useEffect(() => {
-    const params = route.params.data
+    const {data} = route.params
 
-    if (params) {
-      setForm(params)
-      setSelectGoalScheduleList(params.scheduleList)
+    if (data) {
+      setForm(data)
+
+      const _searchScheduleResultList: SearchSchedule[] = data.scheduleList.map(item => {
+        return {
+          schedule_id: item.schedule_id!,
+          schedule_category_id: item.schedule_category_id || null,
+          title: item.title,
+          start_time: item.start_time,
+          end_time: item.end_time,
+          mon: item.mon,
+          tue: item.tue,
+          wed: item.wed,
+          thu: item.thu,
+          fri: item.fri,
+          sat: item.sat,
+          sun: item.sun,
+          start_date: item.start_date,
+          end_date: item.end_date
+        }
+      })
+      setSearchScheduleResultList(_searchScheduleResultList)
     }
-  }, [route.params.data, setForm, setSelectGoalScheduleList])
+  }, [route.params, setForm, setSearchScheduleResultList])
 
   const isUpdate = useMemo(() => {
     return !!form.goal_id
@@ -173,7 +193,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   )
 
   const moveSearchSchedule = useCallback(() => {
-    navigation.navigate('SearchEditGoalSchedule')
+    navigation.navigate('SearchSchedule', {options: {multiple: true}})
   }, [navigation])
 
   const deleteGoal = useCallback(() => {
@@ -187,7 +207,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
         }
       }
     })
-  }, [form.goal_id, deleteGoalDetailMutate])
+  }, [alert, form.goal_id, deleteGoalDetailMutate])
 
   const handleConfirm = useCallback(() => {
     const insertedList: GoalSchedule[] = []
@@ -227,14 +247,35 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
   }, [form, selectGoalScheduleList, deletedList, setGoalDetailMutate])
 
   useEffect(() => {
+    if (searchScheduleResultList.length > 0) {
+      const newSelectGoalScheduleList: GoalSchedule[] = searchScheduleResultList.map(item => {
+        const savedGaolSchedule = form.scheduleList.find(sItem => sItem.schedule_id === item.schedule_id)
+
+        return {
+          ...item,
+          goal_schedule_id: savedGaolSchedule ? savedGaolSchedule.goal_schedule_id : null,
+          total_focus_time: savedGaolSchedule ? savedGaolSchedule.total_focus_time : null,
+          total_complete_count: savedGaolSchedule ? savedGaolSchedule.total_complete_count : null,
+          activity_focus_time: savedGaolSchedule ? savedGaolSchedule.activity_focus_time : null,
+          activity_complete_count: savedGaolSchedule ? savedGaolSchedule.activity_complete_count : null
+        }
+      })
+
+      setSelectGoalScheduleList(newSelectGoalScheduleList)
+    }
+  }, [form.scheduleList, searchScheduleResultList, setSelectGoalScheduleList])
+
+  useEffect(() => {
     if (isFocused) {
       if (activeSubmit) {
         setBottomSafeAreaColor('#1E90FF')
       } else {
         setBottomSafeAreaColor('#f5f6f8')
       }
+    } else {
+      setSearchScheduleResultList([])
     }
-  }, [isFocused, activeSubmit, setBottomSafeAreaColor])
+  }, [isFocused, activeSubmit, setBottomSafeAreaColor, setSearchScheduleResultList])
 
   return (
     <View style={styles.container}>

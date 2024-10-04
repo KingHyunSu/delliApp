@@ -7,9 +7,6 @@ import GoalScheduleItem from '@/views/Sprout/Goal/components/GoalScheduleItem'
 import PushpineIcon from '@/assets/icons/pushpin.svg'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
-import {useSetRecoilState} from 'recoil'
-import {selectGoalScheduleListState} from '@/store/goal'
-
 import {useQuery} from '@tanstack/react-query'
 import {goalRepository} from '@/repository'
 import {getTimeString} from '../util'
@@ -26,8 +23,6 @@ const GoalDetail = ({navigation, route}: GoalDetailScreenProps) => {
     state: 0,
     scheduleList: []
   })
-
-  const setSelectGoalScheduleList = useSetRecoilState(selectGoalScheduleListState)
 
   const {data: goalDetail} = useQuery({
     queryKey: ['goalDetail', route.params.id],
@@ -49,10 +44,6 @@ const GoalDetail = ({navigation, route}: GoalDetailScreenProps) => {
   useEffect(() => {
     if (goalDetail) {
       setForm(goalDetail)
-    }
-
-    return () => {
-      setSelectGoalScheduleList([])
     }
   }, [goalDetail, setForm])
 

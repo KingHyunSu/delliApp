@@ -14,13 +14,29 @@ import {showSearchScheduleCategoryFilterBottomSheetState} from '@/store/bottomSh
 import {searchScheduleResultListState} from '@/store/schedule'
 import {SearchScheduleScreenProps} from '@/types/navigation'
 
+export interface SearchSchedule {
+  schedule_id: number
+  schedule_category_id: number | null
+  title: string
+  start_time: number
+  end_time: number
+  mon: string
+  tue: string
+  wed: string
+  thu: string
+  fri: string
+  sat: string
+  sun: string
+  start_date: string
+  end_date: string
+}
 export interface Options {
   multiple: boolean
 }
 const SearchSchedule = ({navigation, route}: SearchScheduleScreenProps) => {
-  const [searchScheduleList, setSearchScheduleList] = useState<Schedule[]>([])
+  const [searchScheduleList, setSearchScheduleList] = useState<SearchSchedule[]>([])
   const [searchText, setSearchText] = useState('')
-  const [selectedList, setSelectedList] = useState<Schedule[]>([])
+  const [selectedList, setSelectedList] = useState<SearchSchedule[]>([])
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
 
   const setShowSearchScheduleCategoryFilterBottomSheet = useSetRecoilState(
@@ -41,7 +57,7 @@ const SearchSchedule = ({navigation, route}: SearchScheduleScreenProps) => {
   }, [setShowSearchScheduleCategoryFilterBottomSheet])
 
   const handleSelected = useCallback(
-    (item: Schedule) => () => {
+    (item: SearchSchedule) => () => {
       const isMultiple = route.params.options.multiple
 
       if (!isMultiple && selectedList.length >= 1) {
@@ -63,7 +79,7 @@ const SearchSchedule = ({navigation, route}: SearchScheduleScreenProps) => {
     [selectedList, setSelectedList, route.params.options.multiple]
   )
 
-  const getKeyExtractor = useCallback((item: Schedule, index: number) => {
+  const getKeyExtractor = useCallback((item: SearchSchedule, index: number) => {
     return index.toString()
   }, [])
 
@@ -102,7 +118,7 @@ const SearchSchedule = ({navigation, route}: SearchScheduleScreenProps) => {
   }, [searchText, result])
 
   // components
-  const getRenderItem: ListRenderItem<Schedule> = useCallback(
+  const getRenderItem: ListRenderItem<SearchSchedule> = useCallback(
     ({item}) => {
       const isSelected = selectedList.find(sItem => item.schedule_id === sItem.schedule_id)
       const selectedColor = isSelected ? '#f5f8ff' : null

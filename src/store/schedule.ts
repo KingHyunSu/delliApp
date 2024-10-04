@@ -1,5 +1,6 @@
 import {atom} from 'recoil'
 import {RANGE_FLAG} from '@/utils/types'
+import type {SearchSchedule} from '@/views/SearchSchedule'
 
 export const scheduleDateState = atom<Date>({
   key: 'scheduleDateState',
@@ -116,7 +117,7 @@ export const scheduleTodoState = atom<Todo>({
     end_date: null,
     complete_id: null,
     complete_date: null,
-    complete_date_List: null
+    complete_date_list: null
   }
 })
 
@@ -135,7 +136,7 @@ export const focusModeInfoState = atom<FocusModeInfo | null>({
   default: null
 })
 
-export const searchScheduleResultListState = atom<Schedule[]>({
+export const searchScheduleResultListState = atom<SearchSchedule[]>({
   key: 'searchScheduleResultListState',
   default: []
 })
