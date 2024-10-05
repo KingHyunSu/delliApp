@@ -36,6 +36,9 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       sal.schedule_activity_log_id,
       sal.active_time,
       sal.complete_state,
+      GS.focus_time,
+      GS.complete_count,
+      G.title AS goal_title,
       (CASE WHEN (COUNT(B.todo_id) = 0)
         THEN JSON_ARRAY()
         ELSE JSON_GROUP_ARRAY(
@@ -53,26 +56,20 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.update_date
     FROM
       SCHEDULE A
-    LEFT OUTER JOIN
-      SCHEDULE_ACTIVITY_LOG sal
-    ON
-      sal.schedule_id = A.schedule_id
-    AND
-      sal.date = "${params.date}"
-    LEFT OUTER JOIN
-      TODO B
-    ON
-      A.schedule_id = B.schedule_id
-    AND
-      B.start_date <= "${params.date}"
-    AND
-      B.end_date >= "${params.date}"
-    LEFT OUTER JOIN
-      TODO_COMPLETE C
-    ON
-      B.todo_id = C.todo_id
-    AND
-      C.complete_date = "${params.date}"
+    LEFT OUTER JOIN SCHEDULE_ACTIVITY_LOG sal
+      ON sal.schedule_id = A.schedule_id
+      AND sal.date = "${params.date}"
+    LEFT OUTER JOIN GOAL_SCHEDULE GS
+      ON A.schedule_id = GS.schedule_id
+    LEFT OUTER JOIN GOAL G
+      ON GS.goal_id = G.goal_id
+    LEFT OUTER JOIN TODO B
+      ON A.schedule_id = B.schedule_id
+      AND B.start_date <= "${params.date}"
+      AND B.end_date >= "${params.date}"
+    LEFT OUTER JOIN TODO_COMPLETE C
+      ON B.todo_id = C.todo_id
+      AND C.complete_date = "${params.date}"
     WHERE
       A.deleted = '0'
     AND

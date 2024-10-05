@@ -52,7 +52,10 @@ export const scheduleState = atom<Schedule>({
     schedule_category_title: '',
     schedule_activity_log_id: null,
     complete_state: null,
-    active_time: null
+    active_time: null,
+    goal_title: null,
+    complete_count: null,
+    focus_time: null
   }
 })
 
