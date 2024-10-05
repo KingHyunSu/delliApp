@@ -27,7 +27,11 @@ interface ScheduleDayOfWeek {
   sun: string
 }
 interface Goal {
-  title: string
+  title: string | null
+  // activity_focus_time: number | null
+  // activity_complete_count: number | null
+  // total_focus_time: number | null
+  // total_complete_count: number | null
 }
 interface Props {
   title: string
@@ -46,6 +50,7 @@ const ScheduleItem = ({
   time,
   date,
   dayOfWeek,
+  goal,
   todoList,
   headerComponent,
   backgroundColor
@@ -123,46 +128,69 @@ const ScheduleItem = ({
           </View>
         )}
 
-        <View style={styles.goalContainer}>
+        {goal !== undefined && goal.title && (
           <View style={styles.infoIconRow}>
             <BullseyeIcon width={16} height={16} />
-            <Text style={styles.contentsText}>공인중개사 자격증 따기</Text>
+            <Text style={styles.contentsText}>{goal.title}</Text>
           </View>
+        )}
 
-          <View style={styles.goalItemContainer}>
-            <View style={styles.goalItemWrapper}>
-              <Text style={styles.goalItemLabel}>일정 완료</Text>
+        {/*{goal !== undefined && goal.title && (*/}
+        {/*  <View style={styles.goalContainer}>*/}
+        {/*    <View style={styles.infoIconRow}>*/}
+        {/*      <BullseyeIcon width={16} height={16} />*/}
+        {/*      <Text style={styles.contentsText}>{goal.title}</Text>*/}
+        {/*    </View>*/}
 
-              <View>
-                <Text style={styles.goalItemText}>5회</Text>
+        {/*    <View style={styles.goalItemContainer}>*/}
+        {/*      <View style={styles.goalItemWrapper}>*/}
+        {/*        <Text style={styles.goalItemLabel}>일정 완료</Text>*/}
 
-                <View style={styles.goalItemPercentageContainer}>
-                  <View style={styles.goalItemPercentageWrapper}>
-                    <View style={{width: '50%', height: 10, borderRadius: 10, backgroundColor: '#66BB6A'}} />
-                  </View>
+        {/*        <View>*/}
+        {/*          <Text style={styles.goalItemText}>{5}회</Text>*/}
 
-                  <Text style={styles.goalItemPercentageText}>20%</Text>
-                </View>
-              </View>
-            </View>
+        {/*          <View style={styles.goalItemPercentageContainer}>*/}
+        {/*            <View style={styles.goalItemPercentageWrapper}>*/}
+        {/*              <View*/}
+        {/*                style={{*/}
+        {/*                  width: '50%',*/}
+        {/*                  height: 10,*/}
+        {/*                  borderRadius: 10,*/}
+        {/*                  backgroundColor: '#66BB6A'*/}
+        {/*                }}*/}
+        {/*              />*/}
+        {/*            </View>*/}
 
-            <View style={styles.goalItemWrapper}>
-              <Text style={styles.goalItemLabel}>집중한 시간</Text>
+        {/*            <Text style={styles.goalItemPercentageText}>50%</Text>*/}
+        {/*          </View>*/}
+        {/*        </View>*/}
+        {/*      </View>*/}
 
-              <View>
-                <Text style={styles.goalItemText}>1시간 20분</Text>
+        {/*      <View style={styles.goalItemWrapper}>*/}
+        {/*        <Text style={styles.goalItemLabel}>집중한 시간</Text>*/}
 
-                <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>
-                  <View style={{flex: 1, height: 10, borderRadius: 10, backgroundColor: '#ffffff'}}>
-                    <View style={{width: '43%', height: 10, borderRadius: 10, backgroundColor: '#FF6B6B'}} />
-                  </View>
+        {/*        <View>*/}
+        {/*          <Text style={styles.goalItemText}>1시간 20분</Text>*/}
 
-                  <Text style={styles.goalItemPercentageText}>43%</Text>
-                </View>
-              </View>
-            </View>
-          </View>
-        </View>
+        {/*          <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>*/}
+        {/*            <View style={{flex: 1, height: 10, borderRadius: 10, backgroundColor: '#ffffff'}}>*/}
+        {/*              <View*/}
+        {/*                style={{*/}
+        {/*                  width: '30%',*/}
+        {/*                  height: 10,*/}
+        {/*                  borderRadius: 10,*/}
+        {/*                  backgroundColor: '#FF6B6B'*/}
+        {/*                }}*/}
+        {/*              />*/}
+        {/*            </View>*/}
+
+        {/*            <Text style={styles.goalItemPercentageText}>30%</Text>*/}
+        {/*          </View>*/}
+        {/*        </View>*/}
+        {/*      </View>*/}
+        {/*    </View>*/}
+        {/*  </View>*/}
+        {/*)}*/}
       </View>
 
       {todoList !== undefined && todoList.length > 0 && <TodoList data={todoList} />}
@@ -211,55 +239,55 @@ const styles = StyleSheet.create({
   icon: {
     width: 16,
     height: 16
-  },
-
-  goalContainer: {
-    marginTop: 5,
-    paddingHorizontal: 10,
-    paddingBottom: 10,
-    paddingTop: 15,
-    backgroundColor: '#ffffff',
-    borderRadius: 10,
-    gap: 10
-  },
-  goalItemContainer: {
-    flexDirection: 'row',
-    gap: 10
-  },
-  goalItemWrapper: {
-    flex: 1,
-    gap: 10,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: '#f9f9f9'
-  },
-  goalItemLabel: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
-    color: '#8d9195'
-  },
-  goalItemText: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
-    color: '#424242',
-    marginBottom: 5
-  },
-  goalItemPercentageContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10
-  },
-  goalItemPercentageWrapper: {
-    flex: 1,
-    height: 10,
-    borderRadius: 10,
-    backgroundColor: '#ffffff'
-  },
-  goalItemPercentageText: {
-    fontFamily: 'Pretendard-Bold',
-    fontSize: 12,
-    color: '#424242'
   }
+
+  // goalContainer: {
+  //   marginTop: 5,
+  //   paddingHorizontal: 10,
+  //   paddingBottom: 10,
+  //   paddingTop: 15,
+  //   backgroundColor: '#ffffff',
+  //   borderRadius: 10,
+  //   gap: 10
+  // },
+  // goalItemContainer: {
+  //   flexDirection: 'row',
+  //   gap: 10
+  // },
+  // goalItemWrapper: {
+  //   flex: 1,
+  //   gap: 10,
+  //   padding: 10,
+  //   borderRadius: 10,
+  //   backgroundColor: '#f9f9f9'
+  // },
+  // goalItemLabel: {
+  //   fontFamily: 'Pretendard-Medium',
+  //   fontSize: 12,
+  //   color: '#8d9195'
+  // },
+  // goalItemText: {
+  //   fontFamily: 'Pretendard-Medium',
+  //   fontSize: 12,
+  //   color: '#424242',
+  //   marginBottom: 5
+  // },
+  // goalItemPercentageContainer: {
+  //   flexDirection: 'row',
+  //   alignItems: 'center',
+  //   gap: 10
+  // },
+  // goalItemPercentageWrapper: {
+  //   flex: 1,
+  //   height: 10,
+  //   borderRadius: 10,
+  //   backgroundColor: '#ffffff'
+  // },
+  // goalItemPercentageText: {
+  //   fontFamily: 'Pretendard-Bold',
+  //   fontSize: 12,
+  //   color: '#424242'
+  // }
 })
 
 export default ScheduleItem

@@ -121,15 +121,7 @@ const ScheduleListBottomSheet = ({data, onClick}: Props) => {
             categoryId={item.schedule_category_id}
             time={{startTime: item.start_time, endTime: item.end_time}}
             date={{startDate: item.start_date, endDate: item.end_date}}
-            dayOfWeek={{
-              mon: item.mon,
-              tue: item.tue,
-              wed: item.wed,
-              thu: item.thu,
-              fri: item.fri,
-              sat: item.sat,
-              sun: item.sun
-            }}
+            goal={{title: item.goal_title}}
             todoList={item.todo_list}
             headerComponent={itemHeaderComponent(item)}
           />

@@ -14,10 +14,10 @@ import {
 import type {SearchSchedule} from '@/views/SearchSchedule'
 
 export const getScheduleList = async (params: GetScheduleList) => {
-  const query = scheduleQueries.getScheduleListQuery(params)
+  const getScheduleListQuery = scheduleQueries.getScheduleListQuery(params)
   const db = await openDatabase()
 
-  const [result] = await db.executeSql(query)
+  const [result] = await db.executeSql(getScheduleListQuery)
 
   return result.rows.raw()
 }

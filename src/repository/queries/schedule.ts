@@ -33,11 +33,10 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.background_color as background_color,
       A.text_color as text_color,
       A.alarm,
-      sal.schedule_activity_log_id,
-      sal.active_time,
-      sal.complete_state,
-      GS.focus_time,
-      GS.complete_count,
+      SAL.schedule_activity_log_id,
+      SAL.active_time,
+      SAL.complete_state,
+      G.goal_id,
       G.title AS goal_title,
       (CASE WHEN (COUNT(B.todo_id) = 0)
         THEN JSON_ARRAY()
@@ -56,9 +55,9 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.update_date
     FROM
       SCHEDULE A
-    LEFT OUTER JOIN SCHEDULE_ACTIVITY_LOG sal
-      ON sal.schedule_id = A.schedule_id
-      AND sal.date = "${params.date}"
+    LEFT OUTER JOIN SCHEDULE_ACTIVITY_LOG SAL
+      ON SAL.schedule_id = A.schedule_id
+      AND SAL.date = "${params.date}"
     LEFT OUTER JOIN GOAL_SCHEDULE GS
       ON A.schedule_id = GS.schedule_id
     LEFT OUTER JOIN GOAL G
@@ -105,6 +104,7 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
 
   query += `
     GROUP BY
+      A.schedule_category_id,
       A.schedule_id,
       A.title,
       A.start_time,
@@ -124,7 +124,13 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.title_rotate,
       A.background_color,
       A.text_color,
-      A.alarm
+      A.alarm,
+      SAL.schedule_activity_log_id,
+      SAL.active_time,
+      SAL.complete_state,
+      G.goal_id,
+      G.title,
+      A.update_date
     ORDER BY A.start_time asc
   `
 
