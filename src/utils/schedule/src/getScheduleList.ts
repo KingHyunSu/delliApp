@@ -22,12 +22,5 @@ export default async function (date: Date) {
     params[dayOfWeek] = '1'
   }
 
-  const result = await scheduleRepository.getScheduleList(params)
-
-  return result.map<Schedule>(item => {
-    return {
-      ...item,
-      todo_list: JSON.parse(item.todo_list)
-    }
-  })
+  return await scheduleRepository.getScheduleList(params)
 }

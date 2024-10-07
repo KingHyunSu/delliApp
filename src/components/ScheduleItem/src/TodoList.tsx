@@ -3,6 +3,7 @@ import {Platform, StyleSheet, FlatList, ListRenderItem, Pressable, View, Text} f
 import {format} from 'date-fns'
 import {trigger} from 'react-native-haptic-feedback'
 import debounce from 'lodash.debounce'
+import RoutineCompleteBar from '@/components/RoutineCompleteBar'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {scheduleDateState, scheduleListState, scheduleTodoState} from '@/store/schedule'
@@ -38,7 +39,7 @@ const ScheduleTodo = ({item, showEditModal, onChange}: ItemProps) => {
     return isComplete ? '#fff' : '#eeeded'
   }, [isComplete])
 
-  const debounceChagned = React.useMemo(
+  const debounceChanged = React.useMemo(
     () =>
       debounce(() => {
         onChange(!isComplete, item)
@@ -47,8 +48,8 @@ const ScheduleTodo = ({item, showEditModal, onChange}: ItemProps) => {
   )
 
   const handleChanged = React.useCallback(() => {
-    debounceChagned()
-  }, [debounceChagned])
+    debounceChanged()
+  }, [debounceChanged])
 
   const handleShowEditModal = React.useCallback(() => {
     showEditModal(item)
@@ -66,9 +67,10 @@ const ScheduleTodo = ({item, showEditModal, onChange}: ItemProps) => {
         <Pressable style={styles.modalButtonWrapper} onPress={handleShowEditModal}>
           <Text style={styles.text}>{item.title}</Text>
 
-          <View style={styles.moreButton}>
-            <MoreIcon width={18} height={18} fill="#babfc5" />
-          </View>
+          {!item.end_date && <RoutineCompleteBar completeDateList={[]} itemSize={20} />}
+          {/*<View style={styles.moreButton}>*/}
+          {/*  <MoreIcon width={18} height={18} fill="#babfc5" />*/}
+          {/*</View>*/}
         </Pressable>
       </View>
     </View>
@@ -233,6 +235,7 @@ const styles = StyleSheet.create({
   },
   modalButtonWrapper: {
     flex: 1,
+    gap: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between'
@@ -265,7 +268,8 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 14,
-    color: '#424242'
+    color: '#424242',
+    flexShrink: 1
   }
 })
 

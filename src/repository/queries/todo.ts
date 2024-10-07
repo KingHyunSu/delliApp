@@ -152,3 +152,23 @@ export const updateRoutineQuery = () => {
     UPDATE TODO SET title = ?, schedule_id = ? WHERE todo_id = ?
   `
 }
+
+export const getTodoByScheduleQuery = () => {
+  return `
+    SELECT 
+      T.schedule_id,
+      T.todo_id,
+      T.title,
+      T.start_date,
+      CASE WHEN (T.end_date = '9999-12-31') THEN null ELSE T.end_date END AS end_date,
+      TC.complete_id,
+      TC.complete_date
+    FROM
+      TODO T
+    LEFT OUTER JOIN TODO_COMPLETE TC
+      ON T.todo_id = TC.todo_id
+--       AND TC.complete_date >= DATE('now', '-7 days')
+    WHERE
+      T.schedule_id = ?
+  `
+}

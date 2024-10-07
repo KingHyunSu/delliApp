@@ -1,5 +1,6 @@
 import {openDatabase} from '../utils/helper'
 import * as scheduleQueries from '../queries/schedule'
+import * as todoQueries from '../queries/todo'
 import {
   GetScheduleList,
   GetExistScheduleList,
@@ -15,11 +16,73 @@ import type {SearchSchedule} from '@/views/SearchSchedule'
 
 export const getScheduleList = async (params: GetScheduleList) => {
   const getScheduleListQuery = scheduleQueries.getScheduleListQuery(params)
+  const getTodoByScheduleQuery = todoQueries.getTodoByScheduleQuery()
   const db = await openDatabase()
 
-  const [result] = await db.executeSql(getScheduleListQuery)
+  const result: Schedule[] = []
 
-  return result.rows.raw()
+  // await db.transaction(tx => {
+  //   tx.executeSql(getScheduleListQuery, [], (tx1, result1) => {
+  //     const scheduleList: Schedule[] = result1.rows.raw()
+  //     scheduleList.forEach(item => {
+  //       // console.log('item', item)
+  //       tx1.executeSql(getTodoByScheduleQuery, [item.schedule_id], (tx2, result2) => {
+  //         console.log('result2.rows.raw()', result2.rows.raw())
+  //         result.push({
+  //           ...item,
+  //           todo_list: result2.rows.raw()
+  //         })
+  //       })
+  //     })
+  //   })
+  // })
+
+  await new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        getScheduleListQuery,
+        [],
+        (tx1, result1) => {
+          const scheduleList: Schedule[] = result1.rows.raw()
+
+          const promises = scheduleList.map(item => {
+            return new Promise((resolve, reject) => {
+              tx1.executeSql(
+                getTodoByScheduleQuery,
+                [item.schedule_id],
+                (tx2, result2) => {
+                  console.log('result2.rows.raw()', result2.rows.raw())
+                  resolve({
+                    ...item,
+                    todo_list: result2.rows.raw()
+                  })
+                },
+                reject
+              )
+            })
+          })
+
+          // 모든 스케줄에 대한 todo 쿼리가 완료되면 result에 값을 추가하고 resolve 호출
+          Promise.all(promises)
+            .then(values => {
+              console.log('values', values)
+              result.push(...values)
+              resolve()
+            })
+            .catch(reject)
+        },
+        reject
+      )
+    })
+  })
+
+  console.log('result', result)
+  // const [result] = await db.executeSql(getScheduleListQuery)
+  // const scheduleList = result.rows.raw()
+  //
+  // return result.rows.raw()
+
+  return result
 }
 
 export const getExistScheduleList = async (params: GetExistScheduleList) => {

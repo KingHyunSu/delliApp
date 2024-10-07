@@ -38,20 +38,20 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       SAL.complete_state,
       G.goal_id,
       G.title AS goal_title,
-      (CASE WHEN (COUNT(B.todo_id) = 0)
-        THEN JSON_ARRAY()
-        ELSE JSON_GROUP_ARRAY(
-          JSON_OBJECT(
-            'schedule_id', B.schedule_id,
-            'todo_id', B.todo_id,
-            'title', B.title,
-            'start_date', B.start_date,
-            'end_date', CASE WHEN (B.end_date = '9999-12-31') THEN null ELSE B.end_date END,
-            'complete_id', C.complete_id,
-            'complete_date', C.complete_date
-          )
-        )
-      END) as todo_list,
+--       (CASE WHEN (COUNT(B.todo_id) = 0)
+--         THEN JSON_ARRAY()
+--         ELSE JSON_GROUP_ARRAY(
+--           JSON_OBJECT(
+--             'schedule_id', B.schedule_id,
+--             'todo_id', B.todo_id,
+--             'title', B.title,
+--             'start_date', B.start_date,
+--             'end_date', CASE WHEN (B.end_date = '9999-12-31') THEN null ELSE B.end_date END,
+--             'complete_id', C.complete_id,
+--             'complete_date', C.complete_date
+--           )
+--         )
+--       END) as todo_list,
       A.update_date
     FROM
       SCHEDULE A
@@ -62,13 +62,13 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       ON A.schedule_id = GS.schedule_id
     LEFT OUTER JOIN GOAL G
       ON GS.goal_id = G.goal_id
-    LEFT OUTER JOIN TODO B
-      ON A.schedule_id = B.schedule_id
-      AND B.start_date <= "${params.date}"
-      AND B.end_date >= "${params.date}"
-    LEFT OUTER JOIN TODO_COMPLETE C
-      ON B.todo_id = C.todo_id
-      AND C.complete_date = "${params.date}"
+--    LEFT OUTER JOIN TODO B
+--      ON A.schedule_id = B.schedule_id
+--      AND B.start_date <= "${params.date}"
+--      AND B.end_date >= "${params.date}"
+--    LEFT OUTER JOIN TODO_COMPLETE C
+--      ON B.todo_id = C.todo_id
+--      AND C.complete_date = "${params.date}"
     WHERE
       A.deleted = '0'
     AND
