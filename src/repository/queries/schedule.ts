@@ -36,8 +36,8 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       SAL.schedule_activity_log_id,
       SAL.active_time,
       SAL.complete_state,
-      G.goal_id,
-      G.title AS goal_title,
+--       G.goal_id,
+--       G.title AS goal_title,
 --       (CASE WHEN (COUNT(B.todo_id) = 0)
 --         THEN JSON_ARRAY()
 --         ELSE JSON_GROUP_ARRAY(
@@ -58,10 +58,10 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
     LEFT OUTER JOIN SCHEDULE_ACTIVITY_LOG SAL
       ON SAL.schedule_id = A.schedule_id
       AND SAL.date = "${params.date}"
-    LEFT OUTER JOIN GOAL_SCHEDULE GS
-      ON A.schedule_id = GS.schedule_id
-    LEFT OUTER JOIN GOAL G
-      ON GS.goal_id = G.goal_id
+--     LEFT OUTER JOIN GOAL_SCHEDULE GS
+--       ON A.schedule_id = GS.schedule_id
+--     LEFT OUTER JOIN GOAL G
+--       ON GS.goal_id = G.goal_id
 --    LEFT OUTER JOIN TODO B
 --      ON A.schedule_id = B.schedule_id
 --      AND B.start_date <= "${params.date}"
@@ -128,8 +128,6 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       SAL.schedule_activity_log_id,
       SAL.active_time,
       SAL.complete_state,
-      G.goal_id,
-      G.title,
       A.update_date
     ORDER BY A.start_time asc
   `

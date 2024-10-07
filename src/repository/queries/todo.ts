@@ -161,14 +161,26 @@ export const getTodoByScheduleQuery = () => {
       T.title,
       T.start_date,
       CASE WHEN (T.end_date = '9999-12-31') THEN null ELSE T.end_date END AS end_date,
-      TC.complete_id,
-      TC.complete_date
+      TC1.complete_id,
+      TC1.complete_date,
+      GROUP_CONCAT(TC2.complete_date) AS complete_date_list
     FROM
       TODO T
-    LEFT OUTER JOIN TODO_COMPLETE TC
-      ON T.todo_id = TC.todo_id
---       AND TC.complete_date >= DATE('now', '-7 days')
+    LEFT OUTER JOIN TODO_COMPLETE TC1
+      ON T.todo_id = TC1.todo_id
+      AND TC1.complete_date = ?
+    LEFT OUTER JOIN TODO_COMPLETE TC2
+      ON T.todo_id = TC2.todo_id
+      AND TC2.complete_date >= DATE('now', '-7 days')
     WHERE
       T.schedule_id = ?
+    GROUP BY
+      T.schedule_id,
+      T.todo_id,
+      T.title,
+      T.start_date,
+      T.end_date,
+      TC1.complete_id,
+      TC1.complete_date
   `
 }
