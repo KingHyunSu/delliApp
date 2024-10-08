@@ -159,8 +159,8 @@ export const getTodoByScheduleQuery = () => {
       T.schedule_id,
       T.todo_id,
       T.title,
-      TC1.complete_id,
-      TC1.complete_date,
+      TC.complete_id,
+      TC.complete_date
     FROM
       TODO T
     LEFT OUTER JOIN TODO_COMPLETE TC
@@ -193,12 +193,11 @@ export const getRoutineListBySchedule = () => {
     WHERE
       T.schedule_id = ?
     AND
-      T.end_date != '9999-12-31'
+      T.end_date = '9999-12-31'
     GROUP BY
       T.schedule_id,
       T.todo_id,
       T.title,
-      T.end_date,
       TC1.complete_id,
       TC1.complete_date
   `

@@ -41,6 +41,7 @@ interface Props {
   dayOfWeek?: ScheduleDayOfWeek
   goal?: Goal
   todoList?: Todo[]
+  routineList?: Routine[]
   headerComponent?: ReactNode
   backgroundColor?: string | null
 }
@@ -52,6 +53,7 @@ const ScheduleItem = ({
   dayOfWeek,
   goal,
   todoList,
+  routineList,
   headerComponent,
   backgroundColor
 }: Props) => {
@@ -193,6 +195,7 @@ const ScheduleItem = ({
         {/*)}*/}
       </View>
 
+      {routineList !== undefined && routineList.length > 0 && <TodoList data={routineList} />}
       {todoList !== undefined && todoList.length > 0 && <TodoList data={todoList} />}
     </View>
   )

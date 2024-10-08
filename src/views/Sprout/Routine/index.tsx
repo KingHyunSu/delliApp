@@ -29,7 +29,7 @@ const RoutineList = ({navigator}: Props) => {
     [navigator.navigation]
   )
 
-  const getRenderItem: ListRenderItem<Routine> = useCallback(
+  const getRenderItem: ListRenderItem<RoutineListItem> = useCallback(
     ({item}) => {
       return <RoutineItem item={item} moveDetail={moveDetail(item.todo_id!)} />
     },

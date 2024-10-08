@@ -17,6 +17,7 @@ import type {SearchSchedule} from '@/views/SearchSchedule'
 export const getScheduleList = async (params: GetScheduleList) => {
   const getScheduleListQuery = scheduleQueries.getScheduleListQuery(params)
   const getTodoByScheduleQuery = todoQueries.getTodoByScheduleQuery()
+  const getRoutineListBySchedule = todoQueries.getRoutineListBySchedule()
   const db = await openDatabase()
 
   const result: Schedule[] = []
@@ -30,18 +31,52 @@ export const getScheduleList = async (params: GetScheduleList) => {
           const scheduleList: Schedule[] = result1.rows.raw()
 
           const promises = scheduleList.map(item => {
-            return new Promise<Schedule>((resolve, reject) => {
+            return new Promise<Schedule>((resolve2, reject2) => {
+              let todoList: Todo[] | null = null
+              let routineList: Routine[] | null = null
+
               tx1.executeSql(
                 getTodoByScheduleQuery,
                 [params.date, item.schedule_id],
                 (tx2, result2) => {
-                  resolve({
-                    ...item,
-                    todo_list: result2.rows.raw()
-                  })
+                  todoList = result2.rows.raw()
+
+                  handleResolve()
                 },
-                reject
+                reject2
               )
+
+              tx1.executeSql(
+                getRoutineListBySchedule,
+                [params.date, item.schedule_id],
+                (tx2, result2) => {
+                  routineList = result2.rows.raw().map(sItem => {
+                    let completeDateList: string[] = []
+
+                    if (sItem.complete_date_list) {
+                      completeDateList = sItem.complete_date_list.split(',')
+                    }
+
+                    return {
+                      ...sItem,
+                      complete_date_list: completeDateList
+                    }
+                  })
+
+                  handleResolve()
+                },
+                reject2
+              )
+
+              function handleResolve() {
+                if (todoList && routineList) {
+                  resolve2({
+                    ...item,
+                    todo_list: todoList,
+                    routine_list: routineList
+                  })
+                }
+              }
             })
           })
 

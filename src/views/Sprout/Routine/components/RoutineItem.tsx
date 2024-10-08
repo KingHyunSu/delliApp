@@ -4,7 +4,7 @@ import {eachDayOfInterval, format, subDays} from 'date-fns'
 import ScheduleItem from '@/components/ScheduleItem'
 
 interface Props {
-  item: Routine
+  item: RoutineListItem
   moveDetail: (id: number) => void
 }
 const RoutineItem = ({item, moveDetail}: Props) => {

@@ -24,6 +24,7 @@ declare interface Schedule {
   complete_start_time?: number
   complete_end_time?: number
   todo_list: Todo[]
+  routine_list: Routine[]
   schedule_category_id?: number | null
   schedule_category_title?: string
   schedule_activity_log_id: null
@@ -36,6 +37,23 @@ declare interface Schedule {
   update_date?: string
 
   alarm?: number | null
+}
+
+declare interface IncludeScheduleItem {
+  schedule_id: number
+  schedule_title: string
+  schedule_category_id: number | null
+  schedule_start_time: number
+  schedule_end_time: number
+  schedule_mon: string
+  schedule_tue: string
+  schedule_wed: string
+  schedule_thu: string
+  schedule_fri: string
+  schedule_sat: string
+  schedule_sun: string
+  schedule_start_date: string
+  schedule_end_date: string
 }
 
 declare interface ScheduleComplete {

@@ -122,6 +122,7 @@ const ScheduleListBottomSheet = ({data, onClick}: Props) => {
             time={{startTime: item.start_time, endTime: item.end_time}}
             date={{startDate: item.start_date, endDate: item.end_date}}
             goal={{title: item.goal_title}}
+            routineList={item.routine_list}
             todoList={item.todo_list}
             headerComponent={itemHeaderComponent(item)}
           />
