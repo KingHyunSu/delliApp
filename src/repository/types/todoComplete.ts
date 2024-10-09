@@ -1,8 +1,8 @@
-export interface SetScheduleTodoComplete {
+export interface SetTodoComplete {
   todo_id: number
   complete_date: string
 }
 
-export interface DeleteScheduleTodoComplete {
+export interface DeleteTodoComplete {
   complete_id: number
 }

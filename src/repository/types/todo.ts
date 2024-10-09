@@ -12,6 +12,11 @@ export interface SetTodo {
   date: string
 }
 
+export interface UpdateTodoRequest {
+  todo_id: number
+  title: string
+}
+
 export interface DeleteTodo {
   todo_id: number
 }

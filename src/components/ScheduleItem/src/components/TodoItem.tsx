@@ -1,0 +1,123 @@
+import {useMemo, useCallback} from 'react'
+import {StyleSheet, Pressable, Text, View} from 'react-native'
+import debounce from 'lodash.debounce'
+import RoutineCompleteBar from '@/components/RoutineCompleteBar'
+import CheckIcon from '@/assets/icons/check.svg'
+import MoreIcon from '@/assets/icons/more_horiz.svg'
+import {UpdateTodoRequest} from '@/repository/types/todo'
+
+interface Props {
+  todoId: number
+  completeId: number | null
+  title: string
+  completeDateList?: string[]
+  openEditModal: (params: UpdateTodoRequest) => void
+  onChange: (visible: boolean, todoId: number, complete_id: number | null) => void
+}
+const TodoItem = ({todoId, completeId, title, completeDateList, openEditModal, onChange}: Props) => {
+  const isComplete = useMemo(() => {
+    return !!completeId
+  }, [completeId])
+
+  const checkButtonStyle = useMemo(() => {
+    return isComplete ? activeCheckButtonStyle : styles.checkButton
+  }, [isComplete])
+
+  const checkButtonColor = useMemo(() => {
+    return isComplete ? '#fff' : '#eeeded'
+  }, [isComplete])
+
+  const debounceChanged = useMemo(
+    () =>
+      debounce(() => {
+        onChange(!isComplete, todoId, completeId)
+      }, 200),
+    [isComplete, todoId, completeId, onChange]
+  )
+
+  const handleChanged = useCallback(() => {
+    debounceChanged()
+  }, [debounceChanged])
+
+  const handleShowEditModal = useCallback(() => {
+    openEditModal({todo_id: todoId, title})
+  }, [todoId, title, openEditModal])
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.wrapper}>
+        <Pressable style={styles.checkButtonWrapper} onPress={handleChanged}>
+          <View style={checkButtonStyle}>
+            <CheckIcon width={16} height={16} strokeWidth={3} stroke={checkButtonColor} />
+          </View>
+        </Pressable>
+
+        <Pressable style={styles.modalButtonWrapper} onPress={handleShowEditModal}>
+          <Text style={styles.title}>{title}</Text>
+
+          {completeDateList ? (
+            <RoutineCompleteBar completeDateList={[]} itemSize={20} />
+          ) : (
+            <View style={styles.moreButton}>
+              <MoreIcon width={18} height={18} fill="#babfc5" />
+            </View>
+          )}
+        </Pressable>
+      </View>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  wrapper: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  title: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 14,
+    color: '#424242',
+    flexShrink: 1
+  },
+  checkButtonWrapper: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center'
+  },
+  checkButton: {
+    width: 24,
+    height: 24,
+    borderWidth: 1,
+    borderColor: '#eeeded',
+    borderRadius: 7,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  modalButtonWrapper: {
+    flex: 1,
+    gap: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  },
+  moreButton: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'flex-end'
+  }
+})
+
+const activeCheckButtonStyle = StyleSheet.compose(styles.checkButton, {
+  borderColor: '#76d672',
+  backgroundColor: '#76d672'
+})
+
+export default TodoItem
