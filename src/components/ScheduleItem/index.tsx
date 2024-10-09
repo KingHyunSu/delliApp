@@ -1,6 +1,7 @@
 import {ReactNode, useMemo, useCallback} from 'react'
 import {StyleSheet, View, Text, Image} from 'react-native'
 import TodoList from './src/TodoList'
+import RoutineList from './src/RoutineList'
 
 import {useRecoilValue} from 'recoil'
 import {scheduleCategoryListState} from '@/store/schedule'
@@ -195,7 +196,7 @@ const ScheduleItem = ({
         {/*)}*/}
       </View>
 
-      {routineList !== undefined && routineList.length > 0 && <TodoList data={routineList} />}
+      {routineList !== undefined && routineList.length > 0 && <RoutineList data={routineList} />}
       {todoList !== undefined && todoList.length > 0 && <TodoList data={todoList} />}
     </View>
   )

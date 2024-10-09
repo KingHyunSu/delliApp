@@ -6,33 +6,39 @@ import CheckIcon from '@/assets/icons/check.svg'
 import MoreIcon from '@/assets/icons/more_horiz.svg'
 import {UpdateTodoRequest} from '@/repository/types/todo'
 
+export interface ChangeTodoCompleteArguments {
+  todoId: number
+  completeId: number | null
+  scheduleId: number
+}
 interface Props {
   todoId: number
   completeId: number | null
+  scheduleId: number
   title: string
   completeDateList?: string[]
-  openEditModal: (params: UpdateTodoRequest) => void
-  onChange: (visible: boolean, todoId: number, complete_id: number | null) => void
+  openEditModal?: (params: UpdateTodoRequest) => void
+  onChange: (isCompleted: boolean, changeTodoCompleteArguments: ChangeTodoCompleteArguments) => void
 }
-const TodoItem = ({todoId, completeId, title, completeDateList, openEditModal, onChange}: Props) => {
-  const isComplete = useMemo(() => {
+const TodoItem = ({todoId, completeId, scheduleId, title, completeDateList, openEditModal, onChange}: Props) => {
+  const isCompleted = useMemo(() => {
     return !!completeId
   }, [completeId])
 
   const checkButtonStyle = useMemo(() => {
-    return isComplete ? activeCheckButtonStyle : styles.checkButton
-  }, [isComplete])
+    return isCompleted ? activeCheckButtonStyle : styles.checkButton
+  }, [isCompleted])
 
   const checkButtonColor = useMemo(() => {
-    return isComplete ? '#fff' : '#eeeded'
-  }, [isComplete])
+    return isCompleted ? '#ffffff' : '#eeeded'
+  }, [isCompleted])
 
   const debounceChanged = useMemo(
     () =>
       debounce(() => {
-        onChange(!isComplete, todoId, completeId)
+        onChange(!isCompleted, {todoId, completeId, scheduleId})
       }, 200),
-    [isComplete, todoId, completeId, onChange]
+    [isCompleted, todoId, completeId, scheduleId, onChange]
   )
 
   const handleChanged = useCallback(() => {
@@ -40,7 +46,9 @@ const TodoItem = ({todoId, completeId, title, completeDateList, openEditModal, o
   }, [debounceChanged])
 
   const handleShowEditModal = useCallback(() => {
-    openEditModal({todo_id: todoId, title})
+    if (openEditModal) {
+      openEditModal({todo_id: todoId, title})
+    }
   }, [todoId, title, openEditModal])
 
   return (
@@ -56,7 +64,7 @@ const TodoItem = ({todoId, completeId, title, completeDateList, openEditModal, o
           <Text style={styles.title}>{title}</Text>
 
           {completeDateList ? (
-            <RoutineCompleteBar completeDateList={[]} itemSize={20} />
+            <RoutineCompleteBar completeDateList={completeDateList} itemSize={20} />
           ) : (
             <View style={styles.moreButton}>
               <MoreIcon width={18} height={18} fill="#babfc5" />

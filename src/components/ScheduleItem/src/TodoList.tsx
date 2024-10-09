@@ -1,6 +1,7 @@
-import React from 'react'
+import {useCallback} from 'react'
 import {StyleSheet, FlatList, ListRenderItem, View} from 'react-native'
 import TodoItem from './components/TodoItem'
+import type {ChangeTodoCompleteArguments} from './components/TodoItem'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {editTodoFormState, scheduleDateState, scheduleListState} from '@/store/schedule'
@@ -9,7 +10,6 @@ import {showEditTodoModalState} from '@/store/modal'
 import {updateWidget} from '@/utils/widget'
 import useSetTodoComplete from './hooks/useSetTodoComplete'
 
-//repository
 import {UpdateTodoRequest} from '@/repository/types/todo'
 import {format} from 'date-fns'
 
@@ -23,9 +23,9 @@ const ScheduleTodoList = ({data}: Props) => {
   const setEditTodoFrom = useSetRecoilState(editTodoFormState)
   const setShowEditTodoModal = useSetRecoilState(showEditTodoModalState)
 
-  const {completeTodo, undoCompleteTodo} = useSetTodoComplete(scheduleDate)
+  const {doCompleteTodo, undoCompleteTodo} = useSetTodoComplete()
 
-  const openEditModal = React.useCallback(
+  const openEditModal = useCallback(
     (params: UpdateTodoRequest) => {
       setEditTodoFrom(params)
       setShowEditTodoModal(true)
@@ -33,37 +33,69 @@ const ScheduleTodoList = ({data}: Props) => {
     [setEditTodoFrom, setShowEditTodoModal]
   )
 
-  const handleTodoComplete = React.useCallback(
-    async (visible: boolean, todo_id: number, complete_id: number | null) => {
-      if (visible) {
-        const completeDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
+  const updateTodoOfScheduleList = useCallback(
+    (scheduleId: number, todoId: number, todoCompleteId: number | null, todoCompleteDate: string | null) => {
+      const newScheduleList = scheduleList.map(scheduleItem => {
+        if (scheduleId === scheduleItem.schedule_id) {
+          const newTodoList = data.map(todoItem =>
+            todoItem.todo_id === todoId
+              ? {...todoItem, complete_id: todoCompleteId, complete_date: todoCompleteDate}
+              : todoItem
+          )
 
-        await completeTodo({
-          todo_id,
-          complete_date: completeDate
-        })
-      } else {
-        if (!complete_id) {
-          console.error('error')
-          return
+          return {...scheduleItem, todo_list: newTodoList}
         }
 
-        await undoCompleteTodo({complete_id: complete_id})
-      }
+        return scheduleItem
+      })
+
+      setScheduleList(newScheduleList)
+
+      // TODO - 위젯에서 임시 제거
+      // if (Platform.OS === 'ios') {
+      //   await updateWidget()
+      // }
     },
-    []
+    [data, scheduleList, setScheduleList]
   )
 
-  const keyExtractor = React.useCallback((item: Todo, index: number) => {
+  const handleTodoComplete = useCallback(
+    async (isCompleted: boolean, value: ChangeTodoCompleteArguments) => {
+      try {
+        let completeId: number | null = null
+        let completeDate: string | null = null
+
+        if (isCompleted) {
+          // do complete
+          completeDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
+
+          completeId = await doCompleteTodo({todo_id: value.todoId, complete_date: completeDate})
+        } else {
+          // undo complete
+          if (value.completeId) {
+            await undoCompleteTodo({complete_id: value.completeId})
+          }
+        }
+
+        updateTodoOfScheduleList(value.scheduleId, value.todoId, completeId, completeDate)
+      } catch (e) {
+        console.error(e)
+      }
+    },
+    [scheduleDate, doCompleteTodo, undoCompleteTodo, updateTodoOfScheduleList]
+  )
+
+  const keyExtractor = useCallback((item: Todo, index: number) => {
     return String(index)
   }, [])
 
-  const renderItem: ListRenderItem<Todo> = React.useCallback(
+  const renderItem: ListRenderItem<Todo> = useCallback(
     ({item}) => {
       return (
         <TodoItem
           todoId={item.todo_id}
           completeId={item.complete_id}
+          scheduleId={item.schedule_id!}
           title={item.title}
           openEditModal={openEditModal}
           onChange={handleTodoComplete}

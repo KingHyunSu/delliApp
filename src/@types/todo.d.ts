@@ -11,7 +11,7 @@ declare interface Routine {
   title: string
   complete_id: number | null
   complete_date: string | null
-  complete_date_list: string[] | null
+  complete_date_list: string[]
   schedule_id: number
 }
 
