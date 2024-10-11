@@ -12,6 +12,7 @@ import {todoRepository} from '@/repository'
 import {useQuery, useQueryClient} from '@tanstack/react-query'
 import {RoutineDetailScreenProps} from '@/types/navigation'
 
+const completeItemGap = 10
 const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
   const queryClient = useQueryClient()
 
@@ -46,8 +47,7 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
 
   const dateItemSize = useMemo(() => {
     const padding = 50
-    const gap = 15
-    return (windowDimensions.width - padding - gap * 6) / 7
+    return (windowDimensions.width - padding - completeItemGap * 6) / 7
   }, [windowDimensions])
 
   const currentMonthDateList = useMemo(() => {
@@ -86,7 +86,7 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
     ({item}) => {
       const formatDate = format(item, 'yyyy-MM-dd')
       const isActive = completeList.find(sItem => sItem.complete_date === formatDate)
-      const backgroundColor = isActive ? '#76d672' : '#f5f6f8'
+      const backgroundColor = isActive ? '#FFD54F' : '#f5f6f8'
 
       return (
         <View
@@ -164,8 +164,8 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
             scrollEnabled={false}
             data={currentMonthDateList}
             renderItem={getDateItemComponent}
-            contentContainerStyle={{gap: 15}}
-            columnWrapperStyle={{gap: 15}}
+            contentContainerStyle={{gap: completeItemGap}}
+            columnWrapperStyle={{gap: completeItemGap}}
             numColumns={7}
           />
         </View>

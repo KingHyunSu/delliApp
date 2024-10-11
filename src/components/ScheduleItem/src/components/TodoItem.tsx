@@ -25,7 +25,15 @@ const TodoItem = ({todoId, completeId, scheduleId, title, completeDateList, open
   }, [completeId])
 
   const checkButtonStyle = useMemo(() => {
-    return isCompleted ? activeCheckButtonStyle : styles.checkButton
+    if (isCompleted) {
+      if (completeDateList) {
+        return activeRoutineCheckButtonStyle
+      } else {
+        return activeTodoCheckButtonStyle
+      }
+    }
+
+    return styles.checkButton
   }, [isCompleted])
 
   const checkButtonColor = useMemo(() => {
@@ -122,9 +130,13 @@ const styles = StyleSheet.create({
   }
 })
 
-const activeCheckButtonStyle = StyleSheet.compose(styles.checkButton, {
+const activeTodoCheckButtonStyle = StyleSheet.compose(styles.checkButton, {
   borderColor: '#76d672',
   backgroundColor: '#76d672'
+})
+const activeRoutineCheckButtonStyle = StyleSheet.compose(styles.checkButton, {
+  borderColor: '#FFCA28',
+  backgroundColor: '#FFCA28'
 })
 
 export default TodoItem

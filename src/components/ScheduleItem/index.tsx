@@ -131,69 +131,69 @@ const ScheduleItem = ({
           </View>
         )}
 
-        {goal !== undefined && goal.title && (
-          <View style={styles.infoIconRow}>
-            <BullseyeIcon width={16} height={16} />
-            <Text style={styles.contentsText}>{goal.title}</Text>
-          </View>
-        )}
-
         {/*{goal !== undefined && goal.title && (*/}
-        {/*  <View style={styles.goalContainer}>*/}
-        {/*    <View style={styles.infoIconRow}>*/}
-        {/*      <BullseyeIcon width={16} height={16} />*/}
-        {/*      <Text style={styles.contentsText}>{goal.title}</Text>*/}
-        {/*    </View>*/}
+        {/*  <View style={styles.infoIconRow}>*/}
+        {/*    <BullseyeIcon width={16} height={16} />*/}
+        {/*    <Text style={styles.contentsText}>{goal.title}</Text>*/}
+        {/*  </View>*/}
+        {/*)}*/}
 
-        {/*    <View style={styles.goalItemContainer}>*/}
-        {/*      <View style={styles.goalItemWrapper}>*/}
-        {/*        <Text style={styles.goalItemLabel}>일정 완료</Text>*/}
+        {/* 목표 임시 ui start */}
+        {/*<View style={styles.goalContainer}>*/}
+        {/*  <View style={styles.infoIconRow}>*/}
+        {/*    <BullseyeIcon width={16} height={16} />*/}
+        {/*    <Text style={styles.contentsText}>목표명</Text>*/}
+        {/*  </View>*/}
 
-        {/*        <View>*/}
-        {/*          <Text style={styles.goalItemText}>{5}회</Text>*/}
+        {/*  <View style={styles.goalItemContainer}>*/}
+        {/*    <View style={styles.goalItemWrapper}>*/}
+        {/*      <Text style={styles.goalItemLabel}>일정 완료</Text>*/}
 
-        {/*          <View style={styles.goalItemPercentageContainer}>*/}
-        {/*            <View style={styles.goalItemPercentageWrapper}>*/}
-        {/*              <View*/}
-        {/*                style={{*/}
-        {/*                  width: '50%',*/}
-        {/*                  height: 10,*/}
-        {/*                  borderRadius: 10,*/}
-        {/*                  backgroundColor: '#66BB6A'*/}
-        {/*                }}*/}
-        {/*              />*/}
-        {/*            </View>*/}
+        {/*      <View>*/}
+        {/*        <Text style={styles.goalItemText}>{5}회</Text>*/}
 
-        {/*            <Text style={styles.goalItemPercentageText}>50%</Text>*/}
+        {/*        <View style={styles.goalItemPercentageContainer}>*/}
+        {/*          <View style={styles.goalItemPercentageWrapper}>*/}
+        {/*            <View*/}
+        {/*              style={{*/}
+        {/*                width: '50%',*/}
+        {/*                height: 10,*/}
+        {/*                borderRadius: 10,*/}
+        {/*                backgroundColor: '#66BB6A'*/}
+        {/*              }}*/}
+        {/*            />*/}
         {/*          </View>*/}
+
+        {/*          <Text style={styles.goalItemPercentageText}>50%</Text>*/}
         {/*        </View>*/}
         {/*      </View>*/}
+        {/*    </View>*/}
 
-        {/*      <View style={styles.goalItemWrapper}>*/}
-        {/*        <Text style={styles.goalItemLabel}>집중한 시간</Text>*/}
+        {/*    <View style={styles.goalItemWrapper}>*/}
+        {/*      <Text style={styles.goalItemLabel}>집중한 시간</Text>*/}
 
-        {/*        <View>*/}
-        {/*          <Text style={styles.goalItemText}>1시간 20분</Text>*/}
+        {/*      <View>*/}
+        {/*        <Text style={styles.goalItemText}>1시간 20분</Text>*/}
 
-        {/*          <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>*/}
-        {/*            <View style={{flex: 1, height: 10, borderRadius: 10, backgroundColor: '#ffffff'}}>*/}
-        {/*              <View*/}
-        {/*                style={{*/}
-        {/*                  width: '30%',*/}
-        {/*                  height: 10,*/}
-        {/*                  borderRadius: 10,*/}
-        {/*                  backgroundColor: '#FF6B6B'*/}
-        {/*                }}*/}
-        {/*              />*/}
-        {/*            </View>*/}
-
-        {/*            <Text style={styles.goalItemPercentageText}>30%</Text>*/}
+        {/*        <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>*/}
+        {/*          <View style={{flex: 1, height: 10, borderRadius: 10, backgroundColor: '#ffffff'}}>*/}
+        {/*            <View*/}
+        {/*              style={{*/}
+        {/*                width: '30%',*/}
+        {/*                height: 10,*/}
+        {/*                borderRadius: 10,*/}
+        {/*                backgroundColor: '#FF6B6B'*/}
+        {/*              }}*/}
+        {/*            />*/}
         {/*          </View>*/}
+
+        {/*          <Text style={styles.goalItemPercentageText}>30%</Text>*/}
         {/*        </View>*/}
         {/*      </View>*/}
         {/*    </View>*/}
         {/*  </View>*/}
-        {/*)}*/}
+        {/*</View>*/}
+        {/*  목표 임시 ui end */}
       </View>
 
       {routineList !== undefined && routineList.length > 0 && <RoutineList data={routineList} />}

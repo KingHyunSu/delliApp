@@ -46,6 +46,6 @@ const styles = StyleSheet.create({
   }
 })
 
-const activeItemStyle = StyleSheet.compose(styles.item, {backgroundColor: '#76d672'})
+const activeItemStyle = StyleSheet.compose(styles.item, {backgroundColor: '#FFD54F'})
 
 export default RoutineCompleteBar
