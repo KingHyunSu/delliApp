@@ -19,6 +19,7 @@ import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} 
 import {showEditTodoModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {scheduleDateState, scheduleListState, scheduleState, scheduleTodoState} from '@/store/schedule'
+import {editTodoFormState} from '@/store/todo'
 
 import {format} from 'date-fns'
 import {updateWidget} from '@/utils/widget'
@@ -29,11 +30,14 @@ import DeleteIcon from '@/assets/icons/trash.svg'
 
 // repository
 import {todoRepository} from '@/repository'
+import {SetTodoRequest} from '@/repository/types/todo'
 
 const EditTodoModal = () => {
   const {height} = useWindowDimensions()
   const containerHeight = height * 0.65
+
   const [showEditTodoModal, setShowEditTodoModal] = useRecoilState(showEditTodoModalState)
+  const [editTodoForm, setEditTodoForm] = useRecoilState(editTodoFormState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
   const scheduleDate = useRecoilValue(scheduleDateState)
@@ -53,22 +57,18 @@ const EditTodoModal = () => {
   }))
 
   const scheduleTitle = React.useMemo(() => {
-    const targetSchedule = scheduleList.find(item => item.schedule_id === scheduleTodo.schedule_id)
+    const targetSchedule = scheduleList.find(item => item.schedule_id === editTodoForm?.schedule_id)
 
     if (targetSchedule) {
       return targetSchedule.title
     }
 
     return ''
-  }, [scheduleList, scheduleTodo.schedule_id])
+  }, [scheduleList, editTodoForm?.schedule_id])
 
   const isEdit = React.useMemo(() => {
-    return !!scheduleTodo.todo_id
-  }, [scheduleTodo.todo_id])
-
-  const endDate = React.useMemo(() => {
-    return scheduleTodo.end_date === '9999-12-31' || !scheduleTodo.end_date
-  }, [scheduleTodo.end_date])
+    return !!editTodoForm?.todo_id
+  }, [editTodoForm?.todo_id])
 
   const backgroundStyle = React.useMemo(() => {
     return [overlayAnimatedStyle, styles.background]
@@ -91,31 +91,12 @@ const EditTodoModal = () => {
 
   const changeTitle = React.useCallback(
     (value: string) => {
-      changeScheduleTodo(prevState => ({
+      setEditTodoForm(prevState => ({
         ...prevState,
         title: value
       }))
     },
-    [changeScheduleTodo]
-  )
-
-  const changeEndDate = React.useCallback(
-    (value: boolean) => {
-      let start_date: string | null = null
-      let end_date: string | null = null
-
-      if (!value) {
-        start_date = format(scheduleDate, 'yyyy-MM-dd')
-        end_date = format(scheduleDate, 'yyyy-MM-dd')
-      }
-
-      changeScheduleTodo(prevState => ({
-        ...prevState,
-        start_date: start_date ? start_date : prevState.start_date,
-        end_date
-      }))
-    },
-    [changeScheduleTodo, scheduleDate]
+    [setEditTodoForm]
   )
 
   const handleSuccess = async (newScheduleList: Schedule[]) => {
@@ -130,28 +111,29 @@ const EditTodoModal = () => {
     // }
   }
 
-  const setScheduleTodoMutation = useMutation({
-    mutationFn: async (data: Todo) => {
-      if (!data.schedule_id) {
+  const {mutate: editTodoMutate} = useMutation({
+    mutationFn: async () => {
+      if (!editTodoForm || !editTodoForm.schedule_id) {
         throw new Error('잘못된 일정')
       }
 
-      const date = format(scheduleDate, 'yyyy-MM-dd')
+      const targetDate = format(scheduleDate, 'yyyy-MM-dd')
 
-      const params = {
-        schedule_id: data.schedule_id,
-        todo_id: data.todo_id,
-        title: data.title,
-        start_date: data.start_date,
-        end_date: data.end_date,
-        date
+      if (editTodoForm.todo_id) {
+        const updateTodoParams = {
+          todo_id: editTodoForm.todo_id,
+          title: editTodoForm.title
+        }
+        return todoRepository.updateTodo(updateTodoParams)
       }
 
-      if (params.todo_id) {
-        return todoRepository.updateTodo(params)
+      const setTodoParams = {
+        title: editTodoForm.title,
+        start_date: targetDate,
+        end_date: targetDate,
+        schedule_id: editTodoForm.schedule_id
       }
-
-      return todoRepository.setTodo(params)
+      return todoRepository.setTodo(setTodoParams)
     },
     onSuccess: async (response: Todo[]) => {
       const result = response[0]
@@ -202,27 +184,18 @@ const EditTodoModal = () => {
   })
 
   const handleDelete = React.useCallback(() => {
-    if (scheduleTodo.todo_id) {
+    if (editTodoForm?.todo_id) {
       const params = {
-        todo_id: scheduleTodo.todo_id
+        todo_id: editTodoForm.todo_id
       }
 
       deleteScheduleTodoMutation.mutate(params)
     }
-  }, [deleteScheduleTodoMutation, scheduleTodo.todo_id])
+  }, [deleteScheduleTodoMutation, editTodoForm?.todo_id])
 
   const handleSubmit = React.useCallback(() => {
-    let params = scheduleTodo
-
-    if (!isEdit) {
-      params = {
-        ...params,
-        start_date: format(scheduleDate, 'yyyy-MM-dd')
-      }
-    }
-
-    setScheduleTodoMutation.mutate(params)
-  }, [isEdit, scheduleDate, scheduleTodo, setScheduleTodoMutation])
+    editTodoMutate()
+  }, [editTodoMutate])
 
   const dismissKeyboard = React.useCallback(() => {
     Keyboard.dismiss()
@@ -234,6 +207,10 @@ const EditTodoModal = () => {
       translateY.value = withTiming(0)
     }
   }, [showEditTodoModal])
+
+  if (!editTodoForm) {
+    return <></>
+  }
 
   return (
     <Modal visible={showEditTodoModal} transparent statusBarTranslucent>
@@ -251,21 +228,13 @@ const EditTodoModal = () => {
               </View>
 
               <TextInput
-                value={scheduleTodo.title}
+                value={editTodoForm.title}
                 autoFocus
                 style={styles.title}
                 placeholder="할 일을 입력해주세요"
                 placeholderTextColor="#c3c5cc"
                 onChangeText={changeTitle}
               />
-
-              <View>
-                <View style={styles.repeatContainer}>
-                  <Text style={styles.repeatHeaderLabel}>반복</Text>
-
-                  <Switch value={endDate} onChange={changeEndDate} />
-                </View>
-              </View>
             </View>
 
             <View style={styles.buttonContainer}>
@@ -338,22 +307,6 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eeeded'
   },
-  repeatContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#eeeded',
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 15
-  },
-  repeatHeaderLabel: {
-    fontSize: 16,
-    fontFamily: 'Pretendard-Light',
-    color: '#424242'
-  },
-
   buttonContainer: {
     flexDirection: 'row',
     gap: 10

@@ -12,13 +12,20 @@ export interface SetTodo {
   date: string
 }
 
+export interface DeleteTodo {
+  todo_id: number
+}
+
+export interface SetTodoRequest {
+  title: string
+  start_date: string
+  end_date: string
+  schedule_id: number
+}
+
 export interface UpdateTodoRequest {
   todo_id: number
   title: string
-}
-
-export interface DeleteTodo {
-  todo_id: number
 }
 
 export interface GetRoutineDetailRequest {

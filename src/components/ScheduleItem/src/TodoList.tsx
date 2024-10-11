@@ -10,7 +10,7 @@ import {showEditTodoModalState} from '@/store/modal'
 import {updateWidget} from '@/utils/widget'
 import useSetTodoComplete from './hooks/useSetTodoComplete'
 
-import {UpdateTodoRequest} from '@/repository/types/todo'
+import {EditTodoRequest} from '@/repository/types/todo'
 import {format} from 'date-fns'
 
 interface Props {
@@ -26,7 +26,7 @@ const ScheduleTodoList = ({data}: Props) => {
   const {doCompleteTodo, undoCompleteTodo} = useSetTodoComplete()
 
   const openEditModal = useCallback(
-    (params: UpdateTodoRequest) => {
+    (params: EditTodoRequest) => {
       setEditTodoFrom(params)
       setShowEditTodoModal(true)
     },

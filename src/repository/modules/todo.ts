@@ -5,7 +5,9 @@ import {
   DeleteTodo,
   SetRoutineRequest,
   GetRoutineDetailRequest,
-  GetRoutineCompleteListRequest
+  GetRoutineCompleteListRequest,
+  SetTodoRequest,
+  UpdateTodoRequest
 } from '../types/todo'
 import * as todoQueries from '../queries/todo'
 
@@ -17,19 +19,19 @@ export const getTodo = async (params: GetTodoList) => {
   return result.rows.raw()
 }
 
-export const setTodo = async (params: SetTodo) => {
-  const query = todoQueries.setTodoQuery(params)
+export const setTodo = async (params: SetTodoRequest) => {
+  const query = todoQueries.setTodoQuery()
   const db = await openDatabase()
-  const [result] = await db.executeSql(query)
+  const [result] = await db.executeSql(query, [params.title, params.start_date, params.end_date, params.schedule_id])
   const insertId = result.insertId
 
   return await getTodo({todo_id: insertId, date: params.date})
 }
 
-export const updateTodo = async (params: SetTodo) => {
-  const query = todoQueries.updateTodoQuery(params)
+export const updateTodo = async (params: UpdateTodoRequest) => {
+  const query = todoQueries.updateTodoQuery()
   const db = await openDatabase()
-  await db.executeSql(query)
+  await db.executeSql(query, [params.title, params.todo_id])
 
   return await getTodo({todo_id: params.todo_id!, date: params.date})
 }

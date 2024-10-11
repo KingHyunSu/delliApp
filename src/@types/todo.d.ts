@@ -37,6 +37,12 @@ declare interface TodoDetail {
   schedule_end_date: string | null
 }
 
+declare interface EditTodoForm {
+  todo_id: number | null
+  title: string
+  schedule_id: number
+}
+
 declare interface TodoComplete {
   complete_date: string
 }

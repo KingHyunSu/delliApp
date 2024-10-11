@@ -4,7 +4,7 @@ import debounce from 'lodash.debounce'
 import RoutineCompleteBar from '@/components/RoutineCompleteBar'
 import CheckIcon from '@/assets/icons/check.svg'
 import MoreIcon from '@/assets/icons/more_horiz.svg'
-import {UpdateTodoRequest} from '@/repository/types/todo'
+import {EditTodoRequest} from '@/repository/types/todo'
 
 export interface ChangeTodoCompleteArguments {
   todoId: number
@@ -17,7 +17,7 @@ interface Props {
   scheduleId: number
   title: string
   completeDateList?: string[]
-  openEditModal?: (params: UpdateTodoRequest) => void
+  openEditModal?: (params: EditTodoRequest) => void
   onChange: (isCompleted: boolean, changeTodoCompleteArguments: ChangeTodoCompleteArguments) => void
 }
 const TodoItem = ({todoId, completeId, scheduleId, title, completeDateList, openEditModal, onChange}: Props) => {

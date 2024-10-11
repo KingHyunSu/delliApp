@@ -1,7 +1,7 @@
 import {atom} from 'recoil'
 import {RANGE_FLAG} from '@/utils/types'
 import type {SearchSchedule} from '@/views/SearchSchedule'
-import {UpdateTodoRequest} from '@/repository/types/todo'
+import {EditTodoRequest} from '@/repository/types/todo'
 
 export const scheduleDateState = atom<Date>({
   key: 'scheduleDateState',
@@ -124,7 +124,7 @@ export const scheduleTodoState = atom<Todo>({
   }
 })
 
-export const editTodoFormState = atom<UpdateTodoRequest | null>({
+export const editTodoFormState = atom<EditTodoRequest | null>({
   key: 'editTodoState',
   default: null
 })
