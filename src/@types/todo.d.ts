@@ -40,7 +40,7 @@ declare interface TodoDetail {
 declare interface EditTodoForm {
   todo_id: number | null
   title: string
-  schedule_id: number
+  schedule_id: number | null
 }
 
 declare interface TodoComplete {

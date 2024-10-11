@@ -30,8 +30,6 @@ declare interface Schedule {
   schedule_activity_log_id: null
   active_time: number | null
   complete_state: number | null
-  goal_id: number | null
-  goal_title: string | null
 
   create_date?: string
   update_date?: string

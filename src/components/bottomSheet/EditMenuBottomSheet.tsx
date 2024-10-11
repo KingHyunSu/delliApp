@@ -6,13 +6,8 @@ import BottomSheetHandler from '@/components/BottomSheetHandler'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {isEditState} from '@/store/system'
-import {
-  focusModeInfoState,
-  scheduleDateState,
-  scheduleListState,
-  scheduleState,
-  scheduleTodoState
-} from '@/store/schedule'
+import {focusModeInfoState, scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
+import {editTodoFormState} from '@/store/todo'
 import {showCompleteModalState, showEditTodoModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 
@@ -45,7 +40,7 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
   const scheduleDate = useRecoilValue(scheduleDateState)
 
   const resetSchedule = useResetRecoilState(scheduleState)
-  const changeScheduleTodo = useSetRecoilState(scheduleTodoState)
+  const setEditTodoForm = useSetRecoilState(editTodoFormState)
   const setScheduleList = useSetRecoilState(scheduleListState)
   const setShowEditTodoModalState = useSetRecoilState(showEditTodoModalState)
   const setShowCompleteModal = useSetRecoilState(showCompleteModalState)
@@ -171,14 +166,14 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
 
   const openEditTodoModal = React.useCallback(() => {
     if (schedule.schedule_id) {
-      changeScheduleTodo(prevState => ({
+      setEditTodoForm(prevState => ({
         ...prevState,
         schedule_id: schedule.schedule_id
       }))
 
       setShowEditTodoModalState(true)
     }
-  }, [schedule.schedule_id, changeScheduleTodo, setShowEditTodoModalState])
+  }, [schedule.schedule_id, setEditTodoForm, setShowEditTodoModalState])
 
   const deleteSchedule = React.useCallback(() => {
     Alert.alert('일정 삭제하기', `"${schedule.title}" 일정을 삭제하시겠습니까?`, [
@@ -203,7 +198,7 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
         style: 'destructive'
       }
     ])
-  }, [schedule.title, schedule.schedule_id])
+  }, [schedule.title, schedule.schedule_id, updateScheduleDeletedMutate])
 
   const handleOpenEditScheduleBottomSheet = React.useCallback(() => {
     setShowEditScheduleBottomSheet(true)

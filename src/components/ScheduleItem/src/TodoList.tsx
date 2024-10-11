@@ -4,13 +4,13 @@ import TodoItem from './components/TodoItem'
 import type {ChangeTodoCompleteArguments} from './components/TodoItem'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {editTodoFormState, scheduleDateState, scheduleListState} from '@/store/schedule'
+import {scheduleDateState, scheduleListState} from '@/store/schedule'
+import {editTodoFormState} from '@/store/todo'
 import {showEditTodoModalState} from '@/store/modal'
 
 import {updateWidget} from '@/utils/widget'
 import useSetTodoComplete from './hooks/useSetTodoComplete'
 
-import {EditTodoRequest} from '@/repository/types/todo'
 import {format} from 'date-fns'
 
 interface Props {
@@ -26,7 +26,7 @@ const ScheduleTodoList = ({data}: Props) => {
   const {doCompleteTodo, undoCompleteTodo} = useSetTodoComplete()
 
   const openEditModal = useCallback(
-    (params: EditTodoRequest) => {
+    (params: EditTodoForm) => {
       setEditTodoFrom(params)
       setShowEditTodoModal(true)
     },

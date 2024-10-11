@@ -1,7 +1,6 @@
 import {atom} from 'recoil'
 import {RANGE_FLAG} from '@/utils/types'
 import type {SearchSchedule} from '@/views/SearchSchedule'
-import {EditTodoRequest} from '@/repository/types/todo'
 
 export const scheduleDateState = atom<Date>({
   key: 'scheduleDateState',
@@ -47,15 +46,14 @@ export const scheduleState = atom<Schedule>({
     title_rotate: 0,
     alarm: 0,
     todo_list: [],
+    routine_list: [],
     background_color: '#ffffff',
     text_color: '#000000',
     schedule_category_id: null,
     schedule_category_title: '',
     schedule_activity_log_id: null,
     complete_state: null,
-    active_time: null,
-    goal_id: null,
-    goal_title: null
+    active_time: null
   }
 })
 
@@ -108,25 +106,6 @@ export const scheduleCategoryListState = atom<ScheduleCategory[]>({
     }
     // {schedule_category_id: 9, icon: '💌', title: '연애', color: ''}
   ]
-})
-
-export const scheduleTodoState = atom<Todo>({
-  key: 'scheduleTodoState',
-  default: {
-    schedule_id: null,
-    todo_id: null,
-    title: '',
-    start_date: '',
-    end_date: null,
-    complete_id: null,
-    complete_date: null,
-    complete_date_list: null
-  }
-})
-
-export const editTodoFormState = atom<EditTodoRequest | null>({
-  key: 'editTodoState',
-  default: null
 })
 
 export const activeTimeFlagState = atom<RANGE_FLAG | null>({

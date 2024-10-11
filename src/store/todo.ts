@@ -1,6 +1,10 @@
 import {atom} from 'recoil'
 
-export const editTodoFormState = atom<EditTodoForm | null>({
+export const editTodoFormState = atom<EditTodoForm>({
   key: 'editTodoFormState',
-  default: null
+  default: {
+    todo_id: null,
+    title: '',
+    schedule_id: null
+  }
 })

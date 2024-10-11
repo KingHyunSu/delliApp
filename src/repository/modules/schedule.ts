@@ -37,7 +37,7 @@ export const getScheduleList = async (params: GetScheduleList) => {
 
               tx1.executeSql(
                 getTodoByScheduleQuery,
-                [params.date, item.schedule_id],
+                [params.date, item.schedule_id, params.date],
                 (tx2, result2) => {
                   todoList = result2.rows.raw()
 

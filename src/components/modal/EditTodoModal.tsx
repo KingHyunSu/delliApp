@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  Platform,
   Keyboard,
   useWindowDimensions,
   StyleSheet,
@@ -11,14 +10,13 @@ import {
   Text,
   TextInput
 } from 'react-native'
-import Switch from '@/components/Swtich'
 
 import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'react-native-reanimated'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
 import {showEditTodoModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
-import {scheduleDateState, scheduleListState, scheduleState, scheduleTodoState} from '@/store/schedule'
+import {scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
 import {editTodoFormState} from '@/store/todo'
 
 import {format} from 'date-fns'
@@ -30,7 +28,6 @@ import DeleteIcon from '@/assets/icons/trash.svg'
 
 // repository
 import {todoRepository} from '@/repository'
-import {SetTodoRequest} from '@/repository/types/todo'
 
 const EditTodoModal = () => {
   const {height} = useWindowDimensions()
@@ -38,13 +35,11 @@ const EditTodoModal = () => {
 
   const [showEditTodoModal, setShowEditTodoModal] = useRecoilState(showEditTodoModalState)
   const [editTodoForm, setEditTodoForm] = useRecoilState(editTodoFormState)
-  const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
-
-  const scheduleDate = useRecoilValue(scheduleDateState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
-  const [scheduleTodo, changeScheduleTodo] = useRecoilState(scheduleTodoState)
+  const scheduleDate = useRecoilValue(scheduleDateState)
+  const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
   const resetSchedule = useResetRecoilState(scheduleState)
-  const resetScheduleTodo = useResetRecoilState(scheduleTodoState)
+  const resetEditTodoForm = useResetRecoilState(editTodoFormState)
 
   const translateY = useSharedValue(containerHeight * -1)
   const opacity = useSharedValue(0)
@@ -57,18 +52,18 @@ const EditTodoModal = () => {
   }))
 
   const scheduleTitle = React.useMemo(() => {
-    const targetSchedule = scheduleList.find(item => item.schedule_id === editTodoForm?.schedule_id)
+    const targetSchedule = scheduleList.find(item => item.schedule_id === editTodoForm.schedule_id)
 
     if (targetSchedule) {
       return targetSchedule.title
     }
 
     return ''
-  }, [scheduleList, editTodoForm?.schedule_id])
+  }, [scheduleList, editTodoForm.schedule_id])
 
   const isEdit = React.useMemo(() => {
-    return !!editTodoForm?.todo_id
-  }, [editTodoForm?.todo_id])
+    return !!editTodoForm.todo_id
+  }, [editTodoForm.todo_id])
 
   const backgroundStyle = React.useMemo(() => {
     return [overlayAnimatedStyle, styles.background]
@@ -83,11 +78,11 @@ const EditTodoModal = () => {
 
     translateY.value = withTiming(containerHeight * -1, {duration: 300}, isFinish => {
       if (isFinish) {
-        runOnJS(resetScheduleTodo)()
+        runOnJS(resetEditTodoForm)()
         runOnJS(setShowEditTodoModal)(false)
       }
     })
-  }, [containerHeight, resetScheduleTodo, setShowEditTodoModal])
+  }, [containerHeight, resetEditTodoForm, setShowEditTodoModal])
 
   const changeTitle = React.useCallback(
     (value: string) => {
@@ -111,7 +106,7 @@ const EditTodoModal = () => {
     // }
   }
 
-  const {mutate: editTodoMutate} = useMutation({
+  const {mutate: editTodoMutate} = useMutation<number>({
     mutationFn: async () => {
       if (!editTodoForm || !editTodoForm.schedule_id) {
         throw new Error('잘못된 일정')
@@ -135,19 +130,24 @@ const EditTodoModal = () => {
       }
       return todoRepository.setTodo(setTodoParams)
     },
-    onSuccess: async (response: Todo[]) => {
-      const result = response[0]
-
+    onSuccess: async resultTodoId => {
       const newScheduleList = scheduleList.map(item => {
-        if (item.schedule_id === result.schedule_id) {
+        if (item.schedule_id === editTodoForm.schedule_id) {
           let newTodoList = [...item.todo_list]
 
-          const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.todo_id === result.todo_id)
+          const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.todo_id === resultTodoId)
+          const newTodo: Todo = {
+            todo_id: resultTodoId,
+            title: editTodoForm.title,
+            schedule_id: editTodoForm.schedule_id,
+            complete_id: updateTodoIndex !== -1 ? newTodoList[updateTodoIndex].complete_id : null,
+            complete_date: updateTodoIndex !== -1 ? newTodoList[updateTodoIndex].complete_date : null
+          }
 
           if (updateTodoIndex === -1) {
-            newTodoList.push(result)
+            newTodoList.push(newTodo)
           } else {
-            newTodoList[updateTodoIndex] = result
+            newTodoList[updateTodoIndex] = newTodo
           }
 
           return {
@@ -163,15 +163,13 @@ const EditTodoModal = () => {
     }
   })
 
-  const deleteScheduleTodoMutation = useMutation({
+  const {mutate: deleteScheduleTodoMutate} = useMutation({
     mutationFn: async (data: DeleteScheduleTodoReqeust) => {
       return todoRepository.deleteTodo(data)
     },
-    onSuccess: async response => {
-      const result = response
-
+    onSuccess: async resultTodoId => {
       const newScheduleList = scheduleList.map(item => {
-        const newTodoList = item.todo_list.filter(todoItem => todoItem.todo_id !== result.todo_id)
+        const newTodoList = item.todo_list.filter(todoItem => todoItem.todo_id !== resultTodoId)
 
         return {
           ...item,
@@ -184,14 +182,14 @@ const EditTodoModal = () => {
   })
 
   const handleDelete = React.useCallback(() => {
-    if (editTodoForm?.todo_id) {
+    if (editTodoForm.todo_id) {
       const params = {
         todo_id: editTodoForm.todo_id
       }
 
-      deleteScheduleTodoMutation.mutate(params)
+      deleteScheduleTodoMutate(params)
     }
-  }, [deleteScheduleTodoMutation, editTodoForm?.todo_id])
+  }, [deleteScheduleTodoMutate, editTodoForm.todo_id])
 
   const handleSubmit = React.useCallback(() => {
     editTodoMutate()
@@ -207,10 +205,6 @@ const EditTodoModal = () => {
       translateY.value = withTiming(0)
     }
   }, [showEditTodoModal])
-
-  if (!editTodoForm) {
-    return <></>
-  }
 
   return (
     <Modal visible={showEditTodoModal} transparent statusBarTranslucent>
