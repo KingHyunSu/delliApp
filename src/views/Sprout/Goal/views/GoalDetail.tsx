@@ -3,13 +3,13 @@ import {StyleSheet, ScrollView, View, Text, TextInput, Pressable, Image} from 'r
 import AppBar from '@/components/AppBar'
 import Panel from '@/components/Panel'
 import Switch from '@/components/Swtich'
-import GoalScheduleItem from '@/views/Sprout/Goal/components/GoalScheduleItem'
-import PushpineIcon from '@/assets/icons/pushpin.svg'
+import GoalScheduleItem from '../components/GoalScheduleItem'
+import TotalActivityLabels from '../components/TotalActivityLabels'
+import PushPineIcon from '@/assets/icons/pushpin.svg'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
 import {useQuery} from '@tanstack/react-query'
 import {goalRepository} from '@/repository'
-import {getTimeString} from '../util'
 import {GoalDetailScreenProps} from '@/types/navigation'
 import {Goal} from '@/@types/goal'
 
@@ -47,18 +47,21 @@ const GoalDetail = ({navigation, route}: GoalDetailScreenProps) => {
     }
   }, [goalDetail, setForm])
 
-  const activityGoalText = useMemo(() => {
-    let totalFocusTime = 0
+  const totalActivityValues = useMemo(() => {
     let totalCompleteCount = 0
+    let totalFocusTime = 0
 
-    form.scheduleList.forEach(item => {
-      totalFocusTime += item.total_focus_time || 0
-      totalCompleteCount += item.total_complete_count || 0
-    })
+    if (form.scheduleList.length > 0) {
+      form.scheduleList.forEach(item => {
+        totalCompleteCount += item.total_complete_count || 0
+        totalFocusTime += item.total_focus_time || 0
+      })
+    }
 
-    const timeString = getTimeString(totalFocusTime)
-
-    return `총 ${totalCompleteCount}회 / ${timeString}`
+    return {
+      totalCompleteCount,
+      totalFocusTime
+    }
   }, [form.scheduleList])
 
   const moveEdit = useCallback(() => {
@@ -108,7 +111,7 @@ const GoalDetail = ({navigation, route}: GoalDetailScreenProps) => {
             headerComponent={
               <View style={styles.panelHeaderContainer}>
                 <View style={styles.panelHeaderWrapper}>
-                  <PushpineIcon width={24} height={24} />
+                  <PushPineIcon width={24} height={24} />
 
                   <View style={styles.panelHeaderInfoWrapper}>
                     <Text style={styles.panelHeaderLabelText}>디데이</Text>
@@ -127,7 +130,10 @@ const GoalDetail = ({navigation, route}: GoalDetailScreenProps) => {
 
               <View style={styles.panelHeaderInfoWrapper}>
                 <Text style={styles.panelHeaderLabelText}>실행 목표</Text>
-                <Text>{activityGoalText}</Text>
+                <TotalActivityLabels
+                  totalCompleteCount={totalActivityValues.totalCompleteCount}
+                  totalFocusTime={totalActivityValues.totalFocusTime}
+                />
               </View>
             </View>
           </View>

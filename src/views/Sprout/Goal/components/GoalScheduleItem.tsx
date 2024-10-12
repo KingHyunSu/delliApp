@@ -1,7 +1,9 @@
 import {useMemo} from 'react'
 import {StyleProp, ViewStyle, StyleSheet, View, Text} from 'react-native'
 import ScheduleItem from '@/components/ScheduleItem'
-import {getTimeString} from '../util'
+import TimerIcon from '@/assets/icons/timer.svg'
+import PriorityIcon from '@/assets/icons/priority2.svg'
+import {getTimeString, getPercentage} from '../util'
 import {GoalSchedule} from '@/@types/goal'
 
 interface Props {
@@ -14,38 +16,22 @@ const GoalScheduleItem = ({item}: Props) => {
 
     const totalTimeString = getTimeString(totalFocusTime)
     const activityTimeString = getTimeString(activityFocusTime)
-    let percentage = 0
-
-    if (totalFocusTime > 0) {
-      percentage = Math.trunc((activityFocusTime / totalFocusTime) * 100) || 0
-    }
-
-    if (percentage > 100) {
-      percentage = 100
-    }
+    const percentage = getPercentage({total: totalFocusTime, activity: activityFocusTime})
 
     return {
       percentage,
-      desc: `${activityTimeString} / ${totalTimeString}`
+      desc: `(${activityTimeString} / ${totalTimeString})`
     }
   }, [item.activity_focus_time, item.total_focus_time])
 
   const completeCountInfo = useMemo(() => {
     const totalCompleteCount = item.total_complete_count || 0
     const activityCompleteCount = item.activity_complete_count || 0
-    let percentage = 0
-
-    if (totalCompleteCount > 0) {
-      percentage = Math.trunc((activityCompleteCount / totalCompleteCount) * 100) || 0
-    }
-
-    if (percentage > 100) {
-      percentage = 100
-    }
+    const percentage = getPercentage({total: totalCompleteCount, activity: activityCompleteCount})
 
     return {
       percentage,
-      desc: `${activityCompleteCount}회 / ${totalCompleteCount}회`
+      desc: `(${activityCompleteCount}회 / ${totalCompleteCount}회)`
     }
   }, [item.activity_complete_count, item.total_complete_count])
 
@@ -79,7 +65,10 @@ const GoalScheduleItem = ({item}: Props) => {
         <View>
           <View style={styles.statsContainer}>
             <View style={styles.statsWrapper}>
-              <Text style={styles.label}>목표 집중 시간</Text>
+              <View style={styles.labelWrapper}>
+                <TimerIcon width={18} height={18} fill="#424242" />
+                <Text style={styles.label}>목표 집중 시간</Text>
+              </View>
 
               <View style={styles.statsBarWrapper}>
                 <View style={focusTimeStatsBarStyle} />
@@ -94,7 +83,10 @@ const GoalScheduleItem = ({item}: Props) => {
         <View>
           <View style={styles.statsContainer}>
             <View style={styles.statsWrapper}>
-              <Text style={styles.label}>목표 완료 횟수</Text>
+              <View style={styles.labelWrapper}>
+                <PriorityIcon width={19} height={19} fill="#424242" />
+                <Text style={styles.label}>목표 완료 횟수</Text>
+              </View>
 
               <View style={styles.statsBarWrapper}>
                 <View style={completeCountStatsBarStyle} />
@@ -120,7 +112,12 @@ const styles = StyleSheet.create({
   formContainer: {
     marginTop: 20,
     gap: 20,
-    paddingLeft: 10
+    paddingLeft: 5
+  },
+  labelWrapper: {
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center'
   },
   label: {
     fontFamily: 'Pretendard-Medium',
@@ -129,7 +126,7 @@ const styles = StyleSheet.create({
   },
   subLabel: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 14,
+    fontSize: 12,
     color: '#babfc5'
   },
   statsContainer: {

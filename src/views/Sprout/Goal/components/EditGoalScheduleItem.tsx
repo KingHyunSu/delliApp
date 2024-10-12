@@ -1,6 +1,8 @@
 import {useCallback, useMemo} from 'react'
 import {StyleSheet, View, Text, TextInput, Pressable} from 'react-native'
 import ScheduleItem from '@/components/ScheduleItem'
+import TimerIcon from '@/assets/icons/timer.svg'
+import PriorityIcon from '@/assets/icons/priority2.svg'
 import {GoalSchedule} from '@/@types/goal'
 
 interface Props {
@@ -101,7 +103,10 @@ const EditGoalScheduleItem = ({item, index, onChange, onDelete}: Props) => {
 
       <View style={styles.itemFormContainer}>
         <View style={styles.itemInputContainer}>
-          <Text style={styles.itemLabel}>목표 집중 시간</Text>
+          <View style={styles.itemLabelWrapper}>
+            <TimerIcon width={18} height={18} fill="#424242" />
+            <Text style={styles.itemLabel}>목표 집중 시간</Text>
+          </View>
 
           <View style={styles.focusTimeInputWrapper}>
             <View style={styles.focusTimeInput}>
@@ -132,7 +137,10 @@ const EditGoalScheduleItem = ({item, index, onChange, onDelete}: Props) => {
         </View>
 
         <View style={styles.itemInputContainer}>
-          <Text style={styles.itemLabel}>목표 완료 횟수</Text>
+          <View style={styles.itemLabelWrapper}>
+            <PriorityIcon width={19} height={19} fill="#424242" />
+            <Text style={styles.itemLabel}>목표 완료 횟수</Text>
+          </View>
 
           <View style={styles.completeCountInputWrapper}>
             <TextInput
@@ -169,7 +177,12 @@ const styles = StyleSheet.create({
     gap: 15
   },
   itemInputContainer: {
-    gap: 5
+    gap: 7
+  },
+  itemLabelWrapper: {
+    flexDirection: 'row',
+    gap: 5,
+    alignItems: 'center'
   },
   itemLabel: {
     fontFamily: 'Pretendard-Medium',

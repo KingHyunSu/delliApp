@@ -2,50 +2,42 @@ import {useMemo, useCallback} from 'react'
 import {StyleSheet, Pressable, View, Text, Image} from 'react-native'
 import {differenceInDays, formatISO9075, isEqual, isAfter} from 'date-fns'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
+import {getPercentage} from '../util'
 import {GetGoalResponse} from '@/repository/types/goal'
+import TotalActivityLabels from '../components/TotalActivityLabels'
 
 interface Props {
   item: GetGoalResponse
   moveDetail: (id: number | null) => void
 }
 const GoalItem = ({item, moveDetail}: Props) => {
-  const completeCountInfoWrapperStyle = useMemo(() => {
-    let backgroundColor = '#f9f9f9'
-    let borderColor = '#f9f9f9'
-
-    // if (item.complete_state === 1) {
-    //   backgroundColor = '#ffffff'
-    //   borderColor = '#f1f1f1'
-    // }
-
-    return [styles.activityInfoWrapper, {backgroundColor, borderColor}]
-  }, [])
-
-  const focusTimeInfoWrapperStyle = useMemo(() => {
-    let backgroundColor = '#f9f9f9'
-    let borderColor = '#f9f9f9'
-
-    // if (item.focus_time_state === 1) {
-    //   backgroundColor = '#ffffff'
-    //   borderColor = '#f1f1f1'
-    // }
-
-    return [styles.activityInfoWrapper, {backgroundColor, borderColor}]
-  }, [])
-
-  const getFocusTime = useCallback((time: number | null) => {
-    if (!time || time < 60) {
+  const focusTimeString = useMemo(() => {
+    if (!item.activity_focus_time || item.activity_focus_time < 60) {
       return '0분'
     }
 
-    const hours = Math.floor(time / 3600) // 전체 초에서 시간을 계산
-    const minutes = Math.floor((time % 3600) / 60) // 남은 초에서 분을 계산
+    const hours = Math.floor(item.activity_focus_time / 3600) // 전체 초에서 시간을 계산
+    const minutes = Math.floor((item.activity_focus_time % 3600) / 60) // 남은 초에서 분을 계산
 
     const hoursStr = hours === 0 ? '' : `${String(hours)}시간 `
     const minutesStr = minutes === 0 ? '' : `${String(minutes)}분`
 
     return `${hoursStr}${minutesStr}`
-  }, [])
+  }, [item.activity_focus_time])
+
+  const completePercentage = useMemo(() => {
+    const totalCompleteCount = item.total_complete_count || 0
+    const activityCompleteCount = item.activity_complete_count || 0
+
+    return getPercentage({total: totalCompleteCount, activity: activityCompleteCount})
+  }, [item.total_complete_count, item.activity_complete_count])
+
+  const focusTimePercentage = useMemo(() => {
+    const totalFocusTime = item.total_focus_time || 0
+    const activityFocusTime = (item.activity_focus_time || 0) / 60
+
+    return getPercentage({total: totalFocusTime, activity: activityFocusTime})
+  }, [item.total_focus_time, item.activity_focus_time])
 
   const handleMoveEdit = useCallback(() => {
     moveDetail(item.goal_id)
@@ -92,79 +84,11 @@ const GoalItem = ({item, moveDetail}: Props) => {
     return <></>
   }, [item.state, item.end_date, item.active_end_date])
 
-  const goalTextComponent = useMemo(() => {
-    const totalFocusTime = item.total_focus_time || 0
-    const totalCompleteCount = item.total_complete_count || 0
-
-    const hours = Math.floor(totalFocusTime / 60)
-    const minutes = Math.floor(totalFocusTime % 60)
-
-    let hoursStr = ''
-    let minutesStr = ''
-
-    if (hours > 0) {
-      hoursStr = `${hours}시간 `
-    }
-    if (minutes > 0) {
-      minutesStr = `${minutes}분`
-    }
-
-    let timeStr = `${hoursStr}${minutesStr}`
-    if (hours === 0 && minutes === 0) {
-      timeStr = '0분'
-    }
-
-    return `총 ${totalCompleteCount}회 / ${timeStr}`
-  }, [item.total_focus_time, item.total_complete_count])
-
-  // const remainComponent = useMemo(() => {
-  //   let remainCompleteCount = null
-  //   let remainActiveTime = null
-  //   let separator = null
-  //
-  //   if (item.complete_state === 1 && item.complete_count) {
-  //     const remainCount = item.complete_count - (item.total_complete_count || 0)
-  //     remainCompleteCount = `${remainCount}회`
-  //   }
-  //
-  //   if (item.focus_time_state === 1 && item.focus_time) {
-  //     const goalTime = item.focus_time * 60
-  //     const remainTime = goalTime - (item.total_focus_time || 0)
-  //
-  //     remainActiveTime = getFocusTime(remainTime)
-  //   }
-  //
-  //   if (remainCompleteCount && remainActiveTime) {
-  //     separator = ' / '
-  //   }
-  //
-  //   if (remainCompleteCount || remainActiveTime) {
-  //     return (
-  //       <Text style={styles.remainText}>
-  //         {remainCompleteCount}
-  //         {separator}
-  //         {remainActiveTime} 남음
-  //       </Text>
-  //     )
-  //   }
-  //
-  //   return <></>
-  // }, [
-  //   item.complete_state,
-  //   item.complete_count,
-  //   item.total_complete_count,
-  //   item.focus_time_state,
-  //   item.focus_time,
-  //   item.total_focus_time,
-  //   getFocusTime
-  // ])
-
   return (
     <Pressable style={styles.container} onPress={handleMoveEdit}>
       {labelComponent}
 
       <Text style={styles.title}>{item.title}</Text>
-      {/*{remainComponent}*/}
 
       <View style={styles.infoWrapper}>
         <Image source={require('@/assets/icons/calendar.png')} style={{width: 16, height: 16}} />
@@ -173,20 +97,36 @@ const GoalItem = ({item, moveDetail}: Props) => {
 
       <View style={styles.infoWrapper}>
         <BullseyeIcon width={16} height={16} />
-        <Text style={styles.infoText}>{goalTextComponent}</Text>
+        <TotalActivityLabels totalCompleteCount={item.total_complete_count} totalFocusTime={item.total_focus_time} />
       </View>
 
       <View style={styles.activityInfoContainer}>
-        <View style={completeCountInfoWrapperStyle}>
+        <View style={styles.activityInfoWrapper}>
           <Text style={styles.activityInfoTitle}>일정 완료</Text>
 
           <Text style={styles.activityInfoSubTitle}>{Number(item.activity_complete_count).toLocaleString()}회</Text>
+
+          <View style={styles.percentageBarContainer}>
+            <View style={styles.percentageBarWrapper}>
+              <View style={[styles.percentageBar, {width: `${completePercentage}%`, backgroundColor: '#66BB6A'}]} />
+            </View>
+
+            <Text style={styles.percentageText}>{completePercentage}%</Text>
+          </View>
         </View>
 
-        <View style={focusTimeInfoWrapperStyle}>
+        <View style={styles.activityInfoWrapper}>
           <Text style={styles.activityInfoTitle}>집중한 시간</Text>
 
-          <Text style={styles.activityInfoSubTitle}>{getFocusTime(item.activity_focus_time)}</Text>
+          <Text style={styles.activityInfoSubTitle}>{focusTimeString}</Text>
+
+          <View style={styles.percentageBarContainer}>
+            <View style={styles.percentageBarWrapper}>
+              <View style={[styles.percentageBar, {width: `${focusTimePercentage}%`, backgroundColor: '#FF6B6B'}]} />
+            </View>
+
+            <Text style={styles.percentageText}>{focusTimePercentage}%</Text>
+          </View>
         </View>
       </View>
     </Pressable>
@@ -240,20 +180,40 @@ const styles = StyleSheet.create({
   },
   activityInfoWrapper: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
+    backgroundColor: '#f9f9f9',
+    padding: 10,
     borderRadius: 10,
-    borderWidth: 1,
-    gap: 15
+    gap: 5
   },
   activityInfoTitle: {
     fontSize: 12,
-    fontFamily: 'Pretendard-SemiBold',
-    color: '#8d9195'
+    fontFamily: 'Pretendard-Medium',
+    color: '#8d9195',
+    marginBottom: 5
   },
   activityInfoSubTitle: {
-    fontSize: 16,
-    fontFamily: 'Pretendard-SemiBold',
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 12,
+    color: '#424242'
+  },
+  percentageBarContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10
+  },
+  percentageBarWrapper: {
+    flex: 1,
+    height: 10,
+    borderRadius: 10,
+    backgroundColor: '#ffffff'
+  },
+  percentageBar: {
+    height: 10,
+    borderRadius: 10
+  },
+  percentageText: {
+    fontFamily: 'Pretendard-Bold',
+    fontSize: 12,
     color: '#424242'
   }
 })

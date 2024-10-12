@@ -18,3 +18,21 @@ export const getTimeString = (value: number) => {
 
   return timeStr
 }
+
+interface GetPercentageParams {
+  total: number
+  activity: number
+}
+export const getPercentage = ({total, activity}: GetPercentageParams) => {
+  let percentage = 0
+
+  if (total > 0) {
+    percentage = Math.trunc((activity / total) * 100) || 0
+  }
+
+  if (percentage > 100) {
+    percentage = 100
+  }
+
+  return percentage
+}

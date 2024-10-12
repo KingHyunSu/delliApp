@@ -6,8 +6,9 @@ import AppBar from '@/components/AppBar'
 import Panel from '@/components/Panel'
 import Switch from '@/components/Swtich'
 import DatePicker from '@/components/DatePicker'
-import EditGoalScheduleItem from '@/views/Sprout/Goal/components/EditGoalScheduleItem'
-import PushpineIcon from '@/assets/icons/pushpin.svg'
+import EditGoalScheduleItem from '../components/EditGoalScheduleItem'
+import TotalActivityLabels from '../components/TotalActivityLabels'
+import PushPineIcon from '@/assets/icons/pushpin.svg'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
 import {useRecoilState, useSetRecoilState} from 'recoil'
@@ -17,7 +18,6 @@ import {searchScheduleResultListState} from '@/store/schedule'
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {goalRepository} from '@/repository'
 import {DeleteGoalDetailRequest, SetGoalDetailParams} from '@/repository/types/goal'
-import {getTimeString} from '../util'
 import {EditGoalScreenProps} from '@/types/navigation'
 import {Goal, GoalSchedule} from '@/@types/goal'
 import type {SearchSchedule} from '@/views/SearchSchedule'
@@ -114,18 +114,21 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
 
   const stickyHeaderIndices = useMemo(() => [1], [])
 
-  const activityGoalText = useMemo(() => {
-    let totalFocusTime = 0
+  const totalActivityValues = useMemo(() => {
     let totalCompleteCount = 0
+    let totalFocusTime = 0
 
-    selectGoalScheduleList.forEach(item => {
-      totalFocusTime += item.total_focus_time || 0
-      totalCompleteCount += item.total_complete_count || 0
-    })
+    if (selectGoalScheduleList.length > 0) {
+      selectGoalScheduleList.forEach(item => {
+        totalCompleteCount += item.total_complete_count || 0
+        totalFocusTime += item.total_focus_time || 0
+      })
+    }
 
-    const timeString = getTimeString(totalFocusTime)
-
-    return `총 ${totalCompleteCount}회 / ${timeString}`
+    return {
+      totalCompleteCount,
+      totalFocusTime
+    }
   }, [selectGoalScheduleList])
 
   const handleExpandStartDatePanel = useCallback(() => {
@@ -341,7 +344,7 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
             headerComponent={
               <View style={styles.panelHeaderContainer}>
                 <View style={styles.panelHeaderWrapper}>
-                  <PushpineIcon width={24} height={24} />
+                  <PushPineIcon width={24} height={24} />
 
                   <View style={styles.panelHeaderInfoWrapper}>
                     <Text style={styles.panelHeaderLabelText}>디데이</Text>
@@ -370,7 +373,10 @@ const EditGoal = ({navigation, route}: EditGoalScreenProps) => {
 
               <View style={styles.panelHeaderInfoWrapper}>
                 <Text style={styles.panelHeaderLabelText}>실행 목표</Text>
-                <Text>{activityGoalText}</Text>
+                <TotalActivityLabels
+                  totalCompleteCount={totalActivityValues.totalCompleteCount}
+                  totalFocusTime={totalActivityValues.totalFocusTime}
+                />
               </View>
             </View>
           </View>

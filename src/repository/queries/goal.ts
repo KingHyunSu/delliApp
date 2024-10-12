@@ -23,8 +23,9 @@ export const getGoalListQuery = () => {
       SCHEDULE_ACTIVITY_LOG SAL
 		ON
 			GS.schedule_id = SAL.schedule_id
-		AND
-			SAL.date >= G.start_date
+		AND (
+		  G.start_date IS NULL OR SAL.date >= G.start_date
+		)
 		GROUP BY
 		  G.goal_id, G.title, G.end_date, G.state
 	`
