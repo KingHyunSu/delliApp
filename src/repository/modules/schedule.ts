@@ -181,7 +181,9 @@ export const setScheduleFocusTime = async (params: SetScheduleFocusTimeParams) =
   const query = scheduleQueries.setScheduleFocusTimeQuery(params)
   const db = await openDatabase()
 
-  await db.executeSql(query)
+  const [result] = await db.executeSql(query)
+
+  return result.insertId
 }
 
 export const updateScheduleFocusTime = async (params: UpdateScheduleFocusTimeParams) => {
@@ -189,4 +191,6 @@ export const updateScheduleFocusTime = async (params: UpdateScheduleFocusTimePar
   const db = await openDatabase()
 
   await db.executeSql(query)
+
+  return params.schedule_activity_log_id
 }

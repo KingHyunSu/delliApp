@@ -106,9 +106,10 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
         return scheduleRepository.setScheduleFocusTime(params)
       }
     },
-    onSuccess: () => {
+    onSuccess: id => {
       setSchedule(prevState => ({
         ...prevState,
+        schedule_activity_log_id: id,
         active_time: focusModeInfo?.seconds || 0
       }))
 
@@ -120,6 +121,7 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
 
           updateList[targetIndex] = {
             ...updateList[targetIndex],
+            schedule_activity_log_id: id,
             active_time: focusModeInfo?.seconds || 0
           }
           return updateList
@@ -127,7 +129,6 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
 
         return prevState
       })
-      setFocusModeInfo(null)
 
       if (isRelayFocusTime) {
         setFocusModeInfo({
@@ -136,6 +137,8 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
           seconds: schedule.active_time || 0
         })
         setIsRelayFocusTime(false)
+      } else {
+        setFocusModeInfo(null)
       }
     }
   })
@@ -210,6 +213,7 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
   }, [setShowEditMenuBottomSheet])
 
   const handleStartFocusMode = React.useCallback(() => {
+    console.log('schedule', schedule)
     if (schedule.schedule_id) {
       if (focusModeInfo) {
         Alert.alert('집중하고 있는 일정이 있어요', '멈추고 시작할까요?', [
@@ -237,7 +241,14 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
         })
       }
     }
-  }, [schedule.schedule_id, focusModeInfo, setFocusModeInfo])
+  }, [
+    schedule.schedule_activity_log_id,
+    schedule.schedule_id,
+    schedule.active_time,
+    focusModeInfo,
+    setFocusModeInfo,
+    setScheduleFocusTimeMutation
+  ])
 
   const handleStopFocusMode = React.useCallback(() => {
     setScheduleFocusTimeMutation()
@@ -273,7 +284,7 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
     }
 
     setShowEditScheduleBottomSheet(false)
-  }, [showEditMenuBottomSheet, showEditScheduleBottomSheet, openEditScheduleBottomSheet, handleReset])
+  }, [showEditMenuBottomSheet, showEditScheduleBottomSheet, openEditScheduleBottomSheet, handleReset, setFocusModeInfo])
 
   // components
   const bottomSheetBackdrop = React.useCallback((props: BottomSheetBackdropProps) => {

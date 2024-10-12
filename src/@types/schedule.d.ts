@@ -27,7 +27,7 @@ declare interface Schedule {
   routine_list: Routine[]
   schedule_category_id?: number | null
   schedule_category_title?: string
-  schedule_activity_log_id: null
+  schedule_activity_log_id: number | null
   active_time: number | null
   complete_state: number | null
 
