@@ -8,7 +8,6 @@ import {scheduleCategoryListState} from '@/store/schedule'
 
 import {getTimeOfMinute} from '@/utils/helper'
 import RepeatIcon from '@/assets/icons/repeat.svg'
-import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
 interface ScheduleTime {
   startTime: number
@@ -27,20 +26,12 @@ interface ScheduleDayOfWeek {
   sat: string
   sun: string
 }
-interface Goal {
-  title: string | null
-  // activity_focus_time: number | null
-  // activity_complete_count: number | null
-  // total_focus_time: number | null
-  // total_complete_count: number | null
-}
 interface Props {
   title: string
   categoryId?: number | null
   time?: ScheduleTime
   date?: ScheduleDate
   dayOfWeek?: ScheduleDayOfWeek
-  goal?: Goal
   todoList?: Todo[]
   routineList?: Routine[]
   headerComponent?: ReactNode
@@ -52,7 +43,6 @@ const ScheduleItem = ({
   time,
   date,
   dayOfWeek,
-  goal,
   todoList,
   routineList,
   headerComponent,
@@ -130,70 +120,6 @@ const ScheduleItem = ({
             </View>
           </View>
         )}
-
-        {/*{goal !== undefined && goal.title && (*/}
-        {/*  <View style={styles.infoIconRow}>*/}
-        {/*    <BullseyeIcon width={16} height={16} />*/}
-        {/*    <Text style={styles.contentsText}>{goal.title}</Text>*/}
-        {/*  </View>*/}
-        {/*)}*/}
-
-        {/* 목표 임시 ui start */}
-        {/*<View style={styles.goalContainer}>*/}
-        {/*  <View style={styles.infoIconRow}>*/}
-        {/*    <BullseyeIcon width={16} height={16} />*/}
-        {/*    <Text style={styles.contentsText}>목표명</Text>*/}
-        {/*  </View>*/}
-
-        {/*  <View style={styles.goalItemContainer}>*/}
-        {/*    <View style={styles.goalItemWrapper}>*/}
-        {/*      <Text style={styles.goalItemLabel}>일정 완료</Text>*/}
-
-        {/*      <View>*/}
-        {/*        <Text style={styles.goalItemText}>{5}회</Text>*/}
-
-        {/*        <View style={styles.goalItemPercentageContainer}>*/}
-        {/*          <View style={styles.goalItemPercentageWrapper}>*/}
-        {/*            <View*/}
-        {/*              style={{*/}
-        {/*                width: '50%',*/}
-        {/*                height: 10,*/}
-        {/*                borderRadius: 10,*/}
-        {/*                backgroundColor: '#66BB6A'*/}
-        {/*              }}*/}
-        {/*            />*/}
-        {/*          </View>*/}
-
-        {/*          <Text style={styles.goalItemPercentageText}>50%</Text>*/}
-        {/*        </View>*/}
-        {/*      </View>*/}
-        {/*    </View>*/}
-
-        {/*    <View style={styles.goalItemWrapper}>*/}
-        {/*      <Text style={styles.goalItemLabel}>집중한 시간</Text>*/}
-
-        {/*      <View>*/}
-        {/*        <Text style={styles.goalItemText}>1시간 20분</Text>*/}
-
-        {/*        <View style={{flexDirection: 'row', alignItems: 'center', gap: 10}}>*/}
-        {/*          <View style={{flex: 1, height: 10, borderRadius: 10, backgroundColor: '#ffffff'}}>*/}
-        {/*            <View*/}
-        {/*              style={{*/}
-        {/*                width: '30%',*/}
-        {/*                height: 10,*/}
-        {/*                borderRadius: 10,*/}
-        {/*                backgroundColor: '#FF6B6B'*/}
-        {/*              }}*/}
-        {/*            />*/}
-        {/*          </View>*/}
-
-        {/*          <Text style={styles.goalItemPercentageText}>30%</Text>*/}
-        {/*        </View>*/}
-        {/*      </View>*/}
-        {/*    </View>*/}
-        {/*  </View>*/}
-        {/*</View>*/}
-        {/*  목표 임시 ui end */}
       </View>
 
       {routineList !== undefined && routineList.length > 0 && <RoutineList data={routineList} />}
@@ -244,54 +170,6 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16
   }
-
-  // goalContainer: {
-  //   marginTop: 5,
-  //   paddingHorizontal: 10,
-  //   paddingBottom: 10,
-  //   paddingTop: 15,
-  //   backgroundColor: '#ffffff',
-  //   borderRadius: 10,
-  //   gap: 10
-  // },
-  // goalItemContainer: {
-  //   flexDirection: 'row',
-  //   gap: 10
-  // },
-  // goalItemWrapper: {
-  //   flex: 1,
-  //   gap: 10,
-  //   padding: 10,
-  //   borderRadius: 10,
-  //   backgroundColor: '#f9f9f9'
-  // },
-  // goalItemLabel: {
-  //   fontFamily: 'Pretendard-Medium',
-  //   fontSize: 12,
-  //   color: '#8d9195'
-  // },
-  // goalItemText: {
-  //   fontFamily: 'Pretendard-Medium',
-  //   fontSize: 12,
-  //   color: '#424242',
-  //   marginBottom: 5
-  // },
-  // goalItemPercentageContainer: {
-  //   flexDirection: 'row',
-  //   alignItems: 'center',
-  //   gap: 10
-  // },
-  // goalItemPercentageWrapper: {
-  //   flex: 1,
-  //   height: 10,
-  //   borderRadius: 10,
-  //   backgroundColor: '#ffffff'
-  // },
-  // goalItemPercentageText: {
-  //   fontFamily: 'Pretendard-Bold',
-  //   fontSize: 12,
-  //   color: '#424242'
-  // }
 })
 
 export default ScheduleItem
