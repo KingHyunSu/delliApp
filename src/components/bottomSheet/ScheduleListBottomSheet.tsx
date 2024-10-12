@@ -7,6 +7,7 @@ import BottomSheet, {
 } from '@gorhom/bottom-sheet'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ScheduleItem from '@/components/ScheduleItem'
+import TimerIcon from '@/assets/icons/timer.svg'
 
 import LottieView from 'lottie-react-native'
 
@@ -64,56 +65,42 @@ const ScheduleListBottomSheet = ({data, onClick}: Props) => {
   }, [scheduleDate, isEdit])
 
   // components
-  const focusTimeTextComponent = React.useCallback(
-    (isFocusMode: boolean, activeTime: number | null) => {
-      let focusTimeText = ''
-
-      if (isFocusMode && focusModeInfo) {
-        focusTimeText = getFocusTime(focusModeInfo.seconds)
-      } else if (activeTime) {
-        focusTimeText = getFocusTime(activeTime)
-      }
-
-      if (focusTimeText) {
-        const color = isFocusMode ? '#FF0000' : '#1E90FF'
-        return <Text style={[itemStyles.focusTimeText, {color}]}>{focusTimeText}</Text>
-      }
-
-      return ''
-    },
-    [getFocusTime, focusModeInfo]
-  )
-
   const itemHeaderComponent = React.useCallback(
     (item: Schedule) => {
-      const isComplete = !!(item.complete_state && item.complete_state > 0)
       const isFocusMode = focusModeInfo?.schedule_id === item.schedule_id
 
       return (
         <View style={itemStyles.badgeContainer}>
           <View style={itemStyles.badgeWrapper}>
-            {isComplete && (
-              <View style={completeBadge}>
-                <Text style={completeBadgeText}>완료</Text>
+            {isFocusMode && (
+              <View style={activeFocusModeBadgeStyle}>
+                <TimerIcon width={13} height={13} fill="#ffffff" />
+                <Text style={itemStyles.focusTimeText}>{getFocusTime(focusModeInfo.seconds)}</Text>
               </View>
             )}
-            {isFocusMode && (
-              <View style={focusModeBadge}>
-                <Text style={{fontSize: 10}}>🔥</Text>
-                <Text style={focusModeBadgeText}>집중</Text>
+
+            {!isFocusMode && !!item.active_time && (
+              <View style={focusModeBadgeStyle}>
+                <TimerIcon width={13} height={13} fill="#ffffff" />
+                <Text style={itemStyles.focusTimeText}>{getFocusTime(item.active_time)}</Text>
               </View>
             )}
           </View>
-
-          {focusTimeTextComponent(isFocusMode, item.active_time)}
         </View>
       )
     },
-    [focusModeInfo?.schedule_id, focusTimeTextComponent]
+    [focusModeInfo, getFocusTime]
   )
 
   const renderItem: ListRenderItem<Schedule> = React.useCallback(
     ({item}) => {
+      const isCompleted = !!(item.complete_state && item.complete_state > 0)
+      let backgroundColor = '#f9f9f9'
+
+      if (isCompleted) {
+        backgroundColor = '#eefeee'
+      }
+
       return (
         <Pressable onPress={handleClick(item)}>
           <ScheduleItem
@@ -121,10 +108,10 @@ const ScheduleListBottomSheet = ({data, onClick}: Props) => {
             categoryId={item.schedule_category_id}
             time={{startTime: item.start_time, endTime: item.end_time}}
             date={{startDate: item.start_date, endDate: item.end_date}}
-            goal={{title: item.goal_title}}
             routineList={item.routine_list}
             todoList={item.todo_list}
             headerComponent={itemHeaderComponent(item)}
+            backgroundColor={backgroundColor}
           />
         </Pressable>
       )
@@ -191,8 +178,7 @@ const itemStyles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 5
+    justifyContent: 'space-between'
   },
   badgeWrapper: {
     flexDirection: 'row',
@@ -201,26 +187,27 @@ const itemStyles = StyleSheet.create({
   badge: {
     paddingVertical: 3,
     paddingHorizontal: 7,
-    borderRadius: 5
-  },
-  badgeText: {
-    fontSize: 12,
-    fontFamily: 'Pretendard-Medium'
+    borderRadius: 5,
+    marginBottom: 7
   },
   focusTimeText: {
-    fontSize: 14,
-    fontFamily: 'Pretendard-SemiBold'
+    fontSize: 12,
+    fontFamily: 'Pretendard-Medium',
+    color: '#ffffff'
   }
 })
 
-const completeBadge = StyleSheet.compose(itemStyles.badge, {backgroundColor: '#32CD3220'})
-const completeBadgeText = StyleSheet.compose(itemStyles.badgeText, {color: '#32CD32'})
-const focusModeBadge = StyleSheet.compose(itemStyles.badge, {
-  backgroundColor: '#FF000015',
+const focusModeBadgeStyle = StyleSheet.compose(itemStyles.badge, {
+  backgroundColor: '#FF6B6B',
   flexDirection: 'row',
   alignItems: 'center',
   gap: 3
 })
-const focusModeBadgeText = StyleSheet.compose(itemStyles.badgeText, {color: '#FF0000'})
+const activeFocusModeBadgeStyle = StyleSheet.compose(itemStyles.badge, {
+  backgroundColor: '#1E90FF',
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 3
+})
 
 export default ScheduleListBottomSheet
