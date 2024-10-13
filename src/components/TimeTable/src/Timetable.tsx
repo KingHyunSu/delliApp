@@ -1,6 +1,6 @@
 import React from 'react'
 import {StyleSheet, View} from 'react-native'
-import Svg, {G, Text} from 'react-native-svg'
+import Svg, {Circle, Defs, G, RadialGradient, Stop, Text} from 'react-native-svg'
 import {captureRef} from 'react-native-view-shot'
 
 import TimeBackground from '../components/TimeBackground'
@@ -212,8 +212,25 @@ const Timetable = ({data, isRendered}: Props) => {
     return <></>
   }
 
+  // const shadowRadius = 30
   return (
     <View style={containerStyle}>
+      {/*<Svg style={{position: 'absolute'}} width={radius * 2 + shadowRadius} height={radius * 2 + shadowRadius}>*/}
+      {/*  <Defs>*/}
+      {/*    <RadialGradient id="grad">*/}
+      {/*      <Stop offset="0" stopColor="#000000" stopOpacity="1" />*/}
+      {/*      <Stop offset="1" stopColor="#ffffff" stopOpacity="0.3" />*/}
+      {/*    </RadialGradient>*/}
+      {/*  </Defs>*/}
+
+      {/*  <Circle*/}
+      {/*    cx={radius + shadowRadius / 2}*/}
+      {/*    cy={radius + shadowRadius / 2}*/}
+      {/*    r={radius + shadowRadius / 2}*/}
+      {/*    fill="url(#grad)"*/}
+      {/*  />*/}
+      {/*</Svg>*/}
+
       <View style={wrapperStyle}>
         <TimeBackground x={timetableCenterPosition} y={timetableCenterPosition} radius={radius} />
 
