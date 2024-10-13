@@ -1,5 +1,15 @@
 import React from 'react'
-import {Platform, StyleSheet, LayoutChangeEvent, BackHandler, ToastAndroid, Alert, Pressable, View} from 'react-native'
+import {
+  Platform,
+  StyleSheet,
+  LayoutChangeEvent,
+  BackHandler,
+  ToastAndroid,
+  Alert,
+  Pressable,
+  View,
+  Text
+} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import {AdEventType, RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
@@ -22,9 +32,10 @@ import CompleteModal from '@/components/modal/CompleteModal'
 // import EditIcon from '@/assets/icons/edit3.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
+import PauseIcon from '@/assets/icons/pause.svg'
 
 // stores
-import {useRecoilState, useSetRecoilState, useResetRecoilState} from 'recoil'
+import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
 import {
   safeAreaInsetsState,
   isLunchState,
@@ -38,14 +49,16 @@ import {
   scheduleState,
   scheduleListState,
   disableScheduleListState,
-  isInputModeState
+  isInputModeState,
+  focusModeInfoState
 } from '@/store/schedule'
 import {showEditMenuBottomSheetState, showDatePickerBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 
 import {getScheduleList} from '@/utils/schedule'
-import {userRepository, scheduleRepository} from '@/repository'
+import {getFocusTimeText} from '@/utils/helper'
 
+import {userRepository, scheduleRepository} from '@/repository'
 import * as widgetApi from '@/apis/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
@@ -65,6 +78,8 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
+
+  const focusModeInfo = useRecoilValue(focusModeInfoState)
 
   const setIsLunch = useSetRecoilState(isLunchState)
   const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
@@ -329,9 +344,19 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
       <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
 
-      <Pressable style={homeStyles.fabContainer} onPress={openEditScheduleBottomSheet}>
-        <PlusIcon stroke="#ffffff" strokeWidth={3} />
-      </Pressable>
+      {focusModeInfo ? (
+        <View style={homeStyles.focusTimeStopFabWrapper}>
+          <Text style={homeStyles.focusTimeText}>{getFocusTimeText(focusModeInfo.seconds)}</Text>
+
+          <Pressable style={homeStyles.focusTimeStopFabButton} onPress={openEditScheduleBottomSheet}>
+            <PauseIcon stroke="#ffffff" />
+          </Pressable>
+        </View>
+      ) : (
+        <Pressable style={homeStyles.addScheduleFabButton} onPress={openEditScheduleBottomSheet}>
+          <PlusIcon stroke="#ffffff" strokeWidth={3} />
+        </Pressable>
+      )}
 
       <EditMenuBottomSheet
         updateScheduleDeletedMutate={updateScheduleDeletedMutate}
@@ -378,16 +403,16 @@ const homeStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end'
   },
-  fabContainer: {
+  addScheduleFabButton: {
     position: 'absolute',
     bottom: 20,
     right: 20,
     width: 52,
     height: 52,
     borderRadius: 26,
-    backgroundColor: '#1E90FF',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#1E90FF',
 
     ...Platform.select({
       ios: {
@@ -400,6 +425,38 @@ const homeStyles = StyleSheet.create({
         elevation: 3
       }
     })
+  },
+  focusTimeStopFabWrapper: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    gap: 5,
+    alignItems: 'center'
+  },
+  focusTimeStopFabButton: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FF7043',
+
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.2,
+        shadowRadius: 2
+      },
+      android: {
+        elevation: 3
+      }
+    })
+  },
+  focusTimeText: {
+    fontSize: 14,
+    fontFamily: 'Pretendard-Bold',
+    color: '#424242'
   }
 })
 

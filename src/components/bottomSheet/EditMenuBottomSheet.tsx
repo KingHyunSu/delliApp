@@ -21,6 +21,7 @@ import CheckIcon from '@/assets/icons/check.svg'
 import {useMutation} from '@tanstack/react-query'
 import {scheduleRepository} from '@/repository'
 import {format} from 'date-fns'
+import {getFocusTimeText} from '@/utils/helper'
 
 interface Props {
   updateScheduleDeletedMutate: Function
@@ -258,19 +259,6 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
     setScheduleCompleteMutation()
   }, [setScheduleCompleteMutation])
 
-  const getFocusTime = React.useCallback((seconds: number | null) => {
-    if (seconds === null) {
-      return ''
-    }
-
-    const hours = Math.floor(seconds / 3600) // 전체 초에서 시간을 계산
-    const minutes = Math.floor((seconds % 3600) / 60) // 남은 초에서 분을 계산
-    const secs = seconds % 60 // 남은 초
-
-    const hoursStr = hours === 0 ? '' : String(hours).padStart(2, '0') + ':'
-    return `${hoursStr}${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
-  }, [])
-
   React.useEffect(() => {
     if (showEditMenuBottomSheet) {
       editInfoBottomSheetRef.current?.present()
@@ -303,11 +291,11 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
   }, [])
 
   const focusTimeTextComponent = React.useMemo(() => {
-    const focusTimeText = getFocusTime(schedule.active_time)
+    const focusTimeText = getFocusTimeText(schedule.active_time || 0)
     const text = focusTimeText ? focusTimeText : '집중하기'
 
     return <Text style={playFocusModeButtonText}>{text}</Text>
-  }, [getFocusTime, schedule.active_time])
+  }, [schedule.active_time])
 
   return (
     <BottomSheetModal
@@ -331,7 +319,7 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
                   <PauseIcon width={32} height={32} fill="#1E90FF" />
                 </View>
 
-                <Text style={pauseFocusModeButtonText}>{getFocusTime(focusModeInfo?.seconds || 0)}</Text>
+                <Text style={pauseFocusModeButtonText}>{getFocusTimeText(focusModeInfo?.seconds || 0)}</Text>
               </Pressable>
             ) : (
               <Pressable style={playFocusModeButton} onPress={handleStartFocusMode}>

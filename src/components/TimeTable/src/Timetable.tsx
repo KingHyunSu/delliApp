@@ -1,4 +1,4 @@
-import React from 'react'
+import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
 import {StyleSheet, View} from 'react-native'
 import Svg, {Circle, Defs, G, RadialGradient, Stop, Text} from 'react-native-svg'
 import {captureRef} from 'react-native-view-shot'
@@ -11,7 +11,7 @@ import DefaultTimeAnchor from '@/assets/icons/default_time_anchor.svg'
 
 import {useSetRecoilState, useRecoilValue, useRecoilState} from 'recoil'
 import {timetableWrapperHeightState, timetableCenterPositionState} from '@/store/system'
-import {focusModeInfoState, scheduleState} from '@/store/schedule'
+import {scheduleState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {updateWidgetWithImage} from '@/utils/widget'
 import {widgetWithImageUpdatedState} from '@/store/widget'
@@ -22,23 +22,22 @@ interface Props {
   isRendered: boolean
 }
 const Timetable = ({data, isRendered}: Props) => {
-  const refs = React.useRef<View>(null)
-  const [currentTime, setCurrentTime] = React.useState(new Date())
+  const refs = useRef<View>(null)
+  const [currentTime, setCurrentTime] = useState(new Date())
 
   const [widgetWithImageUpdated, setWidgetWithImageUpdated] = useRecoilState(widgetWithImageUpdatedState)
 
   const timetableWrapperHeight = useRecoilValue(timetableWrapperHeightState)
   const timetableCenterPosition = useRecoilValue(timetableCenterPositionState)
-  const focusModeInfo = useRecoilValue(focusModeInfoState)
   const setSchedule = useSetRecoilState(scheduleState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
   // styles
-  const containerStyle = React.useMemo(() => {
+  const containerStyle = useMemo(() => {
     return [styles.container, {height: timetableWrapperHeight}]
   }, [timetableWrapperHeight])
 
-  const wrapperStyle = React.useMemo(() => {
+  const wrapperStyle = useMemo(() => {
     return [
       styles.wrapper,
       {
@@ -49,7 +48,7 @@ const Timetable = ({data, isRendered}: Props) => {
   }, [timetableCenterPosition])
 
   // TODO - 겹치는 일정만 뽑아내는 코드 (활용할 수 있을거 같아서 임시 주석)
-  // const overlapScheduleList = React.useMemo(() => {
+  // const overlapScheduleList =  useMemo(() => {
   //   const _scheduleList = [...data] // update date로 정렬 필요
   //   const result: Schedule[] = []
   //
@@ -121,13 +120,13 @@ const Timetable = ({data, isRendered}: Props) => {
   //   return result.reverse()
   // }, [data])
   //
-  // const scheduleList = React.useMemo(() => {
+  // const scheduleList =  useMemo(() => {
   //   return data.filter(item => {
   //     return !overlapScheduleList.some(sItem => item.schedule_id === sItem.schedule_id)
   //   })
   // }, [data, overlapScheduleList])
 
-  const scheduleList = React.useMemo(() => {
+  const scheduleList = useMemo(() => {
     return [...data].sort((a, b) => {
       if (a.update_date && b.update_date) {
         return new Date(a.update_date).getTime() - new Date(b.update_date).getTime()
@@ -140,15 +139,11 @@ const Timetable = ({data, isRendered}: Props) => {
     })
   }, [data])
 
-  const radius = React.useMemo(() => {
+  const radius = useMemo(() => {
     return timetableCenterPosition - 40
   }, [timetableCenterPosition])
 
-  const anchorIconColor = React.useMemo(() => {
-    return focusModeInfo ? '#FF0000' : '#1E90FF'
-  }, [focusModeInfo])
-
-  const openEditMenuBottomSheet = React.useCallback(
+  const openEditMenuBottomSheet = useCallback(
     (value: Schedule) => {
       setSchedule(value)
       setShowEditMenuBottomSheet(true)
@@ -156,7 +151,7 @@ const Timetable = ({data, isRendered}: Props) => {
     [setSchedule, setShowEditMenuBottomSheet]
   )
 
-  React.useEffect(() => {
+  useEffect(() => {
     const updateWidget = async () => {
       try {
         const imageUri = await captureRef(refs)
@@ -173,7 +168,7 @@ const Timetable = ({data, isRendered}: Props) => {
     }
   }, [isRendered, widgetWithImageUpdated, setWidgetWithImageUpdated])
 
-  React.useEffect(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date())
     }, 1000 * 60)
@@ -181,22 +176,22 @@ const Timetable = ({data, isRendered}: Props) => {
     return () => clearInterval(timer)
   }, [])
 
-  const arcLengthForOneDegree = React.useMemo(() => {
+  const arcLengthForOneDegree = useMemo(() => {
     return (2 * Math.PI * radius) / 360
   }, [radius])
 
-  const currentTimeAngle = React.useMemo(() => {
+  const currentTimeAngle = useMemo(() => {
     const hour = currentTime.getHours()
     const minute = currentTime.getMinutes()
 
     return (hour * 60 + minute) * 0.25 - Math.round(11 / arcLengthForOneDegree)
   }, [currentTime, arcLengthForOneDegree])
 
-  const currentTimePosition = React.useMemo(() => {
+  const currentTimePosition = useMemo(() => {
     return polarToCartesian(timetableCenterPosition, timetableCenterPosition, radius + 24, currentTimeAngle)
   }, [timetableCenterPosition, radius, currentTimeAngle])
 
-  const emptyTextComponent = React.useMemo(() => {
+  const emptyTextComponent = useMemo(() => {
     if (data.length > 0) {
       return <></>
     }
@@ -215,6 +210,7 @@ const Timetable = ({data, isRendered}: Props) => {
   // const shadowRadius = 30
   return (
     <View style={containerStyle}>
+      {/* 그림자 배경 sudo code */}
       {/*<Svg style={{position: 'absolute'}} width={radius * 2 + shadowRadius} height={radius * 2 + shadowRadius}>*/}
       {/*  <Defs>*/}
       {/*    <RadialGradient id="grad">*/}
@@ -276,7 +272,7 @@ const Timetable = ({data, isRendered}: Props) => {
           height={timetableCenterPosition * 2}
           style={styles.currentTimeAnchorIcon}>
           <G x={currentTimePosition.x} y={currentTimePosition.y} rotation={currentTimeAngle}>
-            <DefaultTimeAnchor width={20} height={20} fill={anchorIconColor} />
+            <DefaultTimeAnchor width={20} height={20} fill="#1E90FF" />
           </G>
         </Svg>
       </View>

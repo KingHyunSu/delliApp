@@ -36,3 +36,12 @@ export const getDayOfWeekKey = (dayOfWeek: number) => {
       return ''
   }
 }
+
+export const getFocusTimeText = (seconds: number) => {
+  const hours = Math.floor(seconds / 3600) // 전체 초에서 시간을 계산
+  const minutes = Math.floor((seconds % 3600) / 60) // 남은 초에서 분을 계산
+  const secs = seconds % 60 // 남은 초
+
+  const hoursStr = hours === 0 ? '' : String(hours).padStart(2, '0') + ':'
+  return `${hoursStr}${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+}

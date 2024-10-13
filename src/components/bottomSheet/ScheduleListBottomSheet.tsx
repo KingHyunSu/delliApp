@@ -8,12 +8,13 @@ import BottomSheet, {
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ScheduleItem from '@/components/ScheduleItem'
 import TimerIcon from '@/assets/icons/timer.svg'
-
 import LottieView from 'lottie-react-native'
 
 import {useRecoilValue} from 'recoil'
 import {scheduleListSnapPointState, isEditState} from '@/store/system'
 import {focusModeInfoState, scheduleDateState} from '@/store/schedule'
+
+import {getFocusTimeText} from '@/utils/helper'
 
 interface Props {
   data: Schedule[]
@@ -38,17 +39,6 @@ const ScheduleListBottomSheet = ({data, onClick}: Props) => {
     },
     [onClick]
   )
-
-  const getFocusTime = React.useCallback((seconds: number) => {
-    const hours = Math.floor(seconds / 3600) // 전체 초에서 시간을 계산
-    const minutes = Math.floor((seconds % 3600) / 60) // 남은 초에서 분을 계산
-    const secs = seconds % 60 // 남은 초
-
-    const hoursStr = hours === 0 ? '' : String(hours).padStart(2, '0') + ':'
-    return `${hoursStr}${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
-  }, [])
-
-  // const
 
   React.useEffect(() => {
     if (bottomSheetRef.current) {
@@ -75,21 +65,21 @@ const ScheduleListBottomSheet = ({data, onClick}: Props) => {
             {isFocusMode && (
               <View style={activeFocusModeBadgeStyle}>
                 <TimerIcon width={13} height={13} fill="#ffffff" />
-                <Text style={itemStyles.focusTimeText}>{getFocusTime(focusModeInfo.seconds)}</Text>
+                <Text style={itemStyles.focusTimeText}>집중 중이에요</Text>
               </View>
             )}
 
             {!isFocusMode && !!item.active_time && (
               <View style={focusModeBadgeStyle}>
                 <TimerIcon width={13} height={13} fill="#ffffff" />
-                <Text style={itemStyles.focusTimeText}>{getFocusTime(item.active_time)}</Text>
+                <Text style={itemStyles.focusTimeText}>{getFocusTimeText(item.active_time)}</Text>
               </View>
             )}
           </View>
         </View>
       )
     },
-    [focusModeInfo, getFocusTime]
+    [focusModeInfo]
   )
 
   const renderItem: ListRenderItem<Schedule> = React.useCallback(
@@ -204,7 +194,7 @@ const focusModeBadgeStyle = StyleSheet.compose(itemStyles.badge, {
   gap: 3
 })
 const activeFocusModeBadgeStyle = StyleSheet.compose(itemStyles.badge, {
-  backgroundColor: '#1E90FF',
+  backgroundColor: '#FF7043',
   flexDirection: 'row',
   alignItems: 'center',
   gap: 3
