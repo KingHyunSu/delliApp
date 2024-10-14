@@ -27,17 +27,17 @@ const TotalActivityLabels = ({totalCompleteCount, totalFocusTime}: Props) => {
 
   return (
     <View style={styles.container}>
-      {totalFocusTimeText !== null && (
-        <View style={[styles.wrapper, {backgroundColor: '#FF6B6B'}]}>
-          <TimerIcon width={13} height={13} fill="#ffffff" />
-          <Text style={styles.text}>{totalFocusTimeText}</Text>
-        </View>
-      )}
-
       {totalCompleteCountText !== null && (
         <View style={[styles.wrapper, {backgroundColor: '#66BB6A'}]}>
           <PriorityIcon width={14} height={14} fill="#ffffff" />
           <Text style={styles.text}>{totalCompleteCountText}</Text>
+        </View>
+      )}
+
+      {totalFocusTimeText !== null && (
+        <View style={[styles.wrapper, {backgroundColor: '#FF6B6B'}]}>
+          <TimerIcon width={13} height={13} fill="#ffffff" />
+          <Text style={styles.text}>{totalFocusTimeText}</Text>
         </View>
       )}
     </View>
