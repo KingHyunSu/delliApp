@@ -11,7 +11,7 @@ import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ScheduleItem from '@/components/ScheduleItem'
 
 import type {CategoryStatsList} from '@/@types/stats'
-import {GetCategoryStatsListResponse} from '@/repository/types/stats'
+import {GetCategoryStatsListResponse} from '@/apis/local/types/stats'
 import {useRecoilValue} from 'recoil'
 import {safeAreaInsetsState} from '@/store/system'
 

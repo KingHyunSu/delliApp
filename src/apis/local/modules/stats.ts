@@ -4,7 +4,7 @@ import {
   GetScheduleActivityLogListParams,
   GetCategoryStatsListResponse,
   GetScheduleActivityLogListResponse
-} from '@/repository/types/stats'
+} from '../types/stats'
 
 export const getCategoryStatsList = async () => {
   const query = StatsQueries.getCategoryStatsListQuery()

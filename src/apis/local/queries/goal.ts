@@ -1,4 +1,4 @@
-import {GetGoalDetailRequest, GetGoalScheduleListRequest} from '@/repository/types/goal'
+import {GetGoalDetailRequest, GetGoalScheduleListRequest} from '../types/goal'
 
 export const getGoalListQuery = () => {
   return `

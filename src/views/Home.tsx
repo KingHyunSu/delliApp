@@ -14,7 +14,6 @@ import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import {AdEventType, RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
 import Animated, {useSharedValue, useAnimatedStyle, withTiming, runOnJS} from 'react-native-reanimated'
-import {useQuery, useMutation} from '@tanstack/react-query'
 import {format} from 'date-fns'
 
 // components
@@ -55,17 +54,18 @@ import {
 import {showEditMenuBottomSheetState, showDatePickerBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 
-import {getScheduleList} from '@/utils/schedule'
 import {getFocusTimeText} from '@/utils/helper'
 
-import {userRepository, scheduleRepository} from '@/repository'
+import {userRepository} from '@/apis/local'
 import * as widgetApi from '@/apis/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
+import {useGetScheduleList} from '@/apis/hooks/useSchedule'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
 const Home = ({navigation, route}: HomeScreenProps) => {
+  const {data: _scheduleList, isError} = useGetScheduleList()
   const safeAreaInsets = useSafeAreaInsets()
 
   const [isRendered, setIsRendered] = React.useState(false)
@@ -90,45 +90,16 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const setToast = useSetRecoilState(toastState)
   const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
 
-  // ---------------------------------------------------------------------
-  // apis start
-  // ---------------------------------------------------------------------
-  const {isError, refetch: refetchScheduleList} = useQuery({
-    queryKey: ['scheduleList', scheduleDate],
-    queryFn: async () => {
-      setIsLoading(true)
-
-      const newScheduleList = await getScheduleList(scheduleDate)
-
-      setScheduleList(newScheduleList)
+  React.useEffect(() => {
+    if (_scheduleList && _scheduleList.length > 0) {
+      setScheduleList(_scheduleList)
       setIsLunch(true)
+
       setTimeout(() => {
         setIsLoading(false)
       }, 300)
-
-      return newScheduleList
-    },
-    initialData: []
-  })
-
-  const {mutate: updateScheduleDeletedMutate} = useMutation({
-    mutationFn: async (data: ScheduleDisableReqeust) => {
-      await scheduleRepository.updateScheduleDeleted(data)
-    },
-    onSuccess: async () => {
-      await refetchScheduleList()
-
-      if (Platform.OS === 'ios') {
-        setWidgetWithImageUpdated(true)
-      }
-
-      resetSchedule()
-      setShowEditMenuBottomSheet(false)
     }
-  })
-  // ---------------------------------------------------------------------
-  // apis end
-  // ---------------------------------------------------------------------
+  }, [_scheduleList, setScheduleList, setIsLunch, setIsLoading])
 
   const openEditScheduleBottomSheet = React.useCallback(() => {
     setIsEdit(true)
@@ -234,7 +205,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
       // 광고 로드 완료
       const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, async () => {
-        const [user] = await userRepository.getUser()
+        const user = await userRepository.getUser()
         const params = {id: user.user_id}
         const response = await widgetApi.getWidgetReloadable(params)
 
@@ -256,7 +227,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
       // 광고 시청 완료
       const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, async reward => {
-        const [user] = await userRepository.getUser()
+        const user = await userRepository.getUser()
         const params = {id: user.user_id}
         await widgetApi.updateWidgetReloadable(params)
 
@@ -358,10 +329,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         </Pressable>
       )}
 
-      <EditMenuBottomSheet
-        updateScheduleDeletedMutate={updateScheduleDeletedMutate}
-        openEditScheduleBottomSheet={openEditScheduleBottomSheet}
-      />
+      <EditMenuBottomSheet openEditScheduleBottomSheet={openEditScheduleBottomSheet} />
       <EditTodoModal />
       <CompleteModal />
       {/*<TimetableCategoryBottomSheet />*/}

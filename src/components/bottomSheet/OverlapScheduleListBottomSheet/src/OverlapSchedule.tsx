@@ -3,7 +3,7 @@ import {StyleSheet, Text, View, Pressable} from 'react-native'
 import ScheduleItem from '@/components/ScheduleItem'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import OverlapIcon from '@/assets/icons/overlap.svg'
-import {UpdateScheduleDeleted, UpdateScheduleDisable} from '@/repository/types/schedule'
+import {UpdateScheduleDeleted, UpdateScheduleDisable} from '@/apis/local/types/schedule'
 
 interface Props {
   schedule: ExistSchedule

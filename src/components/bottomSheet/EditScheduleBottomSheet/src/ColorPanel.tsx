@@ -5,7 +5,7 @@ import Panel from '@/components/Panel'
 import ColorPicker from '@/components/ColorPicker'
 import {useSetRecoilState} from 'recoil'
 import {showColorModalState} from '@/store/modal'
-import {scheduleRepository} from '@/repository'
+import {scheduleRepository} from '@/apis/local'
 
 interface Props {
   value: boolean

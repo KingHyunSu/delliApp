@@ -17,8 +17,8 @@ import {disableScheduleListState, existScheduleListState} from '@/store/schedule
 import {safeAreaInsetsState} from '@/store/system'
 
 import {useMutation} from '@tanstack/react-query'
-import {scheduleRepository} from '@/repository'
-import {UpdateScheduleDeleted, UpdateScheduleDisable} from '@/repository/types/schedule'
+import {scheduleRepository} from '@/apis/local'
+import {UpdateScheduleDeleted, UpdateScheduleDisable} from '@/apis/local/types/schedule'
 
 interface Props {
   setScheduleMutate: Function

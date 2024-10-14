@@ -8,7 +8,7 @@ import AppBar from '@/components/AppBar'
 import EditTimetable from '@/components/TimeTable/src/EditTimetable'
 
 import CancelIcon from '@/assets/icons/cancle.svg'
-import {useQueryClient, useMutation} from '@tanstack/react-query'
+import {useQueryClient} from '@tanstack/react-query'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {isEditState, isLoadingState, editScheduleListStatusState, bottomSafeAreaColorState} from '@/store/system'
@@ -22,11 +22,14 @@ import {
 } from '@/store/schedule'
 
 import {EditScheduleProps} from '@/types/navigation'
-import {scheduleRepository} from '@/repository'
 import {getTimeOfMinute} from '@/utils/helper'
+import {useGetExistScheduleList, useSetSchedule} from '@/apis/hooks/useSchedule'
 
 const EditSchedule = ({navigation}: EditScheduleProps) => {
   const queryClient = useQueryClient()
+
+  const getExistScheduleList = useGetExistScheduleList()
+  const {mutateAsync: setScheduleMutateAsync} = useSetSchedule()
 
   const [isRendered, setIsRendered] = React.useState(false)
 
@@ -113,44 +116,16 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         }
       }
     ])
-  }, [setIsEdit])
+  }, [setIsEdit, navigation])
 
   const invalidScheduleList = React.useCallback(() => {
     queryClient.invalidateQueries({queryKey: ['scheduleList', scheduleDate]})
   }, [queryClient, scheduleDate])
 
-  const {mutateAsync: getExistScheduleListMutateAsync} = useMutation({
-    mutationFn: async () => {
-      const params = {
-        schedule_id: schedule.schedule_id,
-        start_time: schedule.start_time,
-        end_time: schedule.end_time,
-        mon: schedule.mon,
-        tue: schedule.tue,
-        wed: schedule.wed,
-        thu: schedule.thu,
-        fri: schedule.fri,
-        sat: schedule.sat,
-        sun: schedule.sun,
-        start_date: schedule.start_date,
-        end_date: schedule.end_date
-      }
+  const handleEditSchedule = React.useCallback(async () => {
+    try {
+      await setScheduleMutateAsync(schedule)
 
-      return await scheduleRepository.getExistScheduleList(params)
-    }
-  })
-
-  const {mutate: setScheduleMutate} = useMutation({
-    mutationFn: async () => {
-      const params = {schedule}
-
-      if (params.schedule.schedule_id) {
-        return await scheduleRepository.updateSchedule(params)
-      } else {
-        return await scheduleRepository.setSchedule(params)
-      }
-    },
-    onSuccess: () => {
       invalidScheduleList()
 
       navigation.navigate('MainTabs', {
@@ -159,15 +134,14 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       })
 
       setIsEdit(false)
-    },
-    onError: e => {
+    } catch (e) {
       console.error('error', e)
     }
-  })
+  }, [schedule, invalidScheduleList, navigation, setScheduleMutateAsync, setIsEdit])
 
   const handleSubmit = React.useCallback(async () => {
     try {
-      const existScheduleList = await getExistScheduleListMutateAsync()
+      const existScheduleList = await getExistScheduleList.mutateAsync()
       setExistScheduleList(existScheduleList)
 
       if (existScheduleList.length > 0 || disableScheduleList.length > 0) {
@@ -178,12 +152,12 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       console.error('erer', e)
     }
 
-    setScheduleMutate()
+    await handleEditSchedule()
   }, [
-    setScheduleMutate,
-    getExistScheduleListMutateAsync,
+    handleEditSchedule,
     setExistScheduleList,
     setShowOverlapScheduleListBottomSheet,
+    getExistScheduleList,
     disableScheduleList.length
   ])
 
@@ -252,7 +226,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
       <EditScheduleBottomSheet />
       <ScheduleCategorySelectorBottomSheet />
-      <OverlapScheduleListBottomSheet setScheduleMutate={setScheduleMutate} />
+      <OverlapScheduleListBottomSheet setScheduleMutate={handleEditSchedule} />
     </View>
   )
 }

@@ -1,4 +1,4 @@
-import type {GetCategoryStatsListResponse, GetScheduleActivityLogListResponse} from '@/repository/types/stats'
+import type {GetCategoryStatsListResponse, GetScheduleActivityLogListResponse} from '@/apis/local/types/stats'
 
 export interface CategoryStatsList {
   schedule_category_id: number | null

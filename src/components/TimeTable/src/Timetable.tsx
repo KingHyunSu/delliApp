@@ -13,8 +13,8 @@ import {useSetRecoilState, useRecoilValue, useRecoilState} from 'recoil'
 import {timetableWrapperHeightState, timetableCenterPositionState} from '@/store/system'
 import {scheduleState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
-import {updateWidgetWithImage} from '@/utils/widget'
 import {widgetWithImageUpdatedState} from '@/store/widget'
+import {updateWidgetWithImage} from '@/utils/widget'
 import {polarToCartesian} from '@/utils/pieHelper'
 
 interface Props {

@@ -10,9 +10,9 @@ import {scheduleDateState, searchScheduleResultListState} from '@/store/schedule
 import {alertState, bottomSafeAreaColorState} from '@/store/system'
 
 import {useMutation, useQueryClient} from '@tanstack/react-query'
-import {todoRepository} from '@/repository'
+import {todoRepository} from '@/apis/local'
 import {EditRoutineScreenProps} from '@/types/navigation'
-import {DeleteTodo} from '@/repository/types/todo'
+import {DeleteTodo} from '@/apis/local/types/todo'
 import type {SearchSchedule} from '@/views/SearchSchedule'
 
 const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {

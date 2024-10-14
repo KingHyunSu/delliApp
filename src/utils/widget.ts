@@ -1,9 +1,9 @@
 import {Alert, NativeModules} from 'react-native'
 import RNFS from 'react-native-fs'
 import {format} from 'date-fns'
-import {userRepository} from '@/repository'
+import {scheduleRepository, userRepository} from '@/apis/local'
 import * as widgetApi from '@/apis/widget'
-import {getScheduleList} from '@/utils/schedule'
+import {getDayOfWeekKey} from '@/utils/helper'
 
 type WidgetSchedule = {
   schedule_id: number | null
@@ -15,7 +15,7 @@ type WidgetSchedule = {
 const {AppGroupModule, WidgetUpdaterModule} = NativeModules
 
 const isWidgetReloadable = async () => {
-  const [user] = await userRepository.getUser()
+  const user = await userRepository.getUser()
   const params = {id: user.user_id}
 
   const response = await widgetApi.getWidgetReloadable(params)
@@ -72,6 +72,29 @@ const getWidgetScheduleList = (schedules: Schedule[]) => {
   }
 
   return JSON.stringify(widgetScheduleList)
+}
+
+const getScheduleList = async (date: Date) => {
+  const targetDate = format(date, 'yyyy-MM-dd')
+  const dayOfWeek = getDayOfWeekKey(date.getDay())
+
+  const params = {
+    date: targetDate,
+    mon: '',
+    tue: '',
+    wed: '',
+    thu: '',
+    fri: '',
+    sat: '',
+    sun: '',
+    disable: '0'
+  }
+
+  if (dayOfWeek) {
+    params[dayOfWeek] = '1'
+  }
+
+  return await scheduleRepository.getScheduleList(params)
 }
 
 const handleWidgetUpdate = async () => {

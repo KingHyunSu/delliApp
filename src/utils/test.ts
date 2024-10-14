@@ -1,6 +1,6 @@
-import {openDatabase} from '@/repository/utils/helper'
-import {setSchedule} from '@/repository/modules/schedule'
-import {setTodo} from '@/repository/modules/todo'
+import {openDatabase} from '@/apis/local/utils/helper'
+import {setSchedule} from '@/apis/local/modules/schedule'
+import {setTodo} from '@/apis/local/modules/todo'
 
 const testScheduleList: Schedule[] = [
   {

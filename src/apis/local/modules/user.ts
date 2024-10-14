@@ -8,7 +8,7 @@ export const getUser = async () => {
   const db = await openDatabase()
   const [result] = await db.executeSql(query)
 
-  return result.rows.raw() as [GetUserResponse]
+  return result.rows.item(0) as GetUserResponse
 }
 
 export const setUser = async () => {

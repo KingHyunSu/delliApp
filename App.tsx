@@ -44,7 +44,7 @@ import {loginState, isLunchState, windowDimensionsState, bottomSafeAreaColorStat
 
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
 
-import initDatabase from '@/repository/utils/init'
+import initDatabase from '@/apis/local/utils/init'
 import {focusModeInfoState} from '@/store/schedule'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'

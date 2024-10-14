@@ -1,11 +1,6 @@
 import {openDatabase} from '../utils/helper'
 import * as goalQueries from '../queries/goal'
-import {
-  DeleteGoalDetailRequest,
-  GetGoalDetailRequest,
-  GetGoalResponse,
-  SetGoalDetailParams
-} from '@/repository/types/goal'
+import {DeleteGoalDetailRequest, GetGoalDetailRequest, GetGoalResponse, SetGoalDetailParams} from '../types/goal'
 import {Goal} from '@/@types/goal'
 
 export const getGoalList = async () => {

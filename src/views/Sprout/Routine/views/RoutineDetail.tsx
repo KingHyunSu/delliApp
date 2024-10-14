@@ -8,7 +8,7 @@ import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
 
 import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
-import {todoRepository} from '@/repository'
+import {todoRepository} from '@/apis/local'
 import {useQuery, useQueryClient} from '@tanstack/react-query'
 import {RoutineDetailScreenProps} from '@/types/navigation'
 

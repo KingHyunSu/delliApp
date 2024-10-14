@@ -27,7 +27,7 @@ import {useMutation} from '@tanstack/react-query'
 import DeleteIcon from '@/assets/icons/trash.svg'
 
 // repository
-import {todoRepository} from '@/repository'
+import {todoRepository} from '@/apis/local'
 
 const EditTodoModal = () => {
   const {height} = useWindowDimensions()

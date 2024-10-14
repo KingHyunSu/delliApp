@@ -1,4 +1,4 @@
-import {GetScheduleActivityLogListParams} from '@/repository/types/stats'
+import {GetScheduleActivityLogListParams} from '../types/stats'
 
 export const getCategoryStatsListQuery = () => {
   return `

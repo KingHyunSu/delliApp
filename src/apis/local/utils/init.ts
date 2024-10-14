@@ -3,7 +3,7 @@ import 'react-native-get-random-values'
 
 import {openDatabase} from './helper'
 import upgrade from './upgrade.json'
-import {userRepository} from '@/repository'
+import {userRepository} from '../index'
 
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {

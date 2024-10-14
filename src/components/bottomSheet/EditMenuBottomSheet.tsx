@@ -1,10 +1,10 @@
 import React from 'react'
-import {StyleSheet, Alert, View, Text, Pressable} from 'react-native'
+import {StyleSheet, Alert, View, Text, Pressable, Platform} from 'react-native'
 import {BottomSheetModal, BottomSheetBackdropProps, BottomSheetHandleProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 
-import {useRecoilState, useRecoilValue, useSetRecoilState, useResetRecoilState} from 'recoil'
+import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
 import {isEditState} from '@/store/system'
 import {focusModeInfoState, scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
 import {editTodoFormState} from '@/store/todo'
@@ -18,131 +18,37 @@ import PlayIcon from '@/assets/icons/play.svg'
 import PauseIcon from '@/assets/icons/pause.svg'
 import CheckIcon from '@/assets/icons/check.svg'
 
-import {useMutation} from '@tanstack/react-query'
-import {scheduleRepository} from '@/repository'
-import {format} from 'date-fns'
+import {useSetScheduleComplete, useSetScheduleFocusTime, useUpdateScheduleDeleted} from '@/apis/hooks/useSchedule'
 import {getFocusTimeText} from '@/utils/helper'
+import {useQueryClient} from '@tanstack/react-query'
+import {widgetWithImageUpdatedState} from '@/store/widget'
 
 interface Props {
-  updateScheduleDeletedMutate: Function
   openEditScheduleBottomSheet: Function
 }
-const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBottomSheet}: Props) => {
+const EditMenuBottomSheet = ({openEditScheduleBottomSheet}: Props) => {
+  const queryClient = useQueryClient()
+
+  const setScheduleComplete = useSetScheduleComplete()
+  const setScheduleFocusTime = useSetScheduleFocusTime()
+  const updateScheduleDeleted = useUpdateScheduleDeleted()
+
   const editInfoBottomSheetRef = React.useRef<BottomSheetModal>(null)
 
   const [showEditScheduleBottomSheet, setShowEditScheduleBottomSheet] = React.useState(false)
-  const [isRelayFocusTime, setIsRelayFocusTime] = React.useState(false)
 
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
-  const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
 
+  const isEdit = useRecoilValue(isEditState)
   const scheduleDate = useRecoilValue(scheduleDateState)
-
   const resetSchedule = useResetRecoilState(scheduleState)
   const setEditTodoForm = useSetRecoilState(editTodoFormState)
   const setScheduleList = useSetRecoilState(scheduleListState)
   const setShowEditTodoModalState = useSetRecoilState(showEditTodoModalState)
   const setShowCompleteModal = useSetRecoilState(showCompleteModalState)
-
-  const {mutate: setScheduleCompleteMutation} = useMutation({
-    mutationFn: () => {
-      if (schedule.schedule_activity_log_id) {
-        const params = {
-          schedule_activity_log_id: schedule.schedule_activity_log_id
-        }
-
-        return scheduleRepository.updateScheduleComplete(params)
-      } else {
-        const params = {
-          schedule_id: schedule.schedule_id!,
-          date: format(scheduleDate, 'yyyy-MM-dd')
-        }
-
-        return scheduleRepository.setScheduleComplete(params)
-      }
-    },
-    onSuccess: () => {
-      setScheduleList(prevState => {
-        const targetIndex = prevState.findIndex(item => item.schedule_id === schedule.schedule_id)
-
-        if (targetIndex !== -1) {
-          const updateList = [...prevState]
-
-          updateList[targetIndex] = {
-            ...updateList[targetIndex],
-            complete_state: 1
-          }
-          return updateList
-        }
-
-        return prevState
-      })
-      closeEditMenuBottomSheet()
-      setShowCompleteModal(true)
-    }
-  })
-
-  const {mutate: setScheduleFocusTimeMutation} = useMutation({
-    mutationFn: () => {
-      if (!focusModeInfo) {
-        throw new Error('focusModeInfo empty')
-      }
-
-      if (focusModeInfo.schedule_activity_log_id) {
-        const params = {
-          schedule_activity_log_id: focusModeInfo.schedule_activity_log_id,
-          active_time: focusModeInfo.seconds
-        }
-
-        return scheduleRepository.updateScheduleFocusTime(params)
-      } else {
-        const params = {
-          schedule_id: focusModeInfo.schedule_id,
-          active_time: focusModeInfo.seconds,
-          date: format(scheduleDate, 'yyyy-MM-dd')
-        }
-
-        return scheduleRepository.setScheduleFocusTime(params)
-      }
-    },
-    onSuccess: id => {
-      setSchedule(prevState => ({
-        ...prevState,
-        schedule_activity_log_id: id,
-        active_time: focusModeInfo?.seconds || 0
-      }))
-
-      setScheduleList(prevState => {
-        const targetIndex = prevState.findIndex(item => item.schedule_id === focusModeInfo?.schedule_id)
-
-        if (targetIndex !== -1) {
-          const updateList = [...prevState]
-
-          updateList[targetIndex] = {
-            ...updateList[targetIndex],
-            schedule_activity_log_id: id,
-            active_time: focusModeInfo?.seconds || 0
-          }
-          return updateList
-        }
-
-        return prevState
-      })
-
-      if (isRelayFocusTime) {
-        setFocusModeInfo({
-          schedule_activity_log_id: schedule.schedule_activity_log_id,
-          schedule_id: schedule.schedule_id!,
-          seconds: schedule.active_time || 0
-        })
-        setIsRelayFocusTime(false)
-      } else {
-        setFocusModeInfo(null)
-      }
-    }
-  })
+  const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
 
   const snapPoints = React.useMemo(() => {
     return [500]
@@ -190,19 +96,41 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
       },
       {
         text: '삭제',
-        onPress: () => {
+        onPress: async () => {
           if (schedule.schedule_id) {
             const params = {
               schedule_id: schedule.schedule_id
             }
 
-            updateScheduleDeletedMutate(params)
+            try {
+              await updateScheduleDeleted.mutateAsync(params)
+
+              queryClient.invalidateQueries({queryKey: ['scheduleList', scheduleDate]})
+
+              if (Platform.OS === 'ios') {
+                setWidgetWithImageUpdated(true)
+              }
+
+              resetSchedule()
+              setShowEditMenuBottomSheet(false)
+            } catch (e) {
+              console.error(e)
+            }
           }
         },
         style: 'destructive'
       }
     ])
-  }, [schedule.title, schedule.schedule_id, updateScheduleDeletedMutate])
+  }, [
+    schedule.title,
+    schedule.schedule_id,
+    updateScheduleDeleted,
+    queryClient,
+    scheduleDate,
+    setWidgetWithImageUpdated,
+    resetSchedule,
+    setShowEditMenuBottomSheet
+  ])
 
   const handleOpenEditScheduleBottomSheet = React.useCallback(() => {
     setShowEditScheduleBottomSheet(true)
@@ -213,8 +141,58 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
     setShowEditMenuBottomSheet(false)
   }, [setShowEditMenuBottomSheet])
 
+  const handleComplete = React.useCallback(async () => {
+    await setScheduleComplete.mutateAsync()
+
+    setScheduleList(prevState => {
+      const targetIndex = prevState.findIndex(item => item.schedule_id === schedule.schedule_id)
+
+      if (targetIndex !== -1) {
+        const updateList = [...prevState]
+
+        updateList[targetIndex] = {
+          ...updateList[targetIndex],
+          complete_state: 1
+        }
+        return updateList
+      }
+
+      return prevState
+    })
+    closeEditMenuBottomSheet()
+    setShowCompleteModal(true)
+  }, [schedule.schedule_id, closeEditMenuBottomSheet, setScheduleComplete, setScheduleList, setShowCompleteModal])
+
+  const handleStopFocusMode = React.useCallback(async () => {
+    const newScheduleActivityLogId = await setScheduleFocusTime.mutateAsync()
+
+    setSchedule(prevState => ({
+      ...prevState,
+      schedule_activity_log_id: newScheduleActivityLogId,
+      active_time: focusModeInfo?.seconds || 0
+    }))
+
+    setScheduleList(prevState => {
+      const targetIndex = prevState.findIndex(item => item.schedule_id === focusModeInfo?.schedule_id)
+
+      if (targetIndex !== -1) {
+        const updateList = [...prevState]
+
+        updateList[targetIndex] = {
+          ...updateList[targetIndex],
+          schedule_activity_log_id: newScheduleActivityLogId,
+          active_time: focusModeInfo?.seconds || 0
+        }
+        return updateList
+      }
+
+      return prevState
+    })
+
+    setFocusModeInfo(null)
+  }, [focusModeInfo, setScheduleFocusTime, setSchedule, setScheduleList, setFocusModeInfo])
+
   const handleStartFocusMode = React.useCallback(() => {
-    console.log('schedule', schedule)
     if (schedule.schedule_id) {
       if (focusModeInfo) {
         Alert.alert('집중하고 있는 일정이 있어요', '멈추고 시작할까요?', [
@@ -227,10 +205,15 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
           },
           {
             text: '시작하기',
-            onPress: () => {
-              setIsRelayFocusTime(true)
+            onPress: async () => {
+              await handleStopFocusMode()
 
-              setScheduleFocusTimeMutation()
+              // 새로운 일정 집중 모드 시작
+              setFocusModeInfo({
+                schedule_activity_log_id: schedule.schedule_activity_log_id,
+                schedule_id: schedule.schedule_id!,
+                seconds: schedule.active_time || 0
+              })
             }
           }
         ])
@@ -247,17 +230,9 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
     schedule.schedule_id,
     schedule.active_time,
     focusModeInfo,
-    setFocusModeInfo,
-    setScheduleFocusTimeMutation
+    handleStopFocusMode,
+    setFocusModeInfo
   ])
-
-  const handleStopFocusMode = React.useCallback(() => {
-    setScheduleFocusTimeMutation()
-  }, [setScheduleFocusTimeMutation])
-
-  const doComplete = React.useCallback(() => {
-    setScheduleCompleteMutation()
-  }, [setScheduleCompleteMutation])
 
   React.useEffect(() => {
     if (showEditMenuBottomSheet) {
@@ -331,7 +306,7 @@ const EditMenuBottomSheet = ({updateScheduleDeletedMutate, openEditScheduleBotto
               </Pressable>
             )}
 
-            <Pressable style={completeActionButtonStyle} disabled={!!schedule.complete_state} onPress={doComplete}>
+            <Pressable style={completeActionButtonStyle} disabled={!!schedule.complete_state} onPress={handleComplete}>
               <View style={styles.timeActionIcon}>
                 <CheckIcon
                   width={28}

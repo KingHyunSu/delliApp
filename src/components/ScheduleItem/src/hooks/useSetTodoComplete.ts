@@ -1,9 +1,9 @@
 import {useCallback} from 'react'
 import {useMutation} from '@tanstack/react-query'
-import {todoCompleteRepository} from '@/repository'
+import {todoCompleteRepository} from '@/apis/local'
 import {Platform} from 'react-native'
 import {trigger} from 'react-native-haptic-feedback'
-import {DeleteTodoComplete, SetTodoComplete} from '@/repository/types/todoComplete'
+import {DeleteTodoComplete, SetTodoComplete} from '@/apis/local/types/todoComplete'
 
 const useSetTodoComplete = () => {
   const setScheduleTodoCompleteMutation = useMutation({

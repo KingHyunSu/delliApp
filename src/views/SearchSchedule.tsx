@@ -6,13 +6,12 @@ import AppBar from '@/components/AppBar'
 import ScheduleItem from '@/components/ScheduleItem'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 
-import {useQuery} from '@tanstack/react-query'
-import {scheduleRepository} from '@/repository'
 import SearchScheduleCategoryFilterBottomSheet from '@/components/bottomSheet/SearchScheduleCategoryFilterBottomSheet'
 import {useRecoilState, useSetRecoilState} from 'recoil'
 import {showSearchScheduleCategoryFilterBottomSheetState} from '@/store/bottomSheet'
 import {searchScheduleResultListState} from '@/store/schedule'
 import {SearchScheduleScreenProps} from '@/types/navigation'
+import {useGetSearchScheduleList} from '@/apis/hooks/useSchedule'
 
 export interface SearchSchedule {
   schedule_id: number
@@ -34,6 +33,8 @@ export interface Options {
   multiple: boolean
 }
 const SearchSchedule = ({navigation, route}: SearchScheduleScreenProps) => {
+  const {data: result} = useGetSearchScheduleList()
+
   const [searchScheduleList, setSearchScheduleList] = useState<SearchSchedule[]>([])
   const [searchText, setSearchText] = useState('')
   const [selectedList, setSelectedList] = useState<SearchSchedule[]>([])
@@ -43,14 +44,6 @@ const SearchSchedule = ({navigation, route}: SearchScheduleScreenProps) => {
     showSearchScheduleCategoryFilterBottomSheetState
   )
   const [searchScheduleResultList, setSearchScheduleResultList] = useRecoilState(searchScheduleResultListState)
-
-  const {data: result} = useQuery({
-    queryKey: ['getSearchScheduleList'],
-    queryFn: () => {
-      return scheduleRepository.getSearchScheduleList()
-    },
-    initialData: []
-  })
 
   const showSearchScheduleCategoryFilterBottomSheet = useCallback(() => {
     setShowSearchScheduleCategoryFilterBottomSheet(true)

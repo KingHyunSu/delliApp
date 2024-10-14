@@ -4,7 +4,7 @@ import RoutineItem from './components/RoutineItem'
 import PlusIcon from '@/assets/icons/plus.svg'
 import {useQuery} from '@tanstack/react-query'
 import {SproutNavigationProps} from '@/types/navigation'
-import {todoRepository} from '@/repository'
+import {todoRepository} from '@/apis/local'
 
 interface Props {
   navigator: SproutNavigationProps

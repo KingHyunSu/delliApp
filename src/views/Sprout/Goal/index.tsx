@@ -3,8 +3,8 @@ import {ListRenderItem, StyleSheet, FlatList, Pressable, View, Platform} from 'r
 import Item from './components/Item'
 import PlusIcon from '@/assets/icons/plus.svg'
 import {useQuery} from '@tanstack/react-query'
-import {goalRepository} from '@/repository'
-import {GetGoalResponse} from '@/repository/types/goal'
+import {goalRepository} from '@/apis/local'
+import {GetGoalResponse} from '@/apis/local/types/goal'
 
 interface Props {
   moveDetail: (id: number | null) => void

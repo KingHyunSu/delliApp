@@ -112,8 +112,8 @@ export const getSearchScheduleList = async () => {
   return result.rows.raw() as SearchSchedule[]
 }
 
-export const setSchedule = async (params: SetSchedule) => {
-  const query = scheduleQueries.setScheduleQuery(params.schedule)
+export const setSchedule = async (params: Schedule) => {
+  const query = scheduleQueries.setScheduleQuery(params)
   const db = await openDatabase()
   let insertId = 0
 
@@ -126,8 +126,8 @@ export const setSchedule = async (params: SetSchedule) => {
   return insertId
 }
 
-export const updateSchedule = async (params: SetSchedule) => {
-  const query = scheduleQueries.updateScheduleQuery(params.schedule)
+export const updateSchedule = async (params: Schedule) => {
+  const query = scheduleQueries.updateScheduleQuery(params)
   const db = await openDatabase()
 
   await db.executeSql(query)

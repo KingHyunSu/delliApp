@@ -9,7 +9,7 @@ import PushPineIcon from '@/assets/icons/pushpin.svg'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
 import {useQuery} from '@tanstack/react-query'
-import {goalRepository} from '@/repository'
+import {goalRepository} from '@/apis/local'
 import {GoalDetailScreenProps} from '@/types/navigation'
 import {Goal} from '@/@types/goal'
 

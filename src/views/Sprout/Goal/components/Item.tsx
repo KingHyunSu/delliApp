@@ -3,7 +3,7 @@ import {StyleSheet, Pressable, View, Text, Image} from 'react-native'
 import {differenceInDays, formatISO9075, isEqual, isAfter} from 'date-fns'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
 import {getPercentage} from '../util'
-import {GetGoalResponse} from '@/repository/types/goal'
+import {GetGoalResponse} from '@/apis/local/types/goal'
 import TotalActivityLabels from '../components/TotalActivityLabels'
 
 interface Props {
