@@ -64,7 +64,7 @@ const EditMenuBottomSheet = ({openEditScheduleBottomSheet}: Props) => {
   }, [schedule.complete_state])
 
   const completeActionButtonTextStyle = React.useMemo(() => {
-    const color = schedule.complete_state ? '#babfc5' : '#2AB924'
+    const color = schedule.complete_state ? '#babfc5' : '#66BB6A'
     return [styles.actionButtonText, {color}]
   }, [schedule.complete_state])
 
@@ -291,7 +291,7 @@ const EditMenuBottomSheet = ({openEditScheduleBottomSheet}: Props) => {
             {isFocusMode ? (
               <Pressable style={pauseFocusModeButton} onPress={handleStopFocusMode}>
                 <View style={styles.timeActionIcon}>
-                  <PauseIcon width={32} height={32} fill="#1E90FF" />
+                  <PauseIcon width={32} height={32} fill="#FF7043" />
                 </View>
 
                 <Text style={pauseFocusModeButtonText}>{getFocusTimeText(focusModeInfo?.seconds || 0)}</Text>
@@ -299,7 +299,7 @@ const EditMenuBottomSheet = ({openEditScheduleBottomSheet}: Props) => {
             ) : (
               <Pressable style={playFocusModeButton} onPress={handleStartFocusMode}>
                 <View style={styles.timeActionIcon}>
-                  <PlayIcon width={32} height={32} fill="#FF0000" />
+                  <PlayIcon width={32} height={32} fill="#FF6B6B" />
                 </View>
 
                 <Text style={playFocusModeButtonText}>{focusTimeTextComponent}</Text>
@@ -312,7 +312,7 @@ const EditMenuBottomSheet = ({openEditScheduleBottomSheet}: Props) => {
                   width={28}
                   height={28}
                   strokeWidth={3}
-                  stroke={schedule.complete_state ? '#babfc5' : '#32CD32'}
+                  stroke={schedule.complete_state ? '#babfc5' : '#66BB6A'}
                 />
               </View>
 
@@ -421,10 +421,10 @@ const styles = StyleSheet.create({
   }
 })
 
-const playFocusModeButton = StyleSheet.compose(styles.actionButton, {backgroundColor: '#FF000015'})
-const playFocusModeButtonText = StyleSheet.compose(styles.actionButtonText, {color: '#FF0000'})
-const pauseFocusModeButton = StyleSheet.compose(styles.actionButton, {backgroundColor: '#1E90FF15'})
-const pauseFocusModeButtonText = StyleSheet.compose(styles.actionButtonText, {color: '#1E90FF'})
+const playFocusModeButton = StyleSheet.compose(styles.actionButton, {backgroundColor: '#FF6B6B20'})
+const playFocusModeButtonText = StyleSheet.compose(styles.actionButtonText, {color: '#FF6B6B'})
+const pauseFocusModeButton = StyleSheet.compose(styles.actionButton, {backgroundColor: '#FF704320'})
+const pauseFocusModeButtonText = StyleSheet.compose(styles.actionButtonText, {color: '#FF7043'})
 
 const todoButton = StyleSheet.compose(styles.iconWrapper, {backgroundColor: '#76d672'})
 const updateButton = StyleSheet.compose(styles.iconWrapper, {backgroundColor: '#1E90FF'})
