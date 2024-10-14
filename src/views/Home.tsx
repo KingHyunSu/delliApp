@@ -60,12 +60,14 @@ import {userRepository} from '@/apis/local'
 import * as widgetApi from '@/apis/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
-import {useGetScheduleList} from '@/apis/hooks/useSchedule'
+import {useGetScheduleList, useSetScheduleFocusTime} from '@/apis/hooks/useSchedule'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
 const Home = ({navigation, route}: HomeScreenProps) => {
   const {data: _scheduleList, isError} = useGetScheduleList()
+  const {mutateAsync: setScheduleFocusTimeMutateAsync} = useSetScheduleFocusTime()
+
   const safeAreaInsets = useSafeAreaInsets()
 
   const [isRendered, setIsRendered] = React.useState(false)
@@ -89,6 +91,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setToast = useSetRecoilState(toastState)
   const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
+  const setFocusModeInfo = useSetRecoilState(focusModeInfoState)
 
   React.useEffect(() => {
     if (_scheduleList && _scheduleList.length > 0) {
@@ -129,6 +132,35 @@ const Home = ({navigation, route}: HomeScreenProps) => {
     },
     [setHomeHeaderHeight]
   )
+
+  const handleStopFocusTime = React.useCallback(async () => {
+    const newScheduleActivityLogId = await setScheduleFocusTimeMutateAsync()
+
+    setSchedule(prevState => ({
+      ...prevState,
+      schedule_activity_log_id: newScheduleActivityLogId,
+      active_time: focusModeInfo?.seconds || 0
+    }))
+
+    setScheduleList(prevState => {
+      const targetIndex = prevState.findIndex(item => item.schedule_id === focusModeInfo?.schedule_id)
+
+      if (targetIndex !== -1) {
+        const updateList = [...prevState]
+
+        updateList[targetIndex] = {
+          ...updateList[targetIndex],
+          schedule_activity_log_id: newScheduleActivityLogId,
+          active_time: focusModeInfo?.seconds || 0
+        }
+        return updateList
+      }
+
+      return prevState
+    })
+
+    setFocusModeInfo(null)
+  }, [focusModeInfo, setScheduleFocusTimeMutateAsync, setSchedule, setScheduleList, setFocusModeInfo])
 
   const headerTranslateY = useSharedValue(0)
   const timeTableTranslateY = useSharedValue(0)
@@ -319,7 +351,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         <View style={homeStyles.focusTimeStopFabWrapper}>
           <Text style={homeStyles.focusTimeText}>{getFocusTimeText(focusModeInfo.seconds)}</Text>
 
-          <Pressable style={homeStyles.focusTimeStopFabButton} onPress={openEditScheduleBottomSheet}>
+          <Pressable style={homeStyles.focusTimeStopFabButton} onPress={handleStopFocusTime}>
             <PauseIcon stroke="#ffffff" />
           </Pressable>
         </View>
