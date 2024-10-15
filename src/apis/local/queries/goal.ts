@@ -8,26 +8,9 @@ export const getGoalListQuery = () => {
 			G.start_date,
 			G.end_date,
       G.active_end_date,
-			G.state,
-			SUM(GS.focus_time) AS total_focus_time,
-			SUM(GS.complete_count) AS total_complete_count,
-			SUM(SAL.active_time) AS activity_focus_time,
-			SUM(SAL.complete_state) AS activity_complete_count
+			G.state
 		FROM
 			GOAL G
-		LEFT OUTER JOIN
-		  GOAL_SCHEDULE GS
-		ON
-		  G.goal_id = GS.goal_id
-		LEFT OUTER JOIN
-      SCHEDULE_ACTIVITY_LOG SAL
-		ON
-			GS.schedule_id = SAL.schedule_id
-		AND (
-		  G.start_date IS NULL OR SAL.date >= G.start_date
-		)
-		GROUP BY
-		  G.goal_id, G.title, G.end_date, G.state
 	`
 }
 

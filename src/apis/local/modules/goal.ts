@@ -4,12 +4,27 @@ import {DeleteGoalDetailRequest, GetGoalDetailRequest, GetGoalResponse, SetGoalD
 import {Goal} from '@/@types/goal'
 
 export const getGoalList = async () => {
-  const query = goalQueries.getGoalListQuery()
+  const getGoalListQuery = goalQueries.getGoalListQuery()
+  // const getGoalScheduleListQuery = goalQueries.getGoalScheduleListQuery()
   const db = await openDatabase()
 
-  const [result] = await db.executeSql(query)
+  // const [result] = await db.executeSql(getGoalListQuery)
+  //
+  // return result.rows.raw() as GetGoalResponse[]
 
-  return result.rows.raw() as GetGoalResponse[]
+  const result: Goal[] = []
+
+  await new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(getGoalListQuery, [], (tx1, result1) => {
+        const goalList: Goal[] = result1.rows.raw()
+
+        const promises = goalList.map(item => {
+          return new Promise<Goal>((resolve2, reject2) => {})
+        })
+      })
+    })
+  })
 }
 
 export const getGoalDetail = async (params: GetGoalDetailRequest) => {
