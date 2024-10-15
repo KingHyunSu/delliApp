@@ -19,7 +19,7 @@ export interface GetGoalDetailRequest {
 
 export interface GetGoalScheduleListRequest {
   goal_id: number
-  start_date: number | null
+  start_date: string | null
 }
 
 export interface SetGoalDetailParams {

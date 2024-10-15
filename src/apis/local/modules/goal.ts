@@ -1,7 +1,7 @@
 import {openDatabase} from '../utils/helper'
 import * as goalQueries from '../queries/goal'
 import {DeleteGoalDetailRequest, GetGoalDetailRequest, GetGoalResponse, SetGoalDetailParams} from '../types/goal'
-import {Goal} from '@/@types/goal'
+import {Goal, GoalDetail, GoalSchedule} from '@/@types/goal'
 
 export const getGoalList = async () => {
   const getGoalListQuery = goalQueries.getGoalListQuery()
@@ -14,17 +14,53 @@ export const getGoalList = async () => {
 
   const result: Goal[] = []
 
-  await new Promise((resolve, reject) => {
+  await new Promise<void>((resolve, reject) => {
     db.transaction(tx => {
-      tx.executeSql(getGoalListQuery, [], (tx1, result1) => {
-        const goalList: Goal[] = result1.rows.raw()
+      tx.executeSql(
+        getGoalListQuery,
+        [],
+        (tx1, result1) => {
+          const goalList: Goal[] = result1.rows.raw()
 
-        const promises = goalList.map(item => {
-          return new Promise<Goal>((resolve2, reject2) => {})
-        })
-      })
+          const promises = goalList.map(item => {
+            return new Promise<Goal>((resolve2, reject2) => {
+              // let goalDetail: GoalDetail | null = null
+              // let goalScheduleList: GoalSchedule[] | null = null
+              const getGoalScheduleListQuery = goalQueries.getGoalScheduleListQuery({
+                goal_id: item.goal_id!,
+                start_date: item.start_date
+              })
+
+              tx1.executeSql(
+                getGoalScheduleListQuery,
+                [],
+                (tx2, result2) => {
+                  console.log('test', result2.rows.raw())
+
+                  resolve2({
+                    ...item,
+                    scheduleList: result2.rows.raw() as GoalSchedule[]
+                  })
+                },
+                reject2
+              )
+            })
+          })
+
+          Promise.all(promises)
+            .then(values => {
+              result.push(...values)
+
+              resolve()
+            })
+            .catch(reject)
+        },
+        reject
+      )
     })
   })
+
+  return result
 }
 
 export const getGoalDetail = async (params: GetGoalDetailRequest) => {
