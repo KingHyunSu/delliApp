@@ -1,5 +1,5 @@
 import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
-import {StyleSheet, View} from 'react-native'
+import {ViewStyle, StyleSheet, View} from 'react-native'
 import Svg, {Circle, Defs, G, RadialGradient, Stop, Text} from 'react-native-svg'
 import {captureRef} from 'react-native-view-shot'
 
@@ -191,6 +191,15 @@ const Timetable = ({data, isRendered}: Props) => {
     return polarToCartesian(timetableCenterPosition, timetableCenterPosition, radius + 24, currentTimeAngle)
   }, [timetableCenterPosition, radius, currentTimeAngle])
 
+  const anchorStyle: ViewStyle = useMemo(() => {
+    return {
+      position: 'absolute',
+      top: currentTimePosition.y,
+      left: currentTimePosition.x,
+      transform: [{rotate: `${currentTimeAngle}deg`}]
+    }
+  }, [currentTimePosition, currentTimeAngle])
+
   const emptyTextComponent = useMemo(() => {
     if (data.length > 0) {
       return <></>
@@ -263,14 +272,9 @@ const Timetable = ({data, isRendered}: Props) => {
           })}
         </View>
 
-        <Svg
-          width={timetableCenterPosition * 2}
-          height={timetableCenterPosition * 2}
-          style={styles.currentTimeAnchorIcon}>
-          <G x={currentTimePosition.x} y={currentTimePosition.y} rotation={currentTimeAngle}>
-            <DefaultTimeAnchor width={20} height={20} fill="#1E90FF" />
-          </G>
-        </Svg>
+        <View style={anchorStyle}>
+          <DefaultTimeAnchor width={20} height={20} fill="#1E90FF" />
+        </View>
       </View>
     </View>
   )
@@ -284,9 +288,6 @@ const styles = StyleSheet.create({
   wrapper: {
     alignItems: 'center',
     justifyContent: 'center'
-  },
-  currentTimeAnchorIcon: {
-    position: 'absolute'
   }
 })
 
