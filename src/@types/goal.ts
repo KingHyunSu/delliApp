@@ -8,15 +8,6 @@ export interface Goal {
   scheduleList: GoalSchedule[]
 }
 
-export interface GoalDetail {
-  goal_id: number | null
-  title: string
-  start_date: string | null
-  end_date: string | null
-  active_end_date: number
-  state: number
-}
-
 export interface GoalSchedule {
   goal_schedule_id: number | null
   schedule_category_id: number | null

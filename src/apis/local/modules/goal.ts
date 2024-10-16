@@ -1,16 +1,11 @@
 import {openDatabase} from '../utils/helper'
 import * as goalQueries from '../queries/goal'
-import {DeleteGoalDetailRequest, GetGoalDetailRequest, GetGoalResponse, SetGoalDetailParams} from '../types/goal'
-import {Goal, GoalDetail, GoalSchedule} from '@/@types/goal'
+import {DeleteGoalDetailRequest, GetGoalDetailRequest, SetGoalDetailParams} from '../types/goal'
+import {Goal, GoalSchedule} from '@/@types/goal'
 
 export const getGoalList = async () => {
   const getGoalListQuery = goalQueries.getGoalListQuery()
-  // const getGoalScheduleListQuery = goalQueries.getGoalScheduleListQuery()
   const db = await openDatabase()
-
-  // const [result] = await db.executeSql(getGoalListQuery)
-  //
-  // return result.rows.raw() as GetGoalResponse[]
 
   const result: Goal[] = []
 
@@ -24,8 +19,6 @@ export const getGoalList = async () => {
 
           const promises = goalList.map(item => {
             return new Promise<Goal>((resolve2, reject2) => {
-              // let goalDetail: GoalDetail | null = null
-              // let goalScheduleList: GoalSchedule[] | null = null
               const getGoalScheduleListQuery = goalQueries.getGoalScheduleListQuery({
                 goal_id: item.goal_id!,
                 start_date: item.start_date
@@ -35,8 +28,6 @@ export const getGoalList = async () => {
                 getGoalScheduleListQuery,
                 [],
                 (tx2, result2) => {
-                  console.log('test', result2.rows.raw())
-
                   resolve2({
                     ...item,
                     scheduleList: result2.rows.raw() as GoalSchedule[]

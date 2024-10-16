@@ -8,8 +8,6 @@ import TotalActivityLabels from '../components/TotalActivityLabels'
 import PushPineIcon from '@/assets/icons/pushpin.svg'
 import BullseyeIcon from '@/assets/icons/bullseye.svg'
 
-import {useQuery} from '@tanstack/react-query'
-import {goalRepository} from '@/apis/local'
 import {GoalDetailScreenProps} from '@/types/navigation'
 import {Goal} from '@/@types/goal'
 
@@ -23,29 +21,6 @@ const GoalDetail = ({navigation, route}: GoalDetailScreenProps) => {
     state: 0,
     scheduleList: []
   })
-
-  const {data: goalDetail} = useQuery({
-    queryKey: ['goalDetail', route.params.id],
-    queryFn: async () => {
-      if (route.params.id) {
-        const params = {
-          goal_id: route.params.id
-        }
-
-        return await goalRepository.getGoalDetail(params)
-      }
-
-      return null
-    },
-    initialData: null,
-    enabled: !!route.params.id
-  })
-
-  useEffect(() => {
-    if (goalDetail) {
-      setForm(goalDetail)
-    }
-  }, [goalDetail, setForm])
 
   const totalActivityValues = useMemo(() => {
     let totalCompleteCount = 0
@@ -65,8 +40,14 @@ const GoalDetail = ({navigation, route}: GoalDetailScreenProps) => {
   }, [form.scheduleList])
 
   const moveEdit = useCallback(() => {
-    navigation.navigate('EditGoal', {data: goalDetail})
-  }, [navigation, goalDetail])
+    navigation.navigate('EditGoal', {data: route.params.data})
+  }, [navigation, route.params.data])
+
+  useEffect(() => {
+    if (route.params.data) {
+      setForm(route.params.data)
+    }
+  }, [route.params.data, setForm])
 
   return (
     <View style={styles.container}>

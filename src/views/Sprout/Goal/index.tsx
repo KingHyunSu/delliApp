@@ -4,13 +4,13 @@ import Item from './components/Item'
 import PlusIcon from '@/assets/icons/plus.svg'
 import {useQuery} from '@tanstack/react-query'
 import {goalRepository} from '@/apis/local'
-import {GetGoalResponse} from '@/apis/local/types/goal'
+import {SproutNavigationProps} from '@/types/navigation'
+import {Goal} from '@/@types/goal'
 
 interface Props {
-  moveDetail: (id: number | null) => void
-  moveEditGoalDetail: () => void
+  navigator: SproutNavigationProps
 }
-const Goal = ({moveDetail, moveEditGoalDetail}: Props) => {
+const GoalList = ({navigator}: Props) => {
   const {data: goalList} = useQuery({
     queryKey: ['goalList'],
     queryFn: () => {
@@ -19,7 +19,18 @@ const Goal = ({moveDetail, moveEditGoalDetail}: Props) => {
     initialData: []
   })
 
-  const getRenderItem: ListRenderItem<GetGoalResponse> = useCallback(
+  const moveEdit = useCallback(() => {
+    navigator.navigation.navigate('EditGoal', {data: null})
+  }, [navigator])
+
+  const moveDetail = useCallback(
+    (data: Goal) => {
+      navigator.navigation.navigate('GoalDetail', {data})
+    },
+    [navigator]
+  )
+
+  const getRenderItem: ListRenderItem<Goal> = useCallback(
     ({item}) => {
       return <Item item={item} moveDetail={moveDetail} />
     },
@@ -36,7 +47,7 @@ const Goal = ({moveDetail, moveEditGoalDetail}: Props) => {
           showsVerticalScrollIndicator={false}
         />
 
-        <Pressable style={styles.fabContainer} onPress={moveEditGoalDetail}>
+        <Pressable style={styles.fabContainer} onPress={moveEdit}>
           <PlusIcon stroke="#fff" strokeWidth={3} />
         </Pressable>
       </View>
@@ -85,4 +96,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default Goal
+export default GoalList

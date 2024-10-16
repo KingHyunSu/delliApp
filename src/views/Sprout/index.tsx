@@ -27,17 +27,6 @@ const Sprout = (navigator: SproutNavigationProps) => {
 
   const setSearchScheduleResultList = useSetRecoilState(searchScheduleResultListState)
 
-  const moveGoalDetail = useCallback(
-    (id: number | null) => {
-      navigator.navigation.navigate('GoalDetail', {id})
-    },
-    [navigator.navigation]
-  )
-
-  const moveEditGoalDetail = useCallback(() => {
-    navigator.navigation.navigate('EditGoal', {data: null})
-  }, [navigator.navigation])
-
   useEffect(() => {
     if (isFocused) {
       setSearchScheduleResultList([])
@@ -60,14 +49,14 @@ const Sprout = (navigator: SproutNavigationProps) => {
     ({route}: RenderScene) => {
       switch (route.key) {
         case 'goal':
-          return <Goal moveDetail={moveGoalDetail} moveEditGoalDetail={moveEditGoalDetail} />
+          return <Goal navigator={navigator} />
         case 'routine':
           return <Routine navigator={navigator} />
         default:
           return null
       }
     },
-    [moveGoalDetail]
+    [navigator]
   )
 
   return (
