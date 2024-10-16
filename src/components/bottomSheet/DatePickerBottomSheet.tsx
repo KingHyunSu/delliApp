@@ -2,24 +2,26 @@ import React from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
 import {BottomSheetBackdropProps, BottomSheetHandleProps, BottomSheetModal} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
+import BottomSheetHandler from '@/components/BottomSheetHandler'
 import DatePicker from '@/components/DatePicker'
 
 import {format} from 'date-fns'
-import BottomSheetHandler from '@/components/BottomSheetHandler'
+import {useRecoilState} from 'recoil'
+import {showDatePickerBottomSheetState} from '@/store/bottomSheet'
 
 interface Props {
   value: string | string[]
-  isShow: boolean
-  onClose: Function
   onChange: Function
 }
-const DatePickerBottomSheet = ({value, isShow, onClose, onChange}: Props) => {
+const DatePickerBottomSheet = ({value, onChange}: Props) => {
   const datePickerBottomSheetRef = React.useRef<BottomSheetModal>(null)
 
   const [selectDate, changeDate] = React.useState(value)
 
+  const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
+
   const onDismiss = () => {
-    onClose()
+    setShowDatePickerBottomSheet(false)
   }
 
   React.useEffect(() => {
@@ -27,12 +29,12 @@ const DatePickerBottomSheet = ({value, isShow, onClose, onChange}: Props) => {
   }, [value])
 
   React.useEffect(() => {
-    if (isShow) {
+    if (showDatePickerBottomSheet) {
       datePickerBottomSheetRef.current?.present()
     } else {
       datePickerBottomSheetRef.current?.dismiss()
     }
-  }, [isShow])
+  }, [showDatePickerBottomSheet])
 
   const onChangeDate = (arg: string) => {
     if (arg) {

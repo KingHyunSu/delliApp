@@ -1,15 +1,5 @@
 import React from 'react'
-import {
-  Platform,
-  StyleSheet,
-  LayoutChangeEvent,
-  BackHandler,
-  ToastAndroid,
-  Alert,
-  Pressable,
-  View,
-  Text
-} from 'react-native'
+import {Platform, StyleSheet, BackHandler, ToastAndroid, Alert, Pressable, View, Text} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import {AdEventType, RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
@@ -20,7 +10,6 @@ import {format} from 'date-fns'
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
 import {Timetable} from '@/components/TimeTable'
-import WeekController from '@/components/WeeklyDatePicker/src/WeekController'
 import EditMenuBottomSheet from '@/components/bottomSheet/EditMenuBottomSheet'
 import ScheduleListBottomSheet from '@/components/bottomSheet/ScheduleListBottomSheet'
 import EditTodoModal from '@/components/modal/EditTodoModal'
@@ -28,8 +17,8 @@ import CompleteModal from '@/components/modal/CompleteModal'
 // import ScheduleCompleteModal from '@/components/modal/ScheduleCompleteModal'
 
 // icons
-// import EditIcon from '@/assets/icons/edit3.svg'
 import SettingIcon from '@/assets/icons/setting.svg'
+import RightArrowIcon from '@/assets/icons/arrow_right.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
 import PauseIcon from '@/assets/icons/pause.svg'
 
@@ -54,6 +43,7 @@ import * as widgetApi from '@/apis/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
 import {useGetScheduleList, useSetScheduleFocusTime} from '@/apis/hooks/useSchedule'
+import DatePickerBottomSheet from '@/components/bottomSheet/DatePickerBottomSheet'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
@@ -95,6 +85,20 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       }, 300)
     }
   }, [_scheduleList, setScheduleList, setIsLunch, setIsLoading])
+
+  const currentScheduleDateString = React.useMemo(() => {
+    const weekdays = ['일', '월', '화', '수', '목', '금', '토']
+    const dayOfWeekIndex = scheduleDate.getDay()
+
+    return format(scheduleDate, 'yyyy년 MM월 dd일') + ' ' + `${weekdays[dayOfWeekIndex]}요일`
+  }, [scheduleDate, format])
+
+  const changeScheduleDate = React.useCallback(
+    (date: string) => {
+      setScheduleDate(new Date(date))
+    },
+    [setScheduleDate]
+  )
 
   const openEditScheduleBottomSheet = React.useCallback(() => {
     setIsEdit(true)
@@ -321,8 +325,11 @@ const Home = ({navigation, route}: HomeScreenProps) => {
           </Pressable>
         </AppBar>
 
-        <View style={homeStyles.weekDatePickerSection}>
-          <WeekController date={scheduleDate} onChange={setScheduleDate} />
+        <View style={homeStyles.dateButtonWrapper}>
+          <Pressable style={homeStyles.dateButton} onPress={() => setShowDatePickerBottomSheet(true)}>
+            <Text style={homeStyles.dateButtonText}>{currentScheduleDateString}</Text>
+            <RightArrowIcon stroke="#424242" strokeWidth={3} />
+          </Pressable>
         </View>
       </Animated.View>
 
@@ -347,6 +354,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       )}
 
       <EditMenuBottomSheet openEditScheduleBottomSheet={openEditScheduleBottomSheet} />
+      <DatePickerBottomSheet value={format(scheduleDate, 'yyyy-MM-dd')} onChange={changeScheduleDate} />
       <EditTodoModal />
       <CompleteModal />
       {/*<TimetableCategoryBottomSheet />*/}
@@ -365,8 +373,19 @@ const homeStyles = StyleSheet.create({
   homeHeaderContainer: {
     zIndex: -1
   },
-  weekDatePickerSection: {
+  dateButtonWrapper: {
     paddingHorizontal: 16
+  },
+  dateButton: {
+    width: '100%',
+    height: 36,
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  dateButtonText: {
+    fontFamily: 'Pretendard-Bold',
+    fontSize: 22,
+    color: '#424242'
   },
   timetableCategoryButton: {
     width: 150,
