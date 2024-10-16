@@ -13,8 +13,7 @@ import {trigger} from 'react-native-haptic-feedback'
 
 import SchedulePie from './SchedulePie'
 
-import {useRecoilValue} from 'recoil'
-import {homeHeaderHeightState} from '@/store/system'
+import {homeHeaderHeight} from '@/store/system'
 
 interface Props {
   data: Schedule
@@ -43,8 +42,6 @@ const EditSchedulePie = ({
   onChangeStartTime,
   onChangeEndTime
 }: Props) => {
-  const homeHeaderHeight = useRecoilValue(homeHeaderHeightState)
-
   const [newStartTimeState, setNewStartTimeState] = React.useState(-1)
   const [newEndTimeState, setNewEndTimeState] = React.useState(-1)
 

@@ -90,10 +90,6 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
     [setDisableScheduleList]
   )
 
-  if (!timetableWrapperHeight || !timetableCenterPosition) {
-    return <></>
-  }
-
   return (
     <View style={containerStyle}>
       <View style={wrapperStyle}>

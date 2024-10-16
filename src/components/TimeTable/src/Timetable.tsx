@@ -203,10 +203,6 @@ const Timetable = ({data, isRendered}: Props) => {
     )
   }, [data.length, radius])
 
-  if (!timetableWrapperHeight || !timetableCenterPosition) {
-    return <></>
-  }
-
   // const shadowRadius = 30
   return (
     <View style={containerStyle}>

@@ -20,7 +20,7 @@ import {format} from 'date-fns'
 import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
 import {Timetable} from '@/components/TimeTable'
-import WeeklyDatePicker from '@/components/WeeklyDatePicker'
+import WeekController from '@/components/WeeklyDatePicker/src/WeekController'
 import EditMenuBottomSheet from '@/components/bottomSheet/EditMenuBottomSheet'
 import ScheduleListBottomSheet from '@/components/bottomSheet/ScheduleListBottomSheet'
 import EditTodoModal from '@/components/modal/EditTodoModal'
@@ -35,14 +35,7 @@ import PauseIcon from '@/assets/icons/pause.svg'
 
 // stores
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
-import {
-  safeAreaInsetsState,
-  isLunchState,
-  isEditState,
-  isLoadingState,
-  homeHeaderHeightState,
-  toastState
-} from '@/store/system'
+import {safeAreaInsetsState, isLunchState, isEditState, isLoadingState, toastState} from '@/store/system'
 import {
   scheduleDateState,
   scheduleState,
@@ -85,7 +78,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   const setIsLunch = useSetRecoilState(isLunchState)
   const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
-  const setHomeHeaderHeight = useSetRecoilState(homeHeaderHeightState)
   const resetSchedule = useResetRecoilState(scheduleState)
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
@@ -124,13 +116,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       setShowEditMenuBottomSheet(true)
     },
     [setSchedule, setShowEditMenuBottomSheet]
-  )
-
-  const handleTopLayout = React.useCallback(
-    (layout: LayoutChangeEvent) => {
-      setHomeHeaderHeight(layout.nativeEvent.layout.height)
-    },
-    [setHomeHeaderHeight]
   )
 
   const handleStopFocusTime = React.useCallback(async () => {
@@ -313,7 +298,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       {/* insert header */}
 
       {/* home header */}
-      <Animated.View style={headerStyle} onLayout={handleTopLayout}>
+      <Animated.View style={headerStyle}>
         <AppBar>
           {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
           {/* {activeTimeTableCategory.timetable_category_id ? (
@@ -337,7 +322,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         </AppBar>
 
         <View style={homeStyles.weekDatePickerSection}>
-          <WeeklyDatePicker />
+          <WeekController date={scheduleDate} onChange={setScheduleDate} />
         </View>
       </Animated.View>
 
@@ -381,8 +366,7 @@ const homeStyles = StyleSheet.create({
     zIndex: -1
   },
   weekDatePickerSection: {
-    paddingHorizontal: 16,
-    justifyContent: 'center'
+    paddingHorizontal: 16
   },
   timetableCategoryButton: {
     width: 150,

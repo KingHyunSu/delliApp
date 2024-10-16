@@ -2,6 +2,7 @@ import {atom, selector} from 'recoil'
 import {Platform} from 'react-native'
 
 const bottomTabHeight = 56
+export const homeHeaderHeight = 84
 
 export const loginState = atom({
   key: 'loginState',
@@ -69,11 +70,6 @@ export const safeAreaInsetsState = atom({
   }
 })
 
-export const homeHeaderHeightState = atom({
-  key: 'homeHeaderHeightState',
-  default: 0
-})
-
 const editScheduleListMinSnapPointState = selector({
   key: 'editScheduleListMinSnapPointState',
   get: ({get}) => {
@@ -92,13 +88,8 @@ export const timetableWrapperHeightState = selector({
   key: 'timetableWrapperHeightState',
   get: ({get}) => {
     const {height} = get(windowDimensionsState)
-    const homeHeaderHeight = get(homeHeaderHeightState)
     const safeAreaInsets = get(safeAreaInsetsState)
     const editScheduleListMinSnapPoint = get(editScheduleListMinSnapPointState)
-
-    if (!homeHeaderHeight) {
-      return null
-    }
 
     let topSafeAreaHeight = 0
     let bottomSafeAreaHeight = 0
@@ -118,12 +109,7 @@ export const timetableCenterPositionState = selector({
   key: 'timetableCenterPositionState',
   get: ({get}) => {
     const {width} = get(windowDimensionsState)
-    const homeHeaderHeight = get(homeHeaderHeightState)
     const timetableWrapperHeight = get(timetableWrapperHeightState)
-
-    if (!homeHeaderHeight || !timetableWrapperHeight) {
-      return 0
-    }
 
     if (width > timetableWrapperHeight) {
       return timetableWrapperHeight / 2 - 10
@@ -147,7 +133,6 @@ export const scheduleListSnapPointState = selector({
     let bottomSafeAreaHeight = 0
 
     const safeAreaInsets = get(safeAreaInsetsState)
-    const homeHeaderHeight = get(homeHeaderHeightState) // include status bar height
     const editScheduleListMinSnapPoint = get(editScheduleListMinSnapPointState)
 
     if (Platform.OS === 'ios') {
@@ -169,10 +154,6 @@ export const editScheduleListSnapPointState = selector({
     const {height} = get(windowDimensionsState)
     const safeAreaInsets = get(safeAreaInsetsState)
     const timetableWrapperHeight = get(timetableWrapperHeightState)
-
-    if (height === 0 || !timetableWrapperHeight) {
-      return []
-    }
 
     const appBarHeight = 48
     let topSafeAreaHeight = 0
