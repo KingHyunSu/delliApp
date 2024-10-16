@@ -16,12 +16,8 @@ const WeeklyDatePicker = () => {
     return getWeeklyDateList(scheduleDate)
   }, [scheduleDate])
 
-  return (
-    <View>
-      <WeekController date={scheduleDate} onChange={setScheduleDate} />
-      {/*<DayPicker date={scheduleDate} currentWeeklyDateList={currentWeeklyDateList} onChange={setScheduleDate} />*/}
-    </View>
-  )
+  return <WeekController date={scheduleDate} onChange={setScheduleDate} />
+  // {/*<DayPicker date={scheduleDate} currentWeeklyDateList={currentWeeklyDateList} onChange={setScheduleDate} />*/}
 }
 
 export default WeeklyDatePicker

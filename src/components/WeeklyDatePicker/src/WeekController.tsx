@@ -42,12 +42,13 @@ const WeekController = ({date, onChange}: Props) => {
 
 const styles = StyleSheet.create({
   wrapper: {
-    height: 36,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
+    // flexDirection: 'row'
+    // justifyContent: 'space-between',
+    // alignItems: 'center'
   },
   button: {
+    width: '100%',
+    height: 36,
     flexDirection: 'row',
     alignItems: 'center'
   },
