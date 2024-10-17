@@ -24,7 +24,14 @@ import PauseIcon from '@/assets/icons/pause.svg'
 
 // stores
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
-import {safeAreaInsetsState, isLunchState, isEditState, isLoadingState, toastState} from '@/store/system'
+import {
+  safeAreaInsetsState,
+  isLunchState,
+  isEditState,
+  isLoadingState,
+  toastState,
+  editTimetableTranslateYState
+} from '@/store/system'
 import {
   scheduleDateState,
   scheduleState,
@@ -65,6 +72,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
 
   const focusModeInfo = useRecoilValue(focusModeInfoState)
+  const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
 
   const setIsLunch = useSetRecoilState(isLunchState)
   const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
@@ -273,14 +281,12 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   }, [route])
 
   React.useEffect(() => {
-    const dateBarHeight = 36
-
     if (isEdit) {
       setIsRendered(false)
       setIsInputMode(true)
       headerTranslateY.value = withTiming(-200)
     } else {
-      timeTableTranslateY.value = -dateBarHeight
+      timeTableTranslateY.value = editTimetableTranslateY * -1
       resetDisableScheduleList()
       setIsInputMode(false)
       headerTranslateY.value = withTiming(0)
@@ -289,7 +295,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       })
       resetSchedule()
     }
-  }, [isEdit, resetSchedule, resetDisableScheduleList, setIsInputMode])
+  }, [isEdit, editTimetableTranslateY, resetSchedule, resetDisableScheduleList, setIsInputMode])
 
   React.useEffect(() => {
     if (isError) {
