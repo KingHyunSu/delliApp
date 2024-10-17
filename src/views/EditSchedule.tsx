@@ -11,7 +11,13 @@ import CancelIcon from '@/assets/icons/cancle.svg'
 import {useQueryClient} from '@tanstack/react-query'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {isEditState, isLoadingState, editScheduleListStatusState, bottomSafeAreaColorState} from '@/store/system'
+import {
+  isEditState,
+  isLoadingState,
+  editScheduleListStatusState,
+  bottomSafeAreaColorState,
+  editTimetableTranslateYState
+} from '@/store/system'
 import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
 import {
   disableScheduleListState,
@@ -35,6 +41,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
 
+  const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
   const schedule = useRecoilValue(scheduleState)
   const scheduleList = useRecoilValue(scheduleListState)
   const disableScheduleList = useRecoilValue(disableScheduleListState)
@@ -178,9 +185,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   }, [editScheduleListStatus])
 
   React.useEffect(() => {
-    const dateBarHeight = 36
-
-    timeTableTranslateY.value = withTiming(-dateBarHeight, {duration: 300}, () => {
+    timeTableTranslateY.value = withTiming(-editTimetableTranslateY, {duration: 300}, () => {
       runOnJS(setIsRendered)(true)
     })
 
@@ -188,7 +193,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       timeTableTranslateY.value = 0
       setIsRendered(false)
     }
-  }, [setIsRendered])
+  }, [editTimetableTranslateY, setIsRendered])
 
   return (
     <View style={styles.container}>
