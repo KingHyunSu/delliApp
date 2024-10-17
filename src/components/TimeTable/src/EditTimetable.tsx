@@ -10,7 +10,7 @@ import EditSchedulePie from '../components/EditSchedulePie'
 import EditScheduleText from '../components/EditScheduleText'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
-import {timetableWrapperHeightState, timetableCenterPositionState} from '@/store/system'
+import {timetableContainerHeightState, timetableWrapperSizeState} from '@/store/system'
 import {scheduleState, disableScheduleListState, isInputModeState} from '@/store/schedule'
 
 interface Props {
@@ -20,26 +20,26 @@ interface Props {
   onChangeEndTime: (value: number) => void
 }
 const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: Props) => {
-  const timetableWrapperHeight = useRecoilValue(timetableWrapperHeightState)
-  const timetableCenterPosition = useRecoilValue(timetableCenterPositionState)
+  const timetableContainerHeight = useRecoilValue(timetableContainerHeightState)
+  const timetableWrapperSize = useRecoilValue(timetableWrapperSizeState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
 
   // styles
   const containerStyle = React.useMemo(() => {
-    return [styles.container, {height: timetableWrapperHeight}]
-  }, [timetableWrapperHeight])
+    return [styles.container, {height: timetableContainerHeight}]
+  }, [timetableContainerHeight])
 
   const wrapperStyle = React.useMemo(() => {
     return [
       styles.wrapper,
       {
-        width: timetableCenterPosition * 2,
-        height: timetableCenterPosition * 2
+        width: timetableWrapperSize * 2,
+        height: timetableWrapperSize * 2
       }
     ]
-  }, [timetableCenterPosition])
+  }, [timetableWrapperSize])
 
   const scheduleList = React.useMemo(() => {
     return data
@@ -57,8 +57,8 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
   }, [data, schedule.schedule_id])
 
   const radius = React.useMemo(() => {
-    return timetableCenterPosition - 40
-  }, [timetableCenterPosition])
+    return timetableWrapperSize - 40
+  }, [timetableWrapperSize])
 
   const closeKeyboard = React.useCallback(() => {
     setIsInputMode(false)
@@ -93,7 +93,7 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
   return (
     <View style={containerStyle}>
       <View style={wrapperStyle}>
-        <TimeBackground x={timetableCenterPosition} y={timetableCenterPosition} radius={radius} />
+        <TimeBackground wrapperSize={timetableWrapperSize} radius={radius} />
 
         <View>
           <Svg width={radius * 2} height={radius * 2}>
@@ -125,8 +125,8 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
           <EditSchedulePie
             data={schedule}
             scheduleList={data}
-            x={timetableCenterPosition}
-            y={timetableCenterPosition}
+            x={timetableWrapperSize}
+            y={timetableWrapperSize}
             radius={radius}
             isInputMode={isInputMode}
             onChangeSchedule={changeSchedule}
@@ -138,8 +138,8 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
           <EditScheduleText
             data={schedule}
             isRendered={isRendered}
-            centerX={timetableCenterPosition}
-            centerY={timetableCenterPosition}
+            centerX={timetableWrapperSize}
+            centerY={timetableWrapperSize}
             radius={radius}
             onChangeSchedule={changeSchedule}
           />

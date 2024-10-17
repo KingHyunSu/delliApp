@@ -10,7 +10,7 @@ import ScheduleText from '../components/ScheduleText'
 import DefaultTimeAnchor from '@/assets/icons/default_time_anchor.svg'
 
 import {useSetRecoilState, useRecoilValue, useRecoilState} from 'recoil'
-import {timetableWrapperHeightState, timetableCenterPositionState} from '@/store/system'
+import {timetableContainerHeightState, timetableWrapperSizeState} from '@/store/system'
 import {scheduleState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
@@ -27,25 +27,25 @@ const Timetable = ({data, isRendered}: Props) => {
 
   const [widgetWithImageUpdated, setWidgetWithImageUpdated] = useRecoilState(widgetWithImageUpdatedState)
 
-  const timetableWrapperHeight = useRecoilValue(timetableWrapperHeightState)
-  const timetableCenterPosition = useRecoilValue(timetableCenterPositionState)
+  const timetableContainerHeight = useRecoilValue(timetableContainerHeightState)
+  const timetableWrapperSize = useRecoilValue(timetableWrapperSizeState)
   const setSchedule = useSetRecoilState(scheduleState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
   // styles
   const containerStyle = useMemo(() => {
-    return [styles.container, {height: timetableWrapperHeight}]
-  }, [timetableWrapperHeight])
+    return [styles.container, {height: timetableContainerHeight}]
+  }, [timetableContainerHeight])
 
   const wrapperStyle = useMemo(() => {
     return [
       styles.wrapper,
       {
-        width: timetableCenterPosition * 2,
-        height: timetableCenterPosition * 2
+        width: timetableWrapperSize * 2,
+        height: timetableWrapperSize * 2
       }
     ]
-  }, [timetableCenterPosition])
+  }, [timetableWrapperSize])
 
   // TODO - 겹치는 일정만 뽑아내는 코드 (활용할 수 있을거 같아서 임시 주석)
   // const overlapScheduleList =  useMemo(() => {
@@ -140,8 +140,8 @@ const Timetable = ({data, isRendered}: Props) => {
   }, [data])
 
   const radius = useMemo(() => {
-    return timetableCenterPosition - 40
-  }, [timetableCenterPosition])
+    return timetableWrapperSize - 40
+  }, [timetableWrapperSize])
 
   const openEditMenuBottomSheet = useCallback(
     (value: Schedule) => {
@@ -188,8 +188,8 @@ const Timetable = ({data, isRendered}: Props) => {
   }, [currentTime, arcLengthForOneDegree])
 
   const currentTimePosition = useMemo(() => {
-    return polarToCartesian(timetableCenterPosition, timetableCenterPosition, radius + 24, currentTimeAngle)
-  }, [timetableCenterPosition, radius, currentTimeAngle])
+    return polarToCartesian(timetableWrapperSize, timetableWrapperSize, radius + 24, currentTimeAngle)
+  }, [timetableWrapperSize, radius, currentTimeAngle])
 
   const emptyTextComponent = useMemo(() => {
     if (data.length > 0) {
@@ -224,7 +224,7 @@ const Timetable = ({data, isRendered}: Props) => {
       {/*</Svg>*/}
 
       <View style={wrapperStyle}>
-        <TimeBackground x={timetableCenterPosition} y={timetableCenterPosition} radius={radius} />
+        <TimeBackground wrapperSize={timetableWrapperSize} radius={radius} />
 
         <View ref={refs}>
           <Svg width={radius * 2} height={radius * 2}>
@@ -263,10 +263,7 @@ const Timetable = ({data, isRendered}: Props) => {
           })}
         </View>
 
-        <Svg
-          width={timetableCenterPosition * 2}
-          height={timetableCenterPosition * 2}
-          style={styles.currentTimeAnchorIcon}>
+        <Svg width={timetableWrapperSize * 2} height={timetableWrapperSize * 2} style={styles.currentTimeAnchorIcon}>
           <G x={currentTimePosition.x} y={currentTimePosition.y} rotation={currentTimeAngle}>
             <DefaultTimeAnchor width={20} height={20} fill="#1E90FF" />
           </G>

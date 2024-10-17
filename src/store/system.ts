@@ -85,8 +85,8 @@ export const safeAreaInsetsState = atom({
 //   }
 // })
 
-export const timetableWrapperHeightState = selector({
-  key: 'timetableWrapperHeightState',
+export const timetableContainerHeightState = selector({
+  key: 'timetableContainerHeightState',
   get: ({get}) => {
     const {height} = get(windowDimensionsState)
     const safeAreaInsets = get(safeAreaInsetsState)
@@ -105,11 +105,11 @@ export const timetableWrapperHeightState = selector({
   }
 })
 
-export const timetableCenterPositionState = selector({
-  key: 'timetableCenterPositionState',
+export const timetableWrapperSizeState = selector({
+  key: 'timetableSizeState',
   get: ({get}) => {
     const {width} = get(windowDimensionsState)
-    const timetableWrapperHeight = get(timetableWrapperHeightState)
+    const timetableWrapperHeight = get(timetableContainerHeightState)
 
     if (width > timetableWrapperHeight) {
       return timetableWrapperHeight / 2 - 10
@@ -152,7 +152,7 @@ export const editScheduleListSnapPointState = selector({
   get: ({get}) => {
     const {height} = get(windowDimensionsState)
     const safeAreaInsets = get(safeAreaInsetsState)
-    const timetableWrapperHeight = get(timetableWrapperHeightState)
+    const timetableWrapperHeight = get(timetableContainerHeightState)
 
     const appBarHeight = 48
     let topSafeAreaHeight = 0

@@ -2,12 +2,9 @@ import React from 'react'
 import {StyleSheet, View} from 'react-native'
 import Svg, {G, Circle, Text} from 'react-native-svg'
 import {polarToCartesian} from '@/utils/pieHelper'
-import {useRecoilValue} from 'recoil'
-import {timetableCenterPositionState} from '@/store/system'
 
 interface Props {
-  x: number
-  y: number
+  wrapperSize: number
   radius: number
 }
 interface HourRingInfo {
@@ -17,20 +14,18 @@ interface HourRingInfo {
   angle: number
   dot: Boolean
 }
-const TimeBackground = ({x, y, radius}: Props) => {
+const TimeBackground = ({wrapperSize, radius}: Props) => {
   const [hourRingInfoList, setHourRingInfoList] = React.useState<HourRingInfo[]>([])
-
-  const timetableCenterPosition = useRecoilValue(timetableCenterPositionState)
 
   const containerStyle = React.useMemo(() => {
     return [
       styles.container,
       {
-        width: timetableCenterPosition * 2,
-        height: timetableCenterPosition * 2
+        width: wrapperSize * 2,
+        height: wrapperSize * 2
       }
     ]
-  }, [timetableCenterPosition])
+  }, [wrapperSize])
 
   React.useEffect(() => {
     const list = []
@@ -38,7 +33,7 @@ const TimeBackground = ({x, y, radius}: Props) => {
     for (let i = 1; i <= 24; i++) {
       const angle = i * 60 * 0.25
 
-      const cartesian = polarToCartesian(x, y, radius + 10, angle)
+      const cartesian = polarToCartesian(wrapperSize, wrapperSize, radius + 10, angle)
       let hour = i > 12 ? i % 12 : i
       hour = hour === 0 ? 12 : hour
 
@@ -48,7 +43,7 @@ const TimeBackground = ({x, y, radius}: Props) => {
     }
 
     setHourRingInfoList(list)
-  }, [x, y, radius])
+  }, [wrapperSize, radius])
 
   return (
     <View style={containerStyle}>
