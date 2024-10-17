@@ -40,7 +40,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    height: 48
+    height: 48,
+    zIndex: 999
   },
   backButton: {
     zIndex: 999,
@@ -48,7 +49,6 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center'
-    // paddingLeft: 10
   },
   title: {
     position: 'absolute',

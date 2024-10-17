@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, Pressable, View, Text, Alert, Image} from 'react-native'
+import {Platform, StyleSheet, Pressable, View, Text, Alert, Image} from 'react-native'
 import Animated, {runOnJS, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
 import EditScheduleBottomSheet from '@/components/bottomSheet/EditScheduleBottomSheet'
 import OverlapScheduleListBottomSheet from '@/components/bottomSheet/OverlapScheduleListBottomSheet'
@@ -202,7 +202,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
           <View style={styles.timeInfoWrapper}>
             <Image source={require('@/assets/icons/time.png')} style={styles.timeInfoIcon} />
             <Text style={styles.timeInfoText}>{startTimeString}</Text>
-            <Text>-</Text>
+            <Text style={{color: '#8d9195'}}>-</Text>
             <Text style={styles.timeInfoText}>{endTimeString}</Text>
           </View>
         </Animated.View>
@@ -250,16 +250,24 @@ const styles = StyleSheet.create({
   },
 
   timeIntoContainer: {
-    width: 245,
-    padding: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
     backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#00000010',
     borderRadius: 10,
 
-    shadowColor: '#00000010',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 1
+    ...Platform.select({
+      ios: {
+        borderWidth: 1,
+        borderColor: '#00000010',
+
+        shadowColor: '#00000010',
+        shadowOffset: {width: 0, height: 1},
+        shadowOpacity: 1
+      },
+      android: {
+        elevation: 2
+      }
+    })
   },
   timeInfoWrapper: {
     paddingLeft: 10,
@@ -272,9 +280,9 @@ const styles = StyleSheet.create({
     height: 16
   },
   timeInfoText: {
-    color: '#424242',
-    fontSize: 14,
-    fontFamily: 'Pretendard-Medium'
+    color: '#8d9195',
+    fontSize: 12,
+    fontFamily: 'Pretendard-SemiBold'
   },
 
   // bottom button style
