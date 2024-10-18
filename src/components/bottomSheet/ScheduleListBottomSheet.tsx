@@ -18,9 +18,10 @@ import {getFocusTimeText} from '@/utils/helper'
 
 interface Props {
   data: Schedule[]
+  onAnimate: (fromIndex: number, toIndex: number) => void
   onClick: (value: Schedule) => void
 }
-const ScheduleListBottomSheet = ({data, onClick}: Props) => {
+const ScheduleListBottomSheet = ({data, onClick, onAnimate}: Props) => {
   const scheduleListSnapPoint = useRecoilValue(scheduleListSnapPointState)
   const isEdit = useRecoilValue(isEditState)
   const scheduleDate = useRecoilValue(scheduleDateState)
@@ -124,7 +125,12 @@ const ScheduleListBottomSheet = ({data, onClick}: Props) => {
   }
 
   return (
-    <BottomSheet ref={bottomSheetRef} index={0} snapPoints={scheduleListSnapPoint} handleComponent={bottomSheetHandler}>
+    <BottomSheet
+      ref={bottomSheetRef}
+      index={0}
+      snapPoints={scheduleListSnapPoint}
+      handleComponent={bottomSheetHandler}
+      onAnimate={onAnimate}>
       {data && data.length > 0 ? (
         <BottomSheetFlatList
           ref={bottomSheetFlatListRef}

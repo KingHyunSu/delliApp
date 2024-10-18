@@ -159,8 +159,17 @@ const Home = ({navigation, route}: HomeScreenProps) => {
     setFocusModeInfo(null)
   }, [focusModeInfo, setScheduleFocusTimeMutateAsync, setSchedule, setScheduleList, setFocusModeInfo])
 
+  const changeScheduleListBottomSheetAnimate = React.useCallback((fromIndex: number, toIndex: number) => {
+    if (toIndex === 1) {
+      fabTranslateY.value = withTiming(50)
+    } else {
+      fabTranslateY.value = withTiming(0)
+    }
+  }, [])
+
   const headerTranslateY = useSharedValue(0)
   const timeTableTranslateY = useSharedValue(0)
+  const fabTranslateY = useSharedValue(0)
 
   const headerAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{translateY: headerTranslateY.value}]
@@ -168,12 +177,18 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const timetableAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{translateY: timeTableTranslateY.value}]
   }))
+  const fabAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{translateY: fabTranslateY.value}]
+  }))
 
   const headerStyle = React.useMemo(() => {
     return [headerAnimatedStyle, homeStyles.homeHeaderContainer]
   }, [])
   const timetableStyle = React.useMemo(() => {
     return [timetableAnimatedStyle]
+  }, [])
+  const fabContainerStyle = React.useMemo(() => {
+    return [homeStyles.fabContainer, fabAnimatedStyle]
   }, [])
 
   // android 뒤로가기 제어
@@ -343,20 +358,26 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         <Timetable data={scheduleList} isRendered={isRendered} />
       </Animated.View>
 
-      <ScheduleListBottomSheet data={scheduleList} onClick={openEditMenuBottomSheet} />
+      <ScheduleListBottomSheet
+        data={scheduleList}
+        onClick={openEditMenuBottomSheet}
+        onAnimate={changeScheduleListBottomSheetAnimate}
+      />
 
       {focusModeInfo ? (
-        <View style={homeStyles.focusTimeStopFabWrapper}>
-          <Text style={homeStyles.focusTimeText}>{getFocusTimeText(focusModeInfo.seconds)}</Text>
+        <Animated.View style={fabContainerStyle}>
+          <Animated.Text style={homeStyles.focusTimeText}>{getFocusTimeText(focusModeInfo.seconds)}</Animated.Text>
 
-          <Pressable style={homeStyles.focusTimeStopFabButton} onPress={handleStopFocusTime}>
+          <Pressable style={focusTimeFabStyle} onPress={handleStopFocusTime}>
             <PauseIcon stroke="#ffffff" />
           </Pressable>
-        </View>
+        </Animated.View>
       ) : (
-        <Pressable style={homeStyles.addScheduleFabButton} onPress={openEditScheduleBottomSheet}>
-          <PlusIcon stroke="#ffffff" strokeWidth={3} />
-        </Pressable>
+        <Animated.View style={fabContainerStyle}>
+          <Pressable style={scheduleFabStyle} onPress={openEditScheduleBottomSheet}>
+            <PlusIcon stroke="#ffffff" strokeWidth={3} />
+          </Pressable>
+        </Animated.View>
       )}
 
       <EditMenuBottomSheet openEditScheduleBottomSheet={openEditScheduleBottomSheet} />
@@ -412,47 +433,23 @@ const homeStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'flex-end'
   },
-  addScheduleFabButton: {
+  fabContainer: {
     position: 'absolute',
-    bottom: 20,
-    right: 20,
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1E90FF',
-
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.2,
-        shadowRadius: 2
-      },
-      android: {
-        elevation: 3
-      }
-    })
-  },
-  focusTimeStopFabWrapper: {
-    position: 'absolute',
-    bottom: 20,
+    bottom: 70,
     right: 20,
     gap: 5,
     alignItems: 'center'
   },
-  focusTimeStopFabButton: {
+  fab: {
     width: 52,
     height: 52,
     borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FF7043',
 
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
+        shadowColor: '#000000',
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 2
@@ -463,10 +460,14 @@ const homeStyles = StyleSheet.create({
     })
   },
   focusTimeText: {
+    textAlign: 'center',
     fontSize: 14,
     fontFamily: 'Pretendard-Bold',
     color: '#424242'
   }
 })
+
+const scheduleFabStyle = StyleSheet.compose(homeStyles.fab, {backgroundColor: '#1E90FF'})
+const focusTimeFabStyle = StyleSheet.compose(homeStyles.fab, {backgroundColor: '#FF7043'})
 
 export default Home
