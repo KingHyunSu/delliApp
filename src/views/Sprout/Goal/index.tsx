@@ -19,8 +19,8 @@ const GoalList = ({navigator}: Props) => {
     initialData: []
   })
 
-  const moveEdit = useCallback(() => {
-    navigator.navigation.navigate('EditGoal', {data: null})
+  const moveCreate = useCallback(() => {
+    navigator.navigation.navigate('CreateGoal')
   }, [navigator])
 
   const moveDetail = useCallback(
@@ -47,7 +47,7 @@ const GoalList = ({navigator}: Props) => {
           showsVerticalScrollIndicator={false}
         />
 
-        <Pressable style={styles.fabContainer} onPress={moveEdit}>
+        <Pressable style={styles.fabContainer} onPress={moveCreate}>
           <PlusIcon stroke="#fff" strokeWidth={3} />
         </Pressable>
       </View>

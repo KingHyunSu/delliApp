@@ -11,6 +11,7 @@ export type StackNavigator = {
   }
   EditSchedule: undefined
   CategoryStats: undefined
+  CreateGoal: undefined
   GoalDetail: {data: Goal}
   EditGoal: {data: Goal | null}
   EditRoutine: {data: TodoDetail | null}
@@ -37,6 +38,7 @@ export type SproutNavigationProps = CompositeScreenProps<
 >
 
 export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
+export type CreateGoalScreenProps = StackScreenProps<StackNavigator, 'CreateGoal'>
 export type GoalDetailScreenProps = StackScreenProps<StackNavigator, 'GoalDetail'>
 export type EditGoalScreenProps = StackScreenProps<StackNavigator, 'EditGoal'>
 export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>
