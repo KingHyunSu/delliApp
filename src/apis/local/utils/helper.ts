@@ -10,7 +10,7 @@ export const openDatabase = async () => {
     return databaseInstance
   }
 
-  SQLite.DEBUG(true)
+  SQLite.DEBUG(false)
   SQLite.enablePromise(true)
 
   const db = await SQLite.openDatabase({

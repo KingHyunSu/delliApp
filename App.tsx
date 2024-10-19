@@ -16,11 +16,14 @@ import {navigationRef} from '@/utils/navigation'
 
 // views
 import HomeScreen from '@/views/Home'
+
 import SproutScreen from '@/views/Sprout'
+import CreateGoalScreen from '@/views/Sprout/Goal/views/CreateGoal'
 import GoalDetailScreen from '@/views/Sprout/Goal/views/GoalDetail'
 import EditGoalScreen from '@/views/Sprout/Goal/views/EditGoal'
 import EditRoutineScreen from '@/views/Sprout/Routine/views/EditRoutine'
 import RoutineDetailScreen from '@/views/Sprout/Routine/views/RoutineDetail'
+
 import StatsScreen from '@/views/Stats'
 import SearchScheduleScreen from '@/views/SearchSchedule'
 import SettingScreen from '@/views/Setting'
@@ -355,6 +358,7 @@ function App(): JSX.Element {
               <Stack.Screen name="MainTabs" component={BottomTabs} />
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
               <Stack.Screen name="CategoryStats" component={CategoryStats} />
+              <Stack.Screen name="CreateGoal" component={CreateGoalScreen} />
               <Stack.Screen name="GoalDetail" component={GoalDetailScreen} />
               <Stack.Screen name="EditGoal" component={EditGoalScreen} />
               <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
