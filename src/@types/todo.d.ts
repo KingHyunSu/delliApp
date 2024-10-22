@@ -6,16 +6,23 @@ declare interface Todo {
   schedule_id: number | null
 }
 
+// declare interface Routine {
+//   todo_id: number
+//   title: string
+//   complete_id: number | null
+//   complete_date: string | null
+//   complete_date_list: string[]
+//   schedule_id: number
+// }
+//
+// declare type RoutineListItem = Omit<Routine, 'complete_id' | 'complete_date'> & IncludeScheduleItem
+
 declare interface Routine {
   todo_id: number
   title: string
-  complete_id: number | null
-  complete_date: string | null
   complete_date_list: string[]
-  schedule_id: number
+  schedule_title: string
 }
-
-declare type RoutineListItem = Omit<Routine, 'complete_id' | 'complete_date'> & IncludeScheduleItem
 
 declare interface TodoDetail {
   todo_id: number | null

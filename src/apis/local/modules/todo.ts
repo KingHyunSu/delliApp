@@ -49,7 +49,7 @@ export const getRoutineList = async () => {
       ...item,
       complete_date_list: completeDateList
     }
-  }) as RoutineListItem[]
+  }) as Routine[]
 }
 
 export const getRoutineDetail = async (params: GetRoutineDetailRequest) => {

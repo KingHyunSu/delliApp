@@ -10,17 +10,18 @@ export type StackNavigator = {
     params?: BottomTabNavigator[keyof BottomTabNavigator]
   }
   EditSchedule: undefined
+  EditRoutine: {data: TodoDetail | null}
+  RoutineDetail: {id: number}
+
   CategoryStats: undefined
   CreateGoal: undefined
   GoalDetail: {data: Goal}
   EditGoal: {data: Goal | null}
-  EditRoutine: {data: TodoDetail | null}
-  RoutineDetail: {id: number}
   SearchSchedule: {options: SearchScheduleOptions}
 }
 export type BottomTabNavigator = {
   Home: {scheduleUpdated: boolean}
-  Sprout: undefined
+  Routine: undefined
   Setting: undefined
 }
 
@@ -32,17 +33,22 @@ export type HomeScreenProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'Home'>,
   StackScreenProps<StackNavigator>
 >
+export type RoutineScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<BottomTabNavigator, 'Routine'>,
+  StackScreenProps<StackNavigator>
+>
 export type SproutNavigationProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'Sprout'>,
   StackScreenProps<StackNavigator>
 >
 
 export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
+export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>
+export type RoutineDetailScreenProps = StackScreenProps<StackNavigator, 'RoutineDetail'>
+
 export type CreateGoalScreenProps = StackScreenProps<StackNavigator, 'CreateGoal'>
 export type GoalDetailScreenProps = StackScreenProps<StackNavigator, 'GoalDetail'>
 export type EditGoalScreenProps = StackScreenProps<StackNavigator, 'EditGoal'>
-export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>
-export type RoutineDetailScreenProps = StackScreenProps<StackNavigator, 'RoutineDetail'>
 export type SearchScheduleScreenProps = StackScreenProps<StackNavigator, 'SearchSchedule'>
 
 export type StatsScreenProps = CompositeScreenProps<

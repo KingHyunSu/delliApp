@@ -1,3 +1,12 @@
+interface ScheduleRoutine {
+  todo_id: number
+  title: string
+  complete_id: number | null
+  complete_date: string | null
+  complete_date_list: string[]
+  schedule_id: number
+}
+
 declare interface Schedule {
   schedule_id: number | null
   // timetable_category_id: number | null
@@ -24,7 +33,7 @@ declare interface Schedule {
   complete_start_time?: number
   complete_end_time?: number
   todo_list: Todo[]
-  routine_list: Routine[]
+  routine_list: ScheduleRoutine[]
   schedule_category_id?: number | null
   schedule_category_title?: string
   schedule_activity_log_id: number | null
@@ -37,22 +46,22 @@ declare interface Schedule {
   alarm?: number | null
 }
 
-declare interface IncludeScheduleItem {
-  schedule_id: number
-  schedule_title: string
-  schedule_category_id: number | null
-  schedule_start_time: number
-  schedule_end_time: number
-  schedule_mon: string
-  schedule_tue: string
-  schedule_wed: string
-  schedule_thu: string
-  schedule_fri: string
-  schedule_sat: string
-  schedule_sun: string
-  schedule_start_date: string
-  schedule_end_date: string
-}
+// declare interface IncludeScheduleItem {
+//   schedule_id: number
+//   schedule_title: string
+//   schedule_category_id: number | null
+//   schedule_start_time: number
+//   schedule_end_time: number
+//   schedule_mon: string
+//   schedule_tue: string
+//   schedule_wed: string
+//   schedule_thu: string
+//   schedule_fri: string
+//   schedule_sat: string
+//   schedule_sun: string
+//   schedule_start_date: string
+//   schedule_end_date: string
+// }
 
 declare interface ScheduleComplete {
   schedule_id: number

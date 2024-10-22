@@ -16,13 +16,14 @@ import {navigationRef} from '@/utils/navigation'
 
 // views
 import HomeScreen from '@/views/Home'
+import RoutineScreen from '@/views/Routine'
+import EditRoutineScreen from '@/views/Routine/views/EditRoutine'
+import RoutineDetailScreen from '@/views/Routine/views/RoutineDetail'
 
 import SproutScreen from '@/views/Sprout'
 import CreateGoalScreen from '@/views/Sprout/Goal/views/CreateGoal'
 import GoalDetailScreen from '@/views/Sprout/Goal/views/GoalDetail'
 import EditGoalScreen from '@/views/Sprout/Goal/views/EditGoal'
-import EditRoutineScreen from '@/views/Sprout/Routine/views/EditRoutine'
-import RoutineDetailScreen from '@/views/Sprout/Routine/views/RoutineDetail'
 
 import StatsScreen from '@/views/Stats'
 import SearchScheduleScreen from '@/views/SearchSchedule'
@@ -40,6 +41,7 @@ import HomeIcon from '@/assets/icons/home.svg'
 import MyIcon from '@/assets/icons/my.svg'
 import ChartIcon from '@/assets/icons/chart.svg'
 import SproutIcon from '@/assets/icons/sprout.svg'
+import RoutineIcon from '@/assets/icons/routine.svg'
 
 // stores
 import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
@@ -71,11 +73,11 @@ const BottomTabs = React.memo(() => {
         }}
       />
       <Tab.Screen
-        name="Sprout"
-        component={SproutScreen}
+        name="Routine"
+        component={RoutineScreen}
         options={{
           tabBarIcon: ({focused}) => {
-            return <SproutIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
+            return <RoutineIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
           }
         }}
       />

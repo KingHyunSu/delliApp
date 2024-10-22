@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingVertical: 20,
-    gap: 20
+    gap: 15
   },
   emptyContainer: {
     flex: 1
