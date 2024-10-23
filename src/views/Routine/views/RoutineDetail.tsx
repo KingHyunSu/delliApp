@@ -1,4 +1,4 @@
-import {useState, useMemo, useCallback} from 'react'
+import {useState, useMemo, useCallback, useEffect} from 'react'
 import {ListRenderItem, StyleSheet, ScrollView, View, Text, Pressable, FlatList} from 'react-native'
 import {eachDayOfInterval, startOfMonth, endOfMonth, format, subMonths, addMonths} from 'date-fns'
 import AppBar from '@/components/AppBar'
@@ -9,14 +9,17 @@ import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
 import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
 import {todoRepository} from '@/apis/local'
-import {useQuery, useQueryClient} from '@tanstack/react-query'
+import {useGetRoutineCompleteList} from '@/apis/hooks/useRoutine'
+import {useQuery} from '@tanstack/react-query'
 import {RoutineDetailScreenProps} from '@/types/navigation'
 
 const completeItemGap = 10
 const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
-  const queryClient = useQueryClient()
+  const {mutateAsync: getRoutineCompleteList} = useGetRoutineCompleteList()
 
   const [targetDate, setTargetDate] = useState(new Date())
+  const [completeList, setCompleteList] = useState<TodoComplete[]>([])
+
   const windowDimensions = useRecoilValue(windowDimensionsState)
 
   const {data: detail} = useQuery({
@@ -25,23 +28,6 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
       return todoRepository.getRoutineDetail({todo_id: route.params.id})
     },
     initialData: null,
-    enabled: !!route.params.id
-  })
-
-  const {data: completeList} = useQuery({
-    queryKey: ['routineCompleteList', route.params.id, targetDate],
-    queryFn: () => {
-      const firstDayOfMonth = startOfMonth(targetDate)
-      const formatDate = format(firstDayOfMonth, 'yyyy-MM-dd')
-
-      const params = {
-        todo_id: route.params.id,
-        startDate: formatDate
-      }
-
-      return todoRepository.getRoutineCompleteList(params)
-    },
-    initialData: [],
     enabled: !!route.params.id
   })
 
@@ -61,32 +47,47 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
   }, [targetDate])
 
   const completeCountText = useMemo(() => {
+    console.log('completeList', completeList)
     return completeList.length === currentMonthDateList.length ? '전체' : `${completeList.length}번`
   }, [completeList.length, currentMonthDateList.length])
 
   const moveEdit = useCallback(() => {
     navigation.navigate('EditRoutine', {data: detail})
-  }, [detail])
+  }, [navigation, detail])
 
   const handlePrevDate = useCallback(() => {
     const prevMonth = subMonths(targetDate, 1)
     setTargetDate(prevMonth)
-
-    queryClient.invalidateQueries({queryKey: ['routineCompleteList', route.params.id]})
   }, [targetDate, setTargetDate])
 
   const handleNextDate = useCallback(() => {
     const prevMonth = addMonths(targetDate, 1)
     setTargetDate(prevMonth)
-
-    queryClient.invalidateQueries({queryKey: ['routineCompleteList', route.params.id]})
   }, [targetDate, setTargetDate])
+
+  useEffect(() => {
+    const init = async () => {
+      const firstDayOfMonth = startOfMonth(targetDate)
+      const formatDate = format(firstDayOfMonth, 'yyyy-MM-dd')
+
+      const params = {
+        todo_id: route.params.id,
+        start_date: formatDate
+      }
+
+      const routineCompleteList = await getRoutineCompleteList(params)
+      setCompleteList(routineCompleteList)
+    }
+
+    init()
+  }, [route.params.id, targetDate, getRoutineCompleteList])
 
   const getDateItemComponent: ListRenderItem<Date> = useCallback(
     ({item}) => {
       const formatDate = format(item, 'yyyy-MM-dd')
       const isActive = completeList.find(sItem => sItem.complete_date === formatDate)
       const backgroundColor = isActive ? '#FFD54F' : '#f5f6f8'
+      const color = isActive ? '#ffffff' : '#c8cdd4'
 
       return (
         <View
@@ -94,7 +95,7 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
             styles.dateItem,
             {backgroundColor, width: dateItemSize, height: dateItemSize, borderRadius: dateItemSize / 3.3}
           ]}>
-          <Text style={[styles.dateItemText, {fontSize: dateItemSize / 2.5}]}>{item.getDate()}</Text>
+          <Text style={[styles.dateItemText, {color}]}>{item.getDate()}</Text>
         </View>
       )
     },
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
   },
   dateItemText: {
     fontFamily: 'Pretendard-Bold',
-    color: '#ffffff'
+    fontSize: 14
   }
 })
 

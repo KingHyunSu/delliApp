@@ -16,9 +16,11 @@ import {navigationRef} from '@/utils/navigation'
 
 // views
 import HomeScreen from '@/views/Home'
-import RoutineScreen from '@/views/Routine'
-import EditRoutineScreen from '@/views/Routine/views/EditRoutine'
-import RoutineDetailScreen from '@/views/Routine/views/RoutineDetail'
+import {
+  RoutineList as RoutineListScreen,
+  EditRoutine as EditRoutineScreen,
+  RoutineDetail as RoutineDetailScreen
+} from '@/views/Routine'
 
 import SproutScreen from '@/views/Sprout'
 import CreateGoalScreen from '@/views/Sprout/Goal/views/CreateGoal'
@@ -74,7 +76,7 @@ const BottomTabs = React.memo(() => {
       />
       <Tab.Screen
         name="Routine"
-        component={RoutineScreen}
+        component={RoutineListScreen}
         options={{
           tabBarIcon: ({focused}) => {
             return <RoutineIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />

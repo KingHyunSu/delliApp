@@ -34,7 +34,7 @@ export interface GetRoutineDetailRequest {
 
 export interface GetRoutineCompleteListRequest {
   todo_id: number
-  startDate: string
+  start_date: string
 }
 
 export interface SetRoutineRequest {
