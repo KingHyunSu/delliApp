@@ -47,40 +47,6 @@ const createTable = async (db: SQLiteDatabase) => {
       )
     `)
 
-    // activity log table
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS "SCHEDULE_ACTIVITY_LOG" (
-        "schedule_activity_log_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        "schedule_id" INTEGER NOT NULL,
-        "active_time" INTEGER DEFAULT 0,
-        "complete_state" INTEGER DEFAULT 0,
-        "date" TEXT
-      )
-    `)
-
-    // goal table
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS "GOAL" (
-        "goal_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        "title" TEXT NOT NULL,
-        "start_date" TEXT, -- 시작일
-        "end_date" TEXT, -- 디데이
-        "active_end_date" INTEGER DEFAULT 0, -- 디데이 활성 상태 (0: 비활성화, 1: 활성화) 
-        "state" INTEGER DEFAULT 0 -- 목표 상태 (0: 완료 전, 1: 완료)
-      )
-    `)
-
-    // goal schedule table
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS "GOAL_SCHEDULE" (
-        "goal_schedule_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        "goal_id" INTEGER NOT NULL,
-        "schedule_id" INTEGER NOT NULL,
-        "focus_time" INTEGER, -- 목표 집중 시간
-        "complete_count" INTEGER -- 목표 완료 횟수
-      )         
-    `)
-
     // todo table
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "TODO" (

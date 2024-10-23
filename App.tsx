@@ -22,11 +22,6 @@ import {
   RoutineDetail as RoutineDetailScreen
 } from '@/views/Routine'
 
-import SproutScreen from '@/views/Sprout'
-import CreateGoalScreen from '@/views/Sprout/Goal/views/CreateGoal'
-import GoalDetailScreen from '@/views/Sprout/Goal/views/GoalDetail'
-import EditGoalScreen from '@/views/Sprout/Goal/views/EditGoal'
-
 import StatsScreen from '@/views/Stats'
 import SearchScheduleScreen from '@/views/SearchSchedule'
 import SettingScreen from '@/views/Setting'
@@ -42,7 +37,6 @@ import {Alert} from '@/components/messageBox'
 import HomeIcon from '@/assets/icons/home.svg'
 import MyIcon from '@/assets/icons/my.svg'
 import ChartIcon from '@/assets/icons/chart.svg'
-import SproutIcon from '@/assets/icons/sprout.svg'
 import RoutineIcon from '@/assets/icons/routine.svg'
 
 // stores
@@ -362,9 +356,6 @@ function App(): JSX.Element {
               <Stack.Screen name="MainTabs" component={BottomTabs} />
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
               <Stack.Screen name="CategoryStats" component={CategoryStats} />
-              <Stack.Screen name="CreateGoal" component={CreateGoalScreen} />
-              <Stack.Screen name="GoalDetail" component={GoalDetailScreen} />
-              <Stack.Screen name="EditGoal" component={EditGoalScreen} />
               <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
               <Stack.Screen name="RoutineDetail" component={RoutineDetailScreen} />
               <Stack.Screen name="SearchSchedule" component={SearchScheduleScreen} />
