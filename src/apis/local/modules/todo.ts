@@ -63,7 +63,7 @@ export const getRoutineDetail = async (params: GetRoutineDetailRequest) => {
 export const getRoutineCompleteList = async (params: GetRoutineCompleteListRequest) => {
   const query = todoQueries.getRoutineCompleteListQuery()
   const db = await openDatabase()
-  const [result] = await db.executeSql(query, [params.todo_id, params.start_date])
+  const [result] = await db.executeSql(query, [params.todo_id, params.start_date, params.end_date])
 
   return result.rows.raw() as TodoComplete[]
 }

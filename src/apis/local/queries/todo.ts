@@ -95,7 +95,7 @@ export const getRoutineDetailQuery = () => {
 
 export const getRoutineCompleteListQuery = () => {
   return `
-    SELECT complete_date FROM TODO_COMPLETE WHERE todo_id = ? AND complete_date >= ?
+    SELECT complete_date FROM TODO_COMPLETE WHERE todo_id = ? AND complete_date >= ? AND complete_date <= ?
   `
 }
 

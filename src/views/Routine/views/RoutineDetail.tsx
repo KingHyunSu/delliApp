@@ -19,6 +19,7 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
 
   const [targetDate, setTargetDate] = useState(new Date())
   const [completeList, setCompleteList] = useState<TodoComplete[]>([])
+  const [currentMonthDateList, setCurrentMonthDateList] = useState<Date[]>([])
 
   const windowDimensions = useRecoilValue(windowDimensionsState)
 
@@ -36,19 +37,20 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
     return (windowDimensions.width - padding - completeItemGap * 6) / 7
   }, [windowDimensions])
 
-  const currentMonthDateList = useMemo(() => {
-    const startDate = startOfMonth(targetDate)
-    const endDate = endOfMonth(targetDate)
-
-    return eachDayOfInterval({
-      start: startDate,
-      end: endDate
-    })
-  }, [targetDate])
-
   const completeCountText = useMemo(() => {
-    console.log('completeList', completeList)
-    return completeList.length === currentMonthDateList.length ? '전체' : `${completeList.length}번`
+    let percentage = 0
+    const total = currentMonthDateList.length
+    const completeCount = completeList.length
+
+    if (total > 0 && completeCount > 0) {
+      percentage = Math.trunc((completeCount / total) * 100)
+    }
+
+    if (percentage > 100) {
+      percentage = 100
+    }
+
+    return percentage
   }, [completeList.length, currentMonthDateList.length])
 
   const moveEdit = useCallback(() => {
@@ -57,26 +59,38 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
 
   const handlePrevDate = useCallback(() => {
     const prevMonth = subMonths(targetDate, 1)
+
     setTargetDate(prevMonth)
   }, [targetDate, setTargetDate])
 
   const handleNextDate = useCallback(() => {
     const prevMonth = addMonths(targetDate, 1)
+
     setTargetDate(prevMonth)
   }, [targetDate, setTargetDate])
 
   useEffect(() => {
     const init = async () => {
       const firstDayOfMonth = startOfMonth(targetDate)
-      const formatDate = format(firstDayOfMonth, 'yyyy-MM-dd')
+      const lastDayOfMonth = endOfMonth(targetDate)
+      const startDate = format(firstDayOfMonth, 'yyyy-MM-dd')
+      const endDate = format(lastDayOfMonth, 'yyyy-MM-dd')
 
       const params = {
         todo_id: route.params.id,
-        start_date: formatDate
+        start_date: startDate,
+        end_date: endDate
       }
 
       const routineCompleteList = await getRoutineCompleteList(params)
       setCompleteList(routineCompleteList)
+
+      const dateList = eachDayOfInterval({
+        start: firstDayOfMonth,
+        end: lastDayOfMonth
+      })
+
+      setCurrentMonthDateList(dateList)
     }
 
     init()
@@ -147,7 +161,7 @@ const RoutineDetail = ({navigation, route}: RoutineDetailScreenProps) => {
                 {targetDate.getFullYear()}년 {targetDate.getMonth() + 1}월
               </Text>
 
-              <Text style={styles.dateSubTitle}>{completeCountText} 완료</Text>
+              <Text style={styles.dateSubTitle}>{completeCountText}%</Text>
             </View>
 
             <View style={styles.dateButtonWrapper}>
