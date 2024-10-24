@@ -39,11 +39,13 @@ const EditScheduleBottomSheet = () => {
   const setEditScheduleListStatus = useSetRecoilState(editScheduleListStatusState)
 
   const [activeColorPanel, setActiveColorPanel] = React.useState(false)
+  const [activeTimePanel, setActiveTimePanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
   const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = React.useState(false)
 
   const closeAllPanel = () => {
     setActiveColorPanel(false)
+    setActiveTimePanel(false)
     setActiveDatePanel(false)
     setActiveDayOfWeekPanel(false)
   }
@@ -67,9 +69,9 @@ const EditScheduleBottomSheet = () => {
   }, [activeColorPanel])
 
   const handleTimePanel = React.useCallback(() => {
-    setShowTimeWheelModal(true)
     closeAllPanel()
-  }, [setShowTimeWheelModal])
+    setActiveTimePanel(!activeTimePanel)
+  }, [activeTimePanel])
 
   const handleDatePanel = React.useCallback(() => {
     closeAllPanel()
@@ -214,11 +216,15 @@ const EditScheduleBottomSheet = () => {
 
         {/* 시간 */}
         <TimePanel
+          value={activeTimePanel}
           data={schedule}
+          itemPanelHeight={defaultItemPanelHeight}
           headerContainerStyle={styles.panelHeaderContainer}
           headerTitleWrapper={styles.panelHeaderTitleWrapper}
           headerLabelStyle={styles.panelHeaderLabel}
           headerTitleStyle={styles.panelHeaderTitle}
+          itemHeaderContainerStyle={styles.panelItemHeader}
+          itemHeaderLabelStyle={styles.panelItemLabel}
           handleExpansion={handleTimePanel}
         />
 
@@ -251,7 +257,7 @@ const EditScheduleBottomSheet = () => {
         />
       </BottomSheetScrollView>
 
-      <TimeWheelModal />
+      {/*<TimeWheelModal />*/}
     </BottomSheet>
   )
 }
@@ -273,7 +279,7 @@ const styles = StyleSheet.create({
   },
   titleButton: {
     paddingVertical: 20,
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
     borderBottomColor: '#eeeded'
   },
   titleText: {
