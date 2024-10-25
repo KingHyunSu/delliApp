@@ -3,6 +3,7 @@ import {StyleSheet, Modal, Pressable, View, Text} from 'react-native'
 import Animated, {useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
 
 import WheelPicker from '@/components/WheelPicker'
+import DateTimePicker from '@react-native-community/datetimepicker'
 
 import {useRecoilState} from 'recoil'
 import {showTimeWheelModalState} from '@/store/modal'
@@ -186,6 +187,24 @@ const TimeWheel = () => {
     }
   }, [activeTab, startTime, endTime])
 
+  const [time, setTime] = React.useState(new Date())
+  const [formattedTime, setFormattedTime] = React.useState('')
+  const test = (event, selectedTime) => {
+    const currentTime = selectedTime || time
+    setTime(currentTime)
+
+    // 시간 형식을 오전/오후로 변환하는 함수
+    const hours = currentTime.getHours()
+    const minutes = currentTime.getMinutes()
+    const ampm = hours >= 12 ? '오후' : '오전' // 12 이상이면 '오후', 아니면 '오전'
+
+    const formattedHours = hours % 12 || 12 // 12시 형식으로 변환
+    const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes // 두 자리로 표시
+
+    // 최종 형식: "오전 10:05" 또는 "오후 2:15"
+    setFormattedTime(`${ampm} ${formattedHours}:${formattedMinutes}`)
+  }
+
   return (
     <Modal visible={showTimeWheelModal} hardwareAccelerated transparent statusBarTranslucent>
       <Animated.View style={backgroundStyle}>
@@ -210,33 +229,42 @@ const TimeWheel = () => {
             </View>
 
             <View style={contentStyles.container}>
-              <WheelPicker
-                options={meridiemList}
-                selectedIndex={meridiemIndex}
-                visibleRest={visibleRest}
-                containerStyle={contentStyles.wheelContainer}
-                selectedIndicatorStyle={leftWheelWrapperStyle}
-                itemTextStyle={contentStyles.wheelItemText}
-                onChange={handleMeridiemChanged}
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={time}
+                mode="time"
+                locale={'ko'}
+                is24Hour={false}
+                display="spinner"
+                onChange={test}
               />
-              <WheelPicker
-                options={hourList}
-                selectedIndex={hourIndex}
-                visibleRest={visibleRest}
-                containerStyle={contentStyles.wheelContainer}
-                selectedIndicatorStyle={contentStyles.wheelWrapper}
-                itemTextStyle={contentStyles.wheelItemText}
-                onChange={handleHourChanged}
-              />
-              <WheelPicker
-                options={minuteList}
-                selectedIndex={minuteIndex}
-                visibleRest={visibleRest}
-                containerStyle={contentStyles.wheelContainer}
-                selectedIndicatorStyle={rightWheelWrapperStyle}
-                itemTextStyle={contentStyles.wheelItemText}
-                onChange={handleMinuteChanged}
-              />
+              {/*<WheelPicker*/}
+              {/*  options={meridiemList}*/}
+              {/*  selectedIndex={meridiemIndex}*/}
+              {/*  visibleRest={visibleRest}*/}
+              {/*  containerStyle={contentStyles.wheelContainer}*/}
+              {/*  selectedIndicatorStyle={leftWheelWrapperStyle}*/}
+              {/*  itemTextStyle={contentStyles.wheelItemText}*/}
+              {/*  onChange={handleMeridiemChanged}*/}
+              {/*/>*/}
+              {/*<WheelPicker*/}
+              {/*  options={hourList}*/}
+              {/*  selectedIndex={hourIndex}*/}
+              {/*  visibleRest={visibleRest}*/}
+              {/*  containerStyle={contentStyles.wheelContainer}*/}
+              {/*  selectedIndicatorStyle={contentStyles.wheelWrapper}*/}
+              {/*  itemTextStyle={contentStyles.wheelItemText}*/}
+              {/*  onChange={handleHourChanged}*/}
+              {/*/>*/}
+              {/*<WheelPicker*/}
+              {/*  options={minuteList}*/}
+              {/*  selectedIndex={minuteIndex}*/}
+              {/*  visibleRest={visibleRest}*/}
+              {/*  containerStyle={contentStyles.wheelContainer}*/}
+              {/*  selectedIndicatorStyle={rightWheelWrapperStyle}*/}
+              {/*  itemTextStyle={contentStyles.wheelItemText}*/}
+              {/*  onChange={handleMinuteChanged}*/}
+              {/*/>*/}
             </View>
           </View>
 
