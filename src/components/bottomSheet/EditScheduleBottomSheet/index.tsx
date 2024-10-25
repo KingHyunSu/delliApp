@@ -3,8 +3,6 @@ import {StyleSheet, ScrollView, Text, Pressable} from 'react-native'
 import BottomSheet, {BottomSheetHandleProps, BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import {isAfter} from 'date-fns'
 
-import TimeWheelModal from '@/components/modal/TimeWheelModal'
-
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ColorPanel from './src/ColorPanel'
 import TimePanel from './src/TimePanel'
@@ -15,7 +13,6 @@ import CategoryPanel from './src/CategoryPanel'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {editScheduleListSnapPointState, isEditState, editScheduleListStatusState} from '@/store/system'
 import {scheduleState, isInputModeState} from '@/store/schedule'
-import {showTimeWheelModalState} from '@/store/modal'
 
 import {RANGE_FLAG} from '@/utils/types'
 
@@ -35,15 +32,16 @@ const EditScheduleBottomSheet = () => {
 
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const showScheduleCategorySelectorBottomSheet = useSetRecoilState(showScheduleCategorySelectorBottomSheetState)
-  const setShowTimeWheelModal = useSetRecoilState(showTimeWheelModalState)
   const setEditScheduleListStatus = useSetRecoilState(editScheduleListStatusState)
 
   const [activeColorPanel, setActiveColorPanel] = React.useState(false)
+  const [activeTimePanel, setActiveTimePanel] = React.useState(false)
   const [activeDatePanel, setActiveDatePanel] = React.useState(false)
   const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = React.useState(false)
 
   const closeAllPanel = () => {
     setActiveColorPanel(false)
+    setActiveTimePanel(false)
     setActiveDatePanel(false)
     setActiveDayOfWeekPanel(false)
   }
@@ -67,9 +65,9 @@ const EditScheduleBottomSheet = () => {
   }, [activeColorPanel])
 
   const handleTimePanel = React.useCallback(() => {
-    setShowTimeWheelModal(true)
     closeAllPanel()
-  }, [setShowTimeWheelModal])
+    setActiveTimePanel(!activeTimePanel)
+  }, [activeTimePanel])
 
   const handleDatePanel = React.useCallback(() => {
     closeAllPanel()
@@ -119,6 +117,26 @@ const EditScheduleBottomSheet = () => {
           end_date: date
         }))
       }
+    },
+    [setSchedule]
+  )
+
+  const changeStartTime = React.useCallback(
+    (time: number) => {
+      setSchedule(prevState => ({
+        ...prevState,
+        start_time: time
+      }))
+    },
+    [setSchedule]
+  )
+
+  const changeEndTime = React.useCallback(
+    (time: number) => {
+      setSchedule(prevState => ({
+        ...prevState,
+        end_time: time
+      }))
     },
     [setSchedule]
   )
@@ -214,12 +232,17 @@ const EditScheduleBottomSheet = () => {
 
         {/* 시간 */}
         <TimePanel
+          value={activeTimePanel}
           data={schedule}
+          itemPanelHeight={defaultItemPanelHeight}
           headerContainerStyle={styles.panelHeaderContainer}
           headerTitleWrapper={styles.panelHeaderTitleWrapper}
           headerLabelStyle={styles.panelHeaderLabel}
           headerTitleStyle={styles.panelHeaderTitle}
+          itemHeaderLabelStyle={styles.panelItemLabel}
           handleExpansion={handleTimePanel}
+          changeStartTime={changeStartTime}
+          changeEndTime={changeEndTime}
         />
 
         {/* 기간 */}
@@ -250,8 +273,6 @@ const EditScheduleBottomSheet = () => {
           changeDayOfWeek={changeDayOfWeek}
         />
       </BottomSheetScrollView>
-
-      <TimeWheelModal />
     </BottomSheet>
   )
 }

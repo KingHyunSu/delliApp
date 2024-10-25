@@ -1,30 +1,153 @@
-import React from 'react'
-import {TextStyle, ViewStyle, View, Text, Image} from 'react-native'
+import {memo, useCallback, useMemo} from 'react'
+import {TextStyle, ViewStyle, StyleSheet, Platform, View, Text, Image, Pressable} from 'react-native'
 import Panel from '@/components/Panel'
 import {getTimeOfMinute} from '@/utils/helper'
+import DateTimePicker, {DateTimePickerAndroid, DateTimePickerEvent} from '@react-native-community/datetimepicker'
+import {addMinutes, startOfToday} from 'date-fns'
 
 interface Props {
+  value: boolean
   data: Schedule
+  itemPanelHeight: number
   headerContainerStyle: ViewStyle
   headerTitleWrapper: ViewStyle
   headerLabelStyle: TextStyle
   headerTitleStyle: TextStyle
+  itemHeaderLabelStyle: TextStyle
   handleExpansion: () => void
+  changeStartTime: (time: number) => void
+  changeEndTime: (time: number) => void
 }
-const TimePanel = React.memo(
-  ({data, headerContainerStyle, headerTitleWrapper, headerLabelStyle, headerTitleStyle, handleExpansion}: Props) => {
-    const startTime = React.useMemo(() => {
+const TimePanel = memo(
+  ({
+    value,
+    data,
+    itemPanelHeight,
+    headerContainerStyle,
+    headerTitleWrapper,
+    headerLabelStyle,
+    headerTitleStyle,
+    itemHeaderLabelStyle,
+    handleExpansion,
+    changeStartTime,
+    changeEndTime
+  }: Props) => {
+    const startTimeObj = useMemo(() => {
       return getTimeOfMinute(data.start_time)
     }, [data.start_time])
 
-    const endTime = React.useMemo(() => {
+    const endTimeObj = useMemo(() => {
       return getTimeOfMinute(data.end_time)
     }, [data.end_time])
+
+    const startTime = useMemo(() => {
+      return addMinutes(startOfToday(), data.start_time)
+    }, [data.start_time])
+
+    const endTime = useMemo(() => {
+      return addMinutes(startOfToday(), data.end_time)
+    }, [data.end_time])
+
+    const _changeStartTime = useCallback(
+      (event: DateTimePickerEvent, date: Date | undefined) => {
+        if (date) {
+          const hour = date.getHours()
+          const minutes = date.getMinutes()
+
+          changeStartTime(hour * 60 + minutes)
+        }
+      },
+      [changeStartTime]
+    )
+
+    const _changeEndTime = useCallback(
+      (event: DateTimePickerEvent, date: Date | undefined) => {
+        if (date) {
+          const hour = date.getHours()
+          const minutes = date.getMinutes()
+
+          changeEndTime(hour * 60 + minutes)
+        }
+      },
+      [changeEndTime]
+    )
+
+    const showAndroidStartTimeModal = useCallback(() => {
+      DateTimePickerAndroid.open({
+        value: startTime,
+        mode: 'time',
+        display: 'spinner',
+        is24Hour: false,
+        onChange: _changeStartTime
+      })
+    }, [startTime, _changeStartTime])
+
+    const showAndroidEndTimeModal = useCallback(() => {
+      DateTimePickerAndroid.open({
+        value: endTime,
+        mode: 'time',
+        display: 'spinner',
+        is24Hour: false,
+        onChange: _changeEndTime
+      })
+    }, [endTime, _changeEndTime])
+
+    const startTimeButton = useMemo(() => {
+      if (Platform.OS === 'ios') {
+        return (
+          <DateTimePicker
+            value={startTime}
+            mode="time"
+            themeVariant="light"
+            locale="ko"
+            display="compact"
+            onChange={_changeStartTime}
+          />
+        )
+      }
+
+      return (
+        <Pressable style={styles.button} onPress={showAndroidStartTimeModal}>
+          <Text style={styles.buttonText}>
+            {`${startTimeObj.meridiem} ${startTimeObj.hour}시 ${startTimeObj.minute}분`}
+          </Text>
+        </Pressable>
+      )
+    }, [
+      startTime,
+      startTimeObj.meridiem,
+      startTimeObj.hour,
+      startTimeObj.minute,
+      _changeStartTime,
+      showAndroidStartTimeModal
+    ])
+
+    const endTimeButton = useMemo(() => {
+      if (Platform.OS === 'ios') {
+        return (
+          <DateTimePicker
+            value={endTime}
+            mode="time"
+            themeVariant="light"
+            locale="ko"
+            display="compact"
+            onChange={_changeEndTime}
+          />
+        )
+      }
+
+      return (
+        <Pressable style={styles.button} onPress={showAndroidEndTimeModal}>
+          <Text style={styles.buttonText}>{`${endTimeObj.meridiem} ${endTimeObj.hour}시 ${endTimeObj.minute}분`}</Text>
+        </Pressable>
+      )
+    }, [endTime, endTimeObj.meridiem, endTimeObj.hour, endTimeObj.minute, _changeEndTime, showAndroidEndTimeModal])
 
     return (
       <Panel
         type="container"
-        expandable={false}
+        value={value}
+        contentsHeight={itemPanelHeight * 2 + 3}
         handleExpansion={handleExpansion}
         headerComponent={
           <View style={headerContainerStyle}>
@@ -33,8 +156,23 @@ const TimePanel = React.memo(
             <View style={headerTitleWrapper}>
               <Text style={headerLabelStyle}>시간</Text>
               <Text style={headerTitleStyle}>
-                {`${startTime.meridiem} ${startTime.hour}시 ${startTime.minute}분 ~ ${endTime.meridiem} ${endTime.hour}시 ${endTime.minute}분`}
+                {`${startTimeObj.meridiem} ${startTimeObj.hour}시 ${startTimeObj.minute}분 ~ ${endTimeObj.meridiem} ${endTimeObj.hour}시 ${endTimeObj.minute}분`}
               </Text>
+            </View>
+          </View>
+        }
+        contentsComponent={
+          <View>
+            <View style={[styles.itemHeaderContainer, {height: itemPanelHeight, borderTopWidth: 0}]}>
+              <Text style={itemHeaderLabelStyle}>시작 시간</Text>
+
+              {startTimeButton}
+            </View>
+
+            <View style={[styles.itemHeaderContainer, {height: itemPanelHeight}]}>
+              <Text style={itemHeaderLabelStyle}>종료 시간</Text>
+
+              {endTimeButton}
             </View>
           </View>
         }
@@ -43,9 +181,33 @@ const TimePanel = React.memo(
   },
   (prevProps, nextProps) => {
     return (
-      prevProps.data.start_time === nextProps.data.start_time && prevProps.data.end_time === nextProps.data.end_time
+      prevProps.value === nextProps.value &&
+      prevProps.data.start_time === nextProps.data.start_time &&
+      prevProps.data.end_time === nextProps.data.end_time
     )
   }
 )
+
+const styles = StyleSheet.create({
+  itemHeaderContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#eeeded'
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 7,
+    backgroundColor: '#ecedee'
+  },
+  buttonText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 14,
+    color: '#000000'
+  }
+})
 
 export default TimePanel
