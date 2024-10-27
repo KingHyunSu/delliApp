@@ -206,29 +206,29 @@ const EditScheduleBottomSheet = () => {
         </Pressable>
 
         {/* 카테고리 */}
-        <CategoryPanel
-          data={schedule}
-          headerContainerStyle={styles.panelHeaderContainer}
-          headerTitleWrapper={styles.panelHeaderTitleWrapper}
-          headerLabelStyle={styles.panelHeaderLabel}
-          headerTitleStyle={styles.panelHeaderTitle}
-          handleExpansion={handleCategoryPanel}
-        />
+        {/*<CategoryPanel*/}
+        {/*  data={schedule}*/}
+        {/*  headerContainerStyle={styles.panelHeaderContainer}*/}
+        {/*  headerTitleWrapper={styles.panelHeaderTitleWrapper}*/}
+        {/*  headerLabelStyle={styles.panelHeaderLabel}*/}
+        {/*  headerTitleStyle={styles.panelHeaderTitle}*/}
+        {/*  handleExpansion={handleCategoryPanel}*/}
+        {/*/>*/}
 
         {/* 색상 */}
-        <ColorPanel
-          value={activeColorPanel}
-          isEdit={isEdit}
-          data={schedule}
-          itemPanelHeight={defaultItemPanelHeight}
-          headerContainerStyle={styles.panelHeaderContainer}
-          headerLabelStyle={styles.panelHeaderLabel}
-          itemHeaderContainerStyle={styles.panelItemHeader}
-          itemHeaderLabelStyle={styles.panelItemLabel}
-          handleExpansion={handleColorPanel}
-          changeBackgroundColor={changeBackgroundColor}
-          changeTextColor={changeTextColor}
-        />
+        {/*<ColorPanel*/}
+        {/*  value={activeColorPanel}*/}
+        {/*  isEdit={isEdit}*/}
+        {/*  data={schedule}*/}
+        {/*  itemPanelHeight={defaultItemPanelHeight}*/}
+        {/*  headerContainerStyle={styles.panelHeaderContainer}*/}
+        {/*  headerLabelStyle={styles.panelHeaderLabel}*/}
+        {/*  itemHeaderContainerStyle={styles.panelItemHeader}*/}
+        {/*  itemHeaderLabelStyle={styles.panelItemLabel}*/}
+        {/*  handleExpansion={handleColorPanel}*/}
+        {/*  changeBackgroundColor={changeBackgroundColor}*/}
+        {/*  changeTextColor={changeTextColor}*/}
+        {/*/>*/}
 
         {/* 시간 */}
         <TimePanel

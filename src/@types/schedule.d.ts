@@ -28,6 +28,7 @@ declare interface Schedule {
   title_x: number
   title_y: number
   title_rotate: number
+  font_size: number
   background_color: string
   text_color: string
   complete_start_time?: number

@@ -137,12 +137,12 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
 
   const textStyle = React.useMemo(() => {
     let color = '#424242'
-
+    console.log('data.font_size', data.font_size)
     if (data.title) {
       color = data.text_color
     }
-    return [styles.text, {color}]
-  }, [data.title, data.text_color])
+    return [styles.text, {color, fontSize: data.font_size}]
+  }, [data.title, data.text_color, data.font_size])
 
   React.useEffect(() => {
     setLeft(containerX.value)

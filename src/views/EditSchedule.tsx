@@ -1,6 +1,8 @@
 import React from 'react'
-import {Platform, StyleSheet, Pressable, View, Text, Alert, Image} from 'react-native'
+import {Platform, StyleSheet, ScrollView, View, Pressable, Text, Alert, Image} from 'react-native'
 import Animated, {runOnJS, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
+import Slider from '@react-native-community/slider'
+import {Shadow} from 'react-native-shadow-2'
 import EditScheduleBottomSheet from '@/components/bottomSheet/EditScheduleBottomSheet'
 import OverlapScheduleListBottomSheet from '@/components/bottomSheet/OverlapScheduleListBottomSheet'
 import ScheduleCategorySelectorBottomSheet from '@/components/bottomSheet/ScheduleCategorySelectorBottomSheet'
@@ -8,6 +10,8 @@ import AppBar from '@/components/AppBar'
 import EditTimetable from '@/components/TimeTable/src/EditTimetable'
 
 import CancelIcon from '@/assets/icons/cancle.svg'
+import RotateIcon from '@/assets/icons/rotate.svg'
+
 import {useQueryClient} from '@tanstack/react-query'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
@@ -40,9 +44,9 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const [isRendered, setIsRendered] = React.useState(false)
 
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
+  const [schedule, setSchedule] = useRecoilState(scheduleState)
 
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
-  const schedule = useRecoilValue(scheduleState)
   const scheduleList = useRecoilValue(scheduleListState)
   const disableScheduleList = useRecoilValue(disableScheduleListState)
   const editScheduleListStatus = useRecoilValue(editScheduleListStatusState)
@@ -168,13 +172,13 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     disableScheduleList.length
   ])
 
-  React.useEffect(() => {
-    if (activeSubmit) {
-      setBottomSafeAreaColor('#1E90FF')
-    } else {
-      setBottomSafeAreaColor('#f5f6f8')
-    }
-  }, [activeSubmit, setBottomSafeAreaColor])
+  // React.useEffect(() => {
+  //   if (activeSubmit) {
+  //     setBottomSafeAreaColor('#1E90FF')
+  //   } else {
+  //     setBottomSafeAreaColor('#f5f6f8')
+  //   }
+  // }, [activeSubmit, setBottomSafeAreaColor])
 
   React.useEffect(() => {
     if (editScheduleListStatus === 0) {
@@ -194,6 +198,18 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       setIsRendered(false)
     }
   }, [editTimetableTranslateY, setIsRendered])
+
+  // const [fontSize, setFontSize] = React.useState(12)
+
+  const changeFontSize = React.useCallback(
+    (value: number) => {
+      setSchedule(prevState => ({
+        ...prevState,
+        font_size: value
+      }))
+    },
+    [setSchedule]
+  )
 
   return (
     <View style={styles.container}>
@@ -225,9 +241,69 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         />
       </Animated.View>
 
-      <Pressable style={submitButtonStyle} onPress={handleSubmit} disabled={!activeSubmit}>
-        <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>
-      </Pressable>
+      {/*<Pressable style={submitButtonStyle} onPress={handleSubmit} disabled={!activeSubmit}>*/}
+      {/*  <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>*/}
+      {/*</Pressable>*/}
+
+      <Shadow
+        containerStyle={{zIndex: 999, position: 'absolute', bottom: 72, left: 16, right: 16}}
+        stretch={true}
+        startColor={'#ffffff'}
+        distance={15}>
+        <View style={styles.controlViewContainer}>
+          <View style={styles.controlViewWrapper}>
+            <Slider
+              style={{flex: 1}}
+              value={schedule.font_size}
+              step={2}
+              minimumValue={10}
+              maximumValue={32}
+              minimumTrackTintColor="#FFFFFF"
+              maximumTrackTintColor="#000000"
+              onValueChange={changeFontSize}
+            />
+
+            <Text style={styles.controlText}>{schedule.font_size}</Text>
+          </View>
+        </View>
+      </Shadow>
+
+      <View style={styles.controlButtonContainer}>
+        <Pressable style={styles.colorButton}>
+          <Image source={require('@/assets/icons/color.png')} style={styles.colorIcon} />
+        </Pressable>
+
+        <ScrollView contentContainerStyle={styles.controlButtonScrollContainer} horizontal={true}>
+          {/* 글자 크기 | 글자 회전 */}
+
+          <Pressable style={styles.controlButton}>
+            <View style={styles.controlButtonWrapper}>
+              <Text style={styles.fontSizeButtonText}>{schedule.font_size}</Text>
+            </View>
+            <Text style={styles.controlButtonText}>글자 크기</Text>
+          </Pressable>
+
+          <Pressable style={styles.controlButton}>
+            <View style={styles.controlButtonWrapper}>
+              <RotateIcon width={28} height={28} stroke="#ffffff" strokeWidth={38} />
+            </View>
+
+            <Text style={styles.controlButtonText}>글자 회전</Text>
+          </Pressable>
+
+          <Pressable style={styles.controlButton}>
+            <View style={styles.controlButtonWrapper}>
+              <Text style={styles.fontSizeButtonText}>A</Text>
+            </View>
+
+            <Text style={styles.controlButtonText}>폰트</Text>
+          </Pressable>
+        </ScrollView>
+
+        <Pressable style={styles.submitButton2}>
+          <Text style={styles.submitButtonText}>등록</Text>
+        </Pressable>
+      </View>
 
       <EditScheduleBottomSheet />
       <ScheduleCategorySelectorBottomSheet />
@@ -283,6 +359,86 @@ const styles = StyleSheet.create({
     color: '#8d9195',
     fontSize: 12,
     fontFamily: 'Pretendard-SemiBold'
+  },
+
+  controlViewContainer: {
+    zIndex: 999,
+
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    backgroundColor: '#424242'
+  },
+  controlViewWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20
+  },
+  controlText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 16,
+    color: '#ffffff'
+  },
+  controlButtonContainer: {
+    zIndex: 999,
+    position: 'absolute',
+    left: 16,
+    right: 16,
+    bottom: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    borderRadius: 50,
+    backgroundColor: '#424242'
+  },
+  controlButtonScrollContainer: {
+    gap: 5
+  },
+  controlButtonWrapper: {
+    height: 29,
+    justifyContent: 'center',
+    transform: [{translateY: -1}]
+  },
+  controlButton: {
+    width: 52,
+    height: 42,
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  controlButtonText: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 10,
+    color: '#ffffff'
+  },
+  colorButton: {
+    paddingRight: 10
+  },
+  colorIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 23,
+    borderWidth: 2,
+    borderColor: '#ffffff'
+  },
+  fontSizeButtonText: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 26,
+    color: '#ffffff'
+  },
+  submitButton2: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 42,
+    borderRadius: 24,
+    paddingHorizontal: 20,
+    backgroundColor: '#1E90FF',
+    marginLeft: 10
+  },
+  submitButtonText: {
+    fontFamily: 'Pretendard-Bold',
+    fontSize: 14,
+    color: '#ffffff'
   },
 
   // bottom button style

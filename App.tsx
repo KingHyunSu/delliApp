@@ -147,7 +147,7 @@ function App(): JSX.Element {
       case 'Stats':
         _statusBarColor = '#f5f6f8'
         break
-      case 'EditSchedule':
+      // case 'EditSchedule':
       case 'EditGoal':
       case 'EditRoutine':
         // 화면의 useEffect 보다 늦게 실행됨...
