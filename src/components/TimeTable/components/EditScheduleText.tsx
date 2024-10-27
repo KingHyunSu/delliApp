@@ -137,7 +137,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
 
   const textStyle = React.useMemo(() => {
     let color = '#424242'
-    console.log('data.font_size', data.font_size)
+
     if (data.title) {
       color = data.text_color
     }
@@ -174,6 +174,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
           </Animated.View>
 
           <TextInput
+            key={data.font_size}
             ref={textInputRef}
             value={data.title}
             style={textStyle}

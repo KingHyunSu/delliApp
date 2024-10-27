@@ -11,17 +11,13 @@ import EditTimetable from '@/components/TimeTable/src/EditTimetable'
 
 import CancelIcon from '@/assets/icons/cancle.svg'
 import RotateIcon from '@/assets/icons/rotate.svg'
+import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
+import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 
 import {useQueryClient} from '@tanstack/react-query'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {
-  isEditState,
-  isLoadingState,
-  editScheduleListStatusState,
-  bottomSafeAreaColorState,
-  editTimetableTranslateYState
-} from '@/store/system'
+import {isEditState, isLoadingState, editScheduleListStatusState, editTimetableTranslateYState} from '@/store/system'
 import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
 import {
   disableScheduleListState,
@@ -35,6 +31,7 @@ import {EditScheduleProps} from '@/types/navigation'
 import {getTimeOfMinute} from '@/utils/helper'
 import {useGetExistScheduleList, useSetSchedule} from '@/apis/hooks/useSchedule'
 
+type ControlMode = 'fontSize' | 'rotate' | null
 const EditSchedule = ({navigation}: EditScheduleProps) => {
   const queryClient = useQueryClient()
 
@@ -42,6 +39,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const {mutateAsync: setScheduleMutateAsync} = useSetSchedule()
 
   const [isRendered, setIsRendered] = React.useState(false)
+  const [activeControlMode, setActiveControlMode] = React.useState<ControlMode>(null)
 
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
@@ -55,7 +53,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const setIsEdit = useSetRecoilState(isEditState)
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowOverlapScheduleListBottomSheet = useSetRecoilState(showOverlapScheduleListBottomSheetState)
-  const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
 
   const [newStartTime, setNewStartTime] = React.useState(schedule.start_time)
   const [newEndTime, setNewEndTime] = React.useState(schedule.end_time)
@@ -94,12 +91,27 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     return [timetableAnimatedStyle, {opacity: isLoading ? 0.6 : 1}]
   }, [isLoading])
 
+  const fontSizeButtonTextStyle = React.useMemo(() => {
+    return activeControlMode === 'fontSize' ? activeFontSizeButtonTextStyle : styles.fontSizeButtonText
+  }, [activeControlMode])
+
+  const rotateIconColor = React.useMemo(() => {
+    return activeControlMode === 'rotate' ? '#ffffff' : '#696969'
+  }, [activeControlMode])
+
+  const getControlButtonTextStyle = React.useCallback(
+    (mode: ControlMode) => {
+      return mode === activeControlMode ? activeControlButtonTextStyle : styles.controlButtonText
+    },
+    [activeControlMode]
+  )
+
   const submitButtonStyle = React.useMemo(() => {
-    return [styles.submitButton, activeSubmit && styles.activeSubmitBtn]
+    return activeSubmit ? activeSubmitButtonStyle : styles.submitButton
   }, [activeSubmit])
 
-  const submitTextStyle = React.useMemo(() => {
-    return [styles.submitText, activeSubmit && styles.activeSubmitText]
+  const submitButtonTextStyle = React.useMemo(() => {
+    return activeSubmit ? activeSubmitButtonTextStyle : styles.submitButtonText
   }, [activeSubmit])
 
   const startTimeString = React.useMemo(() => {
@@ -150,6 +162,37 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     }
   }, [schedule, invalidScheduleList, navigation, setScheduleMutateAsync, setIsEdit])
 
+  const changeActiveControlMode = React.useCallback(
+    (mode: ControlMode) => () => {
+      if (activeControlMode && activeControlMode === mode) {
+        setActiveControlMode(null)
+      } else {
+        setActiveControlMode(mode)
+      }
+    },
+    [activeControlMode, setActiveControlMode]
+  )
+
+  const changeFontSize = React.useCallback(
+    (value: number) => {
+      setSchedule(prevState => ({
+        ...prevState,
+        font_size: value
+      }))
+    },
+    [setSchedule]
+  )
+
+  const changeRotate = React.useCallback(
+    (value: number) => () => {
+      setSchedule(prevState => ({
+        ...prevState,
+        title_rotate: prevState.title_rotate + value
+      }))
+    },
+    [setSchedule]
+  )
+
   const handleSubmit = React.useCallback(async () => {
     try {
       const existScheduleList = await getExistScheduleList.mutateAsync()
@@ -172,14 +215,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     disableScheduleList.length
   ])
 
-  // React.useEffect(() => {
-  //   if (activeSubmit) {
-  //     setBottomSafeAreaColor('#1E90FF')
-  //   } else {
-  //     setBottomSafeAreaColor('#f5f6f8')
-  //   }
-  // }, [activeSubmit, setBottomSafeAreaColor])
-
   React.useEffect(() => {
     if (editScheduleListStatus === 0) {
       timeInfoTranslateX.value = withTiming(-10)
@@ -198,18 +233,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       setIsRendered(false)
     }
   }, [editTimetableTranslateY, setIsRendered])
-
-  // const [fontSize, setFontSize] = React.useState(12)
-
-  const changeFontSize = React.useCallback(
-    (value: number) => {
-      setSchedule(prevState => ({
-        ...prevState,
-        font_size: value
-      }))
-    },
-    [setSchedule]
-  )
 
   return (
     <View style={styles.container}>
@@ -241,69 +264,95 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         />
       </Animated.View>
 
-      {/*<Pressable style={submitButtonStyle} onPress={handleSubmit} disabled={!activeSubmit}>*/}
-      {/*  <Text style={submitTextStyle}>{schedule.schedule_id ? '수정하기' : '등록하기'}</Text>*/}
-      {/*</Pressable>*/}
+      {/* control mode 닫기 overlay */}
+      {activeControlMode && (
+        <Pressable style={styles.activeControlModeOverlay} onPress={() => setActiveControlMode(null)} />
+      )}
+
+      {activeControlMode && (
+        <Shadow containerStyle={styles.controlViewShadowContainer} stretch={true} startColor={'#ffffff'} distance={15}>
+          {/*<View style={styles.controlViewContainer}>{controlDetailComponent}</View>*/}
+          <View style={styles.controlViewContainer}>
+            {activeControlMode === 'fontSize' && (
+              <View style={styles.controlViewWrapper}>
+                <Slider
+                  style={{flex: 1}}
+                  value={schedule.font_size}
+                  step={2}
+                  minimumValue={10}
+                  maximumValue={32}
+                  minimumTrackTintColor="#FFFFFF"
+                  maximumTrackTintColor="#000000"
+                  onValueChange={changeFontSize}
+                />
+
+                <Text style={styles.controlText}>{schedule.font_size}</Text>
+              </View>
+            )}
+
+            {activeControlMode === 'rotate' && (
+              <View style={[styles.controlViewWrapper, {justifyContent: 'space-between'}]}>
+                <Pressable style={styles.controlRotateButton}>
+                  <Text style={{fontSize: 14, color: '#ffffff'}}>중앙 맞춤</Text>
+                </Pressable>
+
+                <View style={{flexDirection: 'row', gap: 10}}>
+                  <Pressable style={styles.controlRotateButton} onPress={changeRotate(10)}>
+                    <ArrowUpIcon stroke="#fff" width={18} height={18} />
+                  </Pressable>
+                  <Pressable style={styles.controlRotateButton} onPress={changeRotate(-10)}>
+                    <ArrowDownIcon stroke="#fff" width={18} height={18} />
+                  </Pressable>
+                </View>
+              </View>
+            )}
+          </View>
+        </Shadow>
+      )}
 
       <Shadow
-        containerStyle={{zIndex: 999, position: 'absolute', bottom: 72, left: 16, right: 16}}
+        containerStyle={styles.controlButtonShadowContainer}
         stretch={true}
         startColor={'#ffffff'}
-        distance={15}>
-        <View style={styles.controlViewContainer}>
-          <View style={styles.controlViewWrapper}>
-            <Slider
-              style={{flex: 1}}
-              value={schedule.font_size}
-              step={2}
-              minimumValue={10}
-              maximumValue={32}
-              minimumTrackTintColor="#FFFFFF"
-              maximumTrackTintColor="#000000"
-              onValueChange={changeFontSize}
-            />
+        distance={10}
+        offset={[0, 10]}>
+        <View style={styles.controlButtonContainer}>
+          <Pressable style={styles.colorButton}>
+            <Image source={require('@/assets/icons/color.png')} style={styles.colorIcon} />
+          </Pressable>
 
-            <Text style={styles.controlText}>{schedule.font_size}</Text>
-          </View>
+          <ScrollView contentContainerStyle={styles.controlButtonScrollContainer} horizontal={true}>
+            <Pressable style={styles.controlButton} onPress={changeActiveControlMode('fontSize')}>
+              <View style={styles.controlButtonWrapper}>
+                <Text style={fontSizeButtonTextStyle}>{schedule.font_size}</Text>
+              </View>
+
+              <Text style={getControlButtonTextStyle('fontSize')}>글자 크기</Text>
+            </Pressable>
+
+            <Pressable style={styles.controlButton} onPress={changeActiveControlMode('rotate')}>
+              <View style={styles.controlButtonWrapper}>
+                <RotateIcon width={28} height={28} stroke={rotateIconColor} strokeWidth={38} />
+              </View>
+
+              <Text style={getControlButtonTextStyle('rotate')}>글자 회전</Text>
+            </Pressable>
+
+            {/* TODO - 폰트 작업 후 추가 예정 */}
+            {/*<Pressable style={styles.controlButton}>*/}
+            {/*  <View style={styles.controlButtonWrapper}>*/}
+            {/*    <Text style={styles.fontSizeButtonText}>A</Text>*/}
+            {/*  </View>*/}
+
+            {/*  <Text style={styles.controlButtonText}>폰트</Text>*/}
+            {/*</Pressable>*/}
+          </ScrollView>
+
+          <Pressable style={submitButtonStyle} disabled={!activeSubmit} onPress={handleSubmit}>
+            <Text style={submitButtonTextStyle}>{schedule.schedule_id ? '수정' : '등록'}</Text>
+          </Pressable>
         </View>
       </Shadow>
-
-      <View style={styles.controlButtonContainer}>
-        <Pressable style={styles.colorButton}>
-          <Image source={require('@/assets/icons/color.png')} style={styles.colorIcon} />
-        </Pressable>
-
-        <ScrollView contentContainerStyle={styles.controlButtonScrollContainer} horizontal={true}>
-          {/* 글자 크기 | 글자 회전 */}
-
-          <Pressable style={styles.controlButton}>
-            <View style={styles.controlButtonWrapper}>
-              <Text style={styles.fontSizeButtonText}>{schedule.font_size}</Text>
-            </View>
-            <Text style={styles.controlButtonText}>글자 크기</Text>
-          </Pressable>
-
-          <Pressable style={styles.controlButton}>
-            <View style={styles.controlButtonWrapper}>
-              <RotateIcon width={28} height={28} stroke="#ffffff" strokeWidth={38} />
-            </View>
-
-            <Text style={styles.controlButtonText}>글자 회전</Text>
-          </Pressable>
-
-          <Pressable style={styles.controlButton}>
-            <View style={styles.controlButtonWrapper}>
-              <Text style={styles.fontSizeButtonText}>A</Text>
-            </View>
-
-            <Text style={styles.controlButtonText}>폰트</Text>
-          </Pressable>
-        </ScrollView>
-
-        <Pressable style={styles.submitButton2}>
-          <Text style={styles.submitButtonText}>등록</Text>
-        </Pressable>
-      </View>
 
       <EditScheduleBottomSheet />
       <ScheduleCategorySelectorBottomSheet />
@@ -328,7 +377,7 @@ const styles = StyleSheet.create({
   timeIntoContainer: {
     paddingVertical: 7,
     paddingHorizontal: 10,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffff',
     borderRadius: 10,
 
     ...Platform.select({
@@ -361,9 +410,22 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold'
   },
 
-  controlViewContainer: {
+  activeControlModeOverlay: {
+    zIndex: 99,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
+  },
+  controlViewShadowContainer: {
     zIndex: 999,
-
+    position: 'absolute',
+    bottom: 82,
+    left: 16,
+    right: 16
+  },
+  controlViewContainer: {
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 10,
@@ -379,12 +441,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#ffffff'
   },
-  controlButtonContainer: {
+  controlButtonShadowContainer: {
     zIndex: 999,
     position: 'absolute',
+    bottom: 10,
     left: 16,
-    right: 16,
-    bottom: 0,
+    right: 16
+  },
+  controlButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -407,9 +471,9 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   controlButtonText: {
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 10,
-    color: '#ffffff'
+    color: '#696969'
   },
   colorButton: {
     paddingRight: 10
@@ -419,51 +483,43 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 23,
     borderWidth: 2,
-    borderColor: '#ffffff'
+    borderColor: '#696969'
   },
   fontSizeButtonText: {
     fontFamily: 'Pretendard-Regular',
     fontSize: 26,
-    color: '#ffffff'
+    color: '#696969'
   },
-  submitButton2: {
+
+  controlRotateButton: {
+    height: 42,
+    paddingHorizontal: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#696969',
+    borderRadius: 10
+  },
+
+  submitButton: {
     justifyContent: 'center',
     alignItems: 'center',
     height: 42,
     borderRadius: 24,
     paddingHorizontal: 20,
-    backgroundColor: '#1E90FF',
+    backgroundColor: '#f5f6f8',
     marginLeft: 10
   },
   submitButtonText: {
     fontFamily: 'Pretendard-Bold',
     fontSize: 14,
-    color: '#ffffff'
-  },
-
-  // bottom button style
-  submitButton: {
-    height: 56,
-    zIndex: 999,
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#f5f6f8'
-  },
-  submitText: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 18,
     color: '#babfc5'
-  },
-  activeSubmitBtn: {
-    backgroundColor: '#1E90FF'
-  },
-  activeSubmitText: {
-    color: '#fff'
   }
 })
+
+const activeControlButtonTextStyle = StyleSheet.compose(styles.controlButtonText, {color: '#ffffff'})
+const activeFontSizeButtonTextStyle = StyleSheet.compose(styles.fontSizeButtonText, {color: '#ffffff'})
+
+const activeSubmitButtonStyle = StyleSheet.compose(styles.submitButton, {backgroundColor: '#1E90FF'})
+const activeSubmitButtonTextStyle = StyleSheet.compose(styles.submitButtonText, {color: '#ffffff'})
 
 export default EditSchedule

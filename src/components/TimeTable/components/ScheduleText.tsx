@@ -21,7 +21,6 @@ const ScheduleText = ({data, centerX, centerY, radius, onClick}: Props) => {
   }, [top, left, data.title_rotate])
 
   const textStyle = React.useMemo(() => {
-    console.log('data.font_size', data.font_size)
     return [styles.text, {color: data.text_color, fontSize: data.font_size}]
   }, [data.text_color, data.font_size])
 
