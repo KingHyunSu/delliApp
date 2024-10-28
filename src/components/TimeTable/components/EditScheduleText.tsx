@@ -149,6 +149,11 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
     setTop(containerY.value)
   }, [])
 
+  // React.useEffect(() => {
+  //   containerRotate.value = data.title_rotate
+  //   containerSavedRotate.value = data.title_rotate
+  // }, [data.title_rotate])
+
   React.useEffect(() => {
     if (isRendered && isInputMode) {
       opacity.value = withTiming(1)

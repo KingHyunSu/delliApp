@@ -11,8 +11,7 @@ import EditTimetable from '@/components/TimeTable/src/EditTimetable'
 
 import CancelIcon from '@/assets/icons/cancle.svg'
 import RotateIcon from '@/assets/icons/rotate.svg'
-import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
-import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
+import AlignCenterIcon from '@/assets/icons/align_center.svg'
 
 import {useQueryClient} from '@tanstack/react-query'
 
@@ -290,22 +289,32 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
               </View>
             )}
 
-            {activeControlMode === 'rotate' && (
-              <View style={[styles.controlViewWrapper, {justifyContent: 'space-between'}]}>
-                <Pressable style={styles.controlRotateButton}>
-                  <Text style={{fontSize: 14, color: '#ffffff'}}>중앙 맞춤</Text>
-                </Pressable>
+            {/*{activeControlMode === 'rotate' && (*/}
+            {/*  <View style={[styles.controlViewWrapper, {justifyContent: 'space-between'}]}>*/}
+            {/*    <Pressable style={styles.controlRotateButton}>*/}
+            {/*      <Text style={{fontSize: 14, color: '#ffffff'}}>중앙 맞춤</Text>*/}
+            {/*    </Pressable>*/}
 
-                <View style={{flexDirection: 'row', gap: 10}}>
-                  <Pressable style={styles.controlRotateButton} onPress={changeRotate(10)}>
-                    <ArrowUpIcon stroke="#fff" width={18} height={18} />
-                  </Pressable>
-                  <Pressable style={styles.controlRotateButton} onPress={changeRotate(-10)}>
-                    <ArrowDownIcon stroke="#fff" width={18} height={18} />
-                  </Pressable>
-                </View>
-              </View>
-            )}
+            {/*    <View style={{flexDirection: 'row', gap: 10}}>*/}
+            {/*      <Pressable style={styles.controlRotateButton} onPress={changeRotate(-5)}>*/}
+            {/*        <RotateGuide2Icon*/}
+            {/*          stroke="#ffffff"*/}
+            {/*          width={18}*/}
+            {/*          height={18}*/}
+            {/*          style={{transform: [{rotateZ: '-45deg'}]}}*/}
+            {/*        />*/}
+            {/*      </Pressable>*/}
+            {/*      <Pressable style={styles.controlRotateButton} onPress={changeRotate(5)}>*/}
+            {/*        <RotateGuide2Icon*/}
+            {/*          stroke="#ffffff"*/}
+            {/*          width={18}*/}
+            {/*          height={18}*/}
+            {/*          style={{transform: [{rotateZ: '45deg'}, {scaleX: -1}]}}*/}
+            {/*        />*/}
+            {/*      </Pressable>*/}
+            {/*    </View>*/}
+            {/*  </View>*/}
+            {/*)}*/}
           </View>
         </Shadow>
       )}
@@ -332,10 +341,12 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
             <Pressable style={styles.controlButton} onPress={changeActiveControlMode('rotate')}>
               <View style={styles.controlButtonWrapper}>
-                <RotateIcon width={28} height={28} stroke={rotateIconColor} strokeWidth={38} />
+                {/*<RotateIcon width={28} height={28} stroke={rotateIconColor} strokeWidth={38} />*/}
+                <AlignCenterIcon width={24} height={24} stroke={rotateIconColor} />
               </View>
 
-              <Text style={getControlButtonTextStyle('rotate')}>글자 회전</Text>
+              {/*<Text style={getControlButtonTextStyle('rotate')}>글자 회전</Text>*/}
+              <Text style={getControlButtonTextStyle('rotate')}>중앙 맞춤</Text>
             </Pressable>
 
             {/* TODO - 폰트 작업 후 추가 예정 */}
