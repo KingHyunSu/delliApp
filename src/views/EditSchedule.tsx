@@ -42,7 +42,8 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
-  const [isFixedAlignCenter, setIsFixedAlignCenter] = useRecoilState(isFixedAlignCenterState)
+  // TODO 글자 중앙 정렬 sudo code
+  // const [isFixedAlignCenter, setIsFixedAlignCenter] = useRecoilState(isFixedAlignCenterState)
 
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
   const scheduleList = useRecoilValue(scheduleListState)
@@ -95,9 +96,10 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     return activeControlMode === 'fontSize' ? activeFontSizeButtonTextStyle : styles.fontSizeButtonText
   }, [activeControlMode])
 
-  const fixedAlignCenterColor = React.useMemo(() => {
-    return isFixedAlignCenter ? '#ffffff' : '#696969'
-  }, [isFixedAlignCenter])
+  // TODO 글자 중앙 정렬 sudo code
+  // const fixedAlignCenterColor = React.useMemo(() => {
+  //   return isFixedAlignCenter ? '#ffffff' : '#696969'
+  // }, [isFixedAlignCenter])
 
   const getControlButtonTextStyle = (bool: boolean) => {
     return bool ? activeControlButtonTextStyle : styles.controlButtonText
@@ -180,9 +182,10 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     [setSchedule]
   )
 
-  const handleFixedAlignCenter = React.useCallback(() => {
-    setIsFixedAlignCenter(!isFixedAlignCenter)
-  }, [isFixedAlignCenter, setIsFixedAlignCenter])
+  // TODO 글자 중앙 정렬 sudo code
+  // const handleFixedAlignCenter = React.useCallback(() => {
+  //   setIsFixedAlignCenter(!isFixedAlignCenter)
+  // }, [isFixedAlignCenter, setIsFixedAlignCenter])
 
   const handleSubmit = React.useCallback(async () => {
     try {
@@ -302,13 +305,14 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
               <Text style={getControlButtonTextStyle(activeControlMode === 'fontSize')}>글자 크기</Text>
             </Pressable>
 
-            <Pressable style={styles.controlButton} onPress={handleFixedAlignCenter}>
-              <View style={styles.controlButtonWrapper}>
-                <AlignCenterIcon width={24} height={24} stroke={fixedAlignCenterColor} />
-              </View>
+            {/* TODO - 테마 작업 후 추가 예정*/}
+            {/*<Pressable style={styles.controlButton} onPress={handleFixedAlignCenter}>*/}
+            {/*  <View style={styles.controlButtonWrapper}>*/}
+            {/*    <AlignCenterIcon width={24} height={24} stroke={fixedAlignCenterColor} />*/}
+            {/*  </View>*/}
 
-              <Text style={getControlButtonTextStyle(isFixedAlignCenter)}>중앙 맞춤</Text>
-            </Pressable>
+            {/*  <Text style={getControlButtonTextStyle(isFixedAlignCenter)}>중앙 맞춤</Text>*/}
+            {/*</Pressable>*/}
 
             {/* TODO - 폰트 작업 후 추가 예정 */}
             {/*<Pressable style={styles.controlButton}>*/}
@@ -448,7 +452,7 @@ const styles = StyleSheet.create({
     color: '#696969'
   },
   colorButton: {
-    paddingRight: 10
+    paddingRight: 15
   },
   colorIcon: {
     width: 40,
@@ -470,7 +474,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     paddingHorizontal: 20,
     backgroundColor: '#f5f6f8',
-    marginLeft: 10
+    marginLeft: 15
   },
   submitButtonText: {
     fontFamily: 'Pretendard-Bold',

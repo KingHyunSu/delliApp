@@ -76,9 +76,8 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
     setIsInputMode(true)
   }, [setIsInputMode])
 
-  const handleFixedAlignCenter = React.useCallback(() => {
-    //
-  }, [])
+  // TODO 글자 중앙 정렬 sudo code
+  // const handleFixedAlignCenter = React.useCallback(() => {}, [])
 
   const changeSchedule = React.useCallback(
     (value: Object) => {
@@ -155,12 +154,12 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
     setTop(containerY.value)
   }, [])
 
-  React.useEffect(() => {
-    if (isFixedAlignCenter) {
-      containerX.value = 100
-      containerY.value = 100
-    }
-  }, [isFixedAlignCenter])
+  // TODO 글자 중앙 정렬 sudo code
+  // React.useEffect(() => {
+  //   if (isFixedAlignCenter) {
+  //     handleFixedAlignCenter()
+  //   }
+  // }, [isFixedAlignCenter, handleFixedAlignCenter])
 
   React.useEffect(() => {
     if (isRendered && isInputMode) {
