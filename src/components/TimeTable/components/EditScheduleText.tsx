@@ -4,8 +4,8 @@ import {StyleSheet, View} from 'react-native'
 import {Gesture, GestureDetector, TextInput} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS, withTiming} from 'react-native-reanimated'
 
-import {useRecoilState} from 'recoil'
-import {isInputModeState} from '@/store/schedule'
+import {useRecoilState, useRecoilValue} from 'recoil'
+import {isFixedAlignCenterState, isInputModeState} from '@/store/schedule'
 
 import RotateGuideIcon from '@/assets/icons/rotate_guide.svg'
 
@@ -23,6 +23,8 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
 
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
 
+  const isFixedAlignCenter = useRecoilValue(isFixedAlignCenterState)
+
   const textInputRef = React.useRef<TextInput>(null)
 
   const [top, setTop] = React.useState(0)
@@ -34,13 +36,49 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
   const containerSavedRotate = useSharedValue(data.title_rotate)
   const opacity = useSharedValue(0)
 
-  React.useEffect(() => {
-    if (isInputMode) {
-      textInputRef.current?.focus()
-    } else {
-      textInputRef.current?.blur()
+  const positionStyle = useAnimatedStyle(() => {
+    return {
+      top: containerY.value,
+      left: containerX.value
     }
-  }, [isInputMode, textInputRef])
+  })
+
+  const rotateStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{rotateZ: `${containerRotate.value}deg`}]
+    }
+  })
+
+  const containerStyle = React.useMemo(() => {
+    return [
+      positionStyle,
+      rotateStyle,
+      styles.container,
+      {paddingVertical: gestureVerticalSafeArea, paddingHorizontal: gestureHorizontalSafeArea}
+    ]
+  }, [positionStyle, rotateStyle])
+
+  const overlayStyle = useAnimatedStyle(() => ({
+    ...styles.overlay,
+    opacity: opacity.value
+  }))
+
+  const textStyle = React.useMemo(() => {
+    let color = '#424242'
+
+    if (data.title) {
+      color = data.text_color
+    }
+    return [styles.text, {color, fontSize: data.font_size}]
+  }, [data.title, data.text_color, data.font_size])
+
+  const handleFocus = React.useCallback(() => {
+    setIsInputMode(true)
+  }, [setIsInputMode])
+
+  const handleFixedAlignCenter = React.useCallback(() => {
+    //
+  }, [])
 
   const changeSchedule = React.useCallback(
     (value: Object) => {
@@ -55,10 +93,6 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
     },
     [changeSchedule]
   )
-
-  const handleFocus = React.useCallback(() => {
-    setIsInputMode(true)
-  }, [setIsInputMode])
 
   const setTitlePosition = React.useCallback(
     (x: number, y: number) => {
@@ -108,51 +142,25 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
 
   const composeGesture = Gesture.Simultaneous(moveGesture, rotateGesture)
 
-  const positionStyle = useAnimatedStyle(() => {
-    return {
-      top: containerY.value,
-      left: containerX.value
+  React.useEffect(() => {
+    if (isInputMode) {
+      textInputRef.current?.focus()
+    } else {
+      textInputRef.current?.blur()
     }
-  })
-
-  const rotateStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{rotateZ: `${containerRotate.value}deg`}]
-    }
-  })
-
-  const containerStyle = React.useMemo(() => {
-    return [
-      positionStyle,
-      rotateStyle,
-      styles.container,
-      {paddingVertical: gestureVerticalSafeArea, paddingHorizontal: gestureHorizontalSafeArea}
-    ]
-  }, [positionStyle, rotateStyle])
-
-  const overlayStyle = useAnimatedStyle(() => ({
-    ...styles.overlay,
-    opacity: opacity.value
-  }))
-
-  const textStyle = React.useMemo(() => {
-    let color = '#424242'
-
-    if (data.title) {
-      color = data.text_color
-    }
-    return [styles.text, {color, fontSize: data.font_size}]
-  }, [data.title, data.text_color, data.font_size])
+  }, [isInputMode, textInputRef])
 
   React.useEffect(() => {
     setLeft(containerX.value)
     setTop(containerY.value)
   }, [])
 
-  // React.useEffect(() => {
-  //   containerRotate.value = data.title_rotate
-  //   containerSavedRotate.value = data.title_rotate
-  // }, [data.title_rotate])
+  React.useEffect(() => {
+    if (isFixedAlignCenter) {
+      containerX.value = 100
+      containerY.value = 100
+    }
+  }, [isFixedAlignCenter])
 
   React.useEffect(() => {
     if (isRendered && isInputMode) {
@@ -236,7 +244,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    minWidth: 150,
+    // minWidth: 150,
     minHeight: 28,
     paddingTop: 0
   }

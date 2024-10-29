@@ -10,7 +10,6 @@ import AppBar from '@/components/AppBar'
 import EditTimetable from '@/components/TimeTable/src/EditTimetable'
 
 import CancelIcon from '@/assets/icons/cancle.svg'
-import RotateIcon from '@/assets/icons/rotate.svg'
 import AlignCenterIcon from '@/assets/icons/align_center.svg'
 
 import {useQueryClient} from '@tanstack/react-query'
@@ -21,6 +20,7 @@ import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
 import {
   disableScheduleListState,
   existScheduleListState,
+  isFixedAlignCenterState,
   scheduleDateState,
   scheduleListState,
   scheduleState
@@ -42,6 +42,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const [isFixedAlignCenter, setIsFixedAlignCenter] = useRecoilState(isFixedAlignCenterState)
 
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
   const scheduleList = useRecoilValue(scheduleListState)
@@ -94,16 +95,13 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     return activeControlMode === 'fontSize' ? activeFontSizeButtonTextStyle : styles.fontSizeButtonText
   }, [activeControlMode])
 
-  const rotateIconColor = React.useMemo(() => {
-    return activeControlMode === 'rotate' ? '#ffffff' : '#696969'
-  }, [activeControlMode])
+  const fixedAlignCenterColor = React.useMemo(() => {
+    return isFixedAlignCenter ? '#ffffff' : '#696969'
+  }, [isFixedAlignCenter])
 
-  const getControlButtonTextStyle = React.useCallback(
-    (mode: ControlMode) => {
-      return mode === activeControlMode ? activeControlButtonTextStyle : styles.controlButtonText
-    },
-    [activeControlMode]
-  )
+  const getControlButtonTextStyle = (bool: boolean) => {
+    return bool ? activeControlButtonTextStyle : styles.controlButtonText
+  }
 
   const submitButtonStyle = React.useMemo(() => {
     return activeSubmit ? activeSubmitButtonStyle : styles.submitButton
@@ -182,15 +180,9 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     [setSchedule]
   )
 
-  const changeRotate = React.useCallback(
-    (value: number) => () => {
-      setSchedule(prevState => ({
-        ...prevState,
-        title_rotate: prevState.title_rotate + value
-      }))
-    },
-    [setSchedule]
-  )
+  const handleFixedAlignCenter = React.useCallback(() => {
+    setIsFixedAlignCenter(!isFixedAlignCenter)
+  }, [isFixedAlignCenter, setIsFixedAlignCenter])
 
   const handleSubmit = React.useCallback(async () => {
     try {
@@ -268,53 +260,24 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         <Pressable style={styles.activeControlModeOverlay} onPress={() => setActiveControlMode(null)} />
       )}
 
-      {activeControlMode && (
+      {activeControlMode === 'fontSize' && (
         <Shadow containerStyle={styles.controlViewShadowContainer} stretch={true} startColor={'#ffffff'} distance={15}>
           {/*<View style={styles.controlViewContainer}>{controlDetailComponent}</View>*/}
           <View style={styles.controlViewContainer}>
-            {activeControlMode === 'fontSize' && (
-              <View style={styles.controlViewWrapper}>
-                <Slider
-                  style={{flex: 1}}
-                  value={schedule.font_size}
-                  step={2}
-                  minimumValue={10}
-                  maximumValue={32}
-                  minimumTrackTintColor="#FFFFFF"
-                  maximumTrackTintColor="#000000"
-                  onValueChange={changeFontSize}
-                />
+            <View style={styles.controlViewWrapper}>
+              <Slider
+                style={{flex: 1}}
+                value={schedule.font_size}
+                step={2}
+                minimumValue={10}
+                maximumValue={32}
+                minimumTrackTintColor="#FFFFFF"
+                maximumTrackTintColor="#000000"
+                onValueChange={changeFontSize}
+              />
 
-                <Text style={styles.controlText}>{schedule.font_size}</Text>
-              </View>
-            )}
-
-            {/*{activeControlMode === 'rotate' && (*/}
-            {/*  <View style={[styles.controlViewWrapper, {justifyContent: 'space-between'}]}>*/}
-            {/*    <Pressable style={styles.controlRotateButton}>*/}
-            {/*      <Text style={{fontSize: 14, color: '#ffffff'}}>중앙 맞춤</Text>*/}
-            {/*    </Pressable>*/}
-
-            {/*    <View style={{flexDirection: 'row', gap: 10}}>*/}
-            {/*      <Pressable style={styles.controlRotateButton} onPress={changeRotate(-5)}>*/}
-            {/*        <RotateGuide2Icon*/}
-            {/*          stroke="#ffffff"*/}
-            {/*          width={18}*/}
-            {/*          height={18}*/}
-            {/*          style={{transform: [{rotateZ: '-45deg'}]}}*/}
-            {/*        />*/}
-            {/*      </Pressable>*/}
-            {/*      <Pressable style={styles.controlRotateButton} onPress={changeRotate(5)}>*/}
-            {/*        <RotateGuide2Icon*/}
-            {/*          stroke="#ffffff"*/}
-            {/*          width={18}*/}
-            {/*          height={18}*/}
-            {/*          style={{transform: [{rotateZ: '45deg'}, {scaleX: -1}]}}*/}
-            {/*        />*/}
-            {/*      </Pressable>*/}
-            {/*    </View>*/}
-            {/*  </View>*/}
-            {/*)}*/}
+              <Text style={styles.controlText}>{schedule.font_size}</Text>
+            </View>
           </View>
         </Shadow>
       )}
@@ -336,17 +299,15 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
                 <Text style={fontSizeButtonTextStyle}>{schedule.font_size}</Text>
               </View>
 
-              <Text style={getControlButtonTextStyle('fontSize')}>글자 크기</Text>
+              <Text style={getControlButtonTextStyle(activeControlMode === 'fontSize')}>글자 크기</Text>
             </Pressable>
 
-            <Pressable style={styles.controlButton} onPress={changeActiveControlMode('rotate')}>
+            <Pressable style={styles.controlButton} onPress={handleFixedAlignCenter}>
               <View style={styles.controlButtonWrapper}>
-                {/*<RotateIcon width={28} height={28} stroke={rotateIconColor} strokeWidth={38} />*/}
-                <AlignCenterIcon width={24} height={24} stroke={rotateIconColor} />
+                <AlignCenterIcon width={24} height={24} stroke={fixedAlignCenterColor} />
               </View>
 
-              {/*<Text style={getControlButtonTextStyle('rotate')}>글자 회전</Text>*/}
-              <Text style={getControlButtonTextStyle('rotate')}>중앙 맞춤</Text>
+              <Text style={getControlButtonTextStyle(isFixedAlignCenter)}>중앙 맞춤</Text>
             </Pressable>
 
             {/* TODO - 폰트 작업 후 추가 예정 */}
@@ -500,15 +461,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Regular',
     fontSize: 26,
     color: '#696969'
-  },
-
-  controlRotateButton: {
-    height: 42,
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#696969',
-    borderRadius: 10
   },
 
   submitButton: {

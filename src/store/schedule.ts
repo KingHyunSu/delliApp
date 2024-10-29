@@ -128,3 +128,8 @@ export const searchScheduleResultListState = atom<SearchSchedule[]>({
   key: 'searchScheduleResultListState',
   default: []
 })
+
+export const isFixedAlignCenterState = atom({
+  key: 'isFixedAlignCenterState',
+  default: false
+})
