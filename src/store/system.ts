@@ -180,7 +180,7 @@ export const editScheduleListSnapPointState = selector({
 
     const minSnapPoint =
       height - (totalSafeAreaHeight + appBarHeight + timetableContainerHeight - editTimetableTranslateY)
-    const maxSnapPoint = height - (totalSafeAreaHeight + appBarHeight)
+    const maxSnapPoint = height - (totalSafeAreaHeight + appBarHeight) - 10
 
     return [minSnapPoint, maxSnapPoint]
   }
