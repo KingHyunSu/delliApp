@@ -53,7 +53,7 @@ const Panel = ({
   const headerRightIcon = React.useMemo(() => {
     if (type === 'container') {
       if (expandable) {
-        return value ? <ArrowDownIcon stroke="#424242" /> : <ArrowUpIcon stroke="#424242" />
+        return value ? <ArrowUpIcon stroke="#424242" /> : <ArrowDownIcon stroke="#424242" />
       }
 
       return <ArrowRightIcon stroke="#424242" strokeWidth={3} width={16} height={16} />
