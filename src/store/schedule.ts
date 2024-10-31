@@ -129,6 +129,12 @@ export const searchScheduleResultListState = atom<SearchSchedule[]>({
   default: []
 })
 
+export type ColorType = 'background' | 'font' | 'border'
+export const colorToChangeState = atom<ColorType>({
+  key: 'colorToChangeState',
+  default: 'background'
+})
+
 export const isFixedAlignCenterState = atom({
   key: 'isFixedAlignCenterState',
   default: false

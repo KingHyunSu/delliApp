@@ -49,6 +49,10 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
     }
   })
 
+  const titleKey = React.useMemo(() => {
+    return `${data.font_size}${data.text_color}`
+  }, [data.font_size, data.text_color])
+
   const containerStyle = React.useMemo(() => {
     return [
       positionStyle,
@@ -186,7 +190,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
           </Animated.View>
 
           <TextInput
-            key={data.font_size}
+            key={titleKey}
             ref={textInputRef}
             value={data.title}
             style={textStyle}

@@ -13,7 +13,9 @@ import {trigger} from 'react-native-haptic-feedback'
 
 import SchedulePie from './SchedulePie'
 
+import {useRecoilValue} from 'recoil'
 import {homeHeaderHeight} from '@/store/system'
+import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
 
 interface Props {
   data: Schedule
@@ -44,6 +46,8 @@ const EditSchedulePie = ({
 }: Props) => {
   const [newStartTimeState, setNewStartTimeState] = React.useState(-1)
   const [newEndTimeState, setNewEndTimeState] = React.useState(-1)
+
+  const showColorSelectorBottomSheet = useRecoilValue(showColorSelectorBottomSheetState)
 
   const newStartTime = useSharedValue(data.start_time)
   const newEndTime = useSharedValue(data.end_time)
@@ -91,6 +95,10 @@ const EditSchedulePie = ({
   const endAnchorStyle = React.useMemo(() => {
     return [styles.anchor, endAnchorAnimatedStyle]
   }, [])
+
+  const isShowAnchor = React.useMemo(() => {
+    return !isInputMode && !showColorSelectorBottomSheet
+  }, [isInputMode, showColorSelectorBottomSheet])
   /**
    * style end
    */
@@ -249,7 +257,7 @@ const EditSchedulePie = ({
         <SchedulePie data={data} x={x} y={y} radius={radius} startTime={newStartTimeState} endTime={newEndTimeState} />
       </Svg>
 
-      {!isInputMode && (
+      {isShowAnchor && (
         <>
           <GestureDetector gesture={startGesture}>
             <Animated.View style={startAnchorStyle}>

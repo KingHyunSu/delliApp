@@ -6,6 +6,7 @@ import {Shadow} from 'react-native-shadow-2'
 import EditScheduleBottomSheet from '@/components/bottomSheet/EditScheduleBottomSheet'
 import OverlapScheduleListBottomSheet from '@/components/bottomSheet/OverlapScheduleListBottomSheet'
 import ScheduleCategorySelectorBottomSheet from '@/components/bottomSheet/ScheduleCategorySelectorBottomSheet'
+import ColorSelectorBottomSheet from '@/components/bottomSheet/ColorSelectorBottomSheet'
 import AppBar from '@/components/AppBar'
 import EditTimetable from '@/components/TimeTable/src/EditTimetable'
 
@@ -16,7 +17,7 @@ import {useQueryClient} from '@tanstack/react-query'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {isEditState, isLoadingState, editScheduleListStatusState, editTimetableTranslateYState} from '@/store/system'
-import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
+import {showColorSelectorBottomSheetState, showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
 import {
   disableScheduleListState,
   existScheduleListState,
@@ -54,6 +55,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const setIsEdit = useSetRecoilState(isEditState)
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowOverlapScheduleListBottomSheet = useSetRecoilState(showOverlapScheduleListBottomSheetState)
+  const setShowColorSelectorBottomSheet = useSetRecoilState(showColorSelectorBottomSheetState)
 
   const [newStartTime, setNewStartTime] = React.useState(schedule.start_time)
   const [newEndTime, setNewEndTime] = React.useState(schedule.end_time)
@@ -292,7 +294,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         distance={10}
         offset={[0, 10]}>
         <View style={styles.controlButtonContainer}>
-          <Pressable style={styles.colorButton}>
+          <Pressable style={styles.colorButton} onPress={() => setShowColorSelectorBottomSheet(true)}>
             <Image source={require('@/assets/icons/color.png')} style={styles.colorIcon} />
           </Pressable>
 
@@ -333,6 +335,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       <EditScheduleBottomSheet />
       <ScheduleCategorySelectorBottomSheet />
       <OverlapScheduleListBottomSheet setScheduleMutate={handleEditSchedule} />
+      <ColorSelectorBottomSheet />
     </View>
   )
 }
