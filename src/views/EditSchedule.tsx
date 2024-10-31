@@ -7,6 +7,7 @@ import EditScheduleBottomSheet from '@/components/bottomSheet/EditScheduleBottom
 import OverlapScheduleListBottomSheet from '@/components/bottomSheet/OverlapScheduleListBottomSheet'
 import ScheduleCategorySelectorBottomSheet from '@/components/bottomSheet/ScheduleCategorySelectorBottomSheet'
 import ColorSelectorBottomSheet from '@/components/bottomSheet/ColorSelectorBottomSheet'
+import ColorPickerModal from '@/components/modal/ColorPickerModal'
 import AppBar from '@/components/AppBar'
 import EditTimetable from '@/components/TimeTable/src/EditTimetable'
 
@@ -336,6 +337,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       <ScheduleCategorySelectorBottomSheet />
       <OverlapScheduleListBottomSheet setScheduleMutate={handleEditSchedule} />
       <ColorSelectorBottomSheet />
+      <ColorPickerModal />
     </View>
   )
 }

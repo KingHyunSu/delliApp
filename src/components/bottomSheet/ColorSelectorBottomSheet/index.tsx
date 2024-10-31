@@ -1,21 +1,33 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {View, Pressable, Text, StyleSheet, ListRenderItem} from 'react-native'
-import {BottomSheetModal, BottomSheetFlatList, BottomSheetHandleProps} from '@gorhom/bottom-sheet'
+import {
+  BottomSheetModal,
+  BottomSheetFlatList,
+  BottomSheetHandleProps,
+  BottomSheetBackdropProps
+} from '@gorhom/bottom-sheet'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import CustomBackdrop from './src/CustomBackdrop'
+import {Shadow} from 'react-native-shadow-2'
+
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
 import {editScheduleListSnapPointState, safeAreaInsetsState, windowDimensionsState} from '@/store/system'
 import {colorToChangeState, scheduleState} from '@/store/schedule'
+import {useGetColorList} from '@/apis/hooks/useColor'
+import {showColorPickerModalState} from '@/store/modal'
 
 type Tab = 'default' | 'my'
 const ColorSelectorBottomSheet = () => {
+  const {data: myColorList} = useGetColorList()
+
   const bottomSheetRef = useRef<BottomSheetModal>(null)
 
   const [activeTab, setActiveTab] = useState<Tab>('default')
   const [showColorSelectorBottomSheet, setShowColorSelectorBottomSheet] = useRecoilState(
     showColorSelectorBottomSheetState
   )
+  const [showColorPickerModal, setShowColorPickerModal] = useRecoilState(showColorPickerModalState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
   const [minEditScheduleListSnapPoint] = useRecoilValue(editScheduleListSnapPointState)
@@ -29,6 +41,10 @@ const ColorSelectorBottomSheet = () => {
     },
     [activeTab]
   )
+
+  const makeButtonStyle = useMemo(() => {
+    return showColorPickerModal ? disabledMakeButton : styles.makeButton
+  }, [showColorPickerModal])
 
   const snapPoints = useMemo(() => {
     const minSnapPoint = minEditScheduleListSnapPoint + safeAreaInsets.bottom
@@ -159,6 +175,10 @@ const ColorSelectorBottomSheet = () => {
     }
   }, [showColorSelectorBottomSheet])
 
+  const getBackdropComponent = useCallback((props: BottomSheetBackdropProps) => {
+    return <CustomBackdrop props={props} onClose={() => bottomSheetRef.current?.dismiss()} />
+  }, [])
+
   const getHandleComponent = useCallback((props: BottomSheetHandleProps) => {
     return (
       <BottomSheetHandler
@@ -199,7 +219,7 @@ const ColorSelectorBottomSheet = () => {
       ref={bottomSheetRef}
       enablePanDownToClose={false}
       enableOverDrag={false}
-      backdropComponent={CustomBackdrop}
+      backdropComponent={getBackdropComponent}
       handleComponent={getHandleComponent}
       index={0}
       snapPoints={snapPoints}
@@ -217,14 +237,42 @@ const ColorSelectorBottomSheet = () => {
           </Pressable>
         </View>
 
-        <BottomSheetFlatList
-          keyExtractor={getKeyExtractor}
-          data={defaultColorList}
-          numColumns={5}
-          renderItem={getRenderItem}
-          contentContainerStyle={{gap: 15, paddingTop: 20}}
-          columnWrapperStyle={{justifyContent: 'space-between', paddingHorizontal: 30}}
-        />
+        {activeTab === 'default' && (
+          <BottomSheetFlatList
+            showsVerticalScrollIndicator={false}
+            keyExtractor={getKeyExtractor}
+            data={defaultColorList}
+            numColumns={5}
+            renderItem={getRenderItem}
+            contentContainerStyle={styles.scrollContainer}
+            columnWrapperStyle={styles.scrollColumnWrapper}
+          />
+        )}
+
+        {activeTab === 'my' && (
+          <BottomSheetFlatList
+            showsVerticalScrollIndicator={false}
+            keyExtractor={getKeyExtractor}
+            data={myColorList}
+            numColumns={5}
+            renderItem={getRenderItem}
+            style={{marginBottom: safeAreaInsets.bottom + 20}}
+            contentContainerStyle={styles.scrollContainer}
+            columnWrapperStyle={styles.scrollColumnWrapper}
+          />
+        )}
+
+        {activeTab === 'my' && (
+          <Shadow
+            containerStyle={[styles.makeButtonWrapper, {bottom: safeAreaInsets.bottom + 20}]}
+            stretch={true}
+            startColor="#ffffff"
+            distance={30}>
+            <Pressable style={makeButtonStyle} onPress={() => setShowColorPickerModal(true)}>
+              <Text style={styles.makeButtonText}>색상 만들기</Text>
+            </Pressable>
+          </Shadow>
+        )}
       </View>
     </BottomSheetModal>
   )
@@ -233,7 +281,8 @@ const ColorSelectorBottomSheet = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingVertical: 10
+    paddingVertical: 10,
+    paddingHorizontal: 30
   },
   separatorText: {
     fontFamily: 'Pretendard-SemiBold',
@@ -244,7 +293,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 15,
-    paddingHorizontal: 30,
     marginBottom: 10
   },
   tabButton: {
@@ -272,9 +320,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     borderWidth: 2,
     borderColor: '#f5f6f8'
+  },
+  scrollContainer: {
+    gap: 15,
+    paddingTop: 20
+  },
+  scrollColumnWrapper: {
+    justifyContent: 'space-between'
+  },
+  makeButtonWrapper: {
+    position: 'absolute',
+    left: 30,
+    right: 30
+  },
+  makeButton: {
+    height: 52,
+    backgroundColor: '#1E90FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10
+  },
+  makeButtonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 18,
+    color: '#ffffff'
   }
 })
 
 const activeTabButtonTextStyle = StyleSheet.compose(styles.tabButtonText, {color: '#424242'})
+const disabledMakeButton = StyleSheet.compose(styles.makeButton, {backgroundColor: '#efefef'})
 
 export default ColorSelectorBottomSheet

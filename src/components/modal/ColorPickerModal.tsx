@@ -1,0 +1,158 @@
+import {useCallback, useState} from 'react'
+import {StyleSheet, Modal, View, Pressable, Text} from 'react-native'
+import ColorPicker, {HueSlider, OpacitySlider, Panel1, type returnedResults} from 'reanimated-color-picker'
+import {useRecoilState, useRecoilValue} from 'recoil'
+import {windowDimensionsState} from '@/store/system'
+import {showColorPickerModalState} from '@/store/modal'
+import {useSetColor} from '@/apis/hooks/useColor'
+import {useQueryClient} from '@tanstack/react-query'
+
+const ColorPickerModal = () => {
+  const queryClient = useQueryClient()
+
+  const {mutateAsync: setColorMutateAsync} = useSetColor()
+
+  const [selectedColor, setSelectedColor] = useState('#ffffff')
+  const [showColorPickerModal, setShowColorPickerModal] = useRecoilState(showColorPickerModalState)
+
+  const windowDimensions = useRecoilValue(windowDimensionsState)
+
+  const onComplete = useCallback((color: returnedResults) => {
+    setSelectedColor(color.hex)
+  }, [])
+
+  const handleSave = useCallback(async () => {
+    await setColorMutateAsync({color: selectedColor})
+    queryClient.invalidateQueries({queryKey: ['colorList']})
+    setShowColorPickerModal(false)
+  }, [selectedColor, queryClient, setColorMutateAsync, setShowColorPickerModal])
+
+  return (
+    <Modal visible={showColorPickerModal} transparent={true} animationType="fade">
+      <View style={styles.overlay} />
+
+      <View style={styles.container}>
+        <View style={styles.wrapper}>
+          <ColorPicker
+            sliderThickness={22}
+            thumbSize={21}
+            boundedThumb
+            thumbShape="circle"
+            thumbInnerStyle={styles.thumbInner}
+            onChange={onComplete}>
+            <Panel1 style={{borderRadius: 15, height: windowDimensions.width - 62}} />
+
+            <View style={styles.controlBarContainer}>
+              <View style={styles.previewContainer}>
+                <View style={[styles.preview, {backgroundColor: selectedColor}]} />
+                <Text style={styles.previewText}>미리보기</Text>
+              </View>
+
+              <View style={styles.controlBarWrapper}>
+                <HueSlider style={styles.controlBar} />
+                <OpacitySlider style={styles.controlBar} />
+              </View>
+            </View>
+          </ColorPicker>
+
+          <View style={styles.buttonContainer}>
+            <Pressable style={styles.cancelButton} onPress={() => setShowColorPickerModal(false)}>
+              <Text style={styles.cancelButtonText}>닫기</Text>
+            </Pressable>
+            <Pressable style={styles.makeButton} onPress={handleSave}>
+              <Text style={styles.makeButtonText}>저장</Text>
+            </Pressable>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  )
+}
+
+const styles = StyleSheet.create({
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#00000050'
+  },
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16
+  },
+  wrapper: {
+    width: '100%',
+    padding: 15,
+    borderRadius: 15,
+    backgroundColor: '#ffffff'
+  },
+  thumbInner: {
+    borderWidth: 2,
+    borderColor: '#fff'
+  },
+  controlBarContainer: {
+    flexDirection: 'row',
+    gap: 20,
+    marginTop: 20
+  },
+  controlBarWrapper: {
+    flex: 1,
+    gap: 20
+  },
+  controlBar: {
+    borderRadius: 20
+  },
+  previewContainer: {
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  preview: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    borderWidth: 2,
+    borderColor: '#f5f6f8'
+  },
+  previewText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 12,
+    color: '#424242'
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 40
+  },
+  cancelButton: {
+    flex: 1,
+    height: 52,
+    backgroundColor: '#efefef',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10
+  },
+  cancelButtonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 18,
+    color: '#6B727E'
+  },
+  makeButton: {
+    flex: 1,
+    height: 52,
+    backgroundColor: '#1E90FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10
+  },
+  makeButtonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 18,
+    color: '#ffffff'
+  }
+})
+
+export default ColorPickerModal

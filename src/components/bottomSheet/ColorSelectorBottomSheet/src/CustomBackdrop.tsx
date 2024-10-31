@@ -4,21 +4,23 @@ import {BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
 import {Shadow} from 'react-native-shadow-2'
 
 import Animated, {Extrapolation, interpolate, useAnimatedStyle, useDerivedValue} from 'react-native-reanimated'
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
 import {safeAreaInsetsState} from '@/store/system'
 import {colorToChangeState, scheduleState} from '@/store/schedule'
-import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
 
+interface Props {
+  props: BottomSheetBackdropProps
+  onClose: () => void
+}
 type ColorType = 'background' | 'font' | 'border'
-const CustomBackdrop = ({animatedIndex, style}: BottomSheetBackdropProps) => {
+const CustomBackdrop = ({props, onClose}: Props) => {
   const [colorToChange, setColorToChange] = useRecoilState(colorToChangeState)
 
   const schedule = useRecoilValue(scheduleState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
-  const setShowColorSelectorBottomSheet = useSetRecoilState(showColorSelectorBottomSheetState)
 
   const transformOriginY = useDerivedValue(() =>
-    interpolate(animatedIndex.value, [-1, 0], [-100, 0], Extrapolation.CLAMP)
+    interpolate(props.animatedIndex.value, [-1, 0], [-100, 0], Extrapolation.CLAMP)
   )
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
@@ -55,8 +57,8 @@ const CustomBackdrop = ({animatedIndex, style}: BottomSheetBackdropProps) => {
   )
 
   return (
-    <View style={style}>
-      <Pressable style={styles.overlay} onPress={() => setShowColorSelectorBottomSheet(false)} />
+    <View style={props.style}>
+      <Pressable style={styles.overlay} onPress={onClose} />
 
       <Animated.View style={containerAnimatedStyle}>
         <Shadow style={styles.buttonContainer} stretch={true} startColor="#00000010" offset={[0, -1]}>
