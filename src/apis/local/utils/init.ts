@@ -8,7 +8,7 @@ import {userRepository} from '../index'
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {
     // tx.executeSql(`
-    //   DROP TABLE ROUTINE_COMPLETE
+    //   DROP TABLE COLOR
     // `)
 
     // user table
@@ -67,6 +67,15 @@ const createTable = async (db: SQLiteDatabase) => {
         FOREIGN KEY("todo_id")
           REFERENCES TODO("todo_id")
           ON DELETE CASCADE
+      )
+    `)
+
+    // color table
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS "COLOR" (
+        "color_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        "color" TEXT NOT NULL,
+        "create_date" TEXT NOT NULL
       )
     `)
 
