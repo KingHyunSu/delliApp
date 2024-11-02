@@ -1,14 +1,11 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import {View, Pressable, Text, StyleSheet, ListRenderItem} from 'react-native'
-import {
-  BottomSheetModal,
-  BottomSheetFlatList,
-  BottomSheetHandleProps,
-  BottomSheetBackdropProps
-} from '@gorhom/bottom-sheet'
+import {StyleSheet, View, Pressable, Text} from 'react-native'
+import {BottomSheetModal, BottomSheetHandleProps, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
-import CustomBackdrop from './src/CustomBackdrop'
 import {Shadow} from 'react-native-shadow-2'
+import CustomBackdrop from './src/CustomBackdrop'
+import DefaultColorList from './src/DefaultColorList'
+import MyColorList from './src/MyColorList'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
@@ -24,6 +21,8 @@ const ColorSelectorBottomSheet = () => {
   const bottomSheetRef = useRef<BottomSheetModal>(null)
 
   const [activeTab, setActiveTab] = useState<Tab>('default')
+  const [activeDeletedItem, setActiveDeletedItem] = useState<Color | null>(null)
+
   const [showColorSelectorBottomSheet, setShowColorSelectorBottomSheet] = useRecoilState(
     showColorSelectorBottomSheetState
   )
@@ -46,6 +45,31 @@ const ColorSelectorBottomSheet = () => {
     return showColorPickerModal ? disabledMakeButton : styles.makeButton
   }, [showColorPickerModal])
 
+  const activeColor = useMemo(() => {
+    switch (colorToChange) {
+      case 'background':
+        return schedule.background_color
+      case 'font':
+        return schedule.text_color
+      default:
+        return ''
+    }
+  }, [schedule.background_color, schedule.text_color, colorToChange])
+
+  const convertMyColorList = useMemo(() => {
+    if (myColorList.length % 5 !== 0) {
+      const emptyCount = 5 - (myColorList.length % 5)
+      const newMyColorList = [...myColorList]
+
+      for (let i = 0; i < emptyCount; i++) {
+        newMyColorList.push({color_id: -1, color: ''})
+      }
+
+      return newMyColorList
+    }
+    return myColorList
+  }, [myColorList])
+
   const snapPoints = useMemo(() => {
     const minSnapPoint = minEditScheduleListSnapPoint + safeAreaInsets.bottom
     const maxSnapPoint = windowDimensions.height - (safeAreaInsets.top + 75)
@@ -53,98 +77,19 @@ const ColorSelectorBottomSheet = () => {
     return [minSnapPoint, maxSnapPoint]
   }, [minEditScheduleListSnapPoint, safeAreaInsets.top, safeAreaInsets.bottom, windowDimensions.height])
 
-  const defaultColorList = useMemo(() => {
-    return [
-      // red
-      '#FFCBCB',
-      '#FF8A8A',
-      '#FF7F7F',
-      '#FF6E6E',
-      '#FF5C5C',
-
-      // orange
-      '#FFD9B3',
-      '#FFD1B3',
-      '#FFAD7A',
-      '#FF9C66',
-      '#FF8866',
-
-      // yellow
-      // '#FFF0B3', // 유료 색상
-      '#FFF5B2',
-      '#FFF2A1',
-      '#FFEB84',
-      '#FFE680',
-      '#FFDE70',
-
-      // green
-      '#D4FFB3',
-      '#B4F99E',
-      '#A5E88F',
-      '#94DA82',
-      '#85C973',
-
-      // blue
-      '#CCF2FF',
-      '#99E4FE',
-      '#66D5FD',
-      '#33C4FC',
-      '#02AEFA',
-
-      // navy
-      '#A2B9E0',
-      '#91A8D0',
-      '#7F94BF',
-      '#6C83AF',
-      '#5A729F',
-
-      // purple
-      '#D1B3FF',
-      '#CDA5E8',
-      '#B28AC6',
-      '#A37ABF',
-      '#8F67A9',
-
-      // black
-      '#A9A9A9',
-      '#8E8E8E',
-      '#7D7D7D',
-      '#6E6E6E',
-      '#5C5C5C',
-
-      // other
-      '#ffffff',
-      '#000000',
-      '',
-      '',
-      ''
-
-      // '#f59ed3',
-      // '#f2f2a6',
-      // '#a6e3f5',
-      // '#b1f7de',
-      // '#c2ffb6',
-      // '#99e6d0',
-      // '#60daa8',
-      // '#acacf4',
-      // '#7294f4',
-      // '#6c5cd7',
-      // '#160b61',
-      // '#B3C7FF',
-      // '#E5B3FF'
-    ]
-  }, [])
-
-  const getKeyExtractor = useCallback((item: string, index: number) => {
-    return index.toString()
-  }, [])
-
   const handleClose = useCallback(() => {
     setShowColorSelectorBottomSheet(false)
   }, [setShowColorSelectorBottomSheet])
 
+  const handleItemLongPress = useCallback(
+    (item: Color) => {
+      setActiveDeletedItem(item)
+    },
+    [setActiveDeletedItem]
+  )
+
   const changeColor = useCallback(
-    (color: string) => () => {
+    (color: string) => {
       if (colorToChange === 'background') {
         setSchedule(prevState => ({
           ...prevState,
@@ -166,6 +111,10 @@ const ColorSelectorBottomSheet = () => {
     },
     [setActiveTab]
   )
+
+  const closeMenu = useCallback(() => {
+    setActiveDeletedItem(null)
+  }, [setActiveDeletedItem])
 
   useEffect(() => {
     if (showColorSelectorBottomSheet) {
@@ -189,29 +138,6 @@ const ColorSelectorBottomSheet = () => {
       />
     )
   }, [])
-
-  const getRenderItem: ListRenderItem<string | null> = useCallback(
-    ({item}) => {
-      if (item) {
-        let isActive = false
-
-        if (colorToChange === 'background' && item === schedule.background_color) {
-          isActive = true
-        } else if (colorToChange === 'font' && item === schedule.text_color) {
-          isActive = true
-        }
-
-        return (
-          <Pressable style={[styles.colorButton, {backgroundColor: item}]} onPress={changeColor(item)}>
-            {isActive && <View style={styles.activeColorPoint} />}
-          </Pressable>
-        )
-      }
-
-      return <View style={{width: 42, height: 42}} />
-    },
-    [schedule.background_color, schedule.text_color, colorToChange, changeColor]
-  )
 
   return (
     <BottomSheetModal
@@ -238,27 +164,30 @@ const ColorSelectorBottomSheet = () => {
         </View>
 
         {activeTab === 'default' && (
-          <BottomSheetFlatList
-            showsVerticalScrollIndicator={false}
-            keyExtractor={getKeyExtractor}
-            data={defaultColorList}
-            numColumns={5}
-            renderItem={getRenderItem}
+          <DefaultColorList
+            color={activeColor}
+            colorButtonStyle={styles.colorButton}
+            activeColorButtonStyle={styles.activeColorPoint}
             contentContainerStyle={styles.scrollContainer}
             columnWrapperStyle={styles.scrollColumnWrapper}
+            onChange={changeColor}
           />
         )}
 
+        {activeTab === 'my' && activeDeletedItem && <Pressable style={styles.menuOverlay} onPress={closeMenu} />}
+
         {activeTab === 'my' && (
-          <BottomSheetFlatList
-            showsVerticalScrollIndicator={false}
-            keyExtractor={getKeyExtractor}
-            data={myColorList}
-            numColumns={5}
-            renderItem={getRenderItem}
-            style={{marginBottom: safeAreaInsets.bottom + 20}}
+          <MyColorList
+            activeDeletedItem={activeDeletedItem}
+            color={activeColor}
+            myColorList={convertMyColorList}
+            colorButtonStyle={styles.colorButton}
+            activeColorButtonStyle={styles.activeColorPoint}
             contentContainerStyle={styles.scrollContainer}
             columnWrapperStyle={styles.scrollColumnWrapper}
+            closeMenu={closeMenu}
+            onItemLongPress={handleItemLongPress}
+            onChange={changeColor}
           />
         )}
 
@@ -303,6 +232,13 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Medium',
     fontSize: 18,
     color: '#babfc5'
+  },
+  menuOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
   },
   colorButton: {
     width: 42,
