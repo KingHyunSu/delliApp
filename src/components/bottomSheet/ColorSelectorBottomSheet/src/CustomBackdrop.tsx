@@ -61,7 +61,7 @@ const CustomBackdrop = ({props, onClose}: Props) => {
       <Pressable style={styles.overlay} onPress={onClose} />
 
       <Animated.View style={containerAnimatedStyle}>
-        <Shadow style={styles.buttonContainer} stretch={true} startColor="#00000010" offset={[0, -1]}>
+        <Shadow style={styles.buttonContainer} stretch={true} startColor="#f0eff586" distance={10}>
           <ScrollView
             contentContainerStyle={[styles.buttonWrapper, {paddingTop: safeAreaInsets.top + 10}]}
             horizontal={true}>
