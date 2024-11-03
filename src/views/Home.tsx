@@ -84,14 +84,12 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const setFocusModeInfo = useSetRecoilState(focusModeInfoState)
 
   React.useEffect(() => {
-    if (_scheduleList && _scheduleList.length > 0) {
-      setScheduleList(_scheduleList)
-      setIsLunch(true)
+    setScheduleList(_scheduleList)
+    setIsLunch(true)
 
-      setTimeout(() => {
-        setIsLoading(false)
-      }, 300)
-    }
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 300)
   }, [_scheduleList, setScheduleList, setIsLunch, setIsLoading])
 
   const currentScheduleDateString = React.useMemo(() => {
