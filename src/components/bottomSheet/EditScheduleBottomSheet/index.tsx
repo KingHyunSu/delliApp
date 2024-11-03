@@ -1,4 +1,4 @@
-import React from 'react'
+import {useRef, useState, useCallback, useEffect} from 'react'
 import {StyleSheet, ScrollView, Text, Pressable} from 'react-native'
 import BottomSheet, {BottomSheetHandleProps, BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import {isAfter} from 'date-fns'
@@ -22,8 +22,8 @@ import {showScheduleCategorySelectorBottomSheetState} from '@/store/bottomSheet'
 const EditScheduleBottomSheet = () => {
   const defaultItemPanelHeight = 56
 
-  const bottomSheetRef = React.useRef<BottomSheet>(null)
-  const bottomSheetScrollViewRef = React.useRef<ScrollView>(null)
+  const bottomSheetRef = useRef<BottomSheet>(null)
+  const bottomSheetScrollViewRef = useRef<ScrollView>(null)
 
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
@@ -34,10 +34,10 @@ const EditScheduleBottomSheet = () => {
   const showScheduleCategorySelectorBottomSheet = useSetRecoilState(showScheduleCategorySelectorBottomSheetState)
   const setEditScheduleListStatus = useSetRecoilState(editScheduleListStatusState)
 
-  const [activeColorPanel, setActiveColorPanel] = React.useState(false)
-  const [activeTimePanel, setActiveTimePanel] = React.useState(false)
-  const [activeDatePanel, setActiveDatePanel] = React.useState(false)
-  const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = React.useState(false)
+  const [activeColorPanel, setActiveColorPanel] = useState(false)
+  const [activeTimePanel, setActiveTimePanel] = useState(false)
+  const [activeDatePanel, setActiveDatePanel] = useState(false)
+  const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = useState(false)
 
   const closeAllPanel = () => {
     setActiveColorPanel(false)
@@ -46,7 +46,7 @@ const EditScheduleBottomSheet = () => {
     setActiveDayOfWeekPanel(false)
   }
 
-  const handleBottomSheetChanged = React.useCallback((index: number) => {
+  const handleBottomSheetChanged = useCallback((index: number) => {
     setEditScheduleListStatus(index)
 
     if (index === 0) {
@@ -54,37 +54,37 @@ const EditScheduleBottomSheet = () => {
     }
   }, [])
 
-  const handleCategoryPanel = React.useCallback(() => {
+  const handleCategoryPanel = useCallback(() => {
     closeAllPanel()
     showScheduleCategorySelectorBottomSheet(true)
   }, [])
 
-  const handleColorPanel = React.useCallback(() => {
+  const handleColorPanel = useCallback(() => {
     closeAllPanel()
     setActiveColorPanel(!activeColorPanel)
   }, [activeColorPanel])
 
-  const handleTimePanel = React.useCallback(() => {
+  const handleTimePanel = useCallback(() => {
     closeAllPanel()
     setActiveTimePanel(!activeTimePanel)
   }, [activeTimePanel])
 
-  const handleDatePanel = React.useCallback(() => {
+  const handleDatePanel = useCallback(() => {
     closeAllPanel()
     setActiveDatePanel(!activeDatePanel)
   }, [activeDatePanel])
 
-  const handleDayOfWeekPanel = React.useCallback(() => {
+  const handleDayOfWeekPanel = useCallback(() => {
     closeAllPanel()
     setActiveDayOfWeekPanel(!activeDayOfWeekPanel)
   }, [activeDayOfWeekPanel])
 
-  const focusTitleInput = React.useCallback(() => {
+  const focusTitleInput = useCallback(() => {
     bottomSheetRef.current?.collapse()
     setIsInputMode(true)
   }, [setIsInputMode])
 
-  const changeBackgroundColor = React.useCallback(
+  const changeBackgroundColor = useCallback(
     (color: string) => {
       setSchedule(prevState => ({
         ...prevState,
@@ -94,7 +94,7 @@ const EditScheduleBottomSheet = () => {
     [setSchedule]
   )
 
-  const changeTextColor = React.useCallback(
+  const changeTextColor = useCallback(
     (color: string) => {
       setSchedule(prevState => ({
         ...prevState,
@@ -104,7 +104,7 @@ const EditScheduleBottomSheet = () => {
     [setSchedule]
   )
 
-  const changeDate = React.useCallback(
+  const changeDate = useCallback(
     (date: string, flag: RANGE_FLAG) => {
       if (flag === RANGE_FLAG.START) {
         setSchedule(prevState => ({
@@ -121,7 +121,7 @@ const EditScheduleBottomSheet = () => {
     [setSchedule]
   )
 
-  const changeStartTime = React.useCallback(
+  const changeStartTime = useCallback(
     (time: number) => {
       setSchedule(prevState => ({
         ...prevState,
@@ -131,7 +131,7 @@ const EditScheduleBottomSheet = () => {
     [setSchedule]
   )
 
-  const changeEndTime = React.useCallback(
+  const changeEndTime = useCallback(
     (time: number) => {
       setSchedule(prevState => ({
         ...prevState,
@@ -141,7 +141,7 @@ const EditScheduleBottomSheet = () => {
     [setSchedule]
   )
 
-  const changeStartDate = React.useCallback(
+  const changeStartDate = useCallback(
     (date: string) => {
       if (isAfter(new Date(date), new Date(schedule.end_date))) {
         changeDate('9999-12-31', RANGE_FLAG.END)
@@ -151,14 +151,14 @@ const EditScheduleBottomSheet = () => {
     [schedule.end_date, changeDate]
   )
 
-  const changeEndDate = React.useCallback(
+  const changeEndDate = useCallback(
     (date: string) => {
       changeDate(date, RANGE_FLAG.END)
     },
     [changeDate]
   )
 
-  const changeDayOfWeek = React.useCallback(
+  const changeDayOfWeek = useCallback(
     (key: DAY_OF_WEEK) => {
       const flag = schedule[key] === '1' ? '0' : '1'
 
@@ -167,7 +167,7 @@ const EditScheduleBottomSheet = () => {
     [schedule, setSchedule]
   )
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isEdit) {
       bottomSheetRef.current?.snapToIndex(0)
     } else {
@@ -178,7 +178,7 @@ const EditScheduleBottomSheet = () => {
   }, [bottomSheetRef, isEdit])
 
   // components
-  const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
+  const bottomSheetHandler = useCallback((props: BottomSheetHandleProps) => {
     return (
       <BottomSheetHandler
         maxSnapIndex={2}
