@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   },
   titleButton: {
     paddingVertical: 20,
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
     borderBottomColor: '#eeeded'
   },
   titleText: {
