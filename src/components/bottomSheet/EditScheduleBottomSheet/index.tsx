@@ -1,4 +1,4 @@
-import {useRef, useState, useCallback, useEffect} from 'react'
+import {useRef, useState, useCallback, useEffect, forwardRef, useImperativeHandle} from 'react'
 import {StyleSheet, ScrollView, Text, Pressable} from 'react-native'
 import BottomSheet, {BottomSheetHandleProps, BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import {isAfter} from 'date-fns'
@@ -19,7 +19,10 @@ import {RANGE_FLAG} from '@/utils/types'
 import {DAY_OF_WEEK} from '@/types/common'
 import {showScheduleCategorySelectorBottomSheetState} from '@/store/bottomSheet'
 
-const EditScheduleBottomSheet = () => {
+export interface EditScheduleBottomSheetRef {
+  collapse: () => void
+}
+const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref) => {
   const defaultItemPanelHeight = 56
 
   const bottomSheetRef = useRef<BottomSheet>(null)
@@ -177,6 +180,20 @@ const EditScheduleBottomSheet = () => {
     }
   }, [bottomSheetRef, isEdit])
 
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        collapse() {
+          bottomSheetRef.current?.collapse()
+          bottomSheetScrollViewRef.current?.scrollTo({y: 0})
+          closeAllPanel()
+        }
+      }
+    },
+    []
+  )
+
   // components
   const bottomSheetHandler = useCallback((props: BottomSheetHandleProps) => {
     return (
@@ -275,7 +292,7 @@ const EditScheduleBottomSheet = () => {
       </BottomSheetScrollView>
     </BottomSheet>
   )
-}
+})
 
 const styles = StyleSheet.create({
   container: {

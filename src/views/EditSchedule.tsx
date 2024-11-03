@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useRef} from 'react'
 import {Platform, StyleSheet, ScrollView, View, Pressable, Text, Alert, Image} from 'react-native'
 import Animated, {runOnJS, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
 import Slider from '@react-native-community/slider'
@@ -25,10 +25,12 @@ import {
   isFixedAlignCenterState,
   scheduleDateState,
   scheduleListState,
-  scheduleState
+  scheduleState,
+  isInputModeState
 } from '@/store/schedule'
 
 import {EditScheduleProps} from '@/types/navigation'
+import type {EditScheduleBottomSheetRef} from '@/components/bottomSheet/EditScheduleBottomSheet'
 import {getTimeOfMinute} from '@/utils/helper'
 import {useGetExistScheduleList, useSetSchedule} from '@/apis/hooks/useSchedule'
 
@@ -38,6 +40,8 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
   const getExistScheduleList = useGetExistScheduleList()
   const {mutateAsync: setScheduleMutateAsync} = useSetSchedule()
+
+  const editScheduleBottomSheetRef = useRef<EditScheduleBottomSheetRef>(null)
 
   const [isRendered, setIsRendered] = React.useState(false)
   const [activeControlMode, setActiveControlMode] = React.useState<ControlMode>(null)
@@ -57,6 +61,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowOverlapScheduleListBottomSheet = useSetRecoilState(showOverlapScheduleListBottomSheetState)
   const setShowColorSelectorBottomSheet = useSetRecoilState(showColorSelectorBottomSheetState)
+  const setIsInputMode = useSetRecoilState(isInputModeState)
 
   const [newStartTime, setNewStartTime] = React.useState(schedule.start_time)
   const [newEndTime, setNewEndTime] = React.useState(schedule.end_time)
@@ -164,11 +169,19 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     }
   }, [schedule, invalidScheduleList, navigation, setScheduleMutateAsync, setIsEdit])
 
+  const showColorSelectorBottomSheet = React.useCallback(() => {
+    setIsInputMode(false)
+    setShowColorSelectorBottomSheet(true)
+    editScheduleBottomSheetRef.current?.collapse()
+  }, [setShowColorSelectorBottomSheet])
+
   const changeActiveControlMode = React.useCallback(
     (mode: ControlMode) => () => {
       if (activeControlMode && activeControlMode === mode) {
         setActiveControlMode(null)
       } else {
+        setIsInputMode(false)
+        editScheduleBottomSheetRef.current?.collapse()
         setActiveControlMode(mode)
       }
     },
@@ -295,7 +308,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         distance={10}
         offset={[0, 10]}>
         <View style={styles.controlButtonContainer}>
-          <Pressable style={styles.colorButton} onPress={() => setShowColorSelectorBottomSheet(true)}>
+          <Pressable style={styles.colorButton} onPress={showColorSelectorBottomSheet}>
             <Image source={require('@/assets/icons/color.png')} style={styles.colorIcon} />
           </Pressable>
 
@@ -333,7 +346,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         </View>
       </Shadow>
 
-      <EditScheduleBottomSheet />
+      <EditScheduleBottomSheet ref={editScheduleBottomSheetRef} />
       <ScheduleCategorySelectorBottomSheet />
       <OverlapScheduleListBottomSheet setScheduleMutate={handleEditSchedule} />
       <ColorSelectorBottomSheet />
