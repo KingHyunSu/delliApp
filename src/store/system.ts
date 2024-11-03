@@ -124,10 +124,9 @@ export const editTimetableTranslateYState = selector({
   get: ({get}) => {
     const timetableContainerHeight = get(timetableContainerHeightState)
     const timetableWrapperSize = get(timetableWrapperSizeState)
-    const dateBarHeight = 36
     const marginTop = 20
 
-    return (timetableContainerHeight - timetableWrapperSize * 2) / 2 + dateBarHeight - marginTop
+    return (timetableContainerHeight - timetableWrapperSize * 2) / 2 - marginTop
   }
 })
 
