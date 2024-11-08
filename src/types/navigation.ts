@@ -9,6 +9,9 @@ export type StackNavigator = {
     params?: BottomTabNavigator[keyof BottomTabNavigator]
   }
   EditSchedule: undefined
+
+  StoreDetail: {id: number}
+
   EditRoutine: {data: TodoDetail | null}
   RoutineDetail: {id: number}
 
@@ -18,6 +21,7 @@ export type StackNavigator = {
 export type BottomTabNavigator = {
   Home: {scheduleUpdated: boolean}
   Routine: undefined
+  StoreList: undefined
   Setting: undefined
 }
 
@@ -29,12 +33,18 @@ export type HomeScreenProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'Home'>,
   StackScreenProps<StackNavigator>
 >
+export type StoreListScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<BottomTabNavigator, 'StoreList'>,
+  StackScreenProps<StackNavigator>
+>
 export type RoutineScreenProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'Routine'>,
   StackScreenProps<StackNavigator>
 >
 
 export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
+export type StoreDetailScreenProps = StackScreenProps<StackNavigator, 'StoreDetail'>
+
 export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>
 export type RoutineDetailScreenProps = StackScreenProps<StackNavigator, 'RoutineDetail'>
 

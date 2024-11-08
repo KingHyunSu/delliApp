@@ -16,6 +16,9 @@ import {navigationRef} from '@/utils/navigation'
 
 // views
 import HomeScreen from '@/views/Home'
+
+import {StoreList as StoreListScreen, StoreDetail as StoreDetailScreen} from '@/views/Store'
+
 import {
   RoutineList as RoutineListScreen,
   EditRoutine as EditRoutineScreen,
@@ -38,6 +41,7 @@ import HomeIcon from '@/assets/icons/home.svg'
 import MyIcon from '@/assets/icons/my.svg'
 import ChartIcon from '@/assets/icons/chart.svg'
 import RoutineIcon from '@/assets/icons/routine.svg'
+import StoreIcon from '@/assets/icons/store.svg'
 
 // stores
 import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
@@ -74,6 +78,15 @@ const BottomTabs = React.memo(() => {
         options={{
           tabBarIcon: ({focused}) => {
             return <RoutineIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
+          }
+        }}
+      />
+      <Tab.Screen
+        name="StoreList"
+        component={StoreListScreen}
+        options={{
+          tabBarIcon: ({focused}) => {
+            return <StoreIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
           }
         }}
       />
@@ -145,7 +158,12 @@ function App(): JSX.Element {
 
     switch (route?.name) {
       case 'Stats':
+      case 'StoreList':
         _statusBarColor = '#f5f6f8'
+        break
+      case 'StoreDetail':
+        _statusBarColor = '#f5f6f8'
+        _bottomSafeAreaColor = '#f5f6f8'
         break
       // case 'EditSchedule':
       case 'EditGoal':
@@ -355,6 +373,8 @@ function App(): JSX.Element {
             <Stack.Navigator initialRouteName="MainTabs" screenOptions={screenOptions}>
               <Stack.Screen name="MainTabs" component={BottomTabs} />
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
+              <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
+
               <Stack.Screen name="CategoryStats" component={CategoryStats} />
               <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
               <Stack.Screen name="RoutineDetail" component={RoutineDetailScreen} />
