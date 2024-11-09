@@ -7,6 +7,7 @@ export interface ThemeListItem {
 
 export interface ThemeDetail {
   theme_id: number
+  main_url: string
   thumb_url: string
   main_color: string
   sub_color: string

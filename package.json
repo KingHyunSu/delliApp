@@ -57,6 +57,7 @@
     "react-native-wheely": "^0.6.0",
     "reanimated-color-picker": "^3.0.4",
     "recoil": "^0.7.7",
+    "rn-fetch-blob": "^0.12.0",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
