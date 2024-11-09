@@ -1,11 +1,11 @@
-export interface ThemeListItem {
+declare interface ThemeListItem {
   theme_id: number
   thumb_url: string
   title: string
   price: number
 }
 
-export interface ThemeDetail {
+declare interface ThemeDetail {
   theme_id: number
   main_url: string
   thumb_url: string
@@ -14,4 +14,11 @@ export interface ThemeDetail {
   text_color: string
   title: string
   price: number
+}
+
+declare interface ThemeColor {
+  theme_id: number
+  main_color: string
+  sub_color: string
+  text_color: string
 }

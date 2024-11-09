@@ -45,12 +45,21 @@ import StoreIcon from '@/assets/icons/store.svg'
 
 // stores
 import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
-import {loginState, isLunchState, windowDimensionsState, bottomSafeAreaColorState} from '@/store/system'
+import {
+  loginState,
+  isLunchState,
+  windowDimensionsState,
+  bottomSafeAreaColorState,
+  activeThemeState
+} from '@/store/system'
 
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
 
 import initDatabase from '@/apis/local/utils/init'
 import {focusModeInfoState} from '@/store/schedule'
+
+import {useGetUser} from '@/apis/hooks/useUser'
+import {useGetThemeColor} from '@/apis/hooks/useProduct'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
@@ -113,6 +122,9 @@ const linking: LinkingOptions<BottomTabNavigator> = {
 }
 
 function App(): JSX.Element {
+  const {mutateAsync: getUserMutateAsync} = useGetUser()
+  const {mutateAsync: getThemeColorMutateAsync} = useGetThemeColor()
+
   const windowDimensions = useWindowDimensions()
 
   const {isLoaded, load, show} = useAppOpenAd(adUnitId)
@@ -129,6 +141,7 @@ function App(): JSX.Element {
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
   const [bottomSafeAreaColor, setBottomSafeAreaColor] = useRecoilState(bottomSafeAreaColorState)
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
+  const setActiveTheme = useSetRecoilState(activeThemeState)
 
   const screenOptions = React.useMemo(() => {
     return {headerShown: false}
@@ -228,6 +241,13 @@ function App(): JSX.Element {
   React.useEffect(() => {
     const init = async () => {
       const isInitDatabase = await initDatabase()
+
+      const user = await getUserMutateAsync()
+
+      const activeThemeId = user.active_theme_id || 1
+      const themeDetail = await getThemeColorMutateAsync(activeThemeId)
+
+      setActiveTheme(themeDetail)
       setIsInit(isInitDatabase)
     }
 

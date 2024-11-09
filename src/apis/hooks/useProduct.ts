@@ -1,4 +1,4 @@
-import {useQuery} from '@tanstack/react-query'
+import {useMutation, useQuery} from '@tanstack/react-query'
 import * as productApi from '@/apis/server/product'
 
 export const useGetThemeList = () => {
@@ -22,5 +22,15 @@ export const useGetThemeDetail = (id: number) => {
       return response.data
     },
     initialData: null
+  })
+}
+
+export const useGetThemeColor = () => {
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const response = await productApi.getThemeColor(id)
+
+      return response.data
+    }
   })
 }

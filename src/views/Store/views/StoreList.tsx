@@ -4,7 +4,6 @@ import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
 import {useGetThemeList} from '@/apis/hooks/useProduct'
 import {StoreListScreenProps} from '@/types/navigation'
-import {ThemeListItem} from '@/@types/product'
 
 const aspectRatio = 1.77
 const StoreList = ({navigation}: StoreListScreenProps) => {

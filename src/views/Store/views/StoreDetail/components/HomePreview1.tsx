@@ -3,7 +3,6 @@ import {StyleSheet, View, Text, Image} from 'react-native'
 import {Shadow} from 'react-native-shadow-2'
 import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
 import {format} from 'date-fns'
-import {ThemeDetail} from '@/@types/product'
 
 interface Props {
   data: ThemeDetail
