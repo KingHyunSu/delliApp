@@ -1,5 +1,5 @@
-import {useCallback, useMemo, useState} from 'react'
-import {StyleSheet, ScrollView, View, Text, Pressable, Image} from 'react-native'
+import {useCallback, useEffect, useMemo, useState} from 'react'
+import {Image, Pressable, ScrollView, StyleSheet, Text, View} from 'react-native'
 import HomePreview1 from './components/HomePreview1'
 import HomePreview2 from './components/HomePreview2'
 import DownloadProgress from './components/DownloadProgress'
@@ -27,8 +27,8 @@ const StoreDetail = ({navigation, route}: StoreDetailScreenProps) => {
     return itemWidth * aspectRatio
   }, [itemWidth])
 
-  const getImageNameFromUrl = (url: string) => {
-    return url.substring(url.lastIndexOf('/') + 1)
+  const getImageExtensionFromUrl = (url: string) => {
+    return url.split('.').pop()
   }
 
   const handleDownload = useCallback(() => {
@@ -43,7 +43,7 @@ const StoreDetail = ({navigation, route}: StoreDetailScreenProps) => {
 
     RNFetchBlob.config({
       fileCache: true,
-      path: RNFetchBlob.fs.dirs.DocumentDir + '/' + getImageNameFromUrl(detail.main_url)
+      path: RNFetchBlob.fs.dirs.DocumentDir + '/' + `${detail.theme_id}.${getImageExtensionFromUrl(detail.main_url)}`
     })
       .fetch('GET', detail.main_url)
       .progress({count: 10}, (received, total) => {
