@@ -1,5 +1,5 @@
 declare interface GetWidgetReloadableRequest {
-  id: string
+  id: number
 }
 
 declare interface GetWidgetReloadableResponse {

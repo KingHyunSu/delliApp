@@ -9,7 +9,8 @@
     ],
     "v3": [
       "ALTER TABLE SCHEDULE ADD COLUMN schedule_category_id INTEGER",
-      "ALTER TABLE SCHEDULE ADD COLUMN font_size INTEGER default 12"
+      "ALTER TABLE SCHEDULE ADD COLUMN font_size INTEGER default 12",
+      "ALTER TABLE USER ADD COLUMN active_theme_id INTEGER default 1"
     ]
   }
 }
