@@ -3,10 +3,13 @@ import {StyleSheet, FlatList, View, Text, Image, Pressable, ListRenderItem} from
 import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
 import {useGetThemeList} from '@/apis/hooks/useProduct'
-import {StoreListScreenProps} from '@/types/navigation'
+
+interface Props {
+  moveDetail: (id: number) => void
+}
 
 const aspectRatio = 1.77
-const StoreList = ({navigation}: StoreListScreenProps) => {
+const ThemeList = ({moveDetail}: Props) => {
   const {data: themeList} = useGetThemeList()
   const windowDimensions = useRecoilValue(windowDimensionsState)
 
@@ -16,11 +19,11 @@ const StoreList = ({navigation}: StoreListScreenProps) => {
     return (windowDimensions.width - totalPadding - totalGap) / 3
   }, [windowDimensions.width])
 
-  const moveDetail = useCallback(
+  const handleMoveDetail = useCallback(
     (id: number) => () => {
-      navigation.navigate('StoreDetail', {id})
+      moveDetail(id)
     },
-    [navigation]
+    [moveDetail]
   )
 
   const getRenderItem: ListRenderItem<ThemeListItem> = useCallback(
@@ -29,7 +32,7 @@ const StoreList = ({navigation}: StoreListScreenProps) => {
       const priceText = item.price === 0 ? '무료' : item.price
 
       return (
-        <Pressable style={itemStyles.container} onPress={moveDetail(item.theme_id)}>
+        <Pressable style={itemStyles.container} onPress={handleMoveDetail(item.theme_id)}>
           <Image
             style={{width: imageWidth, height: imageWidth * aspectRatio, borderRadius: 10}}
             source={{uri: item.thumb_url}}
@@ -46,10 +49,6 @@ const StoreList = ({navigation}: StoreListScreenProps) => {
 
   return (
     <View style={styles.container}>
-      <View style={appBarStyles.container}>
-        <Text style={appBarStyles.title}>상점</Text>
-      </View>
-
       <FlatList
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.listColumnWrapper}
@@ -60,18 +59,6 @@ const StoreList = ({navigation}: StoreListScreenProps) => {
     </View>
   )
 }
-
-const appBarStyles = StyleSheet.create({
-  container: {
-    paddingLeft: 20,
-    paddingVertical: 30
-  },
-  title: {
-    fontFamily: 'Pretendard-Bold',
-    fontSize: 20,
-    color: '#000000'
-  }
-})
 
 const itemStyles = StyleSheet.create({
   container: {
@@ -108,4 +95,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default StoreList
+export default ThemeList

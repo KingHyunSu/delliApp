@@ -9,9 +9,9 @@ import RNFetchBlob from 'rn-fetch-blob'
 import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
 import {useGetThemeDetail} from '@/apis/hooks/useProduct'
-import {StoreDetailScreenProps} from '@/types/navigation'
+import {ThemeDetailScreenProps} from '@/types/navigation'
 
-const StoreDetail = ({navigation, route}: StoreDetailScreenProps) => {
+const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
   const {data: detail} = useGetThemeDetail(route.params.id)
 
   const [progress, setProgress] = useState<number | null>(null)
@@ -169,4 +169,4 @@ const styles = StyleSheet.create({
   }
 })
 
-export default StoreDetail
+export default ThemeDetail

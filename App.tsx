@@ -17,8 +17,9 @@ import {navigationRef} from '@/utils/navigation'
 // views
 import HomeScreen from '@/views/Home'
 import MyThemeListScreen from '@/views/MyThemeList'
+import ThemeDetailScreen from '@/views/theme/ThemeDetail'
 
-import {StoreList as StoreListScreen, StoreDetail as StoreDetailScreen} from '@/views/Store'
+import StoreListScreen from '@/views/StoreList'
 
 import {
   RoutineList as RoutineListScreen,
@@ -175,7 +176,7 @@ function App(): JSX.Element {
       case 'StoreList':
         _statusBarColor = '#f5f6f8'
         break
-      case 'StoreDetail':
+      case 'ThemeDetail':
         _statusBarColor = '#f5f6f8'
         _bottomSafeAreaColor = '#f5f6f8'
         break
@@ -394,7 +395,7 @@ function App(): JSX.Element {
             <Stack.Navigator initialRouteName="MainTabs" screenOptions={screenOptions}>
               <Stack.Screen name="MainTabs" component={BottomTabs} />
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
-              <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
+              <Stack.Screen name="ThemeDetail" component={ThemeDetailScreen} />
               <Stack.Screen name="MyThemeList" component={MyThemeListScreen} />
 
               <Stack.Screen name="CategoryStats" component={CategoryStats} />
