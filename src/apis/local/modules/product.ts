@@ -34,6 +34,7 @@ export const setTheme = async (params: SetThemeRequest) => {
     params.file_name,
     params.main_color,
     params.sub_color,
+    params.sub_color2,
     params.text_color
   ])
 }

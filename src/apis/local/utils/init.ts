@@ -25,6 +25,7 @@ const createTable = async (db: SQLiteDatabase) => {
         "file_name" TEXT NOT NULL,
         "main_color" TEXT NOT NULL,
         "sub_color" TEXT NOT NULL,
+        "sub_color2" TEXT NOT NULL,
         "text_color" TEXT NOT NULL
       )
     `)

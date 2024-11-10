@@ -7,5 +7,6 @@ export interface SetThemeRequest {
   file_name: string
   main_color: string
   sub_color: string
+  sub_color2: string
   text_color: string
 }
