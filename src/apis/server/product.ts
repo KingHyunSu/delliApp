@@ -8,6 +8,6 @@ export const getThemeDetail = (id: number) => {
   return http.get<any, Response<ThemeDetail>>(`product/theme/detail/${id}`)
 }
 
-export const getThemeColor = (id: number) => {
-  return http.get<any, Response<ThemeColor>>(`product/theme/color/${id}`)
+export const getActiveTheme = (id: number) => {
+  return http.get<any, Response<ActiveTheme>>(`product/theme/active/${id}`)
 }

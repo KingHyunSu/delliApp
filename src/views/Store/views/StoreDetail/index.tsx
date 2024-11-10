@@ -27,10 +27,6 @@ const StoreDetail = ({navigation, route}: StoreDetailScreenProps) => {
     return itemWidth * aspectRatio
   }, [itemWidth])
 
-  const getImageExtensionFromUrl = (url: string) => {
-    return url.split('.').pop()
-  }
-
   const handleDownload = useCallback(() => {
     if (!detail) {
       // todo error alert 추가하기
@@ -43,7 +39,7 @@ const StoreDetail = ({navigation, route}: StoreDetailScreenProps) => {
 
     RNFetchBlob.config({
       fileCache: true,
-      path: RNFetchBlob.fs.dirs.DocumentDir + '/' + `${detail.theme_id}.${getImageExtensionFromUrl(detail.main_url)}`
+      path: `${RNFetchBlob.fs.dirs.DocumentDir}/${detail.file_name}`
     })
       .fetch('GET', detail.main_url)
       .progress({count: 10}, (received, total) => {

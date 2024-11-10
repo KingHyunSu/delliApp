@@ -25,10 +25,10 @@ export const useGetThemeDetail = (id: number) => {
   })
 }
 
-export const useGetThemeColor = () => {
+export const useGetActiveTheme = () => {
   return useMutation({
     mutationFn: async (id: number) => {
-      const response = await productApi.getThemeColor(id)
+      const response = await productApi.getActiveTheme(id)
 
       return response.data
     }

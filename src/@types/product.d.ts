@@ -9,6 +9,7 @@ declare interface ThemeDetail {
   theme_id: number
   main_url: string
   thumb_url: string
+  file_name: string
   main_color: string
   sub_color: string
   text_color: string
@@ -16,8 +17,9 @@ declare interface ThemeDetail {
   price: number
 }
 
-declare interface ThemeColor {
+declare interface ActiveTheme {
   theme_id: number
+  file_name: string
   main_color: string
   sub_color: string
   text_color: string

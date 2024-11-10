@@ -1,10 +1,11 @@
 import React from 'react'
-import {Platform, StyleSheet, BackHandler, ToastAndroid, Alert, Pressable, View, Text} from 'react-native'
+import {Platform, StyleSheet, BackHandler, ToastAndroid, Alert, Pressable, View, Text, Image} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import {AdEventType, RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
 import Animated, {useSharedValue, useAnimatedStyle, withTiming, runOnJS} from 'react-native-reanimated'
 import {format} from 'date-fns'
+import RNFetchBlob from 'rn-fetch-blob'
 
 // components
 import Loading from '@/components/Loading'
@@ -12,6 +13,7 @@ import AppBar from '@/components/AppBar'
 import {Timetable} from '@/components/TimeTable'
 import EditMenuBottomSheet from '@/components/bottomSheet/EditMenuBottomSheet'
 import ScheduleListBottomSheet from '@/components/bottomSheet/ScheduleListBottomSheet'
+import DatePickerBottomSheet from '@/components/bottomSheet/DatePickerBottomSheet'
 import EditTodoModal from '@/components/modal/EditTodoModal'
 import CompleteModal from '@/components/modal/CompleteModal'
 // import ScheduleCompleteModal from '@/components/modal/ScheduleCompleteModal'
@@ -30,7 +32,8 @@ import {
   isEditState,
   isLoadingState,
   toastState,
-  editTimetableTranslateYState
+  editTimetableTranslateYState,
+  activeThemeState
 } from '@/store/system'
 import {
   scheduleDateState,
@@ -50,7 +53,6 @@ import * as widgetApi from '@/apis/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
 import {useGetScheduleList, useSetScheduleFocusTime} from '@/apis/hooks/useSchedule'
-import DatePickerBottomSheet from '@/components/bottomSheet/DatePickerBottomSheet'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
@@ -71,6 +73,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
 
+  const activeTheme = useRecoilValue(activeThemeState)
   const focusModeInfo = useRecoilValue(focusModeInfoState)
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
 
@@ -91,6 +94,19 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       setIsLoading(false)
     }, 300)
   }, [_scheduleList, setScheduleList, setIsLunch, setIsLoading])
+
+  const background = React.useMemo(() => {
+    if (activeTheme.theme_id === 1) {
+      return <Image style={homeStyles.backgroundImage} source={require('@/assets/white.png')} />
+    }
+
+    return (
+      <Image
+        style={homeStyles.backgroundImage}
+        source={{uri: `file://${RNFetchBlob.fs.dirs.DocumentDir}/${activeTheme.file_name}`}}
+      />
+    )
+  }, [activeTheme.theme_id])
 
   const currentScheduleDateString = React.useMemo(() => {
     const weekdays = ['일', '월', '화', '수', '목', '금', '토']
@@ -318,11 +334,11 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   return (
     <View style={homeStyles.container}>
-      {/* insert header */}
+      {background}
 
       {/* home header */}
       <Animated.View style={headerStyle}>
-        <AppBar>
+        <AppBar color="transparent">
           {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
           {/* {activeTimeTableCategory.timetable_category_id ? (
             <Pressable
@@ -392,11 +408,17 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
 const homeStyles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#ffffff'
+    flex: 1
+  },
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
   },
   homeHeaderContainer: {
-    zIndex: -1
+    // zIndex: -1
   },
   dateButtonWrapper: {
     paddingHorizontal: 16

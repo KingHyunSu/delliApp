@@ -59,7 +59,7 @@ import initDatabase from '@/apis/local/utils/init'
 import {focusModeInfoState} from '@/store/schedule'
 
 import {useGetUser} from '@/apis/hooks/useUser'
-import {useGetThemeColor} from '@/apis/hooks/useProduct'
+import {useGetActiveTheme} from '@/apis/hooks/useProduct'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
@@ -123,7 +123,7 @@ const linking: LinkingOptions<BottomTabNavigator> = {
 
 function App(): JSX.Element {
   const {mutateAsync: getUserMutateAsync} = useGetUser()
-  const {mutateAsync: getThemeColorMutateAsync} = useGetThemeColor()
+  const {mutateAsync: getActiveThemeMutateAsync} = useGetActiveTheme()
 
   const windowDimensions = useWindowDimensions()
 
@@ -245,14 +245,14 @@ function App(): JSX.Element {
       const user = await getUserMutateAsync()
 
       const activeThemeId = user.active_theme_id || 1
-      const themeDetail = await getThemeColorMutateAsync(activeThemeId)
+      const themeDetail = await getActiveThemeMutateAsync(activeThemeId)
 
       setActiveTheme(themeDetail)
       setIsInit(isInitDatabase)
     }
 
     init()
-  }, [])
+  }, [getActiveThemeMutateAsync, getUserMutateAsync, setActiveTheme])
 
   /**
    * 테스트용 광고 비활성화 start

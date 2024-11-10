@@ -5,10 +5,11 @@ const bottomTabHeight = 56
 const editScheduleListMinSnapPoint = 50
 export const homeHeaderHeight = 84
 
-export const activeThemeState = atom({
+export const activeThemeState = atom<ActiveTheme>({
   key: 'activeThemeState',
   default: {
     theme_id: 1,
+    file_name: 'white.png',
     main_color: '#ffffff',
     sub_color: '#f5f6f8',
     text_color: '#424242'
