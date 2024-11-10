@@ -8,3 +8,11 @@ export const useGetUser = () => {
     }
   })
 }
+
+export const useUpdateTheme = () => {
+  return useMutation({
+    mutationFn: (id: number) => {
+      return userRepository.updateTheme(id)
+    }
+  })
+}

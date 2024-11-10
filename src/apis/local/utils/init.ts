@@ -3,12 +3,12 @@ import 'react-native-get-random-values'
 
 import {openDatabase} from './helper'
 import upgrade from './upgrade.json'
-import {userRepository} from '../index'
+import {userRepository, productRepository} from '../index'
 
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {
     // tx.executeSql(`
-    //   DROP TABLE COLOR
+    //   DROP TABLE THEME
     // `)
 
     // user table
@@ -16,6 +16,21 @@ const createTable = async (db: SQLiteDatabase) => {
       CREATE TABLE IF NOT EXISTS "USER" (
         "user_id" TEXT NOT NULL
       );
+    `)
+
+    // theme table
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS "THEME" (
+        "theme_id" INTEGER NOT NULL,
+        "file_name" TEXT NOT NULL,
+        "main_color" TEXT NOT NULL,
+        "sub_color" TEXT NOT NULL,
+        "text_color" TEXT NOT NULL
+      )
+    `)
+
+    tx.executeSql(`
+      CREATE INDEX IF NOT EXISTS "idx_theme_id" ON "THEME" ("theme_id")
     `)
 
     // schedule table
@@ -108,6 +123,7 @@ export default async function init() {
 
     await createTable(db)
     await userRepository.setUser()
+    await productRepository.setDefaultTheme()
 
     const currentVersion = await getCurrentVersion(db)
     const latestVersion = upgrade.version

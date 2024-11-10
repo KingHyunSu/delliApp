@@ -1,5 +1,7 @@
 import {useMutation, useQuery} from '@tanstack/react-query'
 import * as productApi from '@/apis/server/product'
+import {productRepository} from '../local'
+import {SetThemeRequest} from '@/apis/local/types/product'
 
 export const useGetThemeList = () => {
   return useQuery({
@@ -25,12 +27,28 @@ export const useGetThemeDetail = (id: number) => {
   })
 }
 
+export const useGetDownloadThemeList = () => {
+  return useQuery({
+    queryKey: ['getDownloadThemeList'],
+    queryFn: () => {
+      return productRepository.getDownloadThemeList()
+    },
+    initialData: []
+  })
+}
+
 export const useGetActiveTheme = () => {
   return useMutation({
     mutationFn: async (id: number) => {
-      const response = await productApi.getActiveTheme(id)
+      return productRepository.getActiveTheme({theme_id: id})
+    }
+  })
+}
 
-      return response.data
+export const useSetTheme = () => {
+  return useMutation({
+    mutationFn: async (params: SetThemeRequest) => {
+      return productRepository.setTheme(params)
     }
   })
 }

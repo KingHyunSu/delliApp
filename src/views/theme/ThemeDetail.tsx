@@ -1,22 +1,41 @@
-import {useCallback, useEffect, useMemo, useState} from 'react'
+import {useCallback, useMemo, useState} from 'react'
 import {Image, Pressable, ScrollView, StyleSheet, Text, View} from 'react-native'
+import RNFetchBlob from 'rn-fetch-blob'
 import HomePreview1 from './components/HomePreview1'
 import HomePreview2 from './components/HomePreview2'
 import DownloadProgress from './components/DownloadProgress'
 import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 
-import RNFetchBlob from 'rn-fetch-blob'
-import {useRecoilValue} from 'recoil'
-import {windowDimensionsState} from '@/store/system'
-import {useGetThemeDetail} from '@/apis/hooks/useProduct'
+import {useRecoilState, useRecoilValue} from 'recoil'
+import {activeThemeState, windowDimensionsState} from '@/store/system'
+import {useGetActiveTheme, useGetDownloadThemeList, useGetThemeDetail, useSetTheme} from '@/apis/hooks/useProduct'
+import {useUpdateTheme} from '@/apis/hooks/useUser'
 import {ThemeDetailScreenProps} from '@/types/navigation'
 
 const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
+  const {data: downloadThemeList} = useGetDownloadThemeList()
+  const {mutate: setThemeMutate} = useSetTheme()
+  const {mutateAsync: updateThemeMutateAsync} = useUpdateTheme()
+  const {mutateAsync: getActiveThemeMutateAsync} = useGetActiveTheme()
+
   const {data: detail} = useGetThemeDetail(route.params.id)
 
   const [progress, setProgress] = useState<number | null>(null)
 
+  const [activeTheme, setActiveTheme] = useRecoilState(activeThemeState)
   const windowDimensions = useRecoilValue(windowDimensionsState)
+
+  const isUsed = useMemo(() => {
+    return activeTheme.theme_id === detail?.theme_id
+  }, [activeTheme.theme_id, detail])
+
+  const isDownloaded = useMemo(() => {
+    if (!downloadThemeList || downloadThemeList.length === 0) {
+      return false
+    }
+
+    return downloadThemeList.some(item => item.theme_id === detail?.theme_id)
+  }, [downloadThemeList, detail])
 
   const itemWidth = useMemo(() => {
     return windowDimensions.width / 2.5
@@ -36,6 +55,14 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
     let _progress = 0
     const minDuration = 2000 // 최소 1초 지속 시간
     const startTime = Date.now()
+
+    setThemeMutate({
+      theme_id: detail.theme_id,
+      file_name: detail.file_name,
+      main_color: detail.main_color,
+      sub_color: detail.sub_color,
+      text_color: detail.text_color
+    })
 
     RNFetchBlob.config({
       fileCache: true,
@@ -76,6 +103,46 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
       })
   }, [detail, setProgress])
 
+  const handleApply = useCallback(async () => {
+    if (!detail) {
+      return
+    }
+
+    await updateThemeMutateAsync(detail.theme_id)
+    const themeDetail = await getActiveThemeMutateAsync(detail.theme_id)
+
+    setActiveTheme(themeDetail)
+    navigation.navigate('MainTabs', {screen: 'Home'})
+  }, [detail, updateThemeMutateAsync, getActiveThemeMutateAsync, navigation, setActiveTheme])
+
+  const buttonComponent = useMemo(() => {
+    if (isUsed) {
+      return (
+        <View style={disabledButtonStyle}>
+          <Text style={disabledButtonTextStyle}>적용중</Text>
+        </View>
+      )
+    }
+
+    if (isDownloaded) {
+      return (
+        <Pressable style={styles.button} onPress={handleApply}>
+          <Text style={styles.buttonText}>적용</Text>
+        </Pressable>
+      )
+    }
+
+    if (progress) {
+      return <DownloadProgress progress={progress} />
+    } else {
+      return (
+        <Pressable style={styles.button} onPress={handleDownload}>
+          <Text style={styles.buttonText}>다운로드</Text>
+        </Pressable>
+      )
+    }
+  }, [isUsed, isDownloaded, progress, handleDownload])
+
   return (
     <View style={styles.container}>
       <View style={appBarStyles.container}>
@@ -91,13 +158,7 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
             <Text style={styles.priceText}>무료</Text>
           </View>
 
-          {progress === null ? (
-            <Pressable style={styles.button} onPress={handleDownload}>
-              <Text style={styles.buttonText}>받기</Text>
-            </Pressable>
-          ) : (
-            <DownloadProgress progress={progress} />
-          )}
+          {buttonComponent}
         </View>
 
         {detail && (
@@ -168,5 +229,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20
   }
 })
+
+const disabledButtonStyle = StyleSheet.compose(styles.button, {backgroundColor: '#efefef'})
+const disabledButtonTextStyle = StyleSheet.compose(styles.buttonText, {color: '#6B727E'})
 
 export default ThemeDetail

@@ -18,3 +18,10 @@ export const setUser = async () => {
 
   await db.executeSql(query, [userId])
 }
+
+export const updateTheme = async (id: number) => {
+  const query = userQueries.updateThemeQuery()
+  const db = await openDatabase()
+
+  return db.executeSql(query, [id])
+}

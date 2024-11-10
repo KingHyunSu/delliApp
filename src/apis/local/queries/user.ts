@@ -15,3 +15,7 @@ export const setUser = () => {
 
   return query
 }
+
+export const updateThemeQuery = () => {
+  return `UPDATE USER SET active_theme_id = ?`
+}
