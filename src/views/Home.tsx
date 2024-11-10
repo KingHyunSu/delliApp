@@ -124,7 +124,11 @@ const Home = ({navigation, route}: HomeScreenProps) => {
     [setScheduleDate]
   )
 
-  const openEditScheduleBottomSheet = React.useCallback(() => {
+  const moveMyThemeList = React.useCallback(() => {
+    navigation.navigate('MyThemeList')
+  }, [navigation])
+
+  const moveEditSchedule = React.useCallback(() => {
     setIsEdit(true)
 
     if (!schedule.schedule_id) {
@@ -396,14 +400,15 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         </Animated.View>
       )}
 
-      <EditMenuBottomSheet openEditScheduleBottomSheet={openEditScheduleBottomSheet} />
+      <EditMenuBottomSheet moveEditSchedule={moveEditSchedule} />
       <DatePickerBottomSheet value={format(scheduleDate, 'yyyy-MM-dd')} onChange={changeScheduleDate} />
       <EditTodoModal />
       <CompleteModal />
       <HomeFabExtensionModal
         visible={showFabExtensionModal}
         translateY={fabTranslateY.value}
-        openEditScheduleBottomSheet={openEditScheduleBottomSheet}
+        moveMyThemeList={moveMyThemeList}
+        moveEditSchedule={moveEditSchedule}
         onClose={() => setShowFabExtensionModal(false)}
       />
       {/*<TimetableCategoryBottomSheet />*/}

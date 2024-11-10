@@ -11,6 +11,7 @@ export type StackNavigator = {
   EditSchedule: undefined
 
   StoreDetail: {id: number}
+  MyThemeList: undefined
 
   EditRoutine: {data: TodoDetail | null}
   RoutineDetail: {id: number}

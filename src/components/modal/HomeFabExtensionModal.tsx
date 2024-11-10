@@ -12,10 +12,11 @@ import {useRecoilValue} from 'recoil'
 interface Props {
   visible: boolean
   translateY: number
-  openEditScheduleBottomSheet: () => void
+  moveMyThemeList: () => void
+  moveEditSchedule: () => void
   onClose: () => void
 }
-const HomeFabExtensionModal = ({visible, translateY, openEditScheduleBottomSheet, onClose}: Props) => {
+const HomeFabExtensionModal = ({visible, translateY, moveMyThemeList, moveEditSchedule, onClose}: Props) => {
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const offset1 = useSharedValue(0)
@@ -41,10 +42,15 @@ const HomeFabExtensionModal = ({visible, translateY, openEditScheduleBottomSheet
     onClose()
   }, [onClose])
 
-  const handleOpenEditScheduleBottomSheet = useCallback(() => {
-    openEditScheduleBottomSheet()
+  const handleMoveMyThemeList = useCallback(() => {
+    moveMyThemeList()
     onClose()
-  }, [onClose, openEditScheduleBottomSheet])
+  }, [onClose, moveMyThemeList])
+
+  const handleMoveEditSchedule = useCallback(() => {
+    moveEditSchedule()
+    onClose()
+  }, [onClose, moveEditSchedule])
 
   useEffect(() => {
     if (visible) {
@@ -60,7 +66,7 @@ const HomeFabExtensionModal = ({visible, translateY, openEditScheduleBottomSheet
       <Animated.View style={[styles.fabWrapper, animatedStyle3, {bottom}]}>
         <Text style={styles.fabText}>테마</Text>
 
-        <Pressable style={themeButtonStyle}>
+        <Pressable style={themeButtonStyle} onPress={handleMoveMyThemeList}>
           <ThemeIcon width={24} height={24} fill="#424242" />
         </Pressable>
       </Animated.View>
@@ -68,7 +74,7 @@ const HomeFabExtensionModal = ({visible, translateY, openEditScheduleBottomSheet
       <Animated.View style={[styles.fabWrapper, animatedStyle2, {bottom}]}>
         <Text style={styles.fabText}>일정</Text>
 
-        <Pressable style={themeButtonStyle} onPress={handleOpenEditScheduleBottomSheet}>
+        <Pressable style={themeButtonStyle} onPress={handleMoveEditSchedule}>
           <ScheduleIcon width={24} height={24} fill="#424242" />
         </Pressable>
       </Animated.View>

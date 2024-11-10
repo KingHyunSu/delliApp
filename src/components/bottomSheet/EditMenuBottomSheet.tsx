@@ -24,9 +24,9 @@ import {useQueryClient} from '@tanstack/react-query'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 
 interface Props {
-  openEditScheduleBottomSheet: Function
+  moveEditSchedule: Function
 }
-const EditMenuBottomSheet = ({openEditScheduleBottomSheet}: Props) => {
+const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const queryClient = useQueryClient()
 
   const setScheduleComplete = useSetScheduleComplete()
@@ -132,7 +132,7 @@ const EditMenuBottomSheet = ({openEditScheduleBottomSheet}: Props) => {
     setShowEditMenuBottomSheet
   ])
 
-  const handleOpenEditScheduleBottomSheet = React.useCallback(() => {
+  const handleMoveEditSchedule = React.useCallback(() => {
     setShowEditScheduleBottomSheet(true)
     setShowEditMenuBottomSheet(false)
   }, [setShowEditScheduleBottomSheet, setShowEditMenuBottomSheet])
@@ -239,7 +239,7 @@ const EditMenuBottomSheet = ({openEditScheduleBottomSheet}: Props) => {
       editInfoBottomSheetRef.current?.present()
     } else {
       if (showEditScheduleBottomSheet) {
-        openEditScheduleBottomSheet()
+        moveEditSchedule()
       } else {
         handleReset()
       }
@@ -247,7 +247,7 @@ const EditMenuBottomSheet = ({openEditScheduleBottomSheet}: Props) => {
     }
 
     setShowEditScheduleBottomSheet(false)
-  }, [showEditMenuBottomSheet, showEditScheduleBottomSheet, openEditScheduleBottomSheet, handleReset, setFocusModeInfo])
+  }, [showEditMenuBottomSheet, showEditScheduleBottomSheet, moveEditSchedule, handleReset, setFocusModeInfo])
 
   // components
   const bottomSheetBackdrop = React.useCallback((props: BottomSheetBackdropProps) => {
@@ -330,7 +330,7 @@ const EditMenuBottomSheet = ({openEditScheduleBottomSheet}: Props) => {
             <Text style={styles.text}>할 일 추가하기</Text>
           </Pressable>
 
-          <Pressable style={styles.menuWrapper} onPress={handleOpenEditScheduleBottomSheet}>
+          <Pressable style={styles.menuWrapper} onPress={handleMoveEditSchedule}>
             <View style={updateButton}>
               <EditIcon width={12} height={12} stroke="#fff" fill="#fff" />
             </View>

@@ -16,6 +16,7 @@ import {navigationRef} from '@/utils/navigation'
 
 // views
 import HomeScreen from '@/views/Home'
+import MyThemeListScreen from '@/views/MyThemeList'
 
 import {StoreList as StoreListScreen, StoreDetail as StoreDetailScreen} from '@/views/Store'
 
@@ -394,6 +395,7 @@ function App(): JSX.Element {
               <Stack.Screen name="MainTabs" component={BottomTabs} />
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
               <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
+              <Stack.Screen name="MyThemeList" component={MyThemeListScreen} />
 
               <Stack.Screen name="CategoryStats" component={CategoryStats} />
               <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
