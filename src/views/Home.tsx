@@ -53,6 +53,7 @@ import * as widgetApi from '@/apis/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
 import {useGetScheduleList, useSetScheduleFocusTime} from '@/apis/hooks/useSchedule'
+import HomeFabExtensionModal from '@/components/modal/HomeFabExtensionModal'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
@@ -64,6 +65,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   const [isRendered, setIsRendered] = React.useState(false)
   const [backPressCount, setBackPressCount] = React.useState(0)
+  const [showFabExtensionModal, setShowFabExtensionModal] = React.useState(false)
 
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
@@ -388,7 +390,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         </Animated.View>
       ) : (
         <Animated.View style={fabContainerStyle}>
-          <Pressable style={scheduleFabStyle} onPress={openEditScheduleBottomSheet}>
+          <Pressable style={scheduleFabStyle} onPress={() => setShowFabExtensionModal(true)}>
             <PlusIcon stroke="#ffffff" strokeWidth={3} />
           </Pressable>
         </Animated.View>
@@ -398,6 +400,12 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       <DatePickerBottomSheet value={format(scheduleDate, 'yyyy-MM-dd')} onChange={changeScheduleDate} />
       <EditTodoModal />
       <CompleteModal />
+      <HomeFabExtensionModal
+        visible={showFabExtensionModal}
+        translateY={fabTranslateY.value}
+        openEditScheduleBottomSheet={openEditScheduleBottomSheet}
+        onClose={() => setShowFabExtensionModal(false)}
+      />
       {/*<TimetableCategoryBottomSheet />*/}
       {/* <ScheduleCompleteModal /> */}
 
