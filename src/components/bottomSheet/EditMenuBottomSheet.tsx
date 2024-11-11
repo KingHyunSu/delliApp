@@ -5,7 +5,7 @@ import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
-import {isEditState} from '@/store/system'
+import {activeThemeState, isEditState} from '@/store/system'
 import {focusModeInfoState, scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
 import {editTodoFormState} from '@/store/todo'
 import {showCompleteModalState, showEditTodoModalState} from '@/store/modal'
@@ -43,6 +43,8 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
 
   const isEdit = useRecoilValue(isEditState)
   const scheduleDate = useRecoilValue(scheduleDateState)
+  const activeTheme = useRecoilValue(activeThemeState)
+
   const resetSchedule = useResetRecoilState(scheduleState)
   const setEditTodoForm = useSetRecoilState(editTodoFormState)
   const setScheduleList = useSetRecoilState(scheduleListState)
@@ -278,56 +280,57 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
       ref={editInfoBottomSheetRef}
       backdropComponent={bottomSheetBackdrop}
       handleComponent={bottomSheetHandler}
+      backgroundStyle={{backgroundColor: activeTheme.color5}}
       index={0}
       snapPoints={snapPoints}
       onDismiss={closeEditMenuBottomSheet}>
-      <View style={styles.container}>
-        <View style={styles.actionContainer}>
+      <View style={[styles.container, {backgroundColor: activeTheme.color2}]}>
+        <View style={[styles.actionContainer, {backgroundColor: activeTheme.color5}]}>
           <View style={styles.titleContainer}>
-            <Text style={styles.titleText}>{schedule.title}</Text>
+            <Text style={[styles.titleText, {color: activeTheme.color3}]}>{schedule.title}</Text>
           </View>
 
-          <View style={styles.actionWrapper}>
-            {isFocusMode ? (
-              <Pressable style={pauseFocusModeButton} onPress={handleStopFocusMode}>
-                <View style={styles.timeActionIcon}>
-                  <PauseIcon width={32} height={32} fill="#FF7043" />
-                </View>
+          {/*<View style={styles.actionWrapper}>*/}
+          {/*  {isFocusMode ? (*/}
+          {/*    <Pressable style={pauseFocusModeButton} onPress={handleStopFocusMode}>*/}
+          {/*      <View style={styles.timeActionIcon}>*/}
+          {/*        <PauseIcon width={32} height={32} fill="#FF7043" />*/}
+          {/*      </View>*/}
 
-                <Text style={pauseFocusModeButtonText}>{getFocusTimeText(focusModeInfo?.seconds || 0)}</Text>
-              </Pressable>
-            ) : (
-              <Pressable style={playFocusModeButton} onPress={handleStartFocusMode}>
-                <View style={styles.timeActionIcon}>
-                  <PlayIcon width={32} height={32} fill="#FF6B6B" />
-                </View>
+          {/*      <Text style={pauseFocusModeButtonText}>{getFocusTimeText(focusModeInfo?.seconds || 0)}</Text>*/}
+          {/*    </Pressable>*/}
+          {/*  ) : (*/}
+          {/*    <Pressable style={playFocusModeButton} onPress={handleStartFocusMode}>*/}
+          {/*      <View style={styles.timeActionIcon}>*/}
+          {/*        <PlayIcon width={32} height={32} fill="#FF6B6B" />*/}
+          {/*      </View>*/}
 
-                <Text style={playFocusModeButtonText}>{focusTimeTextComponent}</Text>
-              </Pressable>
-            )}
+          {/*      <Text style={playFocusModeButtonText}>{focusTimeTextComponent}</Text>*/}
+          {/*    </Pressable>*/}
+          {/*  )}*/}
 
-            <Pressable style={completeActionButtonStyle} disabled={!!schedule.complete_state} onPress={handleComplete}>
-              <View style={styles.timeActionIcon}>
-                <CheckIcon
-                  width={28}
-                  height={28}
-                  strokeWidth={3}
-                  stroke={schedule.complete_state ? '#babfc5' : '#66BB6A'}
-                />
-              </View>
+          {/*  <Pressable style={completeActionButtonStyle} disabled={!!schedule.complete_state} onPress={handleComplete}>*/}
+          {/*    <View style={styles.timeActionIcon}>*/}
+          {/*      <CheckIcon*/}
+          {/*        width={28}*/}
+          {/*        height={28}*/}
+          {/*        strokeWidth={3}*/}
+          {/*        stroke={schedule.complete_state ? '#babfc5' : '#66BB6A'}*/}
+          {/*      />*/}
+          {/*    </View>*/}
 
-              <Text style={completeActionButtonTextStyle}>{schedule.complete_state ? '완료했어요' : '완료하기'}</Text>
-            </Pressable>
-          </View>
+          {/*    <Text style={completeActionButtonTextStyle}>{schedule.complete_state ? '완료했어요' : '완료하기'}</Text>*/}
+          {/*  </Pressable>*/}
+          {/*</View>*/}
         </View>
 
-        <View style={styles.menuContainer}>
+        <View style={[styles.menuContainer, {backgroundColor: activeTheme.color5}]}>
           <Pressable style={styles.menuWrapper} onPress={openEditTodoModal}>
             <View style={todoButton}>
               <TodoIcon width={14} height={14} fill="#fff" />
             </View>
 
-            <Text style={styles.text}>할 일 추가하기</Text>
+            <Text style={[styles.text, {color: activeTheme.color3}]}>할 일 추가하기</Text>
           </Pressable>
 
           <Pressable style={styles.menuWrapper} onPress={handleMoveEditSchedule}>
@@ -335,7 +338,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
               <EditIcon width={12} height={12} stroke="#fff" fill="#fff" />
             </View>
 
-            <Text style={styles.text}>수정하기</Text>
+            <Text style={[styles.text, {color: activeTheme.color3}]}>수정하기</Text>
           </Pressable>
 
           <Pressable style={styles.menuWrapper} onPress={deleteSchedule}>
@@ -343,7 +346,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
               <DeleteIcon width={14} height={14} fill="#fff" />
             </View>
 
-            <Text style={styles.text}>삭제하기</Text>
+            <Text style={[styles.text, {color: activeTheme.color3}]}>삭제하기</Text>
           </Pressable>
         </View>
       </View>
@@ -353,14 +356,12 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#f5f6f8'
+    flex: 1
   },
   actionContainer: {
-    backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingVertical: 20,
-    marginBottom: 10
+    marginBottom: 5
   },
   actionWrapper: {
     flexDirection: 'row',
@@ -389,8 +390,7 @@ const styles = StyleSheet.create({
   menuContainer: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 20,
-    backgroundColor: '#ffffff'
+    paddingTop: 20
   },
   menuWrapper: {
     height: 52,
@@ -406,7 +406,7 @@ const styles = StyleSheet.create({
     borderRadius: 12
   },
   titleContainer: {
-    height: 50
+    paddingBottom: 15
   },
   titleText: {
     fontFamily: 'Pretendard-SemiBold',
