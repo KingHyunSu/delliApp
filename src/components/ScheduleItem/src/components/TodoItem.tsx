@@ -16,10 +16,20 @@ interface Props {
   scheduleId: number
   title: string
   completeDateList?: string[]
+  activeTheme: ActiveTheme
   openEditModal?: (params: EditTodoForm) => void
   onChange: (isCompleted: boolean, changeTodoCompleteArguments: ChangeTodoCompleteArguments) => void
 }
-const TodoItem = ({todoId, completeId, scheduleId, title, completeDateList, openEditModal, onChange}: Props) => {
+const TodoItem = ({
+  todoId,
+  completeId,
+  scheduleId,
+  title,
+  completeDateList,
+  activeTheme,
+  openEditModal,
+  onChange
+}: Props) => {
   const isCompleted = useMemo(() => {
     return !!completeId
   }, [completeId])
@@ -60,10 +70,10 @@ const TodoItem = ({todoId, completeId, scheduleId, title, completeDateList, open
         </Pressable>
 
         <Pressable style={styles.modalButtonWrapper} onPress={handleShowEditModal}>
-          <Text style={styles.title}>{title}</Text>
+          <Text style={[styles.title, {color: activeTheme.color3}]}>{title}</Text>
 
           {completeDateList ? (
-            <RoutineCompleteBar completeDateList={completeDateList} itemSize={20} />
+            <RoutineCompleteBar completeDateList={completeDateList} itemSize={20} activeTheme={activeTheme} />
           ) : (
             <View style={styles.moreButton}>
               <MoreIcon width={18} height={18} fill="#babfc5" />
@@ -90,7 +100,6 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 14,
-    color: '#424242',
     flexShrink: 1
   },
   checkButtonWrapper: {

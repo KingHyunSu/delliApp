@@ -70,9 +70,7 @@ const SchedulePie = ({
     return <></>
   }
 
-  return (
-    <Path d={path} fill={backgroundColor} fillOpacity={1} strokeWidth={0.4} stroke={'#f5f6f8'} onPress={handleClick} />
-  )
+  return <Path d={path} fill={backgroundColor} fillOpacity={1} onPress={handleClick} />
 }
 
 export default SchedulePie

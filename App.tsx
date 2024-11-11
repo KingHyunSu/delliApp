@@ -68,36 +68,45 @@ const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/90037
 const Tab = createBottomTabNavigator<BottomTabNavigator>()
 const Stack = createStackNavigator<StackNavigator>()
 
-const BottomTabs = React.memo(() => {
+interface BottomTabsProps {
+  activeTheme: ActiveTheme
+}
+const BottomTabs = React.memo(({activeTheme}: BottomTabsProps) => {
+  const borderTopColor = activeTheme.theme_id === 1 ? '#D8D8D8' : activeTheme.color1
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
-      screenOptions={{headerShown: false, tabBarShowLabel: false, tabBarStyle: {height: 56}}} // 탭의 상단 바 제거
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: false,
+        tabBarStyle: {borderTopColor, backgroundColor: activeTheme.color5, height: 56}
+      }} // 탭의 상단 바 제거
     >
       <Tab.Screen
         name="Home"
         component={HomeScreen}
         options={{
           tabBarIcon: ({focused}) => {
-            return <HomeIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
+            return <HomeIcon width={30} height={30} fill={focused ? activeTheme.color7 : activeTheme.color8} />
           }
         }}
       />
-      <Tab.Screen
-        name="Routine"
-        component={RoutineListScreen}
-        options={{
-          tabBarIcon: ({focused}) => {
-            return <RoutineIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
-          }
-        }}
-      />
+      {/*<Tab.Screen*/}
+      {/*  name="Routine"*/}
+      {/*  component={RoutineListScreen}*/}
+      {/*  options={{*/}
+      {/*    tabBarIcon: ({focused}) => {*/}
+      {/*      return <RoutineIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />*/}
+      {/*    }*/}
+      {/*  }}*/}
+      {/*/>*/}
       <Tab.Screen
         name="StoreList"
         component={StoreListScreen}
         options={{
           tabBarIcon: ({focused}) => {
-            return <StoreIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
+            return <StoreIcon width={30} height={30} fill={focused ? activeTheme.color7 : activeTheme.color8} />
           }
         }}
       />
@@ -106,7 +115,7 @@ const BottomTabs = React.memo(() => {
         component={SettingScreen}
         options={{
           tabBarIcon: ({focused}) => {
-            return <MyIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />
+            return <MyIcon width={30} height={30} fill={focused ? activeTheme.color7 : activeTheme.color8} />
           }
         }}
       />
@@ -136,14 +145,15 @@ function App(): JSX.Element {
 
   const [isActiveApp, setIsActiveApp] = React.useState(false)
   const [isInit, setIsInit] = React.useState(false)
-  const [statusBarColor, setStatusBarColor] = React.useState('#ffffff')
 
+  const [activeTheme, setActiveTheme] = useRecoilState(activeThemeState)
   const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
-  const [bottomSafeAreaColor, setBottomSafeAreaColor] = useRecoilState(bottomSafeAreaColorState)
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
-  const setActiveTheme = useSetRecoilState(activeThemeState)
+
+  const [bottomSafeAreaColor, setBottomSafeAreaColor] = useRecoilState(bottomSafeAreaColorState)
+  const [statusBarColor, setStatusBarColor] = React.useState('#ffffff')
 
   const screenOptions = React.useMemo(() => {
     return {headerShown: false}
@@ -168,8 +178,8 @@ function App(): JSX.Element {
   const changeRoute = React.useCallback(() => {
     const route = navigationRef.current?.getCurrentRoute()
 
-    let _statusBarColor = '#ffffff'
-    let _bottomSafeAreaColor: string | null = '#ffffff'
+    let _statusBarColor = activeTheme.color1
+    let _bottomSafeAreaColor: string | null = activeTheme.color5
 
     switch (route?.name) {
       case 'Stats':
@@ -192,7 +202,7 @@ function App(): JSX.Element {
     if (_bottomSafeAreaColor) {
       setBottomSafeAreaColor(_bottomSafeAreaColor)
     }
-  }, [setStatusBarColor, setBottomSafeAreaColor])
+  }, [activeTheme, setStatusBarColor, setBottomSafeAreaColor])
 
   // 2024-05-18 서버 제거로인해 비활성화
   // React.useEffect(() => {
@@ -249,7 +259,10 @@ function App(): JSX.Element {
       const activeThemeId = user.active_theme_id || 1
       const themeDetail = await getActiveThemeMutateAsync(activeThemeId)
 
+      setStatusBarColor(themeDetail.color1)
+      setBottomSafeAreaColor(themeDetail.color5)
       setActiveTheme(themeDetail)
+
       setIsInit(isInitDatabase)
     }
 
@@ -393,7 +406,8 @@ function App(): JSX.Element {
         <SafeAreaView style={containerStyle}>
           <NavigationContainer ref={navigationRef} linking={linking} onStateChange={changeRoute}>
             <Stack.Navigator initialRouteName="MainTabs" screenOptions={screenOptions}>
-              <Stack.Screen name="MainTabs" component={BottomTabs} />
+              {/*<Stack.Screen name="MainTabs" component={BottomTabs} />*/}
+              <Stack.Screen name="MainTabs">{() => <BottomTabs activeTheme={activeTheme} />}</Stack.Screen>
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
               <Stack.Screen name="ThemeDetail" component={ThemeDetailScreen} />
               <Stack.Screen name="MyThemeList" component={MyThemeListScreen} />

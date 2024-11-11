@@ -33,9 +33,9 @@ interface Props {
   date?: ScheduleDate
   dayOfWeek?: ScheduleDayOfWeek
   todoList?: Todo[]
-  routineList?: Routine[]
+  routineList?: ScheduleRoutine[]
   headerComponent?: ReactNode
-  backgroundColor?: string | null
+  activeTheme: ActiveTheme
 }
 const ScheduleItem = ({
   title,
@@ -46,15 +46,13 @@ const ScheduleItem = ({
   todoList,
   routineList,
   headerComponent,
-  backgroundColor
+  activeTheme
 }: Props) => {
   const scheduleCategoryList = useRecoilValue(scheduleCategoryListState)
 
   const containerStyle = useMemo(() => {
-    const _backgroundColor = backgroundColor ? backgroundColor : '#f9f9f9'
-
-    return [styles.container, {backgroundColor: _backgroundColor}]
-  }, [backgroundColor])
+    return [styles.container, {backgroundColor: activeTheme.color6}]
+  }, [activeTheme.color6])
 
   const scheduleCategoryTitle = useMemo(() => {
     const target = scheduleCategoryList.find(scheduleCategory => {
@@ -78,13 +76,13 @@ const ScheduleItem = ({
     <View style={containerStyle}>
       {headerComponent}
 
-      <Text style={styles.titleText}>{title}</Text>
+      <Text style={[styles.titleText, {color: activeTheme.color3}]}>{title}</Text>
 
       <View style={styles.infoWrapper}>
         {categoryId !== undefined && (
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/folder.png')} style={styles.icon} />
-            <Text style={styles.contentsText}>{scheduleCategoryTitle}</Text>
+            <Text style={[styles.contentsText, {color: activeTheme.color3}]}>{scheduleCategoryTitle}</Text>
           </View>
         )}
 
@@ -92,14 +90,16 @@ const ScheduleItem = ({
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/time.png')} style={styles.icon} />
 
-            <Text style={styles.contentsText}>{`${getTimeText(time.startTime)} ~ ${getTimeText(time.endTime)}`}</Text>
+            <Text style={[styles.contentsText, {color: activeTheme.color3}]}>{`${getTimeText(
+              time.startTime
+            )} ~ ${getTimeText(time.endTime)}`}</Text>
           </View>
         )}
 
         {date !== undefined && (
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/calendar.png')} style={styles.icon} />
-            <Text style={styles.contentsText}>
+            <Text style={[styles.contentsText, {color: activeTheme.color3}]}>
               {`${date.startDate} ~ ${date.endDate === '9999-12-31' ? '없음' : date.endDate}`}
             </Text>
           </View>
@@ -122,7 +122,9 @@ const ScheduleItem = ({
         )}
       </View>
 
-      {routineList !== undefined && routineList.length > 0 && <RoutineList data={routineList} />}
+      {routineList !== undefined && routineList.length > 0 && (
+        <RoutineList data={routineList} activeTheme={activeTheme} />
+      )}
       {todoList !== undefined && todoList.length > 0 && <TodoList data={todoList} />}
     </View>
   )

@@ -7,7 +7,7 @@ interface Props {
   radius: number
 }
 const Background = ({x, y, radius}: Props) => {
-  return <Circle cx={x} cy={y} r={radius} fill={'#f5f6f8'} fillOpacity={1} strokeWidth={0.4} stroke={'#f5f6f8'} />
+  return <Circle cx={x} cy={y} r={radius} fill={'#f5f6f8'} fillOpacity={1} />
 }
 
 export default Background

@@ -361,15 +361,15 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
           <View />
 
-          <Pressable style={homeStyles.appBarRightButton} onPress={() => navigation.navigate('Setting')}>
-            <SettingIcon fill="#babfc5" />
-          </Pressable>
+          {/*<Pressable style={homeStyles.appBarRightButton} onPress={() => navigation.navigate('Setting')}>*/}
+          {/*  <SettingIcon fill="#babfc5" />*/}
+          {/*</Pressable>*/}
         </AppBar>
 
         <View style={homeStyles.dateButtonWrapper}>
           <Pressable style={homeStyles.dateButton} onPress={() => setShowDatePickerBottomSheet(true)}>
-            <Text style={homeStyles.dateButtonText}>{currentScheduleDateString}</Text>
-            <RightArrowIcon stroke="#424242" strokeWidth={3} />
+            <Text style={[homeStyles.dateButtonText, {color: activeTheme.color3}]}>{currentScheduleDateString}</Text>
+            {/*<RightArrowIcon stroke="#424242" strokeWidth={3} />*/}
           </Pressable>
         </View>
       </Animated.View>
@@ -444,8 +444,7 @@ const homeStyles = StyleSheet.create({
   },
   dateButtonText: {
     fontFamily: 'Pretendard-Bold',
-    fontSize: 22,
-    color: '#424242'
+    fontSize: 22
   },
   timetableCategoryButton: {
     width: 150,
@@ -478,19 +477,7 @@ const homeStyles = StyleSheet.create({
     height: 52,
     borderRadius: 26,
     justifyContent: 'center',
-    alignItems: 'center',
-
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000000',
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.2,
-        shadowRadius: 2
-      },
-      android: {
-        elevation: 3
-      }
-    })
+    alignItems: 'center'
   },
   focusTimeText: {
     textAlign: 'center',
@@ -500,7 +487,7 @@ const homeStyles = StyleSheet.create({
   }
 })
 
-const scheduleFabStyle = StyleSheet.compose(homeStyles.fab, {backgroundColor: '#1E90FF'})
+const scheduleFabStyle = StyleSheet.compose(homeStyles.fab, {backgroundColor: '#424242'})
 const focusTimeFabStyle = StyleSheet.compose(homeStyles.fab, {backgroundColor: '#FF7043'})
 
 export default Home

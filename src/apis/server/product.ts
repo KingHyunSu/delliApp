@@ -7,7 +7,3 @@ export const getThemeList = () => {
 export const getThemeDetail = (id: number) => {
   return http.get<any, Response<ThemeDetail>>(`product/theme/detail/${id}`)
 }
-
-export const getActiveTheme = (id: number) => {
-  return http.get<any, Response<ActiveTheme>>(`product/theme/active/${id}`)
-}

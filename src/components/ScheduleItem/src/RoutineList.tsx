@@ -12,10 +12,11 @@ import useSetTodoComplete from './hooks/useSetTodoComplete'
 import {format} from 'date-fns'
 
 interface Props {
-  data: Routine[]
+  data: ScheduleRoutine[]
+  activeTheme: ActiveTheme
 }
 
-const ScheduleRoutineList = ({data}: Props) => {
+const ScheduleRoutineList = ({data, activeTheme}: Props) => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
 
@@ -87,11 +88,11 @@ const ScheduleRoutineList = ({data}: Props) => {
     [scheduleDate, doCompleteTodo, undoCompleteTodo, updateRoutineOfScheduleList]
   )
 
-  const keyExtractor = useCallback((item: Routine, index: number) => {
+  const keyExtractor = useCallback((item: ScheduleRoutine, index: number) => {
     return String(index)
   }, [])
 
-  const renderItem: ListRenderItem<Routine> = useCallback(
+  const renderItem: ListRenderItem<ScheduleRoutine> = useCallback(
     ({item}) => {
       return (
         <TodoItem
@@ -100,6 +101,7 @@ const ScheduleRoutineList = ({data}: Props) => {
           scheduleId={item.schedule_id!}
           title={item.title}
           completeDateList={item.complete_date_list}
+          activeTheme={activeTheme}
           onChange={handleTodoComplete}
         />
       )
@@ -111,10 +113,10 @@ const ScheduleRoutineList = ({data}: Props) => {
     <FlatList
       data={data}
       keyExtractor={keyExtractor}
-      style={styles.container}
+      style={[styles.container, {backgroundColor: activeTheme.color5}]}
       renderItem={renderItem}
       ItemSeparatorComponent={() => {
-        return <View style={styles.itemSeparator} />
+        return <View style={{height: 1, backgroundColor: activeTheme.color6}} />
       }}
     />
   )
@@ -122,13 +124,8 @@ const ScheduleRoutineList = ({data}: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
     marginTop: 10,
     borderRadius: 10
-  },
-  itemSeparator: {
-    height: 1,
-    backgroundColor: '#f9f9f9'
   }
 })
 

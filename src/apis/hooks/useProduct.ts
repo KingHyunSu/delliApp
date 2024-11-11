@@ -29,7 +29,7 @@ export const useGetThemeDetail = (id: number) => {
 
 export const useGetDownloadThemeList = () => {
   return useQuery({
-    queryKey: ['getDownloadThemeList'],
+    queryKey: ['downloadThemeList'],
     queryFn: () => {
       return productRepository.getDownloadThemeList()
     },

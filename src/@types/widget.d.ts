@@ -7,7 +7,7 @@ declare interface GetWidgetReloadableResponse {
 }
 
 declare interface UpdateWidgetReloadableRequest {
-  id: string
+  id: number
 }
 
 declare interface UpdateWidgetReloadableResponse {

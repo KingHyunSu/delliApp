@@ -4,6 +4,8 @@ import {BottomSheetHandleProps} from '@gorhom/bottom-sheet'
 import Animated, {Extrapolation, interpolate, useAnimatedStyle, useDerivedValue} from 'react-native-reanimated'
 import {toRad} from 'react-native-redash'
 import {Shadow} from 'react-native-shadow-2'
+import {useRecoilValue} from 'recoil'
+import {activeThemeState} from '@/store/system'
 
 // @ts-ignore
 export const transformOrigin = ({x, y}, ...transformations) => {
@@ -24,8 +26,13 @@ interface Props extends BottomSheetHandleProps {
   maxSnapIndex?: 1 | 2 | 3
 }
 
+const inputInterpolate = [-0.6, 0, 1, 2]
 const BottomSheetHandler = ({shadow = true, maxSnapIndex = 3, animatedIndex}: Props) => {
-  const inputInterpolate = [-0.6, 0, 1, 2]
+  const activeTheme = useRecoilValue(activeThemeState)
+
+  const isShowShadow = useMemo(() => {
+    return !(activeTheme.theme_id === 1 && shadow)
+  }, [activeTheme.theme_id])
 
   const outputIndicatorTransformOriginY = useMemo(() => {
     if (maxSnapIndex === 1) {
@@ -120,7 +127,7 @@ const BottomSheetHandler = ({shadow = true, maxSnapIndex = 3, animatedIndex}: Pr
 
   return (
     <Shadow
-      disabled={!shadow}
+      disabled={isShowShadow}
       startColor="#f0eff586"
       distance={10}
       sides={shadowSides}
@@ -136,15 +143,9 @@ const BottomSheetHandler = ({shadow = true, maxSnapIndex = 3, animatedIndex}: Pr
 
 const styles = StyleSheet.create({
   shadowContainer: {
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
-    borderTopWidth: 1,
-    borderColor: '#e7e7eb89',
-
     width: '100%',
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15
   },
   header: {
     alignContent: 'center',
@@ -155,17 +156,15 @@ const styles = StyleSheet.create({
   },
   indicator: {
     position: 'absolute',
-    width: 10,
+    width: 12,
     height: 4,
     backgroundColor: '#999'
   },
   leftIndicator: {
-    borderTopStartRadius: 2,
-    borderBottomStartRadius: 2
+    borderRadius: 2
   },
   rightIndicator: {
-    borderTopEndRadius: 2,
-    borderBottomEndRadius: 2
+    borderRadius: 2
   }
 })
 

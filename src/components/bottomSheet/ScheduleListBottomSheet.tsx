@@ -11,7 +11,7 @@ import TimerIcon from '@/assets/icons/timer.svg'
 import LottieView from 'lottie-react-native'
 
 import {useRecoilValue} from 'recoil'
-import {scheduleListSnapPointState, isEditState} from '@/store/system'
+import {scheduleListSnapPointState, isEditState, activeThemeState} from '@/store/system'
 import {focusModeInfoState, scheduleDateState} from '@/store/schedule'
 
 import {getFocusTimeText} from '@/utils/helper'
@@ -22,6 +22,7 @@ interface Props {
   onClick: (value: Schedule) => void
 }
 const ScheduleListBottomSheet = ({data, onClick, onAnimate}: Props) => {
+  const activeTheme = useRecoilValue(activeThemeState)
   const scheduleListSnapPoint = useRecoilValue(scheduleListSnapPointState)
   const isEdit = useRecoilValue(isEditState)
   const scheduleDate = useRecoilValue(scheduleDateState)
@@ -85,13 +86,6 @@ const ScheduleListBottomSheet = ({data, onClick, onAnimate}: Props) => {
 
   const renderItem: ListRenderItem<Schedule> = React.useCallback(
     ({item}) => {
-      const isCompleted = !!(item.complete_state && item.complete_state > 0)
-      let backgroundColor = '#f9f9f9'
-
-      if (isCompleted) {
-        backgroundColor = '#eefeee'
-      }
-
       return (
         <Pressable onPress={handleClick(item)}>
           <ScheduleItem
@@ -102,12 +96,12 @@ const ScheduleListBottomSheet = ({data, onClick, onAnimate}: Props) => {
             routineList={item.routine_list}
             todoList={item.todo_list}
             headerComponent={itemHeaderComponent(item)}
-            backgroundColor={backgroundColor}
+            activeTheme={activeTheme}
           />
         </Pressable>
       )
     },
-    [itemHeaderComponent, handleClick]
+    [activeTheme, itemHeaderComponent, handleClick]
   )
 
   const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
@@ -127,6 +121,7 @@ const ScheduleListBottomSheet = ({data, onClick, onAnimate}: Props) => {
   return (
     <BottomSheet
       ref={bottomSheetRef}
+      backgroundStyle={{backgroundColor: activeTheme.color5}}
       index={0}
       snapPoints={scheduleListSnapPoint}
       handleComponent={bottomSheetHandler}
