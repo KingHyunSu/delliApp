@@ -60,6 +60,7 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
       theme_id: detail.theme_id,
       file_name: detail.file_name,
       main_color: detail.main_color,
+      main_color2: detail.main_color2,
       sub_color: detail.sub_color,
       sub_color2: detail.sub_color2,
       text_color: detail.text_color
