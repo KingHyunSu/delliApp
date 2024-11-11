@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 20,
+    paddingTop: 30,
     paddingBottom: 10
   },
   indicator: {
