@@ -10,11 +10,14 @@ declare interface ThemeDetail {
   main_url: string
   thumb_url: string
   file_name: string
-  main_color: string
-  main_color2: string
-  sub_color: string
-  sub_color2: string
-  text_color: string
+  color1: string
+  color2: string
+  color3: string
+  color4: string
+  color5: string
+  color6: string
+  color7: string
+  color8: string
   title: string
   price: number
 }
@@ -22,9 +25,12 @@ declare interface ThemeDetail {
 declare interface ActiveTheme {
   theme_id: number
   file_name: string
-  main_color: string
-  main_color2: string
-  sub_color: string
-  sub_color2: string
-  text_color: string
+  color1: string
+  color2: string
+  color3: string
+  color4: string
+  color5: string
+  color6: string
+  color7: string
+  color8: string
 }

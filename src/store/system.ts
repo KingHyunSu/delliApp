@@ -10,11 +10,14 @@ export const activeThemeState = atom<ActiveTheme>({
   default: {
     theme_id: 1,
     file_name: 'white.png',
-    main_color: '#ffffff',
-    main_color2: '#ffffff',
-    sub_color: '#f9f9f9',
-    sub_color2: '#f5f6f8',
-    text_color: '#424242'
+    color1: '#ffffff',
+    color2: '#f5f6f8',
+    color3: '#424242',
+    color4: '',
+    color5: '#ffffff',
+    color6: '#f9f9f9',
+    color7: '#424242',
+    color8: '#babfc5'
   }
 })
 

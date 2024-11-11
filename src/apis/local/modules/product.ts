@@ -32,10 +32,13 @@ export const setTheme = async (params: SetThemeRequest) => {
   return await db.executeSql(query, [
     params.theme_id,
     params.file_name,
-    params.main_color,
-    params.main_color2,
-    params.sub_color,
-    params.sub_color2,
-    params.text_color
+    params.color1,
+    params.color2,
+    params.color3,
+    params.color4,
+    params.color5,
+    params.color6,
+    params.color7,
+    params.color8
   ])
 }

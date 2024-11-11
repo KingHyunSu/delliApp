@@ -5,9 +5,12 @@ export interface GetThemeRequest {
 export interface SetThemeRequest {
   theme_id: number
   file_name: string
-  main_color: string
-  main_color2: string
-  sub_color: string
-  sub_color2: string
-  text_color: string
+  color1: string
+  color2: string
+  color3: string
+  color4: string
+  color5: string
+  color6: string
+  color7: string
+  color8: string
 }

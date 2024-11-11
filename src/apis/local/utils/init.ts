@@ -7,9 +7,10 @@ import {userRepository, productRepository} from '../index'
 
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {
-    // tx.executeSql(`
-    //   DROP TABLE THEME
-    // `)
+    //     tx.executeSql(`
+    //           DROP TABLE THEME
+    // --         update USER set active_theme_id = 1
+    //         `)
 
     // user table
     tx.executeSql(`
@@ -23,11 +24,14 @@ const createTable = async (db: SQLiteDatabase) => {
       CREATE TABLE IF NOT EXISTS "THEME" (
         "theme_id" INTEGER NOT NULL,
         "file_name" TEXT NOT NULL,
-        "main_color" TEXT NOT NULL,
-        "main_color2" TEXT NOT NULL,
-        "sub_color" TEXT NOT NULL,
-        "sub_color2" TEXT NOT NULL,
-        "text_color" TEXT NOT NULL
+        "color1" TEXT NOT NULL,
+        "color2" TEXT NOT NULL,
+        "color3" TEXT NOT NULL,
+        "color4" TEXT NOT NULL,
+        "color5" TEXT NOT NULL,
+        "color6" TEXT NOT NULL,
+        "color7" TEXT NOT NULL,
+        "color8" TEXT NOT NULL
       )
     `)
 

@@ -11,8 +11,11 @@ import {activeThemeState, windowDimensionsState} from '@/store/system'
 import {useGetActiveTheme, useGetDownloadThemeList, useGetThemeDetail, useSetTheme} from '@/apis/hooks/useProduct'
 import {useUpdateTheme} from '@/apis/hooks/useUser'
 import {ThemeDetailScreenProps} from '@/types/navigation'
+import {useQueryClient} from '@tanstack/react-query'
 
 const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
+  const queryClient = useQueryClient()
+
   const {data: downloadThemeList} = useGetDownloadThemeList()
   const {mutate: setThemeMutate} = useSetTheme()
   const {mutateAsync: updateThemeMutateAsync} = useUpdateTheme()
@@ -59,11 +62,14 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
     setThemeMutate({
       theme_id: detail.theme_id,
       file_name: detail.file_name,
-      main_color: detail.main_color,
-      main_color2: detail.main_color2,
-      sub_color: detail.sub_color,
-      sub_color2: detail.sub_color2,
-      text_color: detail.text_color
+      color1: detail.color1,
+      color2: detail.color2,
+      color3: detail.color3,
+      color4: detail.color4,
+      color5: detail.color5,
+      color6: detail.color6,
+      color7: detail.color7,
+      color8: detail.color8
     })
 
     RNFetchBlob.config({
@@ -98,6 +104,8 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
           setProgress(100)
           setTimeout(() => setProgress(null), 500) // 잠시 후 진행률 숨김
         }
+
+        queryClient.invalidateQueries({queryKey: ['downloadThemeList']})
       })
       .catch(e => {
         console.error('error', e)
