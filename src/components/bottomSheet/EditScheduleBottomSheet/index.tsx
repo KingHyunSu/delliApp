@@ -1,5 +1,5 @@
-import {useRef, useState, useCallback, useEffect, forwardRef, useImperativeHandle} from 'react'
-import {StyleSheet, ScrollView, Text, Pressable} from 'react-native'
+import {useRef, useState, useCallback, useEffect, forwardRef, useImperativeHandle, useMemo} from 'react'
+import {StyleSheet, ScrollView, Text, Pressable, TextStyle} from 'react-native'
 import BottomSheet, {BottomSheetHandleProps, BottomSheetScrollView} from '@gorhom/bottom-sheet'
 import {isAfter} from 'date-fns'
 
@@ -11,7 +11,12 @@ import DayOfWeekPanel from './src/DayOfWeekPanel'
 import CategoryPanel from './src/CategoryPanel'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {editScheduleListSnapPointState, isEditState, editScheduleListStatusState} from '@/store/system'
+import {
+  editScheduleListSnapPointState,
+  isEditState,
+  editScheduleListStatusState,
+  activeThemeState
+} from '@/store/system'
 import {scheduleState, isInputModeState} from '@/store/schedule'
 
 import {RANGE_FLAG} from '@/utils/types'
@@ -32,6 +37,7 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
 
   const isEdit = useRecoilValue(isEditState)
   const editScheduleListSnapPoint = useRecoilValue(editScheduleListSnapPointState)
+  const activeTheme = useRecoilValue(activeThemeState)
 
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const showScheduleCategorySelectorBottomSheet = useSetRecoilState(showScheduleCategorySelectorBottomSheetState)
@@ -48,6 +54,18 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
     setActiveDatePanel(false)
     setActiveDayOfWeekPanel(false)
   }
+
+  const panelHeaderLabelStyle = useMemo(() => {
+    return [styles.panelHeaderLabel, {color: activeTheme.color3}] as TextStyle
+  }, [activeTheme.color3])
+
+  const panelHeaderTitleStyle = useMemo(() => {
+    return [styles.panelHeaderTitle, {color: activeTheme.color3}] as TextStyle
+  }, [activeTheme.color3])
+
+  const panelItemLabelStyle = useMemo(() => {
+    return [styles.panelItemLabel, {color: activeTheme.color3}] as TextStyle
+  }, [activeTheme.color3])
 
   const handleBottomSheetChanged = useCallback((index: number) => {
     setEditScheduleListStatus(index)
@@ -210,13 +228,14 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
       ref={bottomSheetRef}
       index={0}
       snapPoints={editScheduleListSnapPoint}
+      backgroundStyle={{backgroundColor: activeTheme.color5}}
       handleComponent={bottomSheetHandler}
       onChange={handleBottomSheetChanged}>
       <BottomSheetScrollView ref={bottomSheetScrollViewRef} contentContainerStyle={styles.container}>
         {/* 일정명 */}
-        <Pressable style={styles.titleButton} onPress={focusTitleInput}>
+        <Pressable style={[styles.titleButton, {borderBottomColor: activeTheme.color2}]} onPress={focusTitleInput}>
           {schedule.title ? (
-            <Text style={styles.titleText}>{schedule.title}</Text>
+            <Text style={[styles.titleText, {color: activeTheme.color3}]}>{schedule.title}</Text>
           ) : (
             <Text style={titleTextStyle}>일정명을 입력해주세요</Text>
           )}
@@ -251,12 +270,13 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
         <TimePanel
           value={activeTimePanel}
           data={schedule}
+          activeTheme={activeTheme}
           itemPanelHeight={defaultItemPanelHeight}
           headerContainerStyle={styles.panelHeaderContainer}
           headerTitleWrapper={styles.panelHeaderTitleWrapper}
-          headerLabelStyle={styles.panelHeaderLabel}
-          headerTitleStyle={styles.panelHeaderTitle}
-          itemHeaderLabelStyle={styles.panelItemLabel}
+          headerLabelStyle={panelHeaderLabelStyle}
+          headerTitleStyle={panelHeaderTitleStyle}
+          itemHeaderLabelStyle={panelItemLabelStyle}
           handleExpansion={handleTimePanel}
           changeStartTime={changeStartTime}
           changeEndTime={changeEndTime}
@@ -266,13 +286,13 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
         <DatePanel
           value={activeDatePanel}
           data={schedule}
+          activeTheme={activeTheme}
           itemPanelHeight={defaultItemPanelHeight}
           headerContainerStyle={styles.panelHeaderContainer}
           headerTitleWrapper={styles.panelHeaderTitleWrapper}
-          headerLabelStyle={styles.panelHeaderLabel}
-          headerTitleStyle={styles.panelHeaderTitle}
-          itemHeaderContainerStyle={styles.panelItemHeader}
-          itemHeaderLabelStyle={styles.panelItemLabel}
+          headerLabelStyle={panelHeaderLabelStyle}
+          headerTitleStyle={panelHeaderTitleStyle}
+          itemHeaderLabelStyle={panelItemLabelStyle}
           handleExpansion={handleDatePanel}
           changeStartDate={changeStartDate}
           changeEndDate={changeEndDate}
@@ -282,10 +302,11 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
         <DayOfWeekPanel
           value={activeDayOfWeekPanel}
           data={schedule}
+          activeTheme={activeTheme}
           headerContainerStyle={styles.panelHeaderContainer}
           headerTitleWrapper={styles.panelHeaderTitleWrapper}
-          headerLabelStyle={styles.panelHeaderLabel}
-          headerTitleStyle={styles.panelHeaderTitle}
+          headerLabelStyle={panelHeaderLabelStyle}
+          headerTitleStyle={panelHeaderTitleStyle}
           handleExpansion={handleDayOfWeekPanel}
           changeDayOfWeek={changeDayOfWeek}
         />
@@ -301,23 +322,13 @@ const styles = StyleSheet.create({
     paddingBottom: 70,
     gap: 20
   },
-  titleBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 20,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eeeded'
-  },
   titleButton: {
     paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eeeded'
+    borderBottomWidth: 2
   },
   titleText: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 24,
-    color: '#000'
+    fontSize: 24
   },
   titlePlaceHoldText: {
     color: '#c3c5cc'
@@ -335,27 +346,15 @@ const styles = StyleSheet.create({
   },
   panelHeaderLabel: {
     fontSize: 14,
-    fontFamily: 'Pretendard-Medium',
-    color: '#7c8698'
+    fontFamily: 'Pretendard-Medium'
   },
   panelHeaderTitle: {
     fontSize: 16,
-    fontFamily: 'Pretendard-Medium',
-    color: '#424242'
-  },
-  panelItemHeader: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#eeeded'
+    fontFamily: 'Pretendard-Medium'
   },
   panelItemLabel: {
     fontSize: 14,
-    fontFamily: 'Pretendard-Medium',
-    color: '#7c8698'
+    fontFamily: 'Pretendard-Medium'
   }
 })
 

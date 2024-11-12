@@ -108,7 +108,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         source={{uri: `file://${RNFetchBlob.fs.dirs.DocumentDir}/${activeTheme.file_name}`}}
       />
     )
-  }, [activeTheme.theme_id])
+  }, [activeTheme.theme_id, activeTheme.file_name])
 
   const currentScheduleDateString = React.useMemo(() => {
     const weekdays = ['일', '월', '화', '수', '목', '금', '토']

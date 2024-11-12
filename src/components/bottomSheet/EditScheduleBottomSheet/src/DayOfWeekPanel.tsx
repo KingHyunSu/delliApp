@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, ViewStyle, TextStyle, Pressable, Text, View, Image} from 'react-native'
+import {StyleSheet, ViewStyle, TextStyle, Pressable, Text, View} from 'react-native'
 import Panel from '@/components/Panel'
 import {DAY_OF_WEEK} from '@/types/common'
 import RepeatIcon from '@/assets/icons/repeat.svg'
@@ -7,6 +7,7 @@ import RepeatIcon from '@/assets/icons/repeat.svg'
 interface Props {
   value: boolean
   data: Schedule
+  activeTheme: ActiveTheme
   headerContainerStyle: ViewStyle
   headerTitleWrapper: ViewStyle
   headerLabelStyle: TextStyle
@@ -18,6 +19,7 @@ const DayOfWeekPanel = React.memo(
   ({
     value,
     data,
+    activeTheme,
     headerContainerStyle,
     headerTitleWrapper,
     headerLabelStyle,
@@ -25,35 +27,30 @@ const DayOfWeekPanel = React.memo(
     handleExpansion,
     changeDayOfWeek
   }: Props) => {
-    const getDayOfWeekTitleStyle = React.useCallback((flag: string) => {
-      let dayOfWeekTitleStyle: TextStyle[] = [headerTitleStyle, styles.disableDayOfWeekText]
+    const getDayOfWeekTitleStyle = React.useCallback(
+      (flag: string) => {
+        let color = activeTheme.color8
 
-      if (flag === '1') {
-        dayOfWeekTitleStyle = [...dayOfWeekTitleStyle, styles.activeDayOfWeekText]
-      }
+        if (flag === '1') {
+          color = activeTheme.color3
+        }
+        return [headerTitleStyle, {color}]
+      },
+      [headerTitleStyle, activeTheme.color3, activeTheme.color8]
+    )
 
-      return dayOfWeekTitleStyle
-    }, [])
+    const getDayOfWeekSelectButtonStyle = React.useCallback(
+      (flag: string) => {
+        let backgroundColor = activeTheme.color2
 
-    const getDayOfWeekSelectButtonStyle = React.useCallback((flag: string) => {
-      let dayOfWeekSelectButtonStyle: ViewStyle[] = [styles.dayOfWeek]
+        if (flag === '1') {
+          backgroundColor = activeTheme.color5
+        }
 
-      if (flag === '1') {
-        dayOfWeekSelectButtonStyle = [...dayOfWeekSelectButtonStyle, styles.activeDayOfWeek]
-      }
-
-      return dayOfWeekSelectButtonStyle
-    }, [])
-
-    const getDayOfWeekSelectButtonTextStyle = React.useCallback((flag: string) => {
-      let dayOfWeekSelectButtonTextStyle: TextStyle[] = [styles.dayOfWeekText]
-
-      if (flag === '1') {
-        dayOfWeekSelectButtonTextStyle = [...dayOfWeekSelectButtonTextStyle, styles.activeDayOfWeekText]
-      }
-
-      return dayOfWeekSelectButtonTextStyle
-    }, [])
+        return [styles.dayOfWeek, {backgroundColor}]
+      },
+      [activeTheme.color2, activeTheme.color5]
+    )
 
     const _changeDayOfWeek = React.useCallback(
       (key: DAY_OF_WEEK) => () => {
@@ -89,25 +86,25 @@ const DayOfWeekPanel = React.memo(
         contentsComponent={
           <View style={styles.dayOfWeekContainer}>
             <Pressable style={getDayOfWeekSelectButtonStyle(data.mon)} onPress={_changeDayOfWeek('mon')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(data.mon)}>월</Text>
+              <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>월</Text>
             </Pressable>
             <Pressable style={getDayOfWeekSelectButtonStyle(data.tue)} onPress={_changeDayOfWeek('tue')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(data.tue)}>화</Text>
+              <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>화</Text>
             </Pressable>
             <Pressable style={getDayOfWeekSelectButtonStyle(data.wed)} onPress={_changeDayOfWeek('wed')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(data.wed)}>수</Text>
+              <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>수</Text>
             </Pressable>
             <Pressable style={getDayOfWeekSelectButtonStyle(data.thu)} onPress={_changeDayOfWeek('thu')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(data.thu)}>목</Text>
+              <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>목</Text>
             </Pressable>
             <Pressable style={getDayOfWeekSelectButtonStyle(data.fri)} onPress={_changeDayOfWeek('fri')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(data.fri)}>금</Text>
+              <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>금</Text>
             </Pressable>
             <Pressable style={getDayOfWeekSelectButtonStyle(data.sat)} onPress={_changeDayOfWeek('sat')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(data.sat)}>토</Text>
+              <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>토</Text>
             </Pressable>
             <Pressable style={getDayOfWeekSelectButtonStyle(data.sun)} onPress={_changeDayOfWeek('sun')}>
-              <Text style={getDayOfWeekSelectButtonTextStyle(data.sun)}>일</Text>
+              <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>일</Text>
             </Pressable>
           </View>
         }
@@ -135,7 +132,6 @@ const styles = StyleSheet.create({
   },
   dayOfWeekContainer: {
     flexDirection: 'row',
-    // gap: 10,
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingTop: 20
@@ -150,18 +146,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#eeeded'
   },
-  activeDayOfWeek: {
-    backgroundColor: '#ffffff'
-  },
   dayOfWeekText: {
     fontFamily: 'Pretendard-Regular',
     fontSize: 16,
-    color: '#babfc5'
-  },
-  activeDayOfWeekText: {
-    color: '#424242'
-  },
-  disableDayOfWeekText: {
     color: '#babfc5'
   }
 })

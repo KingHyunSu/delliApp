@@ -17,7 +17,13 @@ import AlignCenterIcon from '@/assets/icons/align_center.svg'
 import {useQueryClient} from '@tanstack/react-query'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {isEditState, isLoadingState, editScheduleListStatusState, editTimetableTranslateYState} from '@/store/system'
+import {
+  isEditState,
+  isLoadingState,
+  editScheduleListStatusState,
+  editTimetableTranslateYState,
+  activeThemeState
+} from '@/store/system'
 import {showColorSelectorBottomSheetState, showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
 import {
   disableScheduleListState,
@@ -33,6 +39,7 @@ import {EditScheduleProps} from '@/types/navigation'
 import type {EditScheduleBottomSheetRef} from '@/components/bottomSheet/EditScheduleBottomSheet'
 import {getTimeOfMinute} from '@/utils/helper'
 import {useGetExistScheduleList, useSetSchedule} from '@/apis/hooks/useSchedule'
+import RNFetchBlob from 'rn-fetch-blob'
 
 type ControlMode = 'fontSize' | 'rotate' | null
 const EditSchedule = ({navigation}: EditScheduleProps) => {
@@ -51,6 +58,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   // TODO 글자 중앙 정렬 sudo code
   // const [isFixedAlignCenter, setIsFixedAlignCenter] = useRecoilState(isFixedAlignCenterState)
 
+  const activeTheme = useRecoilValue(activeThemeState)
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
   const scheduleList = useRecoilValue(scheduleListState)
   const disableScheduleList = useRecoilValue(disableScheduleListState)
@@ -93,8 +101,8 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   }))
 
   const timeInfoContainerStyle = React.useMemo(() => {
-    return [timeInfoAnimatedStyle, styles.timeIntoContainer]
-  }, [])
+    return [timeInfoAnimatedStyle, styles.timeIntoContainer, {backgroundColor: activeTheme.color5}]
+  }, [activeTheme.color5])
 
   const timetableStyle = React.useMemo(() => {
     return [timetableAnimatedStyle, {opacity: isLoading ? 0.6 : 1}]
@@ -244,28 +252,43 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     }
   }, [editTimetableTranslateY, setIsRendered])
 
+  const background = React.useMemo(() => {
+    if (activeTheme.theme_id === 1) {
+      return <Image style={styles.backgroundImage} source={require('@/assets/white.png')} />
+    }
+
+    return (
+      <Image
+        style={styles.backgroundImage}
+        source={{uri: `file://${RNFetchBlob.fs.dirs.DocumentDir}/${activeTheme.file_name}`}}
+      />
+    )
+  }, [activeTheme.theme_id, activeTheme.file_name])
+
   return (
     <View style={styles.container}>
-      <AppBar>
+      <AppBar color="transparent">
         <Animated.View style={timeInfoContainerStyle}>
           <View style={styles.timeInfoWrapper}>
             <Image source={require('@/assets/icons/time.png')} style={styles.timeInfoIcon} />
-            <Text style={styles.timeInfoText}>{startTimeString}</Text>
-            <Text style={{color: '#8d9195'}}>-</Text>
-            <Text style={styles.timeInfoText}>{endTimeString}</Text>
+            <Text style={[styles.timeInfoText, {color: activeTheme.color3}]}>{startTimeString}</Text>
+            <Text style={{color: activeTheme.color3}}>-</Text>
+            <Text style={[styles.timeInfoText, {color: activeTheme.color3}]}>{endTimeString}</Text>
           </View>
         </Animated.View>
 
         <View />
 
         <Pressable style={styles.appBarRightButton} onPress={closeEditScheduleBottomSheet}>
-          <CancelIcon stroke="#242933" />
+          <CancelIcon stroke={activeTheme.color7} strokeWidth={3} />
         </Pressable>
       </AppBar>
 
       <View style={{height: 36}} />
 
       <Animated.View style={timetableStyle}>
+        {background}
+
         <EditTimetable
           data={scheduleList}
           isRendered={isRendered}
@@ -280,9 +303,12 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       )}
 
       {activeControlMode === 'fontSize' && (
-        <Shadow containerStyle={styles.controlViewShadowContainer} stretch={true} startColor={'#ffffff'} distance={15}>
-          {/*<View style={styles.controlViewContainer}>{controlDetailComponent}</View>*/}
-          <View style={styles.controlViewContainer}>
+        <Shadow
+          containerStyle={styles.controlViewShadowContainer}
+          stretch={true}
+          startColor={activeTheme.color5}
+          distance={15}>
+          <View style={[styles.controlViewContainer, {backgroundColor: activeTheme.color1}]}>
             <View style={styles.controlViewWrapper}>
               <Slider
                 style={{flex: 1}}
@@ -304,10 +330,10 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       <Shadow
         containerStyle={styles.controlButtonShadowContainer}
         stretch={true}
-        startColor={'#ffffff'}
-        distance={10}
-        offset={[0, 10]}>
-        <View style={styles.controlButtonContainer}>
+        startColor={activeTheme.color5}
+        distance={30}
+        offset={[0, 20]}>
+        <View style={[styles.controlButtonContainer, {backgroundColor: activeTheme.color1}]}>
           <Pressable style={styles.colorButton} onPress={showColorSelectorBottomSheet}>
             <Image source={require('@/assets/icons/color.png')} style={styles.colorIcon} />
           </Pressable>
@@ -357,8 +383,14 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#ffffff'
+    flex: 1
+  },
+  backgroundImage: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
   },
   appBarRightButton: {
     width: 36,
@@ -371,7 +403,6 @@ const styles = StyleSheet.create({
   timeIntoContainer: {
     paddingVertical: 7,
     paddingHorizontal: 10,
-    backgroundColor: '#ffffff',
     borderRadius: 10,
 
     ...Platform.select({
@@ -399,7 +430,6 @@ const styles = StyleSheet.create({
     height: 16
   },
   timeInfoText: {
-    color: '#8d9195',
     fontSize: 12,
     fontFamily: 'Pretendard-SemiBold'
   },
@@ -422,8 +452,7 @@ const styles = StyleSheet.create({
   controlViewContainer: {
     paddingVertical: 10,
     paddingHorizontal: 15,
-    borderRadius: 10,
-    backgroundColor: '#424242'
+    borderRadius: 10
   },
   controlViewWrapper: {
     flexDirection: 'row',
