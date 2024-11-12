@@ -171,6 +171,10 @@ function App(): JSX.Element {
     }
   }, [statusBarColor])
 
+  const statusBarContentStyle = React.useMemo(() => {
+    return activeTheme.display_mode === 0 ? 'dark-content' : 'light-content'
+  }, [activeTheme.display_mode])
+
   const containerStyle = React.useMemo(() => {
     return {flex: 1, backgroundColor: bottomSafeAreaColor}
   }, [bottomSafeAreaColor])
@@ -396,7 +400,7 @@ function App(): JSX.Element {
     <GestureHandlerRootView style={styles.container}>
       {/* <RecoilDebugObserver /> */}
       <BottomSheetModalProvider>
-        <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+        <StatusBar translucent backgroundColor="transparent" barStyle={statusBarContentStyle} />
 
         <SafeAreaView style={statusBarStyle} />
 
