@@ -8,6 +8,7 @@ import {addMinutes, startOfToday} from 'date-fns'
 interface Props {
   value: boolean
   data: Schedule
+  activeTheme: ActiveTheme
   itemPanelHeight: number
   headerContainerStyle: ViewStyle
   headerTitleWrapper: ViewStyle
@@ -22,6 +23,7 @@ const TimePanel = memo(
   ({
     value,
     data,
+    activeTheme,
     itemPanelHeight,
     headerContainerStyle,
     headerTitleWrapper,
@@ -32,6 +34,10 @@ const TimePanel = memo(
     changeStartTime,
     changeEndTime
   }: Props) => {
+    const themeVariant = useMemo(() => {
+      return activeTheme.display_mode === 0 ? 'light' : 'dark'
+    }, [activeTheme.display_mode])
+
     const startTimeObj = useMemo(() => {
       return getTimeOfMinute(data.start_time)
     }, [data.start_time])
@@ -98,7 +104,7 @@ const TimePanel = memo(
           <DateTimePicker
             value={startTime}
             mode="time"
-            themeVariant="light"
+            themeVariant={themeVariant}
             locale="ko"
             display="compact"
             onChange={_changeStartTime}
@@ -118,6 +124,7 @@ const TimePanel = memo(
       startTimeObj.meridiem,
       startTimeObj.hour,
       startTimeObj.minute,
+      themeVariant,
       _changeStartTime,
       showAndroidStartTimeModal
     ])
@@ -128,7 +135,7 @@ const TimePanel = memo(
           <DateTimePicker
             value={endTime}
             mode="time"
-            themeVariant="light"
+            themeVariant={themeVariant}
             locale="ko"
             display="compact"
             onChange={_changeEndTime}
@@ -141,7 +148,15 @@ const TimePanel = memo(
           <Text style={styles.buttonText}>{`${endTimeObj.meridiem} ${endTimeObj.hour}시 ${endTimeObj.minute}분`}</Text>
         </Pressable>
       )
-    }, [endTime, endTimeObj.meridiem, endTimeObj.hour, endTimeObj.minute, _changeEndTime, showAndroidEndTimeModal])
+    }, [
+      endTime,
+      endTimeObj.meridiem,
+      endTimeObj.hour,
+      endTimeObj.minute,
+      themeVariant,
+      _changeEndTime,
+      showAndroidEndTimeModal
+    ])
 
     return (
       <Panel
@@ -169,7 +184,7 @@ const TimePanel = memo(
               {startTimeButton}
             </View>
 
-            <View style={[styles.itemHeaderContainer, {height: itemPanelHeight}]}>
+            <View style={[styles.itemHeaderContainer, {height: itemPanelHeight, borderTopColor: activeTheme.color2}]}>
               <Text style={itemHeaderLabelStyle}>종료 시간</Text>
 
               {endTimeButton}
@@ -194,8 +209,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#eeeded'
+    borderTopWidth: 2
   },
   button: {
     paddingVertical: 10,
