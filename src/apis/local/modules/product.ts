@@ -39,6 +39,7 @@ export const setTheme = async (params: SetThemeRequest) => {
     params.color5,
     params.color6,
     params.color7,
-    params.color8
+    params.color8,
+    params.display_mode
   ])
 }

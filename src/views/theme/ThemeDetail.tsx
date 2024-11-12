@@ -69,7 +69,8 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
       color5: detail.color5,
       color6: detail.color6,
       color7: detail.color7,
-      color8: detail.color8
+      color8: detail.color8,
+      display_mode: detail.display_mode
     })
 
     RNFetchBlob.config({

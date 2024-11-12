@@ -13,4 +13,5 @@ export interface SetThemeRequest {
   color6: string
   color7: string
   color8: string
+  display_mode: number
 }

@@ -31,7 +31,8 @@ const createTable = async (db: SQLiteDatabase) => {
         "color5" TEXT NOT NULL,
         "color6" TEXT NOT NULL,
         "color7" TEXT NOT NULL,
-        "color8" TEXT NOT NULL
+        "color8" TEXT NOT NULL,
+        "display_mode" INTEGER NOT NULL
       )
     `)
 

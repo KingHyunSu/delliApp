@@ -18,6 +18,7 @@ declare interface ThemeDetail {
   color6: string
   color7: string
   color8: string
+  display_mode: number
   title: string
   price: number
 }
@@ -33,4 +34,5 @@ declare interface ActiveTheme {
   color6: string
   color7: string
   color8: string
+  display_mode: number
 }

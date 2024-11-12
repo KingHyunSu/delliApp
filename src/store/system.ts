@@ -17,7 +17,8 @@ export const activeThemeState = atom<ActiveTheme>({
     color5: '#ffffff',
     color6: '#f9f9f9',
     color7: '#424242',
-    color8: '#babfc5'
+    color8: '#babfc5',
+    display_mode: 0
   }
 })
 
