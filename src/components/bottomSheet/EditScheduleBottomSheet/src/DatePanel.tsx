@@ -1,5 +1,5 @@
-import React from 'react'
-import {Image, StyleSheet, Text, TextStyle, View, ViewStyle} from 'react-native'
+import {memo, useState, useMemo, useCallback, useEffect} from 'react'
+import {ViewStyle, TextStyle, Image, StyleSheet, Text, View} from 'react-native'
 import {format} from 'date-fns'
 import Panel from '@/components/Panel'
 import DatePicker from '@/components/DatePicker'
@@ -9,57 +9,65 @@ import {scheduleDateState} from '@/store/schedule'
 interface Props {
   value: boolean
   data: Schedule
+  activeTheme: ActiveTheme
   itemPanelHeight: number
   headerContainerStyle: ViewStyle
   headerTitleWrapper: ViewStyle
   headerLabelStyle: TextStyle
   headerTitleStyle: TextStyle
-  itemHeaderContainerStyle: ViewStyle
   itemHeaderLabelStyle: TextStyle
   handleExpansion: () => void
   changeStartDate: (date: string) => void
   changeEndDate: (date: string) => void
 }
-const DatePanel = React.memo(
+const DatePanel = memo(
   ({
     value,
     data,
+    activeTheme,
     itemPanelHeight,
     headerContainerStyle,
     headerTitleWrapper,
     headerLabelStyle,
     headerTitleStyle,
-    itemHeaderContainerStyle,
     itemHeaderLabelStyle,
     handleExpansion,
     changeStartDate,
     changeEndDate
   }: Props) => {
     const panelItemContentsHeight = 370
-    const [activeDatePanelItemIndex, setActiveDatePanelItemIndex] = React.useState(-1)
+    const [activeDatePanelItemIndex, setActiveDatePanelItemIndex] = useState(-1)
     const scheduleDate = useRecoilValue(scheduleDateState)
 
-    const endDate = React.useMemo(() => {
+    const endDate = useMemo(() => {
       return data.end_date !== '9999-12-31' ? data.end_date : '없음'
     }, [data.end_date])
 
-    const startDatePanelItemHeaderWrapperStyle = React.useMemo(() => {
-      return [styles.panelItemButton, activeDatePanelItemIndex === 0 && styles.panelItemActiveButton]
-    }, [activeDatePanelItemIndex])
+    const getDatePanelItemHeaderWrapperStyle = useCallback(
+      (index: number) => {
+        let backgroundColor = activeTheme.color2
 
-    const startDatePanelItemHeaderTextStyle = React.useMemo(() => {
-      return [styles.panelItemButtonText, activeDatePanelItemIndex === 0 && styles.panelItemActiveButtonText]
-    }, [activeDatePanelItemIndex])
+        if (index === activeDatePanelItemIndex) {
+          backgroundColor = '#1E90FF'
+        }
+        return [styles.panelItemButton, {backgroundColor}]
+      },
+      [activeDatePanelItemIndex, activeTheme.color2]
+    )
 
-    const endDatePanelItemHeaderWrapperStyle = React.useMemo(() => {
-      return [styles.panelItemButton, activeDatePanelItemIndex === 1 && styles.panelItemActiveButton]
-    }, [activeDatePanelItemIndex])
+    const getDatePanelItemHeaderTextStyle = useCallback(
+      (index: number) => {
+        let color = activeTheme.color3
 
-    const endDatePanelItemHeaderTextStyle = React.useMemo(() => {
-      return [styles.panelItemButtonText, activeDatePanelItemIndex === 1 && styles.panelItemActiveButtonText]
-    }, [activeDatePanelItemIndex])
+        if (index === activeDatePanelItemIndex) {
+          color = '#ffffff'
+        }
+        return [styles.panelItemButtonText, {color}]
+      },
+      [activeDatePanelItemIndex, activeTheme.color3]
+    )
 
-    const handleStartDatePanel = React.useCallback(() => {
+    const handleStartDatePanel = useCallback(() => {
       if (data.schedule_id) {
         return
       }
@@ -67,11 +75,11 @@ const DatePanel = React.memo(
       setActiveDatePanelItemIndex(0)
     }, [data.schedule_id])
 
-    const handleEndDatePanel = React.useCallback(() => {
+    const handleEndDatePanel = useCallback(() => {
       setActiveDatePanelItemIndex(1)
     }, [])
 
-    React.useEffect(() => {
+    useEffect(() => {
       if (data.schedule_id) {
         setActiveDatePanelItemIndex(1)
       } else {
@@ -104,11 +112,11 @@ const DatePanel = React.memo(
               contentsHeight={panelItemContentsHeight}
               handleExpansion={handleStartDatePanel}
               headerComponent={
-                <View style={[itemHeaderContainerStyle, {borderTopWidth: 0}]}>
+                <View style={[styles.panelItemHeader, {borderTopWidth: 0}]}>
                   <Text style={itemHeaderLabelStyle}>시작일</Text>
 
-                  <View style={startDatePanelItemHeaderWrapperStyle}>
-                    <Text style={startDatePanelItemHeaderTextStyle}>{data.start_date}</Text>
+                  <View style={getDatePanelItemHeaderWrapperStyle(0)}>
+                    <Text style={getDatePanelItemHeaderTextStyle(0)}>{data.start_date}</Text>
                   </View>
                 </View>
               }
@@ -131,11 +139,11 @@ const DatePanel = React.memo(
               contentsHeight={panelItemContentsHeight}
               handleExpansion={handleEndDatePanel}
               headerComponent={
-                <View style={itemHeaderContainerStyle}>
+                <View style={[styles.panelItemHeader, {borderTopColor: activeTheme.color2}]}>
                   <Text style={itemHeaderLabelStyle}>종료일</Text>
 
-                  <View style={endDatePanelItemHeaderWrapperStyle}>
-                    <Text style={endDatePanelItemHeaderTextStyle}>{endDate}</Text>
+                  <View style={getDatePanelItemHeaderWrapperStyle(1)}>
+                    <Text style={getDatePanelItemHeaderTextStyle(1)}>{endDate}</Text>
                   </View>
                 </View>
               }
@@ -161,25 +169,24 @@ const DatePanel = React.memo(
 )
 
 const styles = StyleSheet.create({
+  panelItemHeader: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    borderTopWidth: 2
+  },
   panelItemButton: {
     paddingVertical: 10,
     width: 115,
-    borderRadius: 7,
-    borderWidth: 1,
-    borderColor: '#f5f6f8'
+    borderRadius: 7
   },
   panelItemButtonText: {
-    fontFamily: 'Pretendard-Regular',
+    fontFamily: 'Pretendard-Medium',
     fontSize: 14,
     color: '#7c8698',
     textAlign: 'center'
-  },
-  panelItemActiveButton: {
-    backgroundColor: '#1E90FF',
-    borderWidth: 0
-  },
-  panelItemActiveButtonText: {
-    color: '#fff'
   },
   panelItemContents: {
     paddingTop: 20

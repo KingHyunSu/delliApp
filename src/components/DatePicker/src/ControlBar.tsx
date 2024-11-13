@@ -7,10 +7,11 @@ import RightArrowIcon from '@/assets/icons/arrow_right.svg'
 import {addMonths} from 'date-fns'
 
 interface Props {
+  activeTheme: ActiveTheme
   currentDate: Date | null
   onChange: Function
 }
-const ControlBar = ({currentDate, onChange}: Props) => {
+const ControlBar = ({activeTheme, currentDate, onChange}: Props) => {
   const dateText = React.useMemo(() => {
     if (!currentDate) {
       return ''
@@ -36,13 +37,13 @@ const ControlBar = ({currentDate, onChange}: Props) => {
   return (
     <View style={styles.container}>
       <Pressable style={styles.arrowButton} onPress={handlePrev}>
-        <LeftArrowIcon stroke="#424242" />
+        <LeftArrowIcon stroke={activeTheme.color3} />
       </Pressable>
 
-      <Text style={styles.text}>{dateText}</Text>
+      <Text style={[styles.text, {color: activeTheme.color3}]}>{dateText}</Text>
 
       <Pressable style={styles.arrowButton} onPress={handleNext}>
-        <RightArrowIcon stroke="#424242" />
+        <RightArrowIcon stroke={activeTheme.color3} />
       </Pressable>
     </View>
   )
@@ -64,8 +65,7 @@ const styles = StyleSheet.create({
   },
   text: {
     fontFamily: 'Pretendard-Bold',
-    fontSize: 18,
-    color: '#424242'
+    fontSize: 18
   }
 })
 

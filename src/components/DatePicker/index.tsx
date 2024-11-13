@@ -8,6 +8,8 @@ import {setDigit} from '@/utils/helper'
 import {getDateList, getRemainPrevDateList, getRemainNextvDateList} from './utils/date'
 import {Item} from './type'
 import {dateItemStyles} from './style'
+import {useRecoilValue} from 'recoil'
+import {activeThemeState} from '@/store/system'
 
 interface DateItemParams {
   item: Item
@@ -26,9 +28,11 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disable
   const [currentDate, setCurrentDate] = React.useState<Date | null>(null)
   const [dayList, setDateList] = React.useState<Item[]>([])
 
+  const activeTheme = useRecoilValue(activeThemeState)
+
   const weekStyle = React.useMemo(() => {
-    return [dateItemStyles.text, styles.dayOfWeekText]
-  }, [])
+    return [dateItemStyles.text, {color: activeTheme.color7}]
+  }, [activeTheme.color7])
 
   React.useEffect(() => {
     setDate(datePickerValue)
@@ -66,9 +70,11 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disable
 
   const renderItem = React.useCallback(
     ({item}: DateItemParams) => {
-      return <DateItem item={item} value={date} disableDate={disableDate} onChange={changeDate} />
+      return (
+        <DateItem item={item} value={date} disableDate={disableDate} activeTheme={activeTheme} onChange={changeDate} />
+      )
     },
-    [date, disableDate, changeDate]
+    [date, disableDate, activeTheme, changeDate]
   )
 
   const getItemLayout = React.useCallback((_, index: number) => {
@@ -91,7 +97,7 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disable
 
   return (
     <View>
-      <ControlBar currentDate={currentDate} onChange={changeCurrentDate} />
+      <ControlBar activeTheme={activeTheme} currentDate={currentDate} onChange={changeCurrentDate} />
 
       <View style={styles.weekContainer}>
         {weekdays.map(week => (
@@ -118,9 +124,6 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disable
 const styles = StyleSheet.create({
   weekContainer: {
     flexDirection: 'row'
-  },
-  dayOfWeekText: {
-    fontWeight: 'bold'
   }
 })
 export default DatePicker

@@ -10,10 +10,11 @@ interface DateItemProps {
   item: Item
   value: string | null
   disableDate?: string
+  activeTheme: ActiveTheme
   onChange: Function
 }
 
-const DateItem = React.memo(({item, value, disableDate, onChange}: DateItemProps) => {
+const DateItem = React.memo(({item, value, disableDate, activeTheme, onChange}: DateItemProps) => {
   const isToday = React.useMemo(() => {
     return `${item.year}${setDigit(item.month)}${setDigit(item.day)}` === format(new Date(), 'yyyyMMdd')
   }, [item])
@@ -51,20 +52,29 @@ const DateItem = React.memo(({item, value, disableDate, onChange}: DateItemProps
     onChange(item)
   }, [isDisable, onChange, item])
 
-  const textStyles = React.useMemo(() => {
-    return [
-      dateItemStyles.text,
-      isToday && styles.todayDateText,
-      isActive && styles.activeDateText,
-      isDisable && styles.disableDateText,
-      !item.current && styles.remainDateText
-    ]
-  }, [item, isToday, isActive, isDisable])
+  const itemStyle = React.useMemo(() => {
+    if (isActive) {
+      return activeItemStyle
+    }
+    return isActive ? activeItemStyle : styles.item
+  }, [isActive])
+
+  const textStyle = React.useMemo(() => {
+    let color = activeTheme.color3
+
+    if (isActive || isToday) {
+      color = '#1E90FF'
+    } else if (isDisable) {
+      color = activeTheme.color8
+    }
+
+    return [dateItemStyles.text, {color}]
+  }, [activeTheme.color3, activeTheme.color8, isToday, isActive, isDisable])
 
   return (
     <Pressable style={dateItemStyles.wrapper} onPress={handleChange}>
-      <View style={styles.item}>
-        <Text style={textStyles}>{item.day}</Text>
+      <View style={itemStyle}>
+        <Text style={textStyle}>{item.day}</Text>
       </View>
     </Pressable>
   )
@@ -74,23 +84,14 @@ const styles = StyleSheet.create({
   item: {
     width: 30,
     height: 30,
-    borderRadius: 7,
     justifyContent: 'center',
     alignSelf: 'center'
-  },
-  remainDateText: {
-    color: '#D2D2D4'
-  },
-  activeDateText: {
-    fontFamily: 'Pretendard-Bold',
-    color: '#1E90FF'
-  },
-  disableDateText: {
-    color: '#7c8698'
-  },
-  todayDateText: {
-    fontFamily: 'Pretendard-Bold'
   }
+})
+
+const activeItemStyle = StyleSheet.compose(styles.item, {
+  backgroundColor: '#1E90FF20',
+  borderRadius: 15
 })
 
 export default DateItem
