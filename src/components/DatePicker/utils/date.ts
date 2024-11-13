@@ -59,7 +59,7 @@ export const getRemainNextDateList = (date: Date) => {
 
   if (nextMonth > 11) {
     nextYear += 1
-    nextMonth = 11
+    nextMonth = 0
   }
 
   const remainNextDateList = []
