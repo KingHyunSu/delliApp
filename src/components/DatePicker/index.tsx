@@ -5,7 +5,7 @@ import ControlBar from './src/ControlBar'
 import DateItem from './src/DateItem'
 
 import {setDigit} from '@/utils/helper'
-import {getDateList, getRemainPrevDateList, getRemainNextvDateList} from './utils/date'
+import {getDateList, getRemainPrevDateList, getRemainNextDateList} from './utils/date'
 import {Item} from './type'
 import {dateItemStyles} from './style'
 import {useRecoilValue} from 'recoil'
@@ -22,7 +22,7 @@ interface Props {
 }
 const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disableDate, onChange}: Props) => {
   // 요일
-  const weekdays = ['월', '화', '수', '목', '금', '토', '일']
+  const weekdays = ['일', '월', '화', '수', '목', '금', '토']
 
   const [date, setDate] = React.useState<string | null>(null)
   const [currentDate, setCurrentDate] = React.useState<Date | null>(null)
@@ -89,7 +89,7 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disable
     if (currentDate) {
       const currentDateList = getDateList(currentDate)
       const remainPrevDateList = getRemainPrevDateList(currentDate)
-      const remainNextDateList = getRemainNextvDateList(currentDate)
+      const remainNextDateList = getRemainNextDateList(currentDate)
 
       setDateList([...remainPrevDateList, ...currentDateList, ...remainNextDateList])
     }

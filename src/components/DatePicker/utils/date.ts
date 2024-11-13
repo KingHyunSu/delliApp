@@ -25,8 +25,7 @@ export const getRemainPrevDateList = (date: Date) => {
   const month = date.getMonth()
 
   // 첫 번째 요일
-  let firstDayOfWeek = new Date(year, month, 1).getDay()
-  firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1
+  const firstDayOfWeek = new Date(year, month, 1).getDay()
 
   // 이전 달의 마지막 일
   const prevMonthDate = new Date(year, month, 0)
@@ -45,12 +44,11 @@ export const getRemainPrevDateList = (date: Date) => {
   return remainPrevDateList
 }
 // 남은 다음 날짜 가져오기
-export const getRemainNextvDateList = (date: Date) => {
+export const getRemainNextDateList = (date: Date) => {
   const year = date.getFullYear()
   const month = date.getMonth()
 
-  let firstDayOfWeek = new Date(year, month, 1).getDay()
-  firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1
+  const firstDayOfWeek = new Date(year, month, 1).getDay()
 
   const lastDay = new Date(year, month + 1, 0).getDate()
 
