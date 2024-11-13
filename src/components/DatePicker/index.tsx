@@ -1,4 +1,4 @@
-import React from 'react'
+import {forwardRef, useImperativeHandle, useState, useMemo, useCallback, useEffect} from 'react'
 import {StyleSheet, FlatList, View, Text} from 'react-native'
 
 import ControlBar from './src/ControlBar'
@@ -10,6 +10,7 @@ import {Item} from './type'
 import {dateItemStyles} from './style'
 import {useRecoilValue} from 'recoil'
 import {activeThemeState} from '@/store/system'
+import {format} from 'date-fns'
 
 interface DateItemParams {
   item: Item
@@ -18,27 +19,32 @@ interface Props {
   value: string | null
   hasNull?: boolean
   disableDate?: string
-  onChange: Function
+  onChange: (value: string) => void
 }
-const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disableDate, onChange}: Props) => {
+export interface Refs {
+  today: () => void
+}
+const DatePicker = forwardRef<Refs, Props>((props, ref) => {
+  const {value: datePickerValue, hasNull = false, disableDate, onChange} = props
+
   // 요일
   const weekdays = ['일', '월', '화', '수', '목', '금', '토']
 
-  const [date, setDate] = React.useState<string | null>(null)
-  const [currentDate, setCurrentDate] = React.useState<Date | null>(null)
-  const [dayList, setDateList] = React.useState<Item[]>([])
+  const [date, setDate] = useState<string | null>(null)
+  const [currentDate, setCurrentDate] = useState<Date | null>(null)
+  const [dayList, setDateList] = useState<Item[]>([])
 
   const activeTheme = useRecoilValue(activeThemeState)
 
-  const weekStyle = React.useMemo(() => {
+  const weekStyle = useMemo(() => {
     return [dateItemStyles.text, {color: activeTheme.color7}]
   }, [activeTheme.color7])
 
-  React.useEffect(() => {
+  useEffect(() => {
     setDate(datePickerValue)
   }, [datePickerValue])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if ((hasNull && date === '9999-12-31') || !date) {
       setCurrentDate(new Date())
     } else {
@@ -46,7 +52,7 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disable
     }
   }, [date, hasNull])
 
-  const changeDate = React.useCallback(
+  const changeDate = useCallback(
     (item: Item) => {
       let dateStr = `${item.year}-${setDigit(item.month)}-${setDigit(item.day)}`
 
@@ -60,24 +66,15 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disable
     [date, hasNull, setDate, onChange]
   )
 
-  const changeCurrentDate = React.useCallback((data: Date) => {
+  const changeCurrentDate = useCallback((data: Date) => {
     setCurrentDate(data)
   }, [])
 
-  const getKey = React.useCallback((item: Item, index: number) => {
+  const getKey = useCallback((item: Item, index: number) => {
     return String(index)
   }, [])
 
-  const renderItem = React.useCallback(
-    ({item}: DateItemParams) => {
-      return (
-        <DateItem item={item} value={date} disableDate={disableDate} activeTheme={activeTheme} onChange={changeDate} />
-      )
-    },
-    [date, disableDate, activeTheme, changeDate]
-  )
-
-  const getItemLayout = React.useCallback((_, index: number) => {
+  const getItemLayout = useCallback((_, index: number) => {
     return {
       length: 30,
       offset: 30 * index,
@@ -85,7 +82,7 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disable
     }
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (currentDate) {
       const currentDateList = getDateList(currentDate)
       const remainPrevDateList = getRemainPrevDateList(currentDate)
@@ -94,6 +91,31 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disable
       setDateList([...remainPrevDateList, ...currentDateList, ...remainNextDateList])
     }
   }, [currentDate])
+
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        today() {
+          const today = new Date()
+          const todayFormat = format(new Date(), 'yyyy-MM-dd')
+
+          setCurrentDate(today)
+          onChange(todayFormat)
+        }
+      }
+    },
+    []
+  )
+
+  const renderItem = useCallback(
+    ({item}: DateItemParams) => {
+      return (
+        <DateItem item={item} value={date} disableDate={disableDate} activeTheme={activeTheme} onChange={changeDate} />
+      )
+    },
+    [date, disableDate, activeTheme, changeDate]
+  )
 
   return (
     <View>
@@ -106,6 +128,7 @@ const DatePicker = React.memo(({value: datePickerValue, hasNull = false, disable
           </View>
         ))}
       </View>
+
       <FlatList
         data={dayList}
         keyExtractor={getKey}

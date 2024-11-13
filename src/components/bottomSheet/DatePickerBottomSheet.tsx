@@ -1,24 +1,31 @@
-import React from 'react'
+import React, {useMemo} from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
 import {BottomSheetBackdropProps, BottomSheetHandleProps, BottomSheetModal} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import DatePicker from '@/components/DatePicker'
 
-import {format} from 'date-fns'
-import {useRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
 import {showDatePickerBottomSheetState} from '@/store/bottomSheet'
+import {activeThemeState} from '@/store/system'
+import type {Refs as DatePickerRef} from '@/components/DatePicker'
 
 interface Props {
-  value: string | string[]
+  value: string | null
   onChange: Function
 }
 const DatePickerBottomSheet = ({value, onChange}: Props) => {
   const datePickerBottomSheetRef = React.useRef<BottomSheetModal>(null)
+  const datePickerRef = React.useRef<DatePickerRef>(null)
 
   const [selectDate, changeDate] = React.useState(value)
 
   const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
+  const activeTheme = useRecoilValue(activeThemeState)
+
+  const bottomSheetBackgroundColor = useMemo(() => {
+    return activeTheme.theme_id === 1 ? '#ffffff' : activeTheme.color6
+  }, [activeTheme.theme_id, activeTheme.color6])
 
   const onDismiss = () => {
     setShowDatePickerBottomSheet(false)
@@ -43,8 +50,7 @@ const DatePickerBottomSheet = ({value, onChange}: Props) => {
   }
 
   const changeToday = () => {
-    const today = format(new Date(), 'yyyy-MM-dd')
-    changeDate(today)
+    datePickerRef.current?.today()
   }
 
   const confirm = () => {
@@ -72,17 +78,20 @@ const DatePickerBottomSheet = ({value, onChange}: Props) => {
     <BottomSheetModal
       name="datePicker"
       ref={datePickerBottomSheetRef}
+      backgroundStyle={{backgroundColor: bottomSheetBackgroundColor}}
       backdropComponent={bottomSheetBackdrop}
       handleComponent={bottomSheetHandler}
       index={0}
       snapPoints={[500]}
       onDismiss={onDismiss}>
       <View style={styles.container}>
-        <DatePicker value={selectDate} onChange={onChangeDate} />
+        <DatePicker ref={datePickerRef} value={selectDate} onChange={onChangeDate} />
 
         <View style={styles.buttonWrapper}>
-          <Pressable style={[styles.button, styles.todayButton]} onPress={changeToday}>
-            <Text style={styles.text}>오늘</Text>
+          <Pressable
+            style={[styles.button, styles.todayButton, {backgroundColor: activeTheme.color2}]}
+            onPress={changeToday}>
+            <Text style={[styles.text, {color: activeTheme.color3}]}>오늘</Text>
           </Pressable>
           <Pressable style={[styles.button, styles.confirmButton]} onPress={confirm}>
             <Text style={styles.text}>확인</Text>
@@ -97,7 +106,6 @@ const styles = StyleSheet.create({
   container: {
     gap: 20,
     justifyContent: 'space-between',
-    backgroundColor: '#fff',
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
     paddingHorizontal: 16,
@@ -115,17 +123,16 @@ const styles = StyleSheet.create({
     borderRadius: 10
   },
   todayButton: {
-    flex: 1,
-    backgroundColor: '#7c8698'
+    flex: 1
   },
   confirmButton: {
     flex: 2,
     backgroundColor: '#1E90FF'
   },
   text: {
-    fontFamily: 'Pretendard-Medium',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 16,
-    color: '#fff'
+    color: '#ffffff'
   }
 })
 
