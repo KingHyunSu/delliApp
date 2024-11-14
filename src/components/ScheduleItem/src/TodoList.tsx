@@ -15,9 +15,10 @@ import {format} from 'date-fns'
 
 interface Props {
   data: Todo[]
+  activeTheme: ActiveTheme
 }
 
-const ScheduleTodoList = ({data}: Props) => {
+const ScheduleTodoList = ({data, activeTheme}: Props) => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const setEditTodoFrom = useSetRecoilState(editTodoFormState)
@@ -97,22 +98,23 @@ const ScheduleTodoList = ({data}: Props) => {
           completeId={item.complete_id}
           scheduleId={item.schedule_id!}
           title={item.title}
+          activeTheme={activeTheme}
           openEditModal={openEditModal}
           onChange={handleTodoComplete}
         />
       )
     },
-    [openEditModal, handleTodoComplete]
+    [activeTheme, openEditModal, handleTodoComplete]
   )
 
   return (
     <FlatList
       data={data}
       keyExtractor={keyExtractor}
-      style={styles.container}
+      style={[styles.container, {backgroundColor: activeTheme.color5}]}
       renderItem={renderItem}
       ItemSeparatorComponent={() => {
-        return <View style={styles.itemSeparator} />
+        return <View style={{height: 1, backgroundColor: activeTheme.color6}} />
       }}
     />
   )
@@ -123,10 +125,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     marginTop: 10,
     borderRadius: 10
-  },
-  itemSeparator: {
-    height: 1,
-    backgroundColor: '#f9f9f9'
   }
 })
 

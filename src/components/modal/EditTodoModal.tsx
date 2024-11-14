@@ -28,6 +28,7 @@ import DeleteIcon from '@/assets/icons/trash.svg'
 
 // repository
 import {todoRepository} from '@/apis/local'
+import {activeThemeState} from '@/store/system'
 
 const EditTodoModal = () => {
   const {height} = useWindowDimensions()
@@ -36,6 +37,8 @@ const EditTodoModal = () => {
   const [showEditTodoModal, setShowEditTodoModal] = useRecoilState(showEditTodoModalState)
   const [editTodoForm, setEditTodoForm] = useRecoilState(editTodoFormState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
+
+  const activeTheme = useRecoilValue(activeThemeState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
   const resetSchedule = useResetRecoilState(scheduleState)
@@ -70,8 +73,8 @@ const EditTodoModal = () => {
   }, [overlayAnimatedStyle])
 
   const containerStyle = React.useMemo(() => {
-    return [containerAnimatedStyle, styles.container, {height: containerHeight}]
-  }, [containerAnimatedStyle, containerHeight])
+    return [containerAnimatedStyle, styles.container, {height: containerHeight, backgroundColor: activeTheme.color5}]
+  }, [containerAnimatedStyle, containerHeight, activeTheme])
 
   const handleClose = React.useCallback(() => {
     opacity.value = withTiming(0)
@@ -217,14 +220,14 @@ const EditTodoModal = () => {
           <Pressable style={styles.wrapper} onPress={dismissKeyboard}>
             <View style={styles.formContainer}>
               <View style={styles.labelContainer}>
-                <Text style={styles.label}>{scheduleTitle} </Text>
-                <Text style={styles.subLabel}>일정에 할 일 추가하기</Text>
+                <Text style={[styles.label, {color: activeTheme.color3}]}>{scheduleTitle} </Text>
+                <Text style={[styles.subLabel, {color: activeTheme.color3}]}>일정에 할 일 추가하기</Text>
               </View>
 
               <TextInput
                 value={editTodoForm.title}
                 autoFocus
-                style={styles.title}
+                style={[styles.title, {color: activeTheme.color3}]}
                 placeholder="할 일을 입력해주세요"
                 placeholderTextColor="#c3c5cc"
                 onChangeText={changeTitle}
@@ -234,7 +237,7 @@ const EditTodoModal = () => {
             <View style={styles.buttonContainer}>
               {isEdit && (
                 <Pressable style={deleteButton} onPress={handleDelete}>
-                  <DeleteIcon fill="#EC6682" />
+                  <DeleteIcon fill="#ffffff" />
                 </Pressable>
               )}
               <Pressable style={editButton} onPress={handleSubmit}>
@@ -251,7 +254,8 @@ const EditTodoModal = () => {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)'
+    backgroundColor: '#000000',
+    opacity: 0.8
   },
   container: {
     position: 'absolute',
@@ -259,14 +263,12 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     paddingTop: 20,
-    backgroundColor: '#fff',
     borderBottomLeftRadius: 15,
     borderBottomRightRadius: 15
   },
   wrapper: {
     paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 30,
+    paddingVertical: 20,
     height: '100%',
     justifyContent: 'space-between'
   },
@@ -283,20 +285,17 @@ const styles = StyleSheet.create({
   },
   label: {
     width: 'auto',
-    fontSize: 22,
-    fontFamily: 'Pretendard-Bold',
-    color: '#424242'
+    fontSize: 20,
+    fontFamily: 'Pretendard-Bold'
   },
   subLabel: {
     fontSize: 18,
     fontFamily: 'Pretendard-Medium',
-    paddingTop: 5,
-    color: '#424242'
+    paddingTop: 5
   },
   title: {
-    fontSize: 18,
+    fontSize: 24,
     fontFamily: 'Pretendard-SemiBold',
-    color: '#424242',
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#eeeded'
@@ -306,14 +305,14 @@ const styles = StyleSheet.create({
     gap: 10
   },
   button: {
-    height: 48,
+    height: 52,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10
   },
   deleteButton: {
     flex: 1,
-    backgroundColor: '#FDEEF1'
+    backgroundColor: '#EC6682'
   },
   editButton: {
     flex: 3,

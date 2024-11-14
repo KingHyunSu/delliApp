@@ -125,7 +125,7 @@ const ScheduleItem = ({
       {routineList !== undefined && routineList.length > 0 && (
         <RoutineList data={routineList} activeTheme={activeTheme} />
       )}
-      {todoList !== undefined && todoList.length > 0 && <TodoList data={todoList} />}
+      {todoList !== undefined && todoList.length > 0 && <TodoList data={todoList} activeTheme={activeTheme} />}
     </View>
   )
 }
