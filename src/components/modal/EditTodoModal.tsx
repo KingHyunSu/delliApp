@@ -254,8 +254,7 @@ const EditTodoModal = () => {
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: '#000000',
-    opacity: 0.8
+    backgroundColor: '#00000080'
   },
   container: {
     position: 'absolute',
