@@ -1,5 +1,5 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import {StyleSheet, View, Pressable, Text} from 'react-native'
+import {ViewStyle, StyleSheet, View, Pressable, Text} from 'react-native'
 import {BottomSheetModal, BottomSheetHandleProps, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import {Shadow} from 'react-native-shadow-2'
@@ -9,10 +9,15 @@ import MyColorList from './src/MyColorList'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
-import {editScheduleListSnapPointState, safeAreaInsetsState, windowDimensionsState} from '@/store/system'
+import {
+  activeThemeState,
+  editScheduleListSnapPointState,
+  safeAreaInsetsState,
+  windowDimensionsState
+} from '@/store/system'
 import {colorToChangeState, scheduleState} from '@/store/schedule'
-import {useGetColorList} from '@/apis/hooks/useColor'
 import {showColorPickerModalState} from '@/store/modal'
+import {useGetColorList} from '@/apis/hooks/useColor'
 
 type Tab = 'default' | 'my'
 const ColorSelectorBottomSheet = () => {
@@ -29,6 +34,7 @@ const ColorSelectorBottomSheet = () => {
   const [showColorPickerModal, setShowColorPickerModal] = useRecoilState(showColorPickerModalState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
+  const activeTheme = useRecoilValue(activeThemeState)
   const [minEditScheduleListSnapPoint] = useRecoilValue(editScheduleListSnapPointState)
   const windowDimensions = useRecoilValue(windowDimensionsState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
@@ -36,13 +42,23 @@ const ColorSelectorBottomSheet = () => {
 
   const getTabButtonTextStyle = useCallback(
     (type: Tab) => {
-      return activeTab === type ? activeTabButtonTextStyle : styles.tabButtonText
+      return [styles.tabButtonText, {color: activeTab === type ? activeTheme.color7 : activeTheme.color8}]
     },
-    [activeTab]
+    [activeTheme.color7, activeTheme.color8, activeTab]
   )
 
+  const colorButtonStyle = useMemo(() => {
+    return [styles.colorButton, {borderColor: activeTheme.color6}] as ViewStyle
+  }, [activeTheme.color6])
+
+  const activeColorPointStyle = useMemo(() => {
+    return [styles.activeColorPoint, {borderColor: activeTheme.color6}] as ViewStyle
+  }, [activeTheme.color6])
+
   const makeButtonStyle = useMemo(() => {
-    return showColorPickerModal ? disabledMakeButton : styles.makeButton
+    const opacity = showColorPickerModal ? 0.3 : 1
+
+    return [styles.makeButton, {opacity}]
   }, [showColorPickerModal])
 
   const activeColor = useMemo(() => {
@@ -124,9 +140,14 @@ const ColorSelectorBottomSheet = () => {
     }
   }, [showColorSelectorBottomSheet])
 
-  const getBackdropComponent = useCallback((props: BottomSheetBackdropProps) => {
-    return <CustomBackdrop props={props} onClose={() => bottomSheetRef.current?.dismiss()} />
-  }, [])
+  const getBackdropComponent = useCallback(
+    (props: BottomSheetBackdropProps) => {
+      return (
+        <CustomBackdrop props={props} activeTheme={activeTheme} onClose={() => bottomSheetRef.current?.dismiss()} />
+      )
+    },
+    [activeTheme]
+  )
 
   const getHandleComponent = useCallback((props: BottomSheetHandleProps) => {
     return (
@@ -145,6 +166,7 @@ const ColorSelectorBottomSheet = () => {
       ref={bottomSheetRef}
       enablePanDownToClose={false}
       enableOverDrag={false}
+      backgroundStyle={{backgroundColor: activeTheme.color5}}
       backdropComponent={getBackdropComponent}
       handleComponent={getHandleComponent}
       index={0}
@@ -166,8 +188,8 @@ const ColorSelectorBottomSheet = () => {
         {activeTab === 'default' && (
           <DefaultColorList
             color={activeColor}
-            colorButtonStyle={styles.colorButton}
-            activeColorButtonStyle={styles.activeColorPoint}
+            colorButtonStyle={colorButtonStyle}
+            activeColorButtonStyle={activeColorPointStyle}
             contentContainerStyle={styles.scrollContainer}
             columnWrapperStyle={styles.scrollColumnWrapper}
             onChange={changeColor}
@@ -181,8 +203,8 @@ const ColorSelectorBottomSheet = () => {
             activeDeletedItem={activeDeletedItem}
             color={activeColor}
             myColorList={convertMyColorList}
-            colorButtonStyle={styles.colorButton}
-            activeColorButtonStyle={styles.activeColorPoint}
+            colorButtonStyle={colorButtonStyle}
+            activeColorButtonStyle={activeColorPointStyle}
             contentContainerStyle={styles.scrollContainer}
             columnWrapperStyle={styles.scrollColumnWrapper}
             closeMenu={closeMenu}
@@ -195,7 +217,7 @@ const ColorSelectorBottomSheet = () => {
           <Shadow
             containerStyle={[styles.makeButtonWrapper, {bottom: safeAreaInsets.bottom + 20}]}
             stretch={true}
-            startColor="#ffffff"
+            startColor={activeTheme.color1}
             distance={30}>
             <Pressable style={makeButtonStyle} onPress={() => setShowColorPickerModal(true)}>
               <Text style={styles.makeButtonText}>색상 만들기</Text>
@@ -246,8 +268,7 @@ const styles = StyleSheet.create({
     borderRadius: 21,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#f5f6f8'
+    borderWidth: 2
   },
   activeColorPoint: {
     width: 14,
@@ -282,8 +303,5 @@ const styles = StyleSheet.create({
     color: '#ffffff'
   }
 })
-
-const activeTabButtonTextStyle = StyleSheet.compose(styles.tabButtonText, {color: '#424242'})
-const disabledMakeButton = StyleSheet.compose(styles.makeButton, {backgroundColor: '#efefef'})
 
 export default ColorSelectorBottomSheet

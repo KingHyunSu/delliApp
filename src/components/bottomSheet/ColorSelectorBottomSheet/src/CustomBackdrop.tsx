@@ -1,4 +1,4 @@
-import {useCallback} from 'react'
+import {useCallback, useMemo} from 'react'
 import {StyleSheet, Pressable, Text, View, ScrollView} from 'react-native'
 import {BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
 import {Shadow} from 'react-native-shadow-2'
@@ -10,10 +10,11 @@ import {colorToChangeState, scheduleState} from '@/store/schedule'
 
 interface Props {
   props: BottomSheetBackdropProps
+  activeTheme: ActiveTheme
   onClose: () => void
 }
 type ColorType = 'background' | 'font' | 'border'
-const CustomBackdrop = ({props, onClose}: Props) => {
+const CustomBackdrop = ({props, activeTheme, onClose}: Props) => {
   const [colorToChange, setColorToChange] = useRecoilState(colorToChangeState)
 
   const schedule = useRecoilValue(scheduleState)
@@ -27,26 +28,35 @@ const CustomBackdrop = ({props, onClose}: Props) => {
     transform: [{translateY: transformOriginY.value}]
   }))
 
+  const shadowColor = useMemo(() => {
+    return activeTheme.theme_id === 1 ? '#f0eff586' : activeTheme.color6
+  }, [activeTheme.theme_id, activeTheme.color6])
+
   const getButtonStyle = useCallback(
     (type: ColorType) => {
+      let backgroundColor = activeTheme.color2
+      const borderColor = activeTheme.color6
+
       if (type === colorToChange) {
-        return [styles.button, {backgroundColor: schedule.background_color}]
+        backgroundColor = schedule.background_color
       }
 
-      return styles.button
+      return [styles.button, {backgroundColor, borderColor}]
     },
-    [colorToChange, schedule.background_color]
+    [colorToChange, activeTheme.color2, activeTheme.color6, schedule.background_color]
   )
 
   const getButtonTextStyle = useCallback(
     (type: ColorType) => {
+      let color = activeTheme.color3
+
       if (type === colorToChange) {
-        return [styles.buttonText, {color: schedule.text_color, fontFamily: 'Pretendard-SemiBold'}]
+        color = schedule.text_color
       }
 
-      return styles.buttonText
+      return [styles.buttonText, {color}]
     },
-    [colorToChange, schedule.text_color]
+    [colorToChange, activeTheme.color3, schedule.text_color]
   )
 
   const changeColorType = useCallback(
@@ -61,7 +71,7 @@ const CustomBackdrop = ({props, onClose}: Props) => {
       <Pressable style={styles.overlay} onPress={onClose} />
 
       <Animated.View style={containerAnimatedStyle}>
-        <Shadow style={styles.buttonContainer} stretch={true} startColor="#f0eff586" distance={10}>
+        <Shadow style={{backgroundColor: activeTheme.color5}} stretch={true} startColor={shadowColor} distance={10}>
           <ScrollView
             contentContainerStyle={[styles.buttonWrapper, {paddingTop: safeAreaInsets.top + 10}]}
             horizontal={true}>
@@ -89,9 +99,6 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0
   },
-  buttonContainer: {
-    backgroundColor: '#ffffff'
-  },
   buttonWrapper: {
     paddingHorizontal: 16,
 
@@ -104,14 +111,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 50,
-    backgroundColor: '#f6f6f6',
-    borderWidth: 1,
-    borderColor: '#f6f6f6'
+    borderWidth: 2
   },
   buttonText: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 16,
-    color: '#777777'
+    fontSize: 16
   }
 })
 
