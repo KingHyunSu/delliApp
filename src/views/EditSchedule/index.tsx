@@ -234,7 +234,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   }, [activeTheme.theme_id, activeTheme.file_name])
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: activeTheme.color1}]}>
       <AppBar color="transparent">
         <Animated.View style={timeInfoContainerStyle}>
           <View style={styles.timeInfoWrapper}>
