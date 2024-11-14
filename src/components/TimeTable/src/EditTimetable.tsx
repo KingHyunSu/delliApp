@@ -91,7 +91,7 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
   )
 
   return (
-    <View style={containerStyle}>
+    <Pressable style={containerStyle} onPress={clickBackground}>
       <View style={wrapperStyle}>
         <TimeBackground wrapperSize={timetableWrapperSize} radius={radius} />
 
@@ -121,7 +121,7 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
           })}
         </View>
 
-        <Pressable style={styles.editContainer} onPress={clickBackground}>
+        <View style={styles.editContainer}>
           <EditSchedulePie
             data={schedule}
             scheduleList={data}
@@ -143,9 +143,9 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
             radius={radius}
             onChangeSchedule={changeSchedule}
           />
-        </Pressable>
+        </View>
       </View>
-    </View>
+    </Pressable>
   )
 }
 
