@@ -1,18 +1,16 @@
 import React, {useRef} from 'react'
-import {Platform, StyleSheet, ScrollView, View, Pressable, Text, Alert, Image} from 'react-native'
+import {Platform, StyleSheet, View, Pressable, Text, Alert, Image} from 'react-native'
 import Animated, {runOnJS, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
-import Slider from '@react-native-community/slider'
-import {Shadow} from 'react-native-shadow-2'
+
+import AppBar from '@/components/AppBar'
+import EditTimetable from '@/components/TimeTable/src/EditTimetable'
+import ControlBar from './components/ControlBar'
 import EditScheduleBottomSheet from '@/components/bottomSheet/EditScheduleBottomSheet'
 import OverlapScheduleListBottomSheet from '@/components/bottomSheet/OverlapScheduleListBottomSheet'
 import ScheduleCategorySelectorBottomSheet from '@/components/bottomSheet/ScheduleCategorySelectorBottomSheet'
 import ColorSelectorBottomSheet from '@/components/bottomSheet/ColorSelectorBottomSheet'
 import ColorPickerModal from '@/components/modal/ColorPickerModal'
-import AppBar from '@/components/AppBar'
-import EditTimetable from '@/components/TimeTable/src/EditTimetable'
-
 import CancelIcon from '@/assets/icons/cancle.svg'
-import AlignCenterIcon from '@/assets/icons/align_center.svg'
 
 import {useQueryClient} from '@tanstack/react-query'
 
@@ -24,11 +22,10 @@ import {
   editTimetableTranslateYState,
   activeThemeState
 } from '@/store/system'
-import {showColorSelectorBottomSheetState, showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
+import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
 import {
   disableScheduleListState,
   existScheduleListState,
-  isFixedAlignCenterState,
   scheduleDateState,
   scheduleListState,
   scheduleState,
@@ -40,8 +37,8 @@ import type {EditScheduleBottomSheetRef} from '@/components/bottomSheet/EditSche
 import {getTimeOfMinute} from '@/utils/helper'
 import {useGetExistScheduleList, useSetSchedule} from '@/apis/hooks/useSchedule'
 import RNFetchBlob from 'rn-fetch-blob'
+import type {Ref as ControlBarRef} from './components/ControlBar'
 
-type ControlMode = 'fontSize' | 'rotate' | null
 const EditSchedule = ({navigation}: EditScheduleProps) => {
   const queryClient = useQueryClient()
 
@@ -49,9 +46,10 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const {mutateAsync: setScheduleMutateAsync} = useSetSchedule()
 
   const editScheduleBottomSheetRef = useRef<EditScheduleBottomSheetRef>(null)
+  const controlBarRef = useRef<ControlBarRef>(null)
 
   const [isRendered, setIsRendered] = React.useState(false)
-  const [activeControlMode, setActiveControlMode] = React.useState<ControlMode>(null)
+  const [isActiveControlMode, setIsActiveControlMode] = React.useState(false)
 
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
@@ -68,7 +66,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const setIsEdit = useSetRecoilState(isEditState)
   const setExistScheduleList = useSetRecoilState(existScheduleListState)
   const setShowOverlapScheduleListBottomSheet = useSetRecoilState(showOverlapScheduleListBottomSheetState)
-  const setShowColorSelectorBottomSheet = useSetRecoilState(showColorSelectorBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
 
   const [newStartTime, setNewStartTime] = React.useState(schedule.start_time)
@@ -108,26 +105,10 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     return [timetableAnimatedStyle, {opacity: isLoading ? 0.6 : 1}]
   }, [isLoading])
 
-  const fontSizeButtonTextStyle = React.useMemo(() => {
-    return activeControlMode === 'fontSize' ? activeFontSizeButtonTextStyle : styles.fontSizeButtonText
-  }, [activeControlMode])
-
   // TODO 글자 중앙 정렬 sudo code
   // const fixedAlignCenterColor = React.useMemo(() => {
   //   return isFixedAlignCenter ? '#ffffff' : '#696969'
   // }, [isFixedAlignCenter])
-
-  const getControlButtonTextStyle = (bool: boolean) => {
-    return bool ? activeControlButtonTextStyle : styles.controlButtonText
-  }
-
-  const submitButtonStyle = React.useMemo(() => {
-    return activeSubmit ? activeSubmitButtonStyle : styles.submitButton
-  }, [activeSubmit])
-
-  const submitButtonTextStyle = React.useMemo(() => {
-    return activeSubmit ? activeSubmitButtonTextStyle : styles.submitButtonText
-  }, [activeSubmit])
 
   const startTimeString = React.useMemo(() => {
     const timeOfMinute = getTimeOfMinute(newStartTime)
@@ -177,25 +158,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     }
   }, [schedule, invalidScheduleList, navigation, setScheduleMutateAsync, setIsEdit])
 
-  const showColorSelectorBottomSheet = React.useCallback(() => {
-    setIsInputMode(false)
-    setShowColorSelectorBottomSheet(true)
-    editScheduleBottomSheetRef.current?.collapse()
-  }, [setShowColorSelectorBottomSheet])
-
-  const changeActiveControlMode = React.useCallback(
-    (mode: ControlMode) => () => {
-      if (activeControlMode && activeControlMode === mode) {
-        setActiveControlMode(null)
-      } else {
-        setIsInputMode(false)
-        editScheduleBottomSheetRef.current?.collapse()
-        setActiveControlMode(mode)
-      }
-    },
-    [activeControlMode, setActiveControlMode]
-  )
-
   const changeFontSize = React.useCallback(
     (value: number) => {
       setSchedule(prevState => ({
@@ -206,10 +168,16 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     [setSchedule]
   )
 
-  // TODO 글자 중앙 정렬 sudo code
-  // const handleFixedAlignCenter = React.useCallback(() => {
-  //   setIsFixedAlignCenter(!isFixedAlignCenter)
-  // }, [isFixedAlignCenter, setIsFixedAlignCenter])
+  const handleActiveControlMode = React.useCallback(() => {
+    setIsActiveControlMode(true)
+    setIsInputMode(false)
+    editScheduleBottomSheetRef.current?.collapse()
+  }, [setIsActiveControlMode, setIsInputMode])
+
+  const closeActiveControlMode = React.useCallback(() => {
+    controlBarRef.current?.close()
+    setIsActiveControlMode(false)
+  }, [setIsActiveControlMode])
 
   const handleSubmit = React.useCallback(async () => {
     try {
@@ -298,79 +266,19 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       </Animated.View>
 
       {/* control mode 닫기 overlay */}
-      {activeControlMode && (
-        <Pressable style={styles.activeControlModeOverlay} onPress={() => setActiveControlMode(null)} />
-      )}
+      {isActiveControlMode && <Pressable style={styles.activeControlModeOverlay} onPress={closeActiveControlMode} />}
 
-      {activeControlMode === 'fontSize' && (
-        <Shadow
-          containerStyle={styles.controlViewShadowContainer}
-          stretch={true}
-          startColor={activeTheme.color5}
-          distance={15}>
-          <View style={[styles.controlViewContainer, {backgroundColor: activeTheme.color1}]}>
-            <View style={styles.controlViewWrapper}>
-              <Slider
-                style={{flex: 1}}
-                value={schedule.font_size}
-                step={2}
-                minimumValue={10}
-                maximumValue={32}
-                minimumTrackTintColor="#FFFFFF"
-                maximumTrackTintColor="#000000"
-                onValueChange={changeFontSize}
-              />
-
-              <Text style={styles.controlText}>{schedule.font_size}</Text>
-            </View>
-          </View>
-        </Shadow>
-      )}
-
-      <Shadow
-        containerStyle={styles.controlButtonShadowContainer}
-        stretch={true}
-        startColor={activeTheme.color5}
-        distance={30}
-        offset={[0, 20]}>
-        <View style={[styles.controlButtonContainer, {backgroundColor: activeTheme.color1}]}>
-          <Pressable style={styles.colorButton} onPress={showColorSelectorBottomSheet}>
-            <Image source={require('@/assets/icons/color.png')} style={styles.colorIcon} />
-          </Pressable>
-
-          <ScrollView contentContainerStyle={styles.controlButtonScrollContainer} horizontal={true}>
-            <Pressable style={styles.controlButton} onPress={changeActiveControlMode('fontSize')}>
-              <View style={styles.controlButtonWrapper}>
-                <Text style={fontSizeButtonTextStyle}>{schedule.font_size}</Text>
-              </View>
-
-              <Text style={getControlButtonTextStyle(activeControlMode === 'fontSize')}>글자 크기</Text>
-            </Pressable>
-
-            {/* TODO - 테마 작업 후 추가 예정*/}
-            {/*<Pressable style={styles.controlButton} onPress={handleFixedAlignCenter}>*/}
-            {/*  <View style={styles.controlButtonWrapper}>*/}
-            {/*    <AlignCenterIcon width={24} height={24} stroke={fixedAlignCenterColor} />*/}
-            {/*  </View>*/}
-
-            {/*  <Text style={getControlButtonTextStyle(isFixedAlignCenter)}>중앙 맞춤</Text>*/}
-            {/*</Pressable>*/}
-
-            {/* TODO - 폰트 작업 후 추가 예정 */}
-            {/*<Pressable style={styles.controlButton}>*/}
-            {/*  <View style={styles.controlButtonWrapper}>*/}
-            {/*    <Text style={styles.fontSizeButtonText}>A</Text>*/}
-            {/*  </View>*/}
-
-            {/*  <Text style={styles.controlButtonText}>폰트</Text>*/}
-            {/*</Pressable>*/}
-          </ScrollView>
-
-          <Pressable style={submitButtonStyle} disabled={!activeSubmit} onPress={handleSubmit}>
-            <Text style={submitButtonTextStyle}>{schedule.schedule_id ? '수정' : '등록'}</Text>
-          </Pressable>
-        </View>
-      </Shadow>
+      <View style={styles.controlBar}>
+        <ControlBar
+          ref={controlBarRef}
+          schedule={schedule}
+          displayMode={activeTheme.display_mode === 0 ? 'light' : 'dark'}
+          isActiveSubmit={activeSubmit}
+          changeFontSize={changeFontSize}
+          onActiveControlMode={handleActiveControlMode}
+          onSubmit={handleSubmit}
+        />
+      </View>
 
       <EditScheduleBottomSheet ref={editScheduleBottomSheetRef} />
       <ScheduleCategorySelectorBottomSheet />
@@ -434,106 +342,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold'
   },
 
-  activeControlModeOverlay: {
-    zIndex: 99,
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0
-  },
-  controlViewShadowContainer: {
-    zIndex: 999,
-    position: 'absolute',
-    bottom: 82,
-    left: 16,
-    right: 16
-  },
-  controlViewContainer: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    borderRadius: 10
-  },
-  controlViewWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 20
-  },
-  controlText: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 16,
-    color: '#ffffff'
-  },
-  controlButtonShadowContainer: {
+  controlBar: {
     zIndex: 999,
     position: 'absolute',
     bottom: 10,
     left: 16,
     right: 16
   },
-  controlButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 10,
-    borderRadius: 50,
-    backgroundColor: '#424242'
-  },
-  controlButtonScrollContainer: {
-    gap: 5
-  },
-  controlButtonWrapper: {
-    height: 29,
-    justifyContent: 'center',
-    transform: [{translateY: -1}]
-  },
-  controlButton: {
-    width: 52,
-    height: 42,
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  controlButtonText: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 10,
-    color: '#696969'
-  },
-  colorButton: {
-    paddingRight: 15
-  },
-  colorIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 23,
-    borderWidth: 2,
-    borderColor: '#696969'
-  },
-  fontSizeButtonText: {
-    fontFamily: 'Pretendard-Regular',
-    fontSize: 26,
-    color: '#696969'
-  },
-
-  submitButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 42,
-    borderRadius: 24,
-    paddingHorizontal: 20,
-    backgroundColor: '#f5f6f8',
-    marginLeft: 15
-  },
-  submitButtonText: {
-    fontFamily: 'Pretendard-Bold',
-    fontSize: 14,
-    color: '#babfc5'
+  activeControlModeOverlay: {
+    zIndex: 999,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0
   }
 })
-
-const activeControlButtonTextStyle = StyleSheet.compose(styles.controlButtonText, {color: '#ffffff'})
-const activeFontSizeButtonTextStyle = StyleSheet.compose(styles.fontSizeButtonText, {color: '#ffffff'})
-
-const activeSubmitButtonStyle = StyleSheet.compose(styles.submitButton, {backgroundColor: '#1E90FF'})
-const activeSubmitButtonTextStyle = StyleSheet.compose(styles.submitButtonText, {color: '#ffffff'})
 
 export default EditSchedule
