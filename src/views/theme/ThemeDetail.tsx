@@ -94,8 +94,9 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
           const interval = setInterval(() => {
             simulatedProgress += 5
             if (simulatedProgress >= 100) {
-              clearInterval(interval)
+              queryClient.invalidateQueries({queryKey: ['downloadThemeList']})
               setProgress(null) // 다운로드 완료 후 진행률 숨김
+              clearInterval(interval)
             } else {
               setProgress(simulatedProgress)
             }
@@ -103,10 +104,12 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
         } else {
           // 다운로드 시간이 충분히 길 경우 바로 100%로 설정
           setProgress(100)
-          setTimeout(() => setProgress(null), 500) // 잠시 후 진행률 숨김
-        }
 
-        queryClient.invalidateQueries({queryKey: ['downloadThemeList']})
+          setTimeout(() => {
+            queryClient.invalidateQueries({queryKey: ['downloadThemeList']})
+            setProgress(null)
+          }, 500) // 잠시 후 진행률 숨김
+        }
       })
       .catch(e => {
         console.error('error', e)
