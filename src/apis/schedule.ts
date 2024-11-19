@@ -16,13 +16,13 @@ export const updateScheduleDisable = (data: ScheduleDisableReqeust) => {
   return http.post<any, Response<any>>('schedule/disable', data)
 }
 
-export const setScheduleTodo = (data: Todo) => {
-  return http.post<any, Response<Todo>>('schedule/todo', data)
-}
+// export const setScheduleTodo = (data: Todo) => {
+//   return http.post<any, Response<Todo>>('schedule/todo', data)
+// }
 
-export const deleteScheduleTodo = (data: DeleteScheduleTodoReqeust) => {
-  return http.post<any, Response<Todo>>('schedule/todo/delete', data)
-}
+// export const deleteScheduleTodo = (data: DeleteScheduleTodoReqeust) => {
+//   return http.post<any, Response<Todo>>('schedule/todo/delete', data)
+// }
 
 export const setScheduleTodoComplete = (data: SetScheduleTodoCompleteRequest) => {
   return http.post<any, Response<any>>('schedule/todo/complete', data)

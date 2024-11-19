@@ -24,7 +24,7 @@ declare interface Schedule {
   text_color: string
   complete_start_time?: number
   complete_end_time?: number
-  todo_list: Todo[]
+  todo_list: ScheduleTodo[]
   routine_list: ScheduleRoutine[]
   schedule_category_id?: number | null
   schedule_category_title?: string

@@ -1,38 +1,19 @@
 import {useMemo, useCallback} from 'react'
 import {StyleSheet, Pressable, Text, View} from 'react-native'
 import debounce from 'lodash.debounce'
-import RoutineCompleteBar from '@/components/RoutineCompleteBar'
 import CheckIcon from '@/assets/icons/check.svg'
 import MoreIcon from '@/assets/icons/more_horiz.svg'
 
-export interface ChangeTodoCompleteArguments {
-  todoId: number
-  completeId: number | null
-  scheduleId: number
-}
 interface Props {
-  todoId: number
-  completeId: number | null
-  scheduleId: number
-  title: string
-  completeDateList?: string[]
+  value: ScheduleTodo
   activeTheme: ActiveTheme
-  openEditModal?: (params: EditTodoForm) => void
-  onChange: (isCompleted: boolean, changeTodoCompleteArguments: ChangeTodoCompleteArguments) => void
+  moveEdit: (value: ScheduleTodo) => void
+  onChange: (isCompleted: boolean, value: ScheduleTodo) => void
 }
-const TodoItem = ({
-  todoId,
-  completeId,
-  scheduleId,
-  title,
-  completeDateList,
-  activeTheme,
-  openEditModal,
-  onChange
-}: Props) => {
+const TodoItem = ({value, activeTheme, moveEdit, onChange}: Props) => {
   const isCompleted = useMemo(() => {
-    return !!completeId
-  }, [completeId])
+    return !!value.complete_id
+  }, [value.complete_id])
 
   const checkButtonStyle = useMemo(() => {
     return isCompleted ? activeCheckButtonStyle : styles.checkButton
@@ -45,20 +26,18 @@ const TodoItem = ({
   const debounceChanged = useMemo(
     () =>
       debounce(() => {
-        onChange(!isCompleted, {todoId, completeId, scheduleId})
+        onChange(!isCompleted, value)
       }, 200),
-    [isCompleted, todoId, completeId, scheduleId, onChange]
+    [isCompleted, value, onChange]
   )
+
+  const handleMoveEdit = useCallback(() => {
+    moveEdit(value)
+  }, [moveEdit, value])
 
   const handleChanged = useCallback(() => {
     debounceChanged()
   }, [debounceChanged])
-
-  const handleShowEditModal = useCallback(() => {
-    if (openEditModal) {
-      openEditModal({todo_id: todoId, title, schedule_id: scheduleId})
-    }
-  }, [todoId, title, scheduleId, openEditModal])
 
   return (
     <View style={styles.container}>
@@ -69,16 +48,12 @@ const TodoItem = ({
           </View>
         </Pressable>
 
-        <Pressable style={styles.modalButtonWrapper} onPress={handleShowEditModal}>
-          <Text style={[styles.title, {color: activeTheme.color3}]}>{title}</Text>
+        <Pressable style={styles.modalButtonWrapper} onPress={handleMoveEdit}>
+          <Text style={[styles.title, {color: activeTheme.color3}]}>{value.title}</Text>
 
-          {completeDateList ? (
-            <RoutineCompleteBar completeDateList={completeDateList} itemSize={20} activeTheme={activeTheme} />
-          ) : (
-            <View style={styles.moreButton}>
-              <MoreIcon width={18} height={18} fill="#babfc5" />
-            </View>
-          )}
+          <View style={styles.moreButton}>
+            <MoreIcon width={18} height={18} fill="#babfc5" />
+          </View>
         </Pressable>
       </View>
     </View>

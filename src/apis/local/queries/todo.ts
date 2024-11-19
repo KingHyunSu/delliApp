@@ -1,6 +1,16 @@
-export const setTodoQuery = () => {
+export const getTodoDetailQuery = () => {
   return `
-    INSERT INTO TODO (title, start_date, end_date, schedule_id) VALUES (?, ?, ?, ?)
+    SELECT
+      T.todo_id,
+      T.title,
+      T.schedule_id
+    FROM TODO T
+    WHERE T.todo_id = ?
+  `
+}
+
+export const setTodoQuery = () => {
+  return `INSERT INTO TODO (title, start_date, end_date, schedule_id) VALUES (?, ?, ?, ?)
   `
 }
 
@@ -13,101 +23,6 @@ export const updateTodoQuery = () => {
 export const deleteTodoQuery = () => {
   return `
     DELETE FROM TODO WHERE todo_id = ?
-  `
-}
-
-export const getRoutineListQuery = () => {
-  return `
-    SELECT
-      T.todo_id,
-      T.title,
-      S.title AS schedule_title,
-      GROUP_CONCAT(TC.complete_date) AS complete_date_list
-    FROM TODO T
-      JOIN SCHEDULE S
-        ON S.schedule_id = T.schedule_id
-      LEFT JOIN TODO_COMPLETE TC
-        ON T.todo_id = TC.todo_id
-        AND TC.complete_date >= DATE('now', '-7 days')
-    WHERE T.end_date = '9999-12-31'
-    GROUP BY T.todo_id, T.title, T.start_date, T.end_date, T.schedule_id
-  `
-}
-
-// export const getRoutineListQuery = () => {
-//   return `
-//     SELECT
-//       T.todo_id,
-//       T.title,
-//       T.start_date,
-//       T.end_date,
-//       T.schedule_id,
-//       S.title AS schedule_title,
-//       S.schedule_category_id,
-//       S.start_time AS schedule_start_time,
-//       S.end_time AS schedule_end_time,
-//       S.mon AS schedule_mon,
-//       S.tue AS schedule_tue,
-//       S.wed AS schedule_wed,
-//       S.thu AS schedule_thu,
-//       S.fri AS schedule_fri,
-//       S.sat AS schedule_sat,
-//       S.sun AS schedule_sun,
-//       S.start_date AS schedule_start_date,
-//       S.end_date AS schedule_end_date,
-//       GROUP_CONCAT(TC.complete_date) AS complete_date_list
-//     FROM TODO T
-//     JOIN SCHEDULE S
-//       ON S.schedule_id = T.schedule_id
-//     LEFT JOIN TODO_COMPLETE TC
-//       ON T.todo_id = TC.todo_id
-//       AND TC.complete_date >= DATE('now', '-7 days')
-//     WHERE T.end_date = '9999-12-31'
-//     GROUP BY T.todo_id, T.title, T.start_date, T.end_date, T.schedule_id
-//   `
-// }
-
-export const getRoutineDetailQuery = () => {
-  return `
-    SELECT
-      T.todo_id,
-      T.title,
-      T.schedule_id,
-      S.title AS schedule_title,
-      S.schedule_category_id,
-      S.start_time AS schedule_start_time,
-      S.end_time AS schedule_end_time,
-      S.mon AS schedule_mon,
-      S.tue AS schedule_tue,
-      S.wed AS schedule_wed,
-      S.thu AS schedule_thu,
-      S.fri AS schedule_fri,
-      S.sat AS schedule_sat,
-      S.sun AS schedule_sun,
-      S.start_date AS schedule_start_date,
-      S.end_date AS schedule_end_date
-    FROM TODO T
-    JOIN SCHEDULE S
-        ON S.schedule_id = T.schedule_id
-    WHERE T.todo_id = ?
-  `
-}
-
-export const getRoutineCompleteListQuery = () => {
-  return `
-    SELECT complete_date FROM TODO_COMPLETE WHERE todo_id = ? AND complete_date >= ? AND complete_date <= ?
-  `
-}
-
-export const setRoutineQuery = () => {
-  return `
-    INSERT INTO TODO (title, start_date, schedule_id) VALUES (?, ?, ?)  
-  `
-}
-
-export const updateRoutineQuery = () => {
-  return `
-    UPDATE TODO SET title = ?, schedule_id = ? WHERE todo_id = ?
   `
 }
 
@@ -131,32 +46,14 @@ export const getTodoByScheduleQuery = () => {
   `
 }
 
-export const getRoutineListBySchedule = () => {
+export const setTodoCompleteQuery = () => {
   return `
-    SELECT
-      T.schedule_id,
-      T.todo_id,
-      T.title,
-      TC1.complete_id,
-      TC1.complete_date,
-      GROUP_CONCAT(TC2.complete_date) AS complete_date_list
-    FROM
-      TODO T
-    LEFT OUTER JOIN TODO_COMPLETE TC1
-      ON T.todo_id = TC1.todo_id
-      AND TC1.complete_date = ?
-    LEFT OUTER JOIN TODO_COMPLETE TC2
-      ON T.todo_id = TC2.todo_id
-      AND TC2.complete_date >= DATE('now', '-7 days')
-    WHERE
-      T.schedule_id = ?
-    AND
-      T.end_date = '9999-12-31'
-    GROUP BY
-      T.schedule_id,
-      T.todo_id,
-      T.title,
-      TC1.complete_id,
-      TC1.complete_date
+    INSERT INTO TODO_COMPLETE (todo_id, complete_date) VALUES (?, ?)
+  `
+}
+
+export const deleteTodoCompleteQuery = () => {
+  return `
+    DELETE FROM TODO_COMPLETE WHERE complete_id = ?
   `
 }

@@ -7,8 +7,6 @@ import BottomSheetHandler from '@/components/BottomSheetHandler'
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
 import {activeThemeState, isEditState} from '@/store/system'
 import {focusModeInfoState, scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
-import {editTodoFormState} from '@/store/todo'
-import {showEditTodoModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 
@@ -48,9 +46,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const activeTheme = useRecoilValue(activeThemeState)
 
   const resetSchedule = useResetRecoilState(scheduleState)
-  const setEditTodoForm = useSetRecoilState(editTodoFormState)
   const setScheduleList = useSetRecoilState(scheduleListState)
-  const setShowEditTodoModal = useSetRecoilState(showEditTodoModalState)
   // const setShowCompleteModal = useSetRecoilState(showCompleteModalState)
   const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
 
@@ -87,16 +83,10 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
     navigate('EditRoutine', {scheduleId: schedule.schedule_id, routineId: null})
   }, [schedule.schedule_id, closeEditMenuBottomSheet])
 
-  const openEditTodoModal = React.useCallback(() => {
-    if (schedule.schedule_id) {
-      setEditTodoForm(prevState => ({
-        ...prevState,
-        schedule_id: schedule.schedule_id
-      }))
-
-      setShowEditTodoModal(true)
-    }
-  }, [schedule.schedule_id, setEditTodoForm, setShowEditTodoModal])
+  const moveEditTodo = React.useCallback(() => {
+    closeEditMenuBottomSheet()
+    navigate('EditTodo', {scheduleId: schedule.schedule_id, todoId: null})
+  }, [schedule.schedule_id])
 
   const deleteSchedule = React.useCallback(() => {
     Alert.alert('일정 삭제하기', `"${schedule.title}" 일정을 삭제하시겠습니까?`, [
@@ -340,7 +330,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
             <Text style={[styles.text, {color: activeTheme.color3}]}>루틴 추가하기</Text>
           </Pressable>
 
-          <Pressable style={styles.menuWrapper} onPress={openEditTodoModal}>
+          <Pressable style={styles.menuWrapper} onPress={moveEditTodo}>
             <View style={todoButton}>
               <TodoIcon width={14} height={14} fill="#fff" />
             </View>

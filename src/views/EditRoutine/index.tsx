@@ -1,4 +1,4 @@
-import React, {useState, useMemo, useCallback, useEffect} from 'react'
+import {useState, useMemo, useCallback, useEffect} from 'react'
 import {StyleSheet, View, Text, TextInput, Pressable, ScrollView} from 'react-native'
 import AppBar from '@/components/AppBar'
 import CompleteCalendar from './components/CompleteCalendar'
@@ -8,18 +8,17 @@ import DeleteIcon from '@/assets/icons/trash.svg'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {activeThemeState, alertState} from '@/store/system'
 import {scheduleListState, scheduleState} from '@/store/schedule'
-import {useDeleteRoutine, useGetRoutineDetail, useSetRoutine, useUpdateRoutine} from '@/apis/hooks/useRoutine'
+import {useGetRoutineDetail, useDeleteRoutine, useSetRoutine, useUpdateRoutine} from '@/apis/hooks/useRoutine'
 import {EditRoutineScreenProps} from '@/types/navigation'
 
 const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
-  const [currentDate, setCurrentDate] = useState(new Date())
-  const [showYearMonthPickerModal, setShowYearMonthPickerModal] = useState(false)
-
   const {mutateAsync: getRoutineDetailMutateAsync} = useGetRoutineDetail()
   const {mutateAsync: setRoutineMutateAsync} = useSetRoutine()
   const {mutateAsync: updateRoutineMutateAsync} = useUpdateRoutine()
   const {mutate: deleteRoutineMutate, isSuccess: isSuccessDeleteRoutine} = useDeleteRoutine()
 
+  const [currentDate, setCurrentDate] = useState(new Date())
+  const [showYearMonthPickerModal, setShowYearMonthPickerModal] = useState(false)
   const [editRoutineForm, setEditRoutineForm] = useState<EditRoutineForm>({
     routine_id: null,
     title: '',
@@ -118,7 +117,7 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
 
     navigation.navigate('MainTabs', {
       screen: 'Home',
-      params: {scheduleUpdated: true}
+      params: {scheduleUpdated: false}
     })
   }, [
     targetSchedule,
@@ -161,7 +160,7 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
 
       navigation.navigate('MainTabs', {
         screen: 'Home',
-        params: {scheduleUpdated: true}
+        params: {scheduleUpdated: false}
       })
     }
   }, [isSuccessDeleteRoutine, editRoutineForm.routine_id, setScheduleList, navigation])

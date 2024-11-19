@@ -32,8 +32,8 @@ interface Props {
   time?: ScheduleTime
   date?: ScheduleDate
   dayOfWeek?: ScheduleDayOfWeek
-  todoList?: Todo[]
   routineList?: ScheduleRoutine[]
+  todoList?: ScheduleTodo[]
   headerComponent?: ReactNode
   activeTheme: ActiveTheme
 }
@@ -43,8 +43,8 @@ const ScheduleItem = ({
   time,
   date,
   dayOfWeek,
-  todoList,
   routineList,
+  todoList,
   headerComponent,
   activeTheme
 }: Props) => {

@@ -10,7 +10,7 @@ type WidgetSchedule = {
   title: string
   start_time: number
   end_time: number
-  todo_list: Todo[]
+  todo_list: ScheduleTodo[]
 }
 const {AppGroupModule, WidgetUpdaterModule} = NativeModules
 

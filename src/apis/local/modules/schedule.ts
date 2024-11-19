@@ -34,7 +34,7 @@ export const getScheduleList = async (params: GetScheduleList) => {
 
           const promises = scheduleList.map(item => {
             return new Promise<Schedule>((resolve2, reject2) => {
-              let todoList: Todo[] | null = null
+              let todoList: ScheduleTodo[] | null = null
               let routineList: GetRoutineListByScheduleResponse[] | null = null
 
               tx1.executeSql(

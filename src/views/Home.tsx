@@ -14,7 +14,6 @@ import {Timetable} from '@/components/TimeTable'
 import EditMenuBottomSheet from '@/components/bottomSheet/EditMenuBottomSheet'
 import ScheduleListBottomSheet from '@/components/bottomSheet/ScheduleListBottomSheet'
 import DatePickerBottomSheet from '@/components/bottomSheet/DatePickerBottomSheet'
-import EditTodoModal from '@/components/modal/EditTodoModal'
 import CompleteModal from '@/components/modal/CompleteModal'
 // import ScheduleCompleteModal from '@/components/modal/ScheduleCompleteModal'
 
@@ -402,7 +401,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
       <EditMenuBottomSheet moveEditSchedule={moveEditSchedule} />
       <DatePickerBottomSheet value={format(scheduleDate, 'yyyy-MM-dd')} onChange={changeScheduleDate} />
-      <EditTodoModal />
       <CompleteModal />
       <HomeFabExtensionModal
         visible={showFabExtensionModal}

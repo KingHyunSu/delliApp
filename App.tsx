@@ -19,6 +19,7 @@ import HomeScreen from '@/views/Home'
 import MyThemeListScreen from '@/views/MyThemeList'
 import ThemeDetailScreen from '@/views/theme/ThemeDetail'
 import EditRoutineScreen from '@/views/EditRoutine'
+import EditTodoScreen from '@/views/EditTodo'
 import StoreListScreen from '@/views/StoreList'
 
 import {
@@ -416,6 +417,7 @@ function App(): JSX.Element {
               <Stack.Screen name="ThemeDetail" component={ThemeDetailScreen} />
               <Stack.Screen name="MyThemeList" component={MyThemeListScreen} />
               <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
+              <Stack.Screen name="EditTodo" component={EditTodoScreen} />
 
               <Stack.Screen name="CategoryStats" component={CategoryStats} />
               <Stack.Screen name="RoutineDetail" component={RoutineDetailScreen} />

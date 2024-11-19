@@ -5,11 +5,6 @@ export const showScheduleCompleteModalState = atom({
   default: false
 })
 
-export const showEditTodoModalState = atom({
-  key: 'showEditTodoModalState',
-  default: false
-})
-
 export const showColorModalState = atom({
   key: 'showColorModalState',
   default: false

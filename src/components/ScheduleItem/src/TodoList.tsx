@@ -1,110 +1,100 @@
 import {useCallback} from 'react'
 import {StyleSheet, FlatList, ListRenderItem, View} from 'react-native'
 import TodoItem from './components/TodoItem'
-import type {ChangeTodoCompleteArguments} from './components/TodoItem'
 
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
 import {scheduleDateState, scheduleListState} from '@/store/schedule'
-import {editTodoFormState} from '@/store/todo'
-import {showEditTodoModalState} from '@/store/modal'
+
+import {useSetTodoComplete, useDeleteTodoComplete} from '@/apis/hooks/useTodo'
 
 import {updateWidget} from '@/utils/widget'
-import useSetTodoComplete from './hooks/useSetTodoComplete'
 
 import {format} from 'date-fns'
+import {navigate} from '@/utils/navigation'
 
 interface Props {
-  data: Todo[]
+  data: ScheduleTodo[]
   activeTheme: ActiveTheme
 }
 
 const ScheduleTodoList = ({data, activeTheme}: Props) => {
+  const {mutateAsync: setTodoCompleteMutateAsync} = useSetTodoComplete()
+  const {mutateAsync: deleteTodoCompleteMutateAsync} = useDeleteTodoComplete()
+
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
-  const setEditTodoFrom = useSetRecoilState(editTodoFormState)
-  const setShowEditTodoModal = useSetRecoilState(showEditTodoModalState)
 
-  const {doCompleteTodo, undoCompleteTodo} = useSetTodoComplete()
+  const moveEdit = useCallback((value: ScheduleTodo) => {
+    navigate('EditTodo', {scheduleId: value.schedule_id, todoId: value.todo_id})
+  }, [])
 
-  const openEditModal = useCallback(
-    (params: EditTodoForm) => {
-      setEditTodoFrom(params)
-      setShowEditTodoModal(true)
-    },
-    [setEditTodoFrom, setShowEditTodoModal]
-  )
+  const getNewScheduleList = useCallback(
+    (newTodo: ScheduleTodo) => {
+      return scheduleList.map(scheduleItem => {
+        if (scheduleItem.schedule_id === newTodo.schedule_id) {
+          const newTodoList = scheduleItem.todo_list.map(todoItem => {
+            if (todoItem.todo_id === newTodo.todo_id) {
+              return newTodo
+            }
 
-  const updateTodoOfScheduleList = useCallback(
-    (scheduleId: number, todoId: number, todoCompleteId: number | null, todoCompleteDate: string | null) => {
-      const newScheduleList = scheduleList.map(scheduleItem => {
-        if (scheduleId === scheduleItem.schedule_id) {
-          const newTodoList = data.map(todoItem =>
-            todoItem.todo_id === todoId
-              ? {...todoItem, complete_id: todoCompleteId, complete_date: todoCompleteDate}
-              : todoItem
-          )
+            return todoItem
+          })
 
           return {...scheduleItem, todo_list: newTodoList}
         }
 
         return scheduleItem
       })
-
-      setScheduleList(newScheduleList)
-
-      // TODO - 위젯에서 임시 제거
-      // if (Platform.OS === 'ios') {
-      //   await updateWidget()
-      // }
     },
-    [data, scheduleList, setScheduleList]
+    [scheduleList]
   )
 
   const handleTodoComplete = useCallback(
-    async (isCompleted: boolean, value: ChangeTodoCompleteArguments) => {
-      try {
-        let completeId: number | null = null
-        let completeDate: string | null = null
+    async (isCompleted: boolean, value: ScheduleTodo) => {
+      let newTodo = {...value}
 
-        if (isCompleted) {
-          // do complete
-          completeDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
+      if (isCompleted) {
+        const completeDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
 
-          completeId = await doCompleteTodo({todo_id: value.todoId, complete_date: completeDate})
-        } else {
-          // undo complete
-          if (value.completeId) {
-            await undoCompleteTodo({complete_id: value.completeId})
-          }
+        const completeId = await setTodoCompleteMutateAsync({
+          todo_id: value.todo_id,
+          complete_date: completeDate
+        })
+
+        newTodo = {
+          ...newTodo,
+          complete_id: completeId,
+          complete_date: completeDate
+        }
+      } else {
+        if (!value.complete_id) {
+          return
         }
 
-        updateTodoOfScheduleList(value.scheduleId, value.todoId, completeId, completeDate)
-      } catch (e) {
-        console.error(e)
+        await deleteTodoCompleteMutateAsync({complete_id: value.complete_id})
+
+        newTodo = {
+          ...newTodo,
+          complete_id: null,
+          complete_date: null
+        }
       }
+
+      const newScheduleList = getNewScheduleList(newTodo)
+      setScheduleList(newScheduleList)
     },
-    [scheduleDate, doCompleteTodo, undoCompleteTodo, updateTodoOfScheduleList]
+    [scheduleDate, setTodoCompleteMutateAsync, deleteTodoCompleteMutateAsync, getNewScheduleList, setScheduleList]
   )
 
-  const keyExtractor = useCallback((item: Todo, index: number) => {
+  const keyExtractor = useCallback((item: ScheduleTodo, index: number) => {
     return String(index)
   }, [])
 
-  const renderItem: ListRenderItem<Todo> = useCallback(
+  const renderItem: ListRenderItem<ScheduleTodo> = useCallback(
     ({item}) => {
-      return (
-        <TodoItem
-          todoId={item.todo_id}
-          completeId={item.complete_id}
-          scheduleId={item.schedule_id!}
-          title={item.title}
-          activeTheme={activeTheme}
-          openEditModal={openEditModal}
-          onChange={handleTodoComplete}
-        />
-      )
+      return <TodoItem value={item} activeTheme={activeTheme} moveEdit={moveEdit} onChange={handleTodoComplete} />
     },
-    [activeTheme, openEditModal, handleTodoComplete]
+    [activeTheme, handleTodoComplete]
   )
 
   return (

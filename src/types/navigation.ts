@@ -13,6 +13,10 @@ export type StackNavigator = {
     scheduleId: number
     routineId: number | null
   }
+  EditTodo: {
+    scheduleId: number
+    todoId: number | null
+  }
 
   ThemeDetail: {id: number}
   MyThemeList: undefined
@@ -50,6 +54,8 @@ export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
 export type ThemeDetailScreenProps = StackScreenProps<StackNavigator, 'ThemeDetail'>
 
 export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>
+export type EditTodoScreenProps = StackScreenProps<StackNavigator, 'EditTodo'>
+
 export type RoutineDetailScreenProps = StackScreenProps<StackNavigator, 'RoutineDetail'>
 
 export type SearchScheduleScreenProps = StackScreenProps<StackNavigator, 'SearchSchedule'>
