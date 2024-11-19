@@ -1,15 +1,13 @@
 import {useCallback} from 'react'
 import {StyleSheet, FlatList, ListRenderItem, View} from 'react-native'
-import TodoItem from './components/TodoItem'
-import type {ChangeTodoCompleteArguments} from './components/TodoItem'
+import RoutineItem from './components/RoutineItem'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {scheduleDateState, scheduleListState} from '@/store/schedule'
 
-import {updateWidget} from '@/utils/widget'
-import useSetTodoComplete from './hooks/useSetTodoComplete'
-
 import {format} from 'date-fns'
+import {navigate} from '@/utils/navigation'
+import {useSetRoutineComplete, useDeleteRoutineComplete} from '@/apis/hooks/useRoutine'
 
 interface Props {
   data: ScheduleRoutine[]
@@ -17,31 +15,23 @@ interface Props {
 }
 
 const ScheduleRoutineList = ({data, activeTheme}: Props) => {
-  const scheduleDate = useRecoilValue(scheduleDateState)
+  const {mutateAsync: setRoutineCompleteMutateAsync} = useSetRoutineComplete()
+  const {mutateAsync: deleteRoutineCompleteMutateAsync} = useDeleteRoutineComplete()
+
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
+  const scheduleDate = useRecoilValue(scheduleDateState)
 
-  const {doCompleteTodo, undoCompleteTodo} = useSetTodoComplete()
+  const moveEdit = useCallback((value: ScheduleRoutine) => {
+    navigate('EditRoutine', {scheduleId: value.schedule_id, routineId: value.routine_id})
+  }, [])
 
-  const updateRoutineOfScheduleList = useCallback(
-    (scheduleId: number, todoId: number, todoCompleteId: number | null, targetDate: string) => {
-      const newScheduleList = scheduleList.map(scheduleItem => {
-        if (scheduleId === scheduleItem.schedule_id) {
-          const newRoutineList = data.map(routineItem => {
-            if (routineItem.todo_id === todoId) {
-              let completeDateList = [...routineItem.complete_date_list]
-
-              if (todoCompleteId) {
-                completeDateList.push(targetDate)
-              } else {
-                completeDateList = completeDateList.filter(completeDateItem => completeDateItem !== targetDate)
-              }
-
-              return {
-                ...routineItem,
-                complete_id: todoCompleteId,
-                complete_date: todoCompleteId ? targetDate : null,
-                complete_date_list: completeDateList
-              }
+  const getNewScheduleList = useCallback(
+    (newRoutine: ScheduleRoutine) => {
+      return scheduleList.map(scheduleItem => {
+        if (scheduleItem.schedule_id === newRoutine.schedule_id) {
+          const newRoutineList = scheduleItem.routine_list.map(routineItem => {
+            if (routineItem.routine_id === newRoutine.routine_id) {
+              return newRoutine
             }
 
             return routineItem
@@ -52,40 +42,47 @@ const ScheduleRoutineList = ({data, activeTheme}: Props) => {
 
         return scheduleItem
       })
-
-      setScheduleList(newScheduleList)
-
-      // TODO - 위젯에서 임시 제거
-      // if (Platform.OS === 'ios') {
-      //   await updateWidget()
-      // }
     },
-    [data, scheduleList, setScheduleList]
+    [scheduleList]
   )
 
-  const handleTodoComplete = useCallback(
-    async (isCompleted: boolean, value: ChangeTodoCompleteArguments) => {
-      try {
-        let completeId: number | null = null
-        const targetDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
+  const handleRoutineComplete = useCallback(
+    async (isCompleted: boolean, value: ScheduleRoutine) => {
+      let newRoutine = {...value}
 
-        if (isCompleted) {
-          // do complete
+      if (isCompleted) {
+        const completeDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
 
-          completeId = await doCompleteTodo({todo_id: value.todoId, complete_date: targetDate})
-        } else {
-          // undo complete
-          if (value.completeId) {
-            await undoCompleteTodo({complete_id: value.completeId})
-          }
+        const completeId = await setRoutineCompleteMutateAsync({
+          routine_id: value.routine_id,
+          complete_date: completeDate
+        })
+
+        newRoutine = {
+          ...newRoutine,
+          complete_id: completeId,
+          complete_date: completeDate,
+          complete_date_list: [...newRoutine.complete_date_list, completeDate]
+        }
+      } else {
+        if (!value.complete_id) {
+          return
         }
 
-        updateRoutineOfScheduleList(value.scheduleId, value.todoId, completeId, targetDate)
-      } catch (e) {
-        console.error(e)
+        await deleteRoutineCompleteMutateAsync({complete_id: value.complete_id})
+
+        newRoutine = {
+          ...newRoutine,
+          complete_id: null,
+          complete_date: null,
+          complete_date_list: newRoutine.complete_date_list.filter(item => item !== value.complete_date)
+        }
       }
+
+      const newScheduleList = getNewScheduleList(newRoutine)
+      setScheduleList(newScheduleList)
     },
-    [scheduleDate, doCompleteTodo, undoCompleteTodo, updateRoutineOfScheduleList]
+    [scheduleDate, setRoutineCompleteMutateAsync, deleteRoutineCompleteMutateAsync, getNewScheduleList, setScheduleList]
   )
 
   const keyExtractor = useCallback((item: ScheduleRoutine, index: number) => {
@@ -94,19 +91,9 @@ const ScheduleRoutineList = ({data, activeTheme}: Props) => {
 
   const renderItem: ListRenderItem<ScheduleRoutine> = useCallback(
     ({item}) => {
-      return (
-        <TodoItem
-          todoId={item.todo_id}
-          completeId={item.complete_id}
-          scheduleId={item.schedule_id!}
-          title={item.title}
-          completeDateList={item.complete_date_list}
-          activeTheme={activeTheme}
-          onChange={handleTodoComplete}
-        />
-      )
+      return <RoutineItem value={item} activeTheme={activeTheme} moveEdit={moveEdit} onChange={handleRoutineComplete} />
     },
-    [handleTodoComplete]
+    [activeTheme, moveEdit, handleRoutineComplete]
   )
 
   return (

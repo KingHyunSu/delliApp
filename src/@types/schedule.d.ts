@@ -1,12 +1,3 @@
-interface ScheduleRoutine {
-  todo_id: number
-  title: string
-  complete_id: number | null
-  complete_date: string | null
-  complete_date_list: string[]
-  schedule_id: number
-}
-
 declare interface Schedule {
   schedule_id: number | null
   // timetable_category_id: number | null

@@ -1,5 +1,6 @@
 import {openDatabase} from '../utils/helper'
 import * as scheduleQueries from '../queries/schedule'
+import * as routineQueries from '../queries/routine'
 import * as todoQueries from '../queries/todo'
 import {
   GetScheduleList,
@@ -13,11 +14,12 @@ import {
   UpdateScheduleFocusTimeParams
 } from '../types/schedule'
 import type {SearchSchedule} from '@/views/SearchSchedule'
+import {GetRoutineListByScheduleResponse} from '@/apis/types/routine'
 
 export const getScheduleList = async (params: GetScheduleList) => {
   const getScheduleListQuery = scheduleQueries.getScheduleListQuery(params)
   const getTodoByScheduleQuery = todoQueries.getTodoByScheduleQuery()
-  const getRoutineListBySchedule = todoQueries.getRoutineListBySchedule()
+  const getRoutineListBySchedule = routineQueries.getRoutineListBySchedule()
   const db = await openDatabase()
 
   const result: Schedule[] = []
@@ -33,7 +35,7 @@ export const getScheduleList = async (params: GetScheduleList) => {
           const promises = scheduleList.map(item => {
             return new Promise<Schedule>((resolve2, reject2) => {
               let todoList: Todo[] | null = null
-              let routineList: Routine[] | null = null
+              let routineList: GetRoutineListByScheduleResponse[] | null = null
 
               tx1.executeSql(
                 getTodoByScheduleQuery,

@@ -9,11 +9,14 @@ export type StackNavigator = {
     params?: BottomTabNavigator[keyof BottomTabNavigator]
   }
   EditSchedule: undefined
+  EditRoutine: {
+    scheduleId: number
+    routineId: number | null
+  }
 
   ThemeDetail: {id: number}
   MyThemeList: undefined
 
-  EditRoutine: {data: TodoDetail | null}
   RoutineDetail: {id: number}
 
   CategoryStats: undefined

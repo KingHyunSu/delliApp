@@ -80,7 +80,7 @@ const createTable = async (db: SQLiteDatabase) => {
       )
     `)
 
-    // todo_complete table
+    // todo complete table
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "TODO_COMPLETE" (
         "complete_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
@@ -88,6 +88,28 @@ const createTable = async (db: SQLiteDatabase) => {
         "todo_id"	INTEGER NOT NULL,
         FOREIGN KEY("todo_id")
           REFERENCES TODO("todo_id")
+          ON DELETE CASCADE
+      )
+    `)
+
+    // routine table
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS "ROUTINE" (
+        "routine_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        "title"	TEXT NOT NULL,
+        "end_date"	TEXT NOT NULL DEFAULT '9999-12-31',
+        "schedule_id"	INTEGER NOT NULL
+      )
+    `)
+
+    // routine complete table
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS "ROUTINE_COMPLETE" (
+        "complete_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        "complete_date"	TEXT NOT NULL,
+        "routine_id"	INTEGER NOT NULL,
+        FOREIGN KEY("routine_id")
+          REFERENCES ROUTINE("routine_id")
           ON DELETE CASCADE
       )
     `)

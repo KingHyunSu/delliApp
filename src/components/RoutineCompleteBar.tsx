@@ -19,7 +19,7 @@ const RoutineCompleteBar = ({completeDateList, itemSize = 24, gap = 3, activeThe
       const formatDate = format(date, 'yyyy-MM-dd')
       const isActive = completeDateList.includes(formatDate)
 
-      const itemStyle = isActive ? activeItemStyle : [styles.item, {backgroundColor: activeTheme.color6}]
+      const itemStyle = isActive ? activeItemStyle : [styles.item, {backgroundColor: activeTheme?.color6}]
       const itemTextStyle = isActive ? activeItemTextStyle : styles.itemText
 
       return (
@@ -28,7 +28,7 @@ const RoutineCompleteBar = ({completeDateList, itemSize = 24, gap = 3, activeThe
         </View>
       )
     })
-  }, [activeTheme.color6, completeDateList, itemSize])
+  }, [activeTheme?.color6, completeDateList, itemSize])
 
   return <View style={[styles.container, {gap: gap}]}>{completeListComponent}</View>
 }

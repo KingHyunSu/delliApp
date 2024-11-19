@@ -18,12 +18,12 @@ import {navigationRef} from '@/utils/navigation'
 import HomeScreen from '@/views/Home'
 import MyThemeListScreen from '@/views/MyThemeList'
 import ThemeDetailScreen from '@/views/theme/ThemeDetail'
-
+import EditRoutineScreen from '@/views/EditRoutine'
 import StoreListScreen from '@/views/StoreList'
 
 import {
   RoutineList as RoutineListScreen,
-  EditRoutine as EditRoutineScreen,
+  // EditRoutine as EditRoutineScreen,
   RoutineDetail as RoutineDetailScreen
 } from '@/views/Routine'
 
@@ -415,9 +415,9 @@ function App(): JSX.Element {
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
               <Stack.Screen name="ThemeDetail" component={ThemeDetailScreen} />
               <Stack.Screen name="MyThemeList" component={MyThemeListScreen} />
+              <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
 
               <Stack.Screen name="CategoryStats" component={CategoryStats} />
-              <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
               <Stack.Screen name="RoutineDetail" component={RoutineDetailScreen} />
               <Stack.Screen name="SearchSchedule" component={SearchScheduleScreen} />
             </Stack.Navigator>
