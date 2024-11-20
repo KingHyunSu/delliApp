@@ -22,6 +22,15 @@ export const activeThemeState = atom<ActiveTheme>({
   }
 })
 
+export const keyboardAppearanceState = selector({
+  key: 'keyboardAppearanceState',
+  get: ({get}) => {
+    const activeTheme = get(activeThemeState)
+
+    return activeTheme.display_mode === 0 ? 'light' : 'dark'
+  }
+})
+
 export const loginState = atom({
   key: 'loginState',
   default: false

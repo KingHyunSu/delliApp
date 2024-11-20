@@ -4,7 +4,7 @@ import AppBar from '@/components/AppBar'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
-import {activeThemeState, alertState} from '@/store/system'
+import {activeThemeState, alertState, keyboardAppearanceState} from '@/store/system'
 import {useGetTodoDetail, useSetTodo, useUpdateTodo, useDeleteTodo} from '@/apis/hooks/useTodo'
 import {EditTodoScreenProps} from '@/types/navigation'
 import {format} from 'date-fns'
@@ -23,8 +23,9 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
 
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
 
-  const scheduleDate = useRecoilValue(scheduleDateState)
   const activeTheme = useRecoilValue(activeThemeState)
+  const keyboardAppearance = useRecoilValue(keyboardAppearanceState)
+  const scheduleDate = useRecoilValue(scheduleDateState)
   const schedule = useRecoilValue(scheduleState)
   const alert = useSetRecoilState(alertState)
 
@@ -206,6 +207,7 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
           style={[styles.title, {color: activeTheme.color3}]}
           placeholder="새로운 할 일"
           placeholderTextColor="#c3c5cc"
+          keyboardAppearance={keyboardAppearance}
           onChangeText={changeTitle}
         />
       </View>

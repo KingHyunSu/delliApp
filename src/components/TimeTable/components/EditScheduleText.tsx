@@ -5,6 +5,7 @@ import {Gesture, GestureDetector, TextInput} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS, withTiming} from 'react-native-reanimated'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
+import {keyboardAppearanceState} from '@/store/system'
 import {isFixedAlignCenterState, isInputModeState} from '@/store/schedule'
 
 import RotateGuideIcon from '@/assets/icons/rotate_guide.svg'
@@ -23,6 +24,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
 
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
 
+  const keyboardAppearance = useRecoilValue(keyboardAppearanceState)
   const isFixedAlignCenter = useRecoilValue(isFixedAlignCenterState)
 
   const textInputRef = React.useRef<TextInput>(null)
@@ -201,6 +203,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
             onFocus={handleFocus}
             placeholder="일정명을 입력해주세요"
             placeholderTextColor="#c3c5cc"
+            keyboardAppearance={keyboardAppearance}
           />
         </Animated.View>
       </GestureDetector>

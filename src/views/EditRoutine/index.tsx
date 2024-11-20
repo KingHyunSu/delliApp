@@ -6,7 +6,7 @@ import YearMonthPickerModal from '@/components/modal/YearMonthPickerModal'
 import DeleteIcon from '@/assets/icons/trash.svg'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {activeThemeState, alertState} from '@/store/system'
+import {activeThemeState, alertState, keyboardAppearanceState} from '@/store/system'
 import {scheduleListState, scheduleState} from '@/store/schedule'
 import {useGetRoutineDetail, useDeleteRoutine, useSetRoutine, useUpdateRoutine} from '@/apis/hooks/useRoutine'
 import {EditRoutineScreenProps} from '@/types/navigation'
@@ -28,6 +28,7 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
 
   const activeTheme = useRecoilValue(activeThemeState)
+  const keyboardAppearance = useRecoilValue(keyboardAppearanceState)
   const schedule = useRecoilValue(scheduleState)
   const alert = useSetRecoilState(alertState)
 
@@ -206,6 +207,7 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
           style={[styles.title, {color: activeTheme.color3}]}
           placeholder="새로운 루틴"
           placeholderTextColor="#c3c5cc"
+          keyboardAppearance={keyboardAppearance}
           onChangeText={changeTitle}
         />
 
