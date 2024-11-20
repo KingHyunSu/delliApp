@@ -24,10 +24,11 @@ const shadowCorners = {
 interface Props extends BottomSheetHandleProps {
   shadow?: boolean
   maxSnapIndex?: 1 | 2 | 3
+  backgroundColor?: string
 }
 
 const inputInterpolate = [-0.6, 0, 1, 2]
-const BottomSheetHandler = ({shadow = true, maxSnapIndex = 3, animatedIndex}: Props) => {
+const BottomSheetHandler = ({shadow = true, maxSnapIndex = 3, animatedIndex, backgroundColor}: Props) => {
   const activeTheme = useRecoilValue(activeThemeState)
 
   const isShowShadow = useMemo(() => {
@@ -125,6 +126,10 @@ const BottomSheetHandler = ({shadow = true, maxSnapIndex = 3, animatedIndex}: Pr
   })
   //#endregion
 
+  const containerStyle = useMemo(() => {
+    return [styles.container, {backgroundColor}]
+  }, [backgroundColor])
+
   return (
     <Shadow
       disabled={isShowShadow}
@@ -133,7 +138,7 @@ const BottomSheetHandler = ({shadow = true, maxSnapIndex = 3, animatedIndex}: Pr
       sides={shadowSides}
       corners={shadowCorners}
       style={styles.shadowContainer}>
-      <View style={styles.header} renderToHardwareTextureAndroid={true}>
+      <View style={containerStyle} renderToHardwareTextureAndroid={true}>
         <Animated.View style={[leftIndicatorStyle, leftIndicatorAnimatedStyle]} />
         <Animated.View style={[rightIndicatorStyle, rightIndicatorAnimatedStyle]} />
       </View>
@@ -147,12 +152,14 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15
   },
-  header: {
+  container: {
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 30,
-    paddingBottom: 10
+    paddingBottom: 10,
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15
   },
   indicator: {
     position: 'absolute',

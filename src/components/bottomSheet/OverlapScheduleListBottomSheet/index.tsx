@@ -1,5 +1,5 @@
 import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
-import {Platform, Pressable, StyleSheet, Text, View} from 'react-native'
+import {ListRenderItem, Platform, Pressable, StyleSheet, Text, View} from 'react-native'
 
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
@@ -14,11 +14,11 @@ import OverlapSchedule from './src/OverlapSchedule'
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
 import {disableScheduleListState, existScheduleListState} from '@/store/schedule'
-import {safeAreaInsetsState} from '@/store/system'
+import {activeThemeState, safeAreaInsetsState} from '@/store/system'
 
 import {useMutation} from '@tanstack/react-query'
 import {scheduleRepository} from '@/apis/local'
-import {UpdateScheduleDeleted, UpdateScheduleDisable} from '@/apis/local/types/schedule'
+import {UpdateScheduleDeleted} from '@/apis/local/types/schedule'
 
 interface Props {
   setScheduleMutate: Function
@@ -27,13 +27,13 @@ const OverlapScheduleListBottomSheet = ({setScheduleMutate}: Props) => {
   const [showOverlapScheduleListBottomSheet, setShowOverlapScheduleListBottomSheet] = useRecoilState(
     showOverlapScheduleListBottomSheetState
   )
+  const activeTheme = useRecoilValue(activeThemeState)
   const disableScheduleList = useRecoilValue(disableScheduleListState)
   const existScheduleList = useRecoilValue(existScheduleListState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const editScheduleCheckBottomSheet = useRef<BottomSheetModal>(null)
 
-  const [disabledScheduleIdList, setDisabledScheduleIdList] = useState<UpdateScheduleDisable[]>([])
   const [deletedScheduleIdList, setDeletedScheduleIdList] = useState<UpdateScheduleDeleted[]>([])
 
   const snapPoints = useMemo(() => {
@@ -71,32 +71,11 @@ const OverlapScheduleListBottomSheet = ({setScheduleMutate}: Props) => {
     setShowOverlapScheduleListBottomSheet(false)
   }, [setShowOverlapScheduleListBottomSheet])
 
-  const disabledSchedule = useCallback(
-    (schedule: ExistSchedule) => {
-      setDisabledScheduleIdList([...disabledScheduleIdList, {schedule_id: schedule.schedule_id}])
-    },
-    [disabledScheduleIdList]
-  )
-
-  useEffect(() => {}, [disabledScheduleIdList])
-
   const deleteSchedule = useCallback(
     (schedule: ExistSchedule) => {
       setDeletedScheduleIdList([...deletedScheduleIdList, {schedule_id: schedule.schedule_id}])
     },
     [deletedScheduleIdList]
-  )
-
-  const cancelScheduleDisabled = useCallback(
-    (schedule: ExistSchedule) => {
-      const target = disabledScheduleIdList.find(item => item.schedule_id === schedule.schedule_id)
-
-      if (target) {
-        const newDisabledScheduleIdList = disabledScheduleIdList.filter(item => item.schedule_id !== target.schedule_id)
-        setDisabledScheduleIdList(newDisabledScheduleIdList)
-      }
-    },
-    [disabledScheduleIdList]
   )
 
   const cancelScheduleDeleted = useCallback(
@@ -117,14 +96,9 @@ const OverlapScheduleListBottomSheet = ({setScheduleMutate}: Props) => {
         list.map(item => {
           const params = {schedule_id: item.schedule_id}
           const isDeleted = deletedScheduleIdList.some(sItem => sItem.schedule_id === item.schedule_id)
-          const isDisabled = disabledScheduleIdList.some(sItem => sItem.schedule_id === item.schedule_id)
 
           if (isDeleted) {
-            // deleted
             return scheduleRepository.updateScheduleDeleted(params)
-          } else if (isDisabled) {
-            // disabled
-            return scheduleRepository.updateScheduleDisable(params)
           }
         })
       )
@@ -151,49 +125,42 @@ const OverlapScheduleListBottomSheet = ({setScheduleMutate}: Props) => {
     return <BottomSheetBackdrop props={props} />
   }, [])
 
-  const bottomSheetHandler = useCallback((props: BottomSheetHandleProps) => {
-    return (
-      <BottomSheetHandler
-        shadow={false}
-        maxSnapIndex={1}
-        animatedIndex={props.animatedIndex}
-        animatedPosition={props.animatedPosition}
-      />
-    )
-  }, [])
+  const bottomSheetHandler = useCallback(
+    (props: BottomSheetHandleProps) => {
+      return (
+        <BottomSheetHandler
+          shadow={false}
+          maxSnapIndex={1}
+          backgroundColor={activeTheme.color5}
+          animatedIndex={props.animatedIndex}
+          animatedPosition={props.animatedPosition}
+        />
+      )
+    },
+    [activeTheme.color1]
+  )
 
   const header = useCallback(() => {
     return (
-      <View style={headerStyles.container}>
-        <Text style={headerStyles.titleText}>겹치는 일정이 있어요</Text>
+      <View style={[headerStyles.container, {backgroundColor: activeTheme.color5}]}>
+        <Text style={[headerStyles.titleText, {color: activeTheme.color3}]}>겹치는 일정이 있어요</Text>
         <Text style={headerStyles.subTitleText}>겹치는 일정들을 어떻게 할지 확인해 주세요</Text>
       </View>
     )
-  }, [])
+  }, [activeTheme.color3, activeTheme.color5])
 
-  type RenderItem = {item: ExistSchedule}
-  const renderItem = useCallback(
-    ({item}: RenderItem) => {
+  const renderItem: ListRenderItem<ExistSchedule> = useCallback(
+    ({item}) => {
       return (
         <OverlapSchedule
           schedule={item}
-          disabledScheduleIdList={disabledScheduleIdList}
-          deletedScheduleIdList={deletedScheduleIdList}
-          onDisabled={disabledSchedule}
+          activeTheme={activeTheme}
           onDelete={deleteSchedule}
-          onCancelDisabled={cancelScheduleDisabled}
           onCancelDeleted={cancelScheduleDeleted}
         />
       )
     },
-    [
-      deletedScheduleIdList,
-      disabledScheduleIdList,
-      disabledSchedule,
-      deleteSchedule,
-      cancelScheduleDisabled,
-      cancelScheduleDeleted
-    ]
+    [activeTheme, deleteSchedule, cancelScheduleDeleted]
   )
 
   useEffect(() => {
@@ -208,7 +175,7 @@ const OverlapScheduleListBottomSheet = ({setScheduleMutate}: Props) => {
     <BottomSheetModal
       name="editScheduleCheck"
       ref={editScheduleCheckBottomSheet}
-      backgroundStyle={styles.background}
+      backgroundStyle={{backgroundColor: activeTheme.color2}}
       backdropComponent={bottomSheetBackdrop}
       handleComponent={bottomSheetHandler}
       index={0}
@@ -230,15 +197,8 @@ const OverlapScheduleListBottomSheet = ({setScheduleMutate}: Props) => {
   )
 }
 
-const styles = StyleSheet.create({
-  background: {
-    backgroundColor: '#f5f6f8' // #ebf0f3
-  }
-})
-
 const headerStyles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
     paddingHorizontal: 16,
     paddingTop: 15,
     paddingBottom: 20

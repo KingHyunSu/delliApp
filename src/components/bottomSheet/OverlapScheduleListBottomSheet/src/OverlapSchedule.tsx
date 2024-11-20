@@ -1,100 +1,78 @@
-import {useMemo, useCallback} from 'react'
-import {StyleSheet, Text, View, Pressable} from 'react-native'
+import {useMemo, useCallback, useState} from 'react'
+import {Platform, StyleSheet, Text, View, Pressable} from 'react-native'
 import ScheduleItem from '@/components/ScheduleItem'
-import DeleteIcon from '@/assets/icons/trash.svg'
-import OverlapIcon from '@/assets/icons/overlap.svg'
-import {UpdateScheduleDeleted, UpdateScheduleDisable} from '@/apis/local/types/schedule'
+import {trigger} from 'react-native-haptic-feedback'
 
+type ButtonType = 'OVERLAP' | 'DELETE'
 interface Props {
   schedule: ExistSchedule
-  disabledScheduleIdList: UpdateScheduleDisable[]
-  deletedScheduleIdList: UpdateScheduleDeleted[]
+  activeTheme: ActiveTheme
   onDelete: (schedule: ExistSchedule) => void
-  onDisabled: (schedule: ExistSchedule) => void
   onCancelDeleted: (schedule: ExistSchedule) => void
-  onCancelDisabled: (schedule: ExistSchedule) => void
 }
 
-const OverlapSchedule = ({
-  schedule,
-  disabledScheduleIdList,
-  deletedScheduleIdList,
-  onDelete,
-  onDisabled,
-  onCancelDeleted,
-  onCancelDisabled
-}: Props) => {
-  const isDisabled = useMemo(() => {
-    return disabledScheduleIdList.findIndex(sItem => sItem.schedule_id === schedule.schedule_id) !== -1
-  }, [schedule.schedule_id, disabledScheduleIdList])
+const OverlapSchedule = ({schedule, activeTheme, onDelete, onCancelDeleted}: Props) => {
+  const [activeButtonType, setActiveButtonType] = useState<ButtonType>('OVERLAP')
 
-  const isDeleted = useMemo(() => {
-    return deletedScheduleIdList.findIndex(sItem => sItem.schedule_id === schedule.schedule_id) !== -1
-  }, [schedule.schedule_id, deletedScheduleIdList])
+  const getButtonStyle = useCallback(
+    (type: ButtonType) => {
+      const backgroundColor = activeButtonType === type ? activeTheme.color5 : activeTheme.color2
 
-  const handleDisabled = useCallback(() => {
-    if (isDeleted) {
-      onCancelDeleted(schedule)
+      return [styles.button, {backgroundColor}]
+    },
+    [activeButtonType, activeTheme.color2, activeTheme.color5]
+  )
+
+  const getButtonTextStyle = useCallback(
+    (type: ButtonType) => {
+      const fontFamily = activeButtonType === type ? 'Pretendard-SemiBold' : 'Pretendard-Regular'
+
+      return [styles.buttonText, {color: activeTheme.color3, fontFamily}]
+    },
+    [activeButtonType, activeTheme.color3]
+  )
+
+  const descText = useMemo(() => {
+    switch (activeButtonType) {
+      case 'OVERLAP':
+        return '생활계획표에 일정이 겹쳐서 보여요'
+      case 'DELETE':
+        return '일정이 바로 삭제돼요'
+      default:
+        return ''
     }
-    if (isDisabled) {
-      onCancelDisabled(schedule)
-    } else {
-      onDisabled(schedule)
-    }
-  }, [isDisabled, isDeleted, onDisabled, onCancelDisabled, onCancelDeleted, schedule])
+  }, [activeButtonType])
 
-  const handleDeleted = useCallback(() => {
-    if (isDisabled) {
-      onCancelDisabled(schedule)
-    }
+  const changeButtonType = useCallback(
+    (type: ButtonType) => () => {
+      if (type === activeButtonType) {
+        return
+      }
 
-    if (isDeleted) {
-      onCancelDeleted(schedule)
-    } else {
-      onDelete(schedule)
-    }
-  }, [isDisabled, isDeleted, onDelete, onCancelDisabled, onCancelDeleted, schedule])
+      const triggerType = Platform.OS === 'android' ? 'effectClick' : 'impactMedium'
 
-  // components
-  const StateBox = useMemo(() => {
-    if (isDeleted) {
-      return (
-        <View style={styles.infoWrapper}>
-          <View style={deleteInfoIconWrapper}>
-            <DeleteIcon width={12} height={12} fill="#fff" />
-          </View>
+      trigger(triggerType, {
+        enableVibrateFallback: true,
+        ignoreAndroidSystemSettings: false
+      })
 
-          <Text style={deleteInfoText}>삭제 예정</Text>
-        </View>
-      )
-    } else if (isDisabled) {
-      return (
-        <View style={styles.infoWrapper}>
-          <View style={disabledInfoIconWrapper}>
-            <View style={styles.disabledIcon} />
-          </View>
+      setActiveButtonType(type)
 
-          <Text style={disabledInfoText}>비활성화 예정</Text>
-        </View>
-      )
-    } else {
-      return (
-        <View style={styles.infoWrapper}>
-          <View style={overlapInfoIconWrapper}>
-            <OverlapIcon width={12} height={12} fill="#fff" />
-          </View>
-
-          <Text style={overlapInfoText}>겹쳐질 예정</Text>
-        </View>
-      )
-    }
-  }, [isDeleted, isDisabled])
+      if (type === 'OVERLAP') {
+        onCancelDeleted(schedule)
+      } else if (type === 'DELETE') {
+        onDelete(schedule)
+      }
+    },
+    [activeButtonType, onDelete, onCancelDeleted]
+  )
 
   return (
-    <View style={styles.container}>
-      {StateBox}
+    <View style={[styles.container, {backgroundColor: activeTheme.color5}]}>
+      <Text style={[styles.descText, {color: activeTheme.color3}]}>{descText}</Text>
 
       <ScheduleItem
+        activeTheme={activeTheme}
         title={schedule.title}
         time={{startTime: schedule.start_time, endTime: schedule.end_time}}
         date={{startDate: schedule.start_date, endDate: schedule.end_date}}
@@ -109,13 +87,12 @@ const OverlapSchedule = ({
         }}
       />
 
-      <View style={styles.buttonContainer}>
-        <Pressable style={disabledButton} onPress={handleDisabled}>
-          <Text style={disabledButtonText}>{isDisabled ? '비활성화 취소' : '비활성화'}</Text>
+      <View style={[styles.buttonContainer, {backgroundColor: activeTheme.color2}]}>
+        <Pressable style={getButtonStyle('OVERLAP')} onPress={changeButtonType('OVERLAP')}>
+          <Text style={getButtonTextStyle('OVERLAP')}>겹치기</Text>
         </Pressable>
-
-        <Pressable style={deleteButton} onPress={handleDeleted}>
-          <Text style={deleteButtonText}>{isDeleted ? '삭제 취소' : '삭제'}</Text>
+        <Pressable style={getButtonStyle('DELETE')} onPress={changeButtonType('DELETE')}>
+          <Text style={getButtonTextStyle('DELETE')}>삭제하기</Text>
         </Pressable>
       </View>
     </View>
@@ -125,59 +102,33 @@ const OverlapSchedule = ({
 const styles = StyleSheet.create({
   container: {
     marginTop: 10,
+    paddingTop: 20,
+    paddingBottom: 15,
     paddingHorizontal: 16,
-    paddingVertical: 20,
-    gap: 15,
-    backgroundColor: '#fff'
+    gap: 15
   },
-  infoWrapper: {
-    flexDirection: 'row',
-    gap: 5,
-    alignItems: 'center'
-  },
-  infoIcon: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  disabledIcon: {
-    width: 8,
-    height: 2,
-    backgroundColor: '#fff'
-  },
-  infoText: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 14
+  descText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 14,
+    marginBottom: 5
   },
 
   buttonContainer: {
     flexDirection: 'row',
-    gap: 10
+    borderRadius: 10,
+    padding: 5
   },
   button: {
     flex: 1,
     height: 48,
-    borderRadius: 10,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    borderRadius: 10
   },
   buttonText: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 14
   }
 })
-const disabledButton = StyleSheet.compose(styles.button, {backgroundColor: '#9aa0a430'})
-const disabledButtonText = StyleSheet.compose(styles.buttonText, {color: '#8d9195'})
-const deleteButton = StyleSheet.compose(styles.button, {backgroundColor: '#f12d2220'})
-const deleteButtonText = StyleSheet.compose(styles.buttonText, {color: '#f12d22'})
-
-const overlapInfoIconWrapper = StyleSheet.compose(styles.infoIcon, {backgroundColor: '#424242'})
-const overlapInfoText = StyleSheet.compose(styles.infoText, {color: '#424242'})
-const disabledInfoIconWrapper = StyleSheet.compose(styles.infoIcon, {backgroundColor: '#9aa0a4'})
-const disabledInfoText = StyleSheet.compose(styles.infoText, {color: '#9aa0a4'})
-const deleteInfoIconWrapper = StyleSheet.compose(styles.infoIcon, {backgroundColor: '#f12d22'})
-const deleteInfoText = StyleSheet.compose(styles.infoText, {color: '#f12d22'})
 
 export default OverlapSchedule
