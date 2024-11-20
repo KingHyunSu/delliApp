@@ -105,7 +105,7 @@ const DatePicker = forwardRef<Refs, Props>((props, ref) => {
         }
       }
     },
-    []
+    [onChange]
   )
 
   const renderItem = useCallback(

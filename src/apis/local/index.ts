@@ -4,7 +4,6 @@ import * as scheduleRepository from './modules/schedule'
 import * as statsRepository from './modules/stats'
 import * as routineRepository from './modules/routine'
 import * as todoRepository from './modules/todo'
-import * as todoCompleteRepository from './modules/todoComplete'
 import * as colorRepository from './modules/color'
 import * as productRepository from './modules/product'
 
@@ -14,7 +13,6 @@ export {
   statsRepository,
   routineRepository,
   todoRepository,
-  todoCompleteRepository,
   colorRepository,
   productRepository
 }

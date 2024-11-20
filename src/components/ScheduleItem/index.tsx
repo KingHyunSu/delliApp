@@ -50,9 +50,13 @@ const ScheduleItem = ({
 }: Props) => {
   const scheduleCategoryList = useRecoilValue(scheduleCategoryListState)
 
-  const containerStyle = useMemo(() => {
-    return [styles.container, {backgroundColor: activeTheme.color6}]
-  }, [activeTheme.color6])
+  const backgroundColor = useMemo(() => {
+    return activeTheme ? activeTheme.color6 : '#f5f6f8'
+  }, [activeTheme])
+
+  const textColor = useMemo(() => {
+    return activeTheme ? activeTheme.color3 : '#424242'
+  }, [activeTheme])
 
   const scheduleCategoryTitle = useMemo(() => {
     const target = scheduleCategoryList.find(scheduleCategory => {
@@ -73,16 +77,16 @@ const ScheduleItem = ({
   }, [])
 
   return (
-    <View style={containerStyle}>
+    <View style={[styles.container, {backgroundColor}]}>
       {headerComponent}
 
-      <Text style={[styles.titleText, {color: activeTheme.color3}]}>{title}</Text>
+      <Text style={[styles.titleText, {color: textColor}]}>{title}</Text>
 
       <View style={styles.infoWrapper}>
         {categoryId !== undefined && (
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/folder.png')} style={styles.icon} />
-            <Text style={[styles.contentsText, {color: activeTheme.color3}]}>{scheduleCategoryTitle}</Text>
+            <Text style={[styles.contentsText, {color: textColor}]}>{scheduleCategoryTitle}</Text>
           </View>
         )}
 
@@ -90,16 +94,16 @@ const ScheduleItem = ({
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/time.png')} style={styles.icon} />
 
-            <Text style={[styles.contentsText, {color: activeTheme.color3}]}>{`${getTimeText(
-              time.startTime
-            )} ~ ${getTimeText(time.endTime)}`}</Text>
+            <Text style={[styles.contentsText, {color: textColor}]}>{`${getTimeText(time.startTime)} ~ ${getTimeText(
+              time.endTime
+            )}`}</Text>
           </View>
         )}
 
         {date !== undefined && (
           <View style={styles.infoIconRow}>
             <Image source={require('@/assets/icons/calendar.png')} style={styles.icon} />
-            <Text style={[styles.contentsText, {color: activeTheme.color3}]}>
+            <Text style={[styles.contentsText, {color: textColor}]}>
               {`${date.startDate} ~ ${date.endDate === '9999-12-31' ? '없음' : date.endDate}`}
             </Text>
           </View>
