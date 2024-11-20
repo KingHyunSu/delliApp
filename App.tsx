@@ -173,8 +173,12 @@ function App(): JSX.Element {
   }, [statusBarColor])
 
   const statusBarContentStyle = React.useMemo(() => {
+    if (statusBarColor === '#f5f6f8') {
+      return 'dark-content'
+    }
+
     return activeTheme.display_mode === 0 ? 'dark-content' : 'light-content'
-  }, [activeTheme.display_mode])
+  }, [statusBarColor, activeTheme.display_mode])
 
   const containerStyle = React.useMemo(() => {
     return {flex: 1, backgroundColor: bottomSafeAreaColor}
@@ -187,7 +191,7 @@ function App(): JSX.Element {
     let _bottomSafeAreaColor: string | null = activeTheme.color5
 
     switch (route?.name) {
-      case 'Stats':
+      // case 'Stats':
       case 'StoreList':
         _statusBarColor = '#f5f6f8'
         break
@@ -195,12 +199,16 @@ function App(): JSX.Element {
         _statusBarColor = '#f5f6f8'
         _bottomSafeAreaColor = '#f5f6f8'
         break
-      // case 'EditSchedule':
-      case 'EditGoal':
       case 'EditRoutine':
-        // 화면의 useEffect 보다 늦게 실행됨...
-        _bottomSafeAreaColor = null
+      case 'EditTodo':
+        _bottomSafeAreaColor = activeTheme.color1
         break
+      // case 'EditSchedule':
+      // case 'EditGoal':
+      // case 'EditRoutine':
+      //   // 화면의 useEffect 보다 늦게 실행됨...
+      //   _bottomSafeAreaColor = null
+      //   break
     }
 
     setStatusBarColor(_statusBarColor)
