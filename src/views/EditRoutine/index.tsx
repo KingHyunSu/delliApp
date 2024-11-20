@@ -185,10 +185,10 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
 
   return (
     <View style={[styles.container, {backgroundColor: activeTheme.color1}]}>
-      <AppBar backPress>
+      <AppBar backPress color="transparent" backPressIconColor={activeTheme.color7}>
         {isUpdate && (
           <Pressable style={styles.deleteButton} onPress={handleDelete}>
-            <DeleteIcon width={24} height={24} fill={activeTheme.color8} />
+            <DeleteIcon width={24} height={24} fill={activeTheme.color7} />
           </Pressable>
         )}
       </AppBar>
@@ -196,15 +196,17 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
       <ScrollView contentContainerStyle={styles.listContainer} bounces={false} showsVerticalScrollIndicator={false}>
         {targetSchedule && (
           <View style={styles.labelWrapper}>
-            <Text style={styles.label}>{targetSchedule.title} </Text>
-            <Text style={styles.subLabel}>{isUpdate ? '일정의 루틴' : '일정에 루틴 추가하기'}</Text>
+            <Text style={[styles.label, {color: activeTheme.color3}]}>{targetSchedule.title} </Text>
+            <Text style={[styles.subLabel, {color: activeTheme.color3}]}>
+              {isUpdate ? '일정의 루틴' : '일정에 루틴 추가하기'}
+            </Text>
           </View>
         )}
 
         <TextInput
           value={editRoutineForm.title}
           autoFocus={!route.params.routineId}
-          style={[styles.title, {color: activeTheme.color3}]}
+          style={[styles.title, {color: activeTheme.color3, borderBottomColor: activeTheme.color2}]}
           placeholder="새로운 루틴"
           placeholderTextColor="#c3c5cc"
           keyboardAppearance={keyboardAppearance}
@@ -216,6 +218,7 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
             <CompleteCalendar
               value={currentDate}
               id={editRoutineForm.routine_id}
+              activeTheme={activeTheme}
               openYearMonthPickerModal={() => setShowYearMonthPickerModal(true)}
             />
           </View>
@@ -261,8 +264,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: 'Pretendard-SemiBold',
     paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eeeded'
+    borderBottomWidth: 2
   },
 
   completeCalendarWrapper: {

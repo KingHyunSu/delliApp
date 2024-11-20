@@ -5,11 +5,12 @@ import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 
 interface Props {
   title?: string
-  color?: string
   backPress?: boolean
+  color?: string
+  backPressIconColor?: string
   children?: ReactNode
 }
-const AppBar = ({title, color, backPress = false, children}: Props) => {
+const AppBar = ({title, color, backPress = false, backPressIconColor = '#424242', children}: Props) => {
   const containerStyle = useMemo(() => {
     const backgroundColor = color ? color : '#ffffff'
 
@@ -24,7 +25,7 @@ const AppBar = ({title, color, backPress = false, children}: Props) => {
     <View style={containerStyle}>
       {backPress && (
         <Pressable style={styles.backButton} onPress={goBack}>
-          <ArrowLeftIcon stroke="#424242" strokeWidth={3} />
+          <ArrowLeftIcon width={28} height={28} stroke={backPressIconColor} strokeWidth={3} />
         </Pressable>
       )}
 

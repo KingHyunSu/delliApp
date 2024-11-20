@@ -10,9 +10,10 @@ import {useGetRoutineCompleteList} from '@/apis/hooks/useRoutine'
 interface Props {
   value: Date
   id: number | null
+  activeTheme: ActiveTheme
   openYearMonthPickerModal: () => void
 }
-const CompleteCalendar = ({value, id, openYearMonthPickerModal}: Props) => {
+const CompleteCalendar = ({value, id, activeTheme, openYearMonthPickerModal}: Props) => {
   const {mutateAsync: getRoutineCompleteListMutateAsync} = useGetRoutineCompleteList()
 
   const [completeDateList, setCompleteDateList] = useState<RoutineComplete[]>([])
@@ -75,10 +76,14 @@ const CompleteCalendar = ({value, id, openYearMonthPickerModal}: Props) => {
       }
 
       return (
-        <View style={[styles.dayContainer, index % 6 === 0 && {borderRightWidth: 1}]}>
+        <View
+          style={[
+            styles.dayContainer,
+            {borderRightWidth: (index + 1) % 7 === 0 ? 1 : 0, borderColor: activeTheme.color6}
+          ]}>
           {item && (
             <>
-              <Text style={styles.dayText}>{format(item, 'd')}</Text>
+              <Text style={[styles.dayText, {color: activeTheme.color3}]}>{format(item, 'd')}</Text>
               <View style={[styles.dayContent, {padding: contentPadding}]}>
                 {isComplete && <CheckIcon width="100%" height="100%" stroke="#FFD54F" strokeWidth={3} />}
               </View>
@@ -87,21 +92,23 @@ const CompleteCalendar = ({value, id, openYearMonthPickerModal}: Props) => {
         </View>
       )
     },
-    [completeDateList, contentPadding]
+    [activeTheme.color3, activeTheme.color6, completeDateList, contentPadding]
   )
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, {backgroundColor: activeTheme.color1}]}>
       <Pressable style={styles.navButton} onPress={openYearMonthPickerModal}>
-        <Text style={styles.monthText}>{format(value, 'yyyy년 MM월')}</Text>
+        <Text style={[styles.monthText, {color: activeTheme.color3}]}>{format(value, 'yyyy년 MM월')}</Text>
 
-        <ArrowDownIcon stroke={'#000'} />
+        <ArrowDownIcon stroke={activeTheme.color3} />
       </Pressable>
 
       {/* weekday */}
       <View style={styles.weekdays}>
         {['일', '월', '화', '수', '목', '금', '토'].map(day => (
-          <Text key={day} style={styles.weekdayText}>
+          <Text
+            key={day}
+            style={[styles.weekdayText, {color: activeTheme.color3, backgroundColor: activeTheme.color6}]}>
             {day}
           </Text>
         ))}
@@ -121,8 +128,7 @@ const CompleteCalendar = ({value, id, openYearMonthPickerModal}: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff'
+    flex: 1
   },
   navButton: {
     flexDirection: 'row',
@@ -143,25 +149,21 @@ const styles = StyleSheet.create({
   },
   weekdayText: {
     flex: 1,
-    fontFamily: 'Pretendard-Medium',
+    fontFamily: 'Pretendard-Regular',
     fontSize: 14,
-    color: '#666',
     textAlign: 'center',
-    paddingVertical: 10,
-    backgroundColor: '#f5f6f8'
+    paddingVertical: 10
   },
   dayContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     borderLeftWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#f5f6f8'
+    borderBottomWidth: 1
   },
   dayText: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 12,
-    color: '#000',
     paddingTop: 10
   },
   dayContent: {
