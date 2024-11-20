@@ -1,5 +1,5 @@
 import {useState, useMemo, useCallback, useEffect} from 'react'
-import {Pressable, StyleSheet, Text, TextInput, View} from 'react-native'
+import {Keyboard, Pressable, StyleSheet, Text, TextInput, View} from 'react-native'
 import AppBar from '@/components/AppBar'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
@@ -144,6 +144,10 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
     })
   }, [alert, editTodoForm.todo_id, deleteTodoMutate])
 
+  const closeKeyboard = useCallback(() => {
+    Keyboard.dismiss()
+  }, [])
+
   useEffect(() => {
     if (isSuccessDeleteTodo) {
       const newScheduleList = scheduleList.map(scheduleItem => {
@@ -184,11 +188,11 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
   }, [route.params.scheduleId, route.params.todoId, getTodoDetailMutateAsync])
 
   return (
-    <View style={[styles.container, {backgroundColor: activeTheme.color1}]}>
-      <AppBar backPress>
+    <Pressable style={[styles.container, {backgroundColor: activeTheme.color1}]} onPress={closeKeyboard}>
+      <AppBar backPress color="transparent" backPressIconColor={activeTheme.color7}>
         {isUpdate && (
           <Pressable style={styles.deleteButton} onPress={handleDelete}>
-            <DeleteIcon width={24} height={24} fill={activeTheme.color8} />
+            <DeleteIcon width={24} height={24} fill={activeTheme.color7} />
           </Pressable>
         )}
       </AppBar>
@@ -196,15 +200,17 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
       <View style={styles.wrapper}>
         {targetSchedule && (
           <View style={styles.labelWrapper}>
-            <Text style={styles.label}>{targetSchedule.title} </Text>
-            <Text style={styles.subLabel}>{isUpdate ? '일정의 할 일' : '일정에 할 일 추가하기'}</Text>
+            <Text style={[styles.label, {color: activeTheme.color3}]}>{targetSchedule.title} </Text>
+            <Text style={[styles.subLabel, {color: activeTheme.color3}]}>
+              {isUpdate ? '일정의 할 일' : '일정에 할 일 추가하기'}
+            </Text>
           </View>
         )}
 
         <TextInput
           value={editTodoForm.title}
           autoFocus
-          style={[styles.title, {color: activeTheme.color3}]}
+          style={[styles.title, {color: activeTheme.color3, borderBottomColor: activeTheme.color2}]}
           placeholder="새로운 할 일"
           placeholderTextColor="#c3c5cc"
           keyboardAppearance={keyboardAppearance}
@@ -215,7 +221,7 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
       <Pressable style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>{isUpdate ? '수정하기' : '추가하기'}</Text>
       </Pressable>
-    </View>
+    </Pressable>
   )
 }
 
