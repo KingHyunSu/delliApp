@@ -61,7 +61,7 @@ import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
 import initDatabase from '@/apis/local/utils/init'
 import {focusModeInfoState} from '@/store/schedule'
 
-import {useGetUser} from '@/apis/hooks/useUser'
+import {useGetUser, useAccess} from '@/apis/hooks/useUser'
 import {useGetActiveTheme} from '@/apis/hooks/useProduct'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
@@ -135,6 +135,7 @@ const linking: LinkingOptions<BottomTabNavigator> = {
 
 function App(): JSX.Element {
   const {mutateAsync: getUserMutateAsync} = useGetUser()
+  const {mutateAsync: accessMutateAsync} = useAccess()
   const {mutateAsync: getActiveThemeMutateAsync} = useGetActiveTheme()
 
   const windowDimensions = useWindowDimensions()
@@ -196,6 +197,7 @@ function App(): JSX.Element {
         _statusBarColor = '#f5f6f8'
         break
       case 'ThemeDetail':
+      case 'MyThemeList':
         _statusBarColor = '#f5f6f8'
         _bottomSafeAreaColor = '#f5f6f8'
         break
@@ -268,6 +270,12 @@ function App(): JSX.Element {
       const isInitDatabase = await initDatabase()
 
       const user = await getUserMutateAsync()
+
+      const accessResponse = await accessMutateAsync({id: user.user_id})
+
+      if (accessResponse && accessResponse.token) {
+        await AsyncStorage.setItem('token', accessResponse.token)
+      }
 
       const activeThemeId = user.active_theme_id || 1
       const themeDetail = await getActiveThemeMutateAsync(activeThemeId)

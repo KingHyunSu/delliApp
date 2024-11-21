@@ -1,4 +1,4 @@
 declare interface User {
-  user_id: number
+  user_id: string
   active_theme_id: number
 }
