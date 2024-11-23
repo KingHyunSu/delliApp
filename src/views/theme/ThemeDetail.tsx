@@ -104,6 +104,7 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
 
           const interval = setInterval(() => {
             simulatedProgress += 5
+
             if (simulatedProgress >= 100) {
               queryClient.invalidateQueries({queryKey: ['downloadThemeList']})
               setProgress(null) // 다운로드 완료 후 진행률 숨김
@@ -133,6 +134,7 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
       const response = await setMyThemeMutateAsync({theme_id: detail.theme_id})
 
       if (response.result) {
+        queryClient.setQueryData(['themeDetail', route.params.id], {...detail, purchased: true})
         handleDownload()
       }
     }
