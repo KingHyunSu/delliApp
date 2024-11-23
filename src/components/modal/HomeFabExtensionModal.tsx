@@ -74,12 +74,23 @@ const HomeFabExtensionModal = ({visible, translateY, moveMyThemeList, moveEditSc
 
   useEffect(() => {
     if (visible) {
-      overlayOpacity.value = withTiming(0.8)
+      overlayOpacity.value = withTiming(0.8, {duration: 200})
       rotate.value = withTiming(45, {duration: 200})
       fabOffset1.value = withTiming(-67, {duration: 200})
       fabOffset2.value = withTiming(-134, {duration: 200})
       fabOpacity1.value = withTiming(1, {duration: 200})
       fabOpacity2.value = withTiming(1, {duration: 200})
+    }
+
+    return () => {
+      if (visible) {
+        overlayOpacity.value = 0
+        rotate.value = 0
+        fabOffset1.value = 0
+        fabOffset2.value = 0
+        fabOpacity1.value = 0
+        fabOpacity2.value = 0
+      }
     }
   }, [visible])
 
