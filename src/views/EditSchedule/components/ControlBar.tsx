@@ -82,6 +82,10 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
     return [styles.submitButtonText, {color}]
   }, [displayMode, isActiveSubmit])
 
+  const fontSize = useMemo(() => {
+    return schedule.font_size || 16
+  }, [schedule.font_size])
+
   const changeActiveControlMode = useCallback(
     (controlMode: ControlMode) => () => {
       if (activeControlMode && activeControlMode === controlMode) {
@@ -124,7 +128,7 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
           <View style={[controlViewStyles.wrapper, {backgroundColor: displayMode === 'light' ? '#efefef' : '#0F0F0F'}]}>
             <Slider
               style={{flex: 1}}
-              value={schedule.font_size}
+              value={fontSize}
               step={2}
               minimumValue={10}
               maximumValue={32}
@@ -134,7 +138,7 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
             />
 
             <Text style={[controlViewStyles.text, {color: displayMode === 'light' ? '#424242' : '#eeeeee'}]}>
-              {schedule.font_size}
+              {fontSize}
             </Text>
           </View>
         </Shadow>
@@ -149,7 +153,7 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
           <ScrollView contentContainerStyle={styles.scrollContainer} horizontal={true}>
             <Pressable style={styles.button} onPress={changeActiveControlMode('fontSize')}>
               <View style={styles.buttonIconWrapper}>
-                <Text style={fontSizeButtonIconStyle}>{schedule.font_size}</Text>
+                <Text style={fontSizeButtonIconStyle}>{fontSize}</Text>
               </View>
 
               <Text style={getButtonTextStyle(activeControlMode === 'fontSize')}>글자 크기</Text>
