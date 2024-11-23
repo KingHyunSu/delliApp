@@ -1,21 +1,21 @@
 import {openDatabase} from '../utils/helper'
 import * as productQueries from '../queries/product'
-import {GetThemeRequest, SetThemeRequest} from '@/apis/local/types/product'
+import {GetActiveThemeRequest, GetActiveThemeResponse, SetThemeRequest} from '@/apis/types/product'
 
 export const getDownloadThemeList = async () => {
   const query = productQueries.getDownloadThemeListQuery()
   const db = await openDatabase()
   const [result] = await db.executeSql(query)
 
-  return result.rows.raw() as ActiveTheme[]
+  return result.rows.raw() as GetActiveThemeResponse[]
 }
 
-export const getActiveTheme = async (params: GetThemeRequest) => {
+export const getActiveTheme = async (params: GetActiveThemeRequest) => {
   const query = productQueries.getActiveThemeQuery()
   const db = await openDatabase()
   const [result] = await db.executeSql(query, [params.theme_id])
 
-  return result.rows.item(0) as ActiveTheme
+  return result.rows.item(0) as GetActiveThemeResponse
 }
 
 export const setDefaultTheme = async () => {

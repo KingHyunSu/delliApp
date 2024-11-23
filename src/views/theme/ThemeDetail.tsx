@@ -8,7 +8,13 @@ import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {activeThemeState, windowDimensionsState} from '@/store/system'
-import {useGetActiveTheme, useGetDownloadThemeList, useGetThemeDetail, useSetTheme} from '@/apis/hooks/useProduct'
+import {
+  useGetActiveTheme,
+  useGetDownloadThemeList,
+  useGetThemeDetail,
+  useSetMyTheme,
+  useSetTheme
+} from '@/apis/hooks/useProduct'
 import {useUpdateTheme} from '@/apis/hooks/useUser'
 import {ThemeDetailScreenProps} from '@/types/navigation'
 import {useQueryClient} from '@tanstack/react-query'
@@ -18,6 +24,7 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
 
   const {data: downloadThemeList} = useGetDownloadThemeList()
   const {mutate: setThemeMutate} = useSetTheme()
+  const {mutateAsync: setMyThemeMutateAsync} = useSetMyTheme()
   const {mutateAsync: updateThemeMutateAsync} = useUpdateTheme()
   const {mutateAsync: getActiveThemeMutateAsync} = useGetActiveTheme()
 
@@ -27,6 +34,10 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
 
   const [activeTheme, setActiveTheme] = useRecoilState(activeThemeState)
   const windowDimensions = useRecoilValue(windowDimensionsState)
+
+  const isPurchased = useMemo(() => {
+    return detail?.purchased
+  }, [detail])
 
   const isUsed = useMemo(() => {
     return activeTheme.theme_id === detail?.theme_id
@@ -117,6 +128,16 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
       })
   }, [detail, setProgress])
 
+  const handleSetMyTheme = useCallback(async () => {
+    if (detail?.theme_id) {
+      const response = await setMyThemeMutateAsync({theme_id: detail.theme_id})
+
+      if (response.result) {
+        handleDownload()
+      }
+    }
+  }, [detail?.theme_id, handleDownload, setMyThemeMutateAsync])
+
   const handleApply = useCallback(async () => {
     if (!detail) {
       return
@@ -130,6 +151,26 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
   }, [detail, updateThemeMutateAsync, getActiveThemeMutateAsync, navigation, setActiveTheme])
 
   const buttonComponent = useMemo(() => {
+    if (!detail) {
+      return <></>
+    }
+
+    if (!isPurchased && detail.theme_id !== 1) {
+      if (detail.price_type === 1 && detail.price === 0) {
+        return (
+          <Pressable style={styles.button} onPress={handleSetMyTheme}>
+            <Text style={styles.buttonText}>받기</Text>
+          </Pressable>
+        )
+      }
+
+      return (
+        <Pressable style={styles.button}>
+          <Text style={styles.buttonText}>구입</Text>
+        </Pressable>
+      )
+    }
+
     if (isUsed) {
       return (
         <View style={disabledButtonStyle}>
@@ -151,7 +192,7 @@ const ThemeDetail = ({navigation, route}: ThemeDetailScreenProps) => {
     } else {
       return (
         <Pressable style={styles.button} onPress={handleDownload}>
-          <Text style={styles.buttonText}>다운로드</Text>
+          <Text style={styles.buttonText}>받기</Text>
         </Pressable>
       )
     }

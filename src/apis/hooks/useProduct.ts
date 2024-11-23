@@ -1,7 +1,7 @@
 import {useMutation, useQuery} from '@tanstack/react-query'
 import * as productApi from '@/apis/server/product'
 import {productRepository} from '../local'
-import {SetThemeRequest} from '@/apis/local/types/product'
+import {SetMyThemeRequest, SetThemeRequest} from '@/apis/types/product'
 
 export const useGetThemeList = () => {
   return useQuery({
@@ -9,7 +9,7 @@ export const useGetThemeList = () => {
     queryFn: async () => {
       const response = await productApi.getThemeList()
 
-      return response.data
+      return response.data as ThemeListItem[]
     },
     initialData: []
   })
@@ -21,7 +21,7 @@ export const useGetThemeDetail = (id: number) => {
     queryFn: async () => {
       const response = await productApi.getThemeDetail(id)
 
-      return response.data
+      return response.data as ThemeDetail
     },
     initialData: null
   })
@@ -31,7 +31,7 @@ export const useGetDownloadThemeList = () => {
   return useQuery({
     queryKey: ['downloadThemeList'],
     queryFn: () => {
-      return productRepository.getDownloadThemeList()
+      return productRepository.getDownloadThemeList() as Promise<ActiveTheme[]>
     },
     initialData: []
   })
@@ -39,16 +39,36 @@ export const useGetDownloadThemeList = () => {
 
 export const useGetActiveTheme = () => {
   return useMutation({
-    mutationFn: async (id: number) => {
-      return productRepository.getActiveTheme({theme_id: id})
+    mutationFn: (id: number) => {
+      return productRepository.getActiveTheme({theme_id: id}) as Promise<ActiveTheme>
     }
   })
 }
 
 export const useSetTheme = () => {
   return useMutation({
-    mutationFn: async (params: SetThemeRequest) => {
+    mutationFn: (params: SetThemeRequest) => {
       return productRepository.setTheme(params)
+    }
+  })
+}
+
+export const useSetMyTheme = () => {
+  return useMutation({
+    mutationFn: async (params: SetMyThemeRequest) => {
+      const response = await productApi.setMyTheme(params)
+
+      return response.data
+    }
+  })
+}
+
+export const useGetMyThemeList = () => {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await productApi.getMyThemeList()
+
+      return response.data as MyThemeListItem[]
     }
   })
 }
