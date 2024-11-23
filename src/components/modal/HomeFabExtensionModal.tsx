@@ -1,10 +1,10 @@
 import {useCallback, useEffect, useMemo} from 'react'
 import {StyleSheet, Modal, Pressable, Text} from 'react-native'
-import Animated, {useSharedValue, useAnimatedStyle, withTiming} from 'react-native-reanimated'
+import Animated, {useSharedValue, useAnimatedStyle, withTiming, runOnJS} from 'react-native-reanimated'
 
 import ThemeIcon from '@/assets/icons/theme.svg'
 import ScheduleIcon from '@/assets/icons/schedule.svg'
-import CancelIcon from '@/assets/icons/cancle.svg'
+import PlusIcon from '@/assets/icons/plus.svg'
 
 import {safeAreaInsetsState} from '@/store/system'
 import {useRecoilValue} from 'recoil'
@@ -19,8 +19,12 @@ interface Props {
 const HomeFabExtensionModal = ({visible, translateY, moveMyThemeList, moveEditSchedule, onClose}: Props) => {
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
-  const offset1 = useSharedValue(0)
-  const offset2 = useSharedValue(0)
+  const rotate = useSharedValue(0)
+  const fabOffset1 = useSharedValue(0)
+  const fabOffset2 = useSharedValue(0)
+  const fabOpacity1 = useSharedValue(0)
+  const fabOpacity2 = useSharedValue(0)
+  const overlayOpacity = useSharedValue(0)
 
   const bottom = useMemo(() => {
     const bottomTabHeight = 56
@@ -28,18 +32,34 @@ const HomeFabExtensionModal = ({visible, translateY, moveMyThemeList, moveEditSc
     return 70 + bottomTabHeight + safeAreaInsets.bottom + translateY * -1
   }, [translateY, safeAreaInsets.bottom])
 
+  const animatedStyle1 = useAnimatedStyle(() => ({
+    transform: [{rotate: `${rotate.value}deg`}]
+  }))
+
   const animatedStyle2 = useAnimatedStyle(() => ({
-    transform: [{translateY: offset1.value}]
+    opacity: fabOpacity1.value,
+    transform: [{translateY: fabOffset1.value}]
   }))
 
   const animatedStyle3 = useAnimatedStyle(() => ({
-    transform: [{translateY: offset2.value}]
+    opacity: fabOpacity2.value,
+    transform: [{translateY: fabOffset2.value}]
+  }))
+
+  const animatedOverlayStyle = useAnimatedStyle(() => ({
+    opacity: overlayOpacity.value
   }))
 
   const handleClose = useCallback(() => {
-    offset1.value = withTiming(0)
-    offset2.value = withTiming(0)
-    onClose()
+    rotate.value = withTiming(0, {duration: 150}, () => {
+      runOnJS(onClose)()
+    })
+
+    overlayOpacity.value = withTiming(0)
+    fabOffset1.value = withTiming(0)
+    fabOffset2.value = withTiming(0)
+    fabOpacity1.value = withTiming(0, {duration: 200})
+    fabOpacity2.value = withTiming(0, {duration: 200})
   }, [onClose])
 
   const handleMoveMyThemeList = useCallback(() => {
@@ -54,14 +74,18 @@ const HomeFabExtensionModal = ({visible, translateY, moveMyThemeList, moveEditSc
 
   useEffect(() => {
     if (visible) {
-      offset1.value = withTiming(-67, {duration: 200})
-      offset2.value = withTiming(-134, {duration: 200})
+      overlayOpacity.value = withTiming(0.8)
+      rotate.value = withTiming(45, {duration: 200})
+      fabOffset1.value = withTiming(-67, {duration: 200})
+      fabOffset2.value = withTiming(-134, {duration: 200})
+      fabOpacity1.value = withTiming(1, {duration: 200})
+      fabOpacity2.value = withTiming(1, {duration: 200})
     }
   }, [visible])
 
   return (
-    <Modal visible={visible} animationType="fade" transparent={true}>
-      <Pressable style={styles.overlay} />
+    <Modal visible={visible} transparent={true}>
+      <Animated.View style={[styles.overlay, animatedOverlayStyle]} />
 
       <Animated.View style={[styles.fabWrapper, animatedStyle3, {bottom}]}>
         <Text style={styles.fabText}>테마</Text>
@@ -79,9 +103,9 @@ const HomeFabExtensionModal = ({visible, translateY, moveMyThemeList, moveEditSc
         </Pressable>
       </Animated.View>
 
-      <Animated.View style={[styles.fabWrapper, {bottom}]}>
+      <Animated.View style={[styles.fabWrapper, animatedStyle1, {bottom}]}>
         <Pressable style={ButtonStyle} onPress={handleClose}>
-          <CancelIcon width={24} height={24} stroke="#ffffff" strokeWidth={2} />
+          <PlusIcon stroke="#ffffff" strokeWidth={3} />
         </Pressable>
       </Animated.View>
     </Modal>
@@ -95,8 +119,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#000000',
-    opacity: 0.8
+    backgroundColor: '#000000'
   },
   fabWrapper: {
     flexDirection: 'row',
