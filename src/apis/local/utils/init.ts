@@ -8,9 +8,9 @@ import {userRepository, productRepository} from '../index'
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {
     //     tx.executeSql(`
-    //           DROP TABLE THEME
-    // --         update USER set active_theme_id = 1
-    //         `)
+    // --                       DROP TABLE THEME
+    //                     update USER set active_theme_id = 1
+    //                     `)
 
     // user table
     tx.executeSql(`
@@ -89,6 +89,17 @@ const createTable = async (db: SQLiteDatabase) => {
         FOREIGN KEY("todo_id")
           REFERENCES TODO("todo_id")
           ON DELETE CASCADE
+      )
+    `)
+
+    // schedule todo table
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS "schedule_todo" (
+        "schedule_todo_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        "title"	TEXT NOT NULL,
+        "memo" TEXT,
+        "complete_date" TEXT,
+        "schedule_id"	INTEGER NOT NULL
       )
     `)
 

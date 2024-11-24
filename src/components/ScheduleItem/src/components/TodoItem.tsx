@@ -12,8 +12,8 @@ interface Props {
 }
 const TodoItem = ({value, activeTheme, moveEdit, onChange}: Props) => {
   const isCompleted = useMemo(() => {
-    return !!value.complete_id
-  }, [value.complete_id])
+    return !!value.complete_date
+  }, [value.complete_date])
 
   const checkButtonStyle = useMemo(() => {
     return isCompleted ? activeCheckButtonStyle : styles.checkButton

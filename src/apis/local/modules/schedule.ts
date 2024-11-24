@@ -5,7 +5,6 @@ import * as todoQueries from '../queries/todo'
 import {
   GetScheduleList,
   GetExistScheduleList,
-  SetSchedule,
   UpdateScheduleDisable,
   UpdateScheduleDeleted,
   SetScheduleCompleteParams,
@@ -15,10 +14,11 @@ import {
 } from '../types/schedule'
 import type {SearchSchedule} from '@/views/SearchSchedule'
 import {GetRoutineListByScheduleResponse} from '@/apis/types/routine'
+import {GetTodoListByScheduleIdResponse} from '@/apis/types/todo'
 
 export const getScheduleList = async (params: GetScheduleList) => {
   const getScheduleListQuery = scheduleQueries.getScheduleListQuery(params)
-  const getTodoByScheduleQuery = todoQueries.getTodoByScheduleQuery()
+  const getScheduleTodoByScheduleIdQuery = todoQueries.getScheduleTodoByScheduleIdQuery()
   const getRoutineListBySchedule = routineQueries.getRoutineListBySchedule()
   const db = await openDatabase()
 
@@ -34,12 +34,12 @@ export const getScheduleList = async (params: GetScheduleList) => {
 
           const promises = scheduleList.map(item => {
             return new Promise<Schedule>((resolve2, reject2) => {
-              let todoList: ScheduleTodo[] | null = null
+              let todoList: GetTodoListByScheduleIdResponse[] | null = null
               let routineList: GetRoutineListByScheduleResponse[] | null = null
 
               tx1.executeSql(
-                getTodoByScheduleQuery,
-                [params.date, item.schedule_id, params.date],
+                getScheduleTodoByScheduleIdQuery,
+                [item.schedule_id],
                 (tx2, result2) => {
                   todoList = result2.rows.raw()
 

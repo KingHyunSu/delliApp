@@ -3,21 +3,27 @@ import {Keyboard, Pressable, StyleSheet, Text, TextInput, View} from 'react-nati
 import AppBar from '@/components/AppBar'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {scheduleDateState, scheduleListState, scheduleState} from '@/store/schedule'
+import {scheduleListState, scheduleState} from '@/store/schedule'
 import {activeThemeState, alertState, keyboardAppearanceState} from '@/store/system'
-import {useGetTodoDetail, useSetTodo, useUpdateTodo, useDeleteTodo} from '@/apis/hooks/useTodo'
+import {
+  useGetScheduleTodoDetail,
+  useSetScheduleTodo,
+  useUpdateScheduleTodo,
+  useDeleteScheduleTodo
+} from '@/apis/hooks/useTodo'
 import {EditTodoScreenProps} from '@/types/navigation'
-import {format} from 'date-fns'
 
 const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
-  const {mutateAsync: getTodoDetailMutateAsync} = useGetTodoDetail()
-  const {mutateAsync: setTodoMutateAsync} = useSetTodo()
-  const {mutateAsync: updateTodoMutateAsync} = useUpdateTodo()
-  const {mutate: deleteTodoMutate, isSuccess: isSuccessDeleteTodo} = useDeleteTodo()
+  const {mutateAsync: getTodoDetailMutateAsync} = useGetScheduleTodoDetail()
+  const {mutateAsync: setTodoMutateAsync} = useSetScheduleTodo()
+  const {mutateAsync: updateTodoMutateAsync} = useUpdateScheduleTodo()
+  const {mutate: deleteTodoMutate, isSuccess: isSuccessDeleteTodo} = useDeleteScheduleTodo()
 
   const [editTodoForm, setEditTodoForm] = useState<EditTodoForm>({
-    todo_id: null,
+    schedule_todo_id: null,
     title: '',
+    memo: '',
+    complete_date: null,
     schedule_id: null
   })
 
@@ -25,13 +31,12 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
 
   const activeTheme = useRecoilValue(activeThemeState)
   const keyboardAppearance = useRecoilValue(keyboardAppearanceState)
-  const scheduleDate = useRecoilValue(scheduleDateState)
   const schedule = useRecoilValue(scheduleState)
   const alert = useSetRecoilState(alertState)
 
   const isUpdate = useMemo(() => {
-    return !!editTodoForm.todo_id
-  }, [editTodoForm.todo_id])
+    return !!editTodoForm.schedule_todo_id
+  }, [editTodoForm.schedule_todo_id])
 
   const targetSchedule = useMemo(() => {
     if (editTodoForm.schedule_id) {
@@ -57,14 +62,13 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
         if (item.schedule_id === targetSchedule?.schedule_id) {
           let newTodoList = [...item.todo_list]
 
-          const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.todo_id === newTodoId)
+          const updateTodoIndex = newTodoList.findIndex(todoItem => todoItem.schedule_todo_id === newTodoId)
 
           const newTodo: ScheduleTodo = {
-            todo_id: newTodoId!,
+            schedule_todo_id: newTodoId!,
             title: editTodoForm.title,
-            schedule_id: targetSchedule.schedule_id!,
-            complete_id: updateTodoIndex !== -1 ? newTodoList[updateTodoIndex].complete_id : null,
-            complete_date: updateTodoIndex !== -1 ? newTodoList[updateTodoIndex].complete_date : null
+            complete_date: updateTodoIndex !== -1 ? newTodoList[updateTodoIndex].complete_date : null,
+            schedule_id: targetSchedule.schedule_id!
           }
 
           if (updateTodoIndex === -1) {
@@ -88,22 +92,20 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
   const handleSubmit = useCallback(async () => {
     let resultId: number | null = null
 
-    if (editTodoForm.todo_id) {
+    if (editTodoForm.schedule_todo_id) {
       resultId = await updateTodoMutateAsync({
+        schedule_todo_id: editTodoForm.schedule_todo_id,
         title: editTodoForm.title,
-        todo_id: editTodoForm.todo_id
+        memo: editTodoForm.memo
       })
     } else {
       if (!targetSchedule?.schedule_id) {
         throw new Error('잘못된 일정')
       }
 
-      const createDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
-
       resultId = await setTodoMutateAsync({
         title: editTodoForm.title,
-        start_date: createDate,
-        end_date: createDate,
+        memo: editTodoForm.memo,
         schedule_id: targetSchedule.schedule_id
       })
     }
@@ -122,8 +124,9 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
     })
   }, [
     targetSchedule,
-    editTodoForm.todo_id,
+    editTodoForm.schedule_todo_id,
     editTodoForm.title,
+    editTodoForm.memo,
     updateTodoMutateAsync,
     setTodoMutateAsync,
     getNewScheduleList,
@@ -134,15 +137,15 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
   const handleDelete = useCallback(() => {
     alert({
       type: 'danger',
-      title: '루틴을 삭제할까요?',
+      title: '할 일을 삭제할까요?',
       confirmButtonText: '삭제하기',
       confirmFn: () => {
-        if (editTodoForm.todo_id) {
-          deleteTodoMutate(editTodoForm.todo_id)
+        if (editTodoForm.schedule_todo_id) {
+          deleteTodoMutate(editTodoForm.schedule_todo_id)
         }
       }
     })
-  }, [alert, editTodoForm.todo_id, deleteTodoMutate])
+  }, [alert, editTodoForm.schedule_todo_id, deleteTodoMutate])
 
   const closeKeyboard = useCallback(() => {
     Keyboard.dismiss()
@@ -152,7 +155,7 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
     if (isSuccessDeleteTodo) {
       const newScheduleList = scheduleList.map(scheduleItem => {
         const newTodoList = scheduleItem.todo_list.filter(todoItem => {
-          return todoItem.todo_id !== editTodoForm.todo_id
+          return todoItem.schedule_todo_id !== editTodoForm.schedule_todo_id
         })
 
         return {
@@ -168,7 +171,7 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
         params: {scheduleUpdated: false}
       })
     }
-  }, [isSuccessDeleteTodo, editTodoForm.todo_id, setScheduleList, navigation])
+  }, [isSuccessDeleteTodo, editTodoForm.schedule_todo_id, setScheduleList, navigation])
 
   useEffect(() => {
     const init = async () => {

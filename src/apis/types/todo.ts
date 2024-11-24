@@ -1,42 +1,39 @@
-export interface GetTodoListByScheduleResponse {
-  todo_id: number
+export interface GetTodoListByScheduleIdResponse {
+  schedule_todo_id: number
   title: string
-  complete_id: number | null
   complete_date: string | null
   schedule_id: number
 }
 
-export interface GetTodoDetailRequest {
-  todo_id: number
+export interface GetScheduleTodoDetailRequest {
+  schedule_todo_id: number
 }
 
-export interface GetTodoDetailResponse {
-  todo_id: number
+export interface GetScheduleTodoDetailResponse {
+  schedule_todo_id: number
   title: string
-  schedule_id: number
-}
-
-export interface SetTodoRequest {
-  title: string
-  start_date: string
-  end_date: string
-  schedule_id: number
-}
-
-export interface UpdateTodoRequest {
-  todo_id: number
-  title: string
-}
-
-export interface DeleteTodoRequest {
-  todo_id: number
-}
-
-export interface SetTodoCompleteRequest {
-  todo_id: number
+  memo: string
   complete_date: string
+  schedule_id: number
 }
 
-export interface DeleteTodoCompleteRequest {
-  complete_id: number
+export interface SetScheduleTodoRequest {
+  title: string
+  memo: string
+  schedule_id: number
+}
+
+export interface UpdateScheduleTodoRequest {
+  schedule_todo_id: number
+  title: string
+  memo: string
+}
+
+export interface DeleteScheduleTodoRequest {
+  schedule_todo_id: number
+}
+
+export interface UpdateScheduleTodoCompleteRequest {
+  schedule_todo_id: number
+  complete_date: string | null
 }

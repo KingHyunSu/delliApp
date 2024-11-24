@@ -1,59 +1,50 @@
 import {openDatabase} from '../utils/helper'
 import * as todoQueries from '../queries/todo'
 import {
-  SetTodoRequest,
-  UpdateTodoRequest,
-  DeleteTodoRequest,
-  GetTodoDetailRequest,
-  GetTodoDetailResponse,
-  SetTodoCompleteRequest,
-  DeleteTodoCompleteRequest
+  GetScheduleTodoDetailRequest,
+  GetScheduleTodoDetailResponse,
+  SetScheduleTodoRequest,
+  UpdateScheduleTodoRequest,
+  DeleteScheduleTodoRequest,
+  UpdateScheduleTodoCompleteRequest
 } from '@/apis/types/todo'
 
-export const getTodoDetail = async (params: GetTodoDetailRequest) => {
-  const query = todoQueries.getTodoDetailQuery()
+export const getScheduleTodoDetail = async (params: GetScheduleTodoDetailRequest) => {
+  const query = todoQueries.getScheduleTodoDetailQuery()
   const db = await openDatabase()
-  const [result] = await db.executeSql(query, [params.todo_id])
+  const [result] = await db.executeSql(query, [params.schedule_todo_id])
 
-  return result.rows.item(0) as GetTodoDetailResponse
+  return result.rows.item(0) as GetScheduleTodoDetailResponse
 }
 
-export const setTodo = async (params: SetTodoRequest) => {
-  const query = todoQueries.setTodoQuery()
+export const setScheduleTodo = async (params: SetScheduleTodoRequest) => {
+  const query = todoQueries.setScheduleTodoQuery()
   const db = await openDatabase()
-  const [result] = await db.executeSql(query, [params.title, params.start_date, params.end_date, params.schedule_id])
+  const [result] = await db.executeSql(query, [params.title, params.memo, params.schedule_id])
 
   return result.insertId
 }
 
-export const updateTodo = async (params: UpdateTodoRequest) => {
-  const query = todoQueries.updateTodoQuery()
+export const updateScheduleTodo = async (params: UpdateScheduleTodoRequest) => {
+  const query = todoQueries.updateScheduleTodoQuery()
   const db = await openDatabase()
-  await db.executeSql(query, [params.title, params.todo_id])
+  await db.executeSql(query, [params.title, params.memo, params.schedule_todo_id])
 
-  return params.todo_id
+  return params.schedule_todo_id
 }
 
-export const deleteTodo = async (params: DeleteTodoRequest) => {
-  const query = todoQueries.deleteTodoQuery()
+export const deleteScheduleTodo = async (params: DeleteScheduleTodoRequest) => {
+  const query = todoQueries.deleteScheduleTodoQuery()
   const db = await openDatabase()
-  await db.executeSql(query, [params.todo_id])
+  await db.executeSql(query, [params.schedule_todo_id])
 
-  return params.todo_id
+  return params.schedule_todo_id
 }
 
-export const setTodoComplete = async (params: SetTodoCompleteRequest) => {
-  const query = todoQueries.setTodoCompleteQuery()
+export const updateScheduleTodoComplete = async (params: UpdateScheduleTodoCompleteRequest) => {
+  const query = todoQueries.updateScheduleTodoCompleteQuery()
   const db = await openDatabase()
-  const [result] = await db.executeSql(query, [params.todo_id, params.complete_date])
+  const [result] = await db.executeSql(query, [params.complete_date, params.schedule_todo_id])
 
   return result.insertId
-}
-
-export const deleteTodoComplete = async (params: DeleteTodoCompleteRequest) => {
-  const query = todoQueries.deleteTodoCompleteQuery()
-  const db = await openDatabase()
-  await db.executeSql(query, [params.complete_id])
-
-  return params.complete_id
 }

@@ -5,7 +5,7 @@ import TodoItem from './components/TodoItem'
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {scheduleDateState, scheduleListState} from '@/store/schedule'
 
-import {useSetTodoComplete, useDeleteTodoComplete} from '@/apis/hooks/useTodo'
+import {useUpdateScheduleTodoComplete} from '@/apis/hooks/useTodo'
 
 import {updateWidget} from '@/utils/widget'
 
@@ -18,14 +18,13 @@ interface Props {
 }
 
 const ScheduleTodoList = ({data, activeTheme}: Props) => {
-  const {mutateAsync: setTodoCompleteMutateAsync} = useSetTodoComplete()
-  const {mutateAsync: deleteTodoCompleteMutateAsync} = useDeleteTodoComplete()
+  const {mutateAsync: updateScheduleTodoCompleteMutateAsync} = useUpdateScheduleTodoComplete()
 
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
 
   const moveEdit = useCallback((value: ScheduleTodo) => {
-    navigate('EditTodo', {scheduleId: value.schedule_id, todoId: value.todo_id})
+    navigate('EditTodo', {scheduleId: value.schedule_id, todoId: value.schedule_todo_id})
   }, [])
 
   const getNewScheduleList = useCallback(
@@ -33,7 +32,7 @@ const ScheduleTodoList = ({data, activeTheme}: Props) => {
       return scheduleList.map(scheduleItem => {
         if (scheduleItem.schedule_id === newTodo.schedule_id) {
           const newTodoList = scheduleItem.todo_list.map(todoItem => {
-            if (todoItem.todo_id === newTodo.todo_id) {
+            if (todoItem.schedule_todo_id === newTodo.schedule_todo_id) {
               return newTodo
             }
 
@@ -56,26 +55,23 @@ const ScheduleTodoList = ({data, activeTheme}: Props) => {
       if (isCompleted) {
         const completeDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
 
-        const completeId = await setTodoCompleteMutateAsync({
-          todo_id: value.todo_id,
+        await updateScheduleTodoCompleteMutateAsync({
+          schedule_todo_id: value.schedule_todo_id,
           complete_date: completeDate
         })
 
         newTodo = {
           ...newTodo,
-          complete_id: completeId,
           complete_date: completeDate
         }
       } else {
-        if (!value.complete_id) {
-          return
-        }
-
-        await deleteTodoCompleteMutateAsync({complete_id: value.complete_id})
+        await updateScheduleTodoCompleteMutateAsync({
+          schedule_todo_id: value.schedule_todo_id,
+          complete_date: null
+        })
 
         newTodo = {
           ...newTodo,
-          complete_id: null,
           complete_date: null
         }
       }
@@ -83,7 +79,7 @@ const ScheduleTodoList = ({data, activeTheme}: Props) => {
       const newScheduleList = getNewScheduleList(newTodo)
       setScheduleList(newScheduleList)
     },
-    [scheduleDate, setTodoCompleteMutateAsync, deleteTodoCompleteMutateAsync, getNewScheduleList, setScheduleList]
+    [scheduleDate, updateScheduleTodoCompleteMutateAsync, getNewScheduleList, setScheduleList]
   )
 
   const keyExtractor = useCallback((item: ScheduleTodo, index: number) => {
@@ -94,7 +90,7 @@ const ScheduleTodoList = ({data, activeTheme}: Props) => {
     ({item}) => {
       return <TodoItem value={item} activeTheme={activeTheme} moveEdit={moveEdit} onChange={handleTodoComplete} />
     },
-    [activeTheme, handleTodoComplete]
+    [activeTheme, moveEdit, handleTodoComplete]
   )
 
   return (
