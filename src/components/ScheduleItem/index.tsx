@@ -66,10 +66,6 @@ const ScheduleItem = ({
     return target ? target.title : '미지정'
   }, [scheduleCategoryList, categoryId])
 
-  const getDayOfWeekTextStyle = useCallback((value: string) => {
-    return [styles.dayOfWeekText, value === '1' && styles.activeDayOfWeekText]
-  }, [])
-
   const getTimeText = useCallback((value: number) => {
     const timeInfo = getTimeOfMinute(value)
 
@@ -114,13 +110,13 @@ const ScheduleItem = ({
             <RepeatIcon width={16} height={16} fill="#03cf5d" />
 
             <View style={styles.dayOfWeekContainer}>
-              <Text style={getDayOfWeekTextStyle(dayOfWeek.mon)}>월</Text>
-              <Text style={getDayOfWeekTextStyle(dayOfWeek.tue)}>화</Text>
-              <Text style={getDayOfWeekTextStyle(dayOfWeek.wed)}>수</Text>
-              <Text style={getDayOfWeekTextStyle(dayOfWeek.thu)}>목</Text>
-              <Text style={getDayOfWeekTextStyle(dayOfWeek.fri)}>금</Text>
-              <Text style={getDayOfWeekTextStyle(dayOfWeek.sat)}>토</Text>
-              <Text style={getDayOfWeekTextStyle(dayOfWeek.sun)}>일</Text>
+              {dayOfWeek.mon === '1' && <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>월</Text>}
+              {dayOfWeek.tue === '1' && <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>화</Text>}
+              {dayOfWeek.wed === '1' && <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>수</Text>}
+              {dayOfWeek.thu === '1' && <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>목</Text>}
+              {dayOfWeek.fri === '1' && <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>금</Text>}
+              {dayOfWeek.sat === '1' && <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>토</Text>}
+              {dayOfWeek.sun === '1' && <Text style={[styles.dayOfWeekText, {color: activeTheme.color3}]}>일</Text>}
             </View>
           </View>
         )}
@@ -166,11 +162,7 @@ const styles = StyleSheet.create({
   },
   dayOfWeekText: {
     fontFamily: 'Pretendard-Medium',
-    fontSize: 14,
-    color: '#babfc5'
-  },
-  activeDayOfWeekText: {
-    color: '#424242'
+    fontSize: 14
   },
   icon: {
     width: 16,

@@ -90,9 +90,17 @@ const ScheduleListBottomSheet = ({data, onClick, onAnimate}: Props) => {
         <Pressable onPress={handleClick(item)}>
           <ScheduleItem
             title={item.title}
-            categoryId={item.schedule_category_id}
             time={{startTime: item.start_time, endTime: item.end_time}}
             date={{startDate: item.start_date, endDate: item.end_date}}
+            dayOfWeek={{
+              mon: item.mon,
+              tue: item.tue,
+              wed: item.wed,
+              thu: item.thu,
+              fri: item.fri,
+              sat: item.sat,
+              sun: item.sun
+            }}
             routineList={item.routine_list}
             todoList={item.todo_list}
             headerComponent={itemHeaderComponent(item)}
