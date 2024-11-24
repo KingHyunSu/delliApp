@@ -21,8 +21,9 @@ import {scheduleState, isInputModeState} from '@/store/schedule'
 
 import {RANGE_FLAG} from '@/utils/types'
 
-import {DAY_OF_WEEK} from '@/types/common'
 import {showScheduleCategorySelectorBottomSheetState} from '@/store/bottomSheet'
+import {DAY_OF_WEEK} from '@/types/common'
+import type {DayOfWeeks} from './src/DayOfWeekPanel'
 
 export interface EditScheduleBottomSheetRef {
   collapse: () => void
@@ -188,6 +189,16 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
     [schedule, setSchedule]
   )
 
+  const changeDayOfWeeks = useCallback(
+    (value: DayOfWeeks) => {
+      setSchedule(prevState => ({
+        ...prevState,
+        ...value
+      }))
+    },
+    [setSchedule]
+  )
+
   useEffect(() => {
     if (isEdit) {
       bottomSheetRef.current?.snapToIndex(0)
@@ -309,6 +320,7 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
           headerTitleStyle={panelHeaderTitleStyle}
           handleExpansion={handleDayOfWeekPanel}
           changeDayOfWeek={changeDayOfWeek}
+          changeDayOfWeeks={changeDayOfWeeks}
         />
       </BottomSheetScrollView>
     </BottomSheet>
@@ -319,7 +331,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingTop: 10,
-    paddingBottom: 70,
+    paddingBottom: 128,
     gap: 20
   },
   titleButton: {
