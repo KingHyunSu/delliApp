@@ -1,5 +1,5 @@
-import {useState, useMemo, useCallback, useEffect} from 'react'
-import {Keyboard, Pressable, StyleSheet, Text, TextInput, View} from 'react-native'
+import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
+import {StyleSheet, Keyboard, ScrollView, Pressable, Text, TextInput, View} from 'react-native'
 import AppBar from '@/components/AppBar'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
@@ -18,6 +18,8 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
   const {mutateAsync: setTodoMutateAsync} = useSetScheduleTodo()
   const {mutateAsync: updateTodoMutateAsync} = useUpdateScheduleTodo()
   const {mutate: deleteTodoMutate, isSuccess: isSuccessDeleteTodo} = useDeleteScheduleTodo()
+
+  const memoTextInputRef = useRef<TextInput>(null)
 
   const [editTodoForm, setEditTodoForm] = useState<EditTodoForm>({
     schedule_todo_id: null,
@@ -46,6 +48,16 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
     return schedule
   }, [editTodoForm.schedule_id, scheduleList, schedule])
 
+  const completeDate = useMemo(() => {
+    if (editTodoForm.complete_date) {
+      const values = editTodoForm.complete_date.split('-')
+
+      return `${values[0]}년 ${values[1]}월 ${values[2]}일`
+    }
+
+    return ''
+  }, [editTodoForm.complete_date])
+
   const changeTitle = useCallback(
     (value: string) => {
       setEditTodoForm(prevState => ({
@@ -55,6 +67,20 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
     },
     [setEditTodoForm]
   )
+
+  const changeMemo = useCallback(
+    (value: string) => {
+      setEditTodoForm(prevState => ({
+        ...prevState,
+        memo: value
+      }))
+    },
+    [setEditTodoForm]
+  )
+
+  const focusMemo = useCallback(() => {
+    memoTextInputRef.current?.focus()
+  }, [])
 
   const getNewScheduleList = useCallback(
     (newTodoId: number) => {
@@ -200,7 +226,7 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
         )}
       </AppBar>
 
-      <View style={styles.wrapper}>
+      <ScrollView contentContainerStyle={styles.listContainer} bounces={false} showsVerticalScrollIndicator={false}>
         {targetSchedule && (
           <View style={styles.labelWrapper}>
             <Text style={[styles.label, {color: activeTheme.color3}]}>{targetSchedule.title} </Text>
@@ -212,14 +238,36 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
 
         <TextInput
           value={editTodoForm.title}
-          autoFocus
+          autoFocus={!route.params.todoId}
           style={[styles.title, {color: activeTheme.color3, borderBottomColor: activeTheme.color2}]}
           placeholder="새로운 할 일"
           placeholderTextColor="#c3c5cc"
           keyboardAppearance={keyboardAppearance}
           onChangeText={changeTitle}
         />
-      </View>
+
+        {editTodoForm.complete_date && (
+          <View style={[styles.completeContainer, {backgroundColor: activeTheme.color6}]}>
+            <Text style={[styles.completeDateText, {color: activeTheme.color3}]}>{completeDate}</Text>
+
+            <View style={styles.completeLabelWrapper}>
+              <Text style={styles.completeLabelText}>완료</Text>
+            </View>
+          </View>
+        )}
+
+        <Pressable style={[styles.memoContainer, {borderColor: activeTheme.color2}]} onPress={focusMemo}>
+          <TextInput
+            ref={memoTextInputRef}
+            style={[styles.memo, {color: activeTheme.color3}]}
+            value={editTodoForm.memo}
+            multiline
+            placeholder="메모를 입력해주세요"
+            placeholderTextColor="#c3c5cc"
+            onChangeText={changeMemo}
+          />
+        </Pressable>
+      </ScrollView>
 
       <Pressable style={styles.submitButton} onPress={handleSubmit}>
         <Text style={styles.submitButtonText}>{isUpdate ? '수정하기' : '추가하기'}</Text>
@@ -232,9 +280,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1
   },
-  wrapper: {
+  listContainer: {
     paddingHorizontal: 16,
-    paddingTop: 20
+    paddingTop: 20,
+    paddingBottom: 112
   },
   labelWrapper: {
     flexDirection: 'row',
@@ -253,7 +302,45 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
     paddingVertical: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#eeeded'
+    borderBottomColor: '#eeeded',
+    marginBottom: 30
+  },
+
+  completeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    marginBottom: 20
+  },
+  completeLabelWrapper: {
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    borderRadius: 7,
+    backgroundColor: '#76d672'
+  },
+  completeDateText: {
+    fontSize: 14,
+    fontFamily: 'Pretendard-Medium'
+  },
+  completeLabelText: {
+    fontSize: 14,
+    fontFamily: 'Pretendard-SemiBold',
+    color: '#ffffff'
+  },
+
+  memoContainer: {
+    padding: 15,
+    gap: 10,
+    minHeight: 200,
+    borderRadius: 10,
+    borderWidth: 1
+  },
+  memo: {
+    fontSize: 16,
+    fontFamily: 'Pretendard-SemiBold'
   },
 
   deleteButton: {

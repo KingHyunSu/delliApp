@@ -38,6 +38,7 @@ export const getScheduleTodoByScheduleIdQuery = () => {
       schedule_todo tc
     WHERE
       tc.schedule_id = ?
+    ORDER BY tc.complete_date
   `
 }
 
