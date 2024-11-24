@@ -62,7 +62,7 @@ const DayOfWeekPanel = ({
 
       return [styles.controlButton, {backgroundColor, borderWidth}]
     },
-    [data.mon, data.tue, data.wed, data.thu, data.fri, data.sat, data.sun, activeTheme.theme_id, activeTheme.color5]
+    [activeTheme.theme_id, activeTheme.color5]
   )
 
   const controlButtonTextStyle = useCallback(
@@ -75,7 +75,7 @@ const DayOfWeekPanel = ({
 
       return [styles.controlButtonText, {color}]
     },
-    [data.mon, data.tue, data.wed, data.thu, data.fri, data.sat, data.sun, activeTheme.color3]
+    [activeTheme.color3]
   )
 
   const handleChangeDayOfWeek = useCallback(
