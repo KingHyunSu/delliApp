@@ -1,6 +1,6 @@
 import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
 import {StyleSheet, View} from 'react-native'
-import Svg, {Circle, Defs, G, RadialGradient, Stop, Text} from 'react-native-svg'
+import Svg, {Text} from 'react-native-svg'
 import {captureRef} from 'react-native-view-shot'
 
 import TimeBackground from '../components/TimeBackground'
@@ -15,7 +15,6 @@ import {scheduleState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 import {updateWidgetWithImage} from '@/utils/widget'
-import {polarToCartesian} from '@/utils/pieHelper'
 
 interface Props {
   data: Schedule[]
@@ -176,20 +175,30 @@ const Timetable = ({data, isRendered}: Props) => {
     return () => clearInterval(timer)
   }, [])
 
-  const arcLengthForOneDegree = useMemo(() => {
-    return (2 * Math.PI * radius) / 360
-  }, [radius])
+  const currentTimePercent = useMemo(() => {
+    const hours = currentTime.getHours()
+    const minutes = currentTime.getMinutes()
+    const currentMinutes = hours * 60 + minutes
 
-  const currentTimeAngle = useMemo(() => {
-    const hour = currentTime.getHours()
-    const minute = currentTime.getMinutes()
+    const totalMinutes = 24 * 60
 
-    return (hour * 60 + minute) * 0.25 - Math.round(11 / arcLengthForOneDegree)
-  }, [currentTime, arcLengthForOneDegree])
+    return (currentMinutes / totalMinutes) * 100
+  }, [currentTime])
 
-  const currentTimePosition = useMemo(() => {
-    return polarToCartesian(timetableWrapperSize, timetableWrapperSize, radius + 24, currentTimeAngle)
-  }, [timetableWrapperSize, radius, currentTimeAngle])
+  // const arcLengthForOneDegree = useMemo(() => {
+  //   return (2 * Math.PI * radius) / 360
+  // }, [radius])
+
+  // const currentTimeAngle = useMemo(() => {
+  //   const hour = currentTime.getHours()
+  //   const minute = currentTime.getMinutes()
+  //
+  //   return (hour * 60 + minute) * 0.25 - Math.round(11 / arcLengthForOneDegree)
+  // }, [currentTime, arcLengthForOneDegree])
+
+  // const currentTimePosition = useMemo(() => {
+  //   return polarToCartesian(timetableWrapperSize, timetableWrapperSize, radius + 24, currentTimeAngle)
+  // }, [timetableWrapperSize, radius, currentTimeAngle])
 
   const emptyTextComponent = useMemo(() => {
     if (data.length > 0) {
@@ -203,28 +212,10 @@ const Timetable = ({data, isRendered}: Props) => {
     )
   }, [data.length, radius])
 
-  // const shadowRadius = 30
   return (
     <View style={containerStyle}>
-      {/* 그림자 배경 sudo code */}
-      {/*<Svg style={{position: 'absolute'}} width={radius * 2 + shadowRadius} height={radius * 2 + shadowRadius}>*/}
-      {/*  <Defs>*/}
-      {/*    <RadialGradient id="grad">*/}
-      {/*      <Stop offset="0" stopColor="#000000" stopOpacity="1" />*/}
-      {/*      <Stop offset="1" stopColor="#ffffff" stopOpacity="0.3" />*/}
-      {/*    </RadialGradient>*/}
-      {/*  </Defs>*/}
-
-      {/*  <Circle*/}
-      {/*    cx={radius + shadowRadius / 2}*/}
-      {/*    cy={radius + shadowRadius / 2}*/}
-      {/*    r={radius + shadowRadius / 2}*/}
-      {/*    fill="url(#grad)"*/}
-      {/*  />*/}
-      {/*</Svg>*/}
-
       <View style={wrapperStyle}>
-        <TimeBackground wrapperSize={timetableWrapperSize} radius={radius} />
+        <TimeBackground radius={radius} percentage={currentTimePercent} />
 
         <View ref={refs}>
           <Svg width={radius * 2} height={radius * 2}>
@@ -263,11 +254,11 @@ const Timetable = ({data, isRendered}: Props) => {
           })}
         </View>
 
-        <Svg width={timetableWrapperSize * 2} height={timetableWrapperSize * 2} style={styles.currentTimeAnchorIcon}>
-          <G x={currentTimePosition.x} y={currentTimePosition.y} rotation={currentTimeAngle}>
-            <DefaultTimeAnchor width={20} height={20} fill="#1E90FF" />
-          </G>
-        </Svg>
+        {/*<Svg width={timetableWrapperSize * 2} height={timetableWrapperSize * 2} style={styles.currentTimeAnchorIcon}>*/}
+        {/*  <G x={currentTimePosition.x} y={currentTimePosition.y} rotation={currentTimeAngle}>*/}
+        {/*    <DefaultTimeAnchor width={20} height={20} fill="#1E90FF" />*/}
+        {/*  </G>*/}
+        {/*</Svg>*/}
       </View>
     </View>
   )
