@@ -86,7 +86,7 @@ const BottomTabs = React.memo(({activeTheme}: BottomTabsProps) => {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarStyle: {borderTopColor, backgroundColor: activeTheme.color5, height: 56}
+        tabBarStyle: {borderTopColor, borderTopWidth: 1, backgroundColor: activeTheme.color5, height: 56}
       }} // 탭의 상단 바 제거
     >
       <Tab.Screen
@@ -189,16 +189,25 @@ function App(): JSX.Element {
   const changeRoute = React.useCallback(() => {
     const route = navigationRef.current?.getCurrentRoute()
 
+    let _statusBarTextStyle: 'dark-content' | 'light-content' = displayMode === 1 ? 'dark-content' : 'light-content'
+    let _statusBarColor: string | null = activeTheme.color1
     let _bottomSafeAreaColor: string | null = activeTheme.color5
 
     switch (route?.name) {
       // case 'Stats':
+      case 'Home':
+      case 'EditSchedule':
+        _statusBarColor = null
+        _statusBarTextStyle = activeBackground.display_mode === 1 ? 'dark-content' : 'light-content'
+        break
       case 'StoreList':
-        setStatusBarColor('#f5f6f8')
+        _statusBarTextStyle = 'dark-content'
+        _statusBarColor = '#f5f6f8'
         break
       case 'ThemeDetail':
       case 'MyThemeList':
-        setStatusBarColor('#f5f6f8')
+        _statusBarTextStyle = 'dark-content'
+        _statusBarColor = '#f5f6f8'
         _bottomSafeAreaColor = '#f5f6f8'
         break
       case 'EditRoutine':
@@ -213,10 +222,25 @@ function App(): JSX.Element {
       //   break
     }
 
+    if (_statusBarTextStyle) {
+      setStatusBarTextStyle(_statusBarTextStyle)
+    }
+
+    if (_statusBarColor) {
+      setStatusBarColor(_statusBarColor)
+    }
+
     if (_bottomSafeAreaColor) {
       setBottomSafeAreaColor(_bottomSafeAreaColor)
     }
-  }, [activeTheme, setStatusBarColor, setBottomSafeAreaColor])
+  }, [
+    activeBackground.display_mode,
+    displayMode,
+    activeTheme,
+    setStatusBarTextStyle,
+    setStatusBarColor,
+    setBottomSafeAreaColor
+  ])
 
   // 2024-05-18 서버 제거로인해 비활성화
   // React.useEffect(() => {

@@ -1,7 +1,7 @@
 export const setDefaultBackgroundQuery = () => {
   return `
     INSERT INTO background (background_id, file_name, display_mode, background_color, sub_color, accent_color)
-    SELECT 1, 'beige.png', 0, '#F8F4EC', '#F3EBDE', '#424242'
+    SELECT 1, 'beige.png', 1, '#F8F4EC', '#F3EBDE', '#424242'
     WHERE NOT EXISTS (SELECT 1 FROM background WHERE background_id = 1)
   `
 }

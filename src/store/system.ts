@@ -49,8 +49,8 @@ export const activeBackgroundState = atom<ActiveBackground>({
     background_id: 1,
     file_name: 'beige.png',
     display_mode: 0,
-    background_color: '#ffffff',
-    sub_color: '#424242',
+    background_color: '#F8F4EC',
+    sub_color: '#F3EBDE',
     accent_color: '#424242'
   }
 })

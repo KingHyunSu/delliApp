@@ -119,7 +119,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   }, [activeBackground])
 
   const fabBackgroundColor = React.useMemo(() => {
-    if (activeBackground.display_mode === 0) {
+    if (activeBackground.display_mode === 1) {
       return colorKit.darken(activeBackground.sub_color, 11).hex()
     }
     return colorKit.brighten(activeBackground.sub_color, 11).hex()
@@ -229,7 +229,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   // android 뒤로가기 제어
   useFocusEffect(
     React.useCallback(() => {
-      setStatusBarTextStyle(activeBackground.display_mode === 0 ? 'dark-content' : 'light-content')
+      setStatusBarTextStyle(activeBackground.display_mode === 1 ? 'dark-content' : 'light-content')
       setStatusBarColor(activeBackground.background_color)
       setBottomSafeAreaColor(activeTheme.color5)
 
@@ -262,12 +262,14 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
       return () => subscription.remove()
     }, [
+      activeBackground.display_mode,
       activeBackground.background_color,
       activeTheme.color5,
       isEdit,
       showEditMenuBottomSheet,
       showDatePickerBottomSheet,
       backPressCount,
+      setStatusBarTextStyle,
       setStatusBarColor,
       setBottomSafeAreaColor,
       setShowEditMenuBottomSheet,
