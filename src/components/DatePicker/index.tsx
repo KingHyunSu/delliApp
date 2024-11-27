@@ -36,9 +36,19 @@ const DatePicker = forwardRef<Refs, Props>((props, ref) => {
 
   const activeTheme = useRecoilValue(activeThemeState)
 
-  const weekStyle = useMemo(() => {
-    return [dateItemStyles.text, {color: activeTheme.color7}]
-  }, [activeTheme.color7])
+  const getWeekStyle = useCallback(
+    (dayOfWeekIndex: number) => {
+      let color = activeTheme.color7
+
+      if (dayOfWeekIndex === 0) {
+        color = '#FF3D58'
+      } else if (dayOfWeekIndex === 6) {
+        color = '#556FFF'
+      }
+      return [dateItemStyles.text, {color}]
+    },
+    [activeTheme.color7]
+  )
 
   useEffect(() => {
     setDate(datePickerValue)
@@ -122,9 +132,9 @@ const DatePicker = forwardRef<Refs, Props>((props, ref) => {
       <ControlBar activeTheme={activeTheme} currentDate={currentDate} onChange={changeCurrentDate} />
 
       <View style={styles.weekContainer}>
-        {weekdays.map(week => (
+        {weekdays.map((week, index) => (
           <View key={week} style={dateItemStyles.wrapper}>
-            <Text style={weekStyle}>{week}</Text>
+            <Text style={getWeekStyle(index)}>{week}</Text>
           </View>
         ))}
       </View>
