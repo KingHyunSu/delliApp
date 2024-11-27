@@ -1,7 +1,6 @@
-import {useCallback, useMemo} from 'react'
+import {useCallback} from 'react'
 import {StyleSheet, Pressable, Text, View, ScrollView} from 'react-native'
 import {BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
-import {Shadow} from 'react-native-shadow-2'
 
 import Animated, {Extrapolation, interpolate, useAnimatedStyle, useDerivedValue} from 'react-native-reanimated'
 import {useRecoilState, useRecoilValue} from 'recoil'
@@ -21,16 +20,12 @@ const CustomBackdrop = ({props, activeTheme, onClose}: Props) => {
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const transformOriginY = useDerivedValue(() =>
-    interpolate(props.animatedIndex.value, [-1, 0], [-100, 0], Extrapolation.CLAMP)
+    interpolate(props.animatedIndex.value, [-1, 0], [-130, 0], Extrapolation.CLAMP)
   )
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{translateY: transformOriginY.value}]
   }))
-
-  const shadowColor = useMemo(() => {
-    return activeTheme.theme_id === 1 ? '#f0eff586' : activeTheme.color6
-  }, [activeTheme.theme_id, activeTheme.color6])
 
   const getButtonStyle = useCallback(
     (type: ColorType) => {
@@ -70,22 +65,20 @@ const CustomBackdrop = ({props, activeTheme, onClose}: Props) => {
     <View style={props.style}>
       <Pressable style={styles.overlay} onPress={onClose} />
 
-      <Animated.View style={containerAnimatedStyle}>
-        <Shadow style={{backgroundColor: activeTheme.color5}} stretch={true} startColor={shadowColor} distance={10}>
-          <ScrollView
-            contentContainerStyle={[styles.buttonWrapper, {paddingTop: safeAreaInsets.top + 10}]}
-            horizontal={true}>
-            <Pressable style={getButtonStyle('background')} onPress={changeColorType('background')}>
-              <Text style={getButtonTextStyle('background')}>배경색</Text>
-            </Pressable>
-            <Pressable style={getButtonStyle('font')} onPress={changeColorType('font')}>
-              <Text style={getButtonTextStyle('font')}>글자색</Text>
-            </Pressable>
-            {/*<Pressable style={getButtonStyle('border')} onPress={changeColorType('border')}>*/}
-            {/*  <Text style={getButtonTextStyle('border')}>테투리색</Text>*/}
-            {/*</Pressable>*/}
-          </ScrollView>
-        </Shadow>
+      <Animated.View style={[containerAnimatedStyle, {backgroundColor: activeTheme.color5}]}>
+        <ScrollView
+          contentContainerStyle={[styles.buttonWrapper, {paddingTop: safeAreaInsets.top + 10}]}
+          horizontal={true}>
+          <Pressable style={getButtonStyle('background')} onPress={changeColorType('background')}>
+            <Text style={getButtonTextStyle('background')}>배경색</Text>
+          </Pressable>
+          <Pressable style={getButtonStyle('font')} onPress={changeColorType('font')}>
+            <Text style={getButtonTextStyle('font')}>글자색</Text>
+          </Pressable>
+          {/*<Pressable style={getButtonStyle('border')} onPress={changeColorType('border')}>*/}
+          {/*  <Text style={getButtonTextStyle('border')}>테투리색</Text>*/}
+          {/*</Pressable>*/}
+        </ScrollView>
       </Animated.View>
     </View>
   )
