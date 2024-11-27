@@ -93,7 +93,7 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
   return (
     <Pressable style={containerStyle} onPress={clickBackground}>
       <View style={wrapperStyle}>
-        <TimeBackground wrapperSize={timetableWrapperSize} radius={radius} />
+        <TimeBackground radius={radius} percentage={0} />
 
         <View>
           <Svg width={radius * 2} height={radius * 2}>

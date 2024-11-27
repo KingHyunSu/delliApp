@@ -27,9 +27,9 @@ const TimeBackground = ({radius, percentage}: Props) => {
 
   const hourRingColor = useMemo(() => {
     if (activeBackground.display_mode === 1) {
-      return colorKit.brighten(activeBackground.sub_color, 30).hex()
+      return colorKit.darken(activeBackground.sub_color, 10).hex()
     }
-    return colorKit.darken(activeBackground.sub_color, 10).hex()
+    return colorKit.brighten(activeBackground.sub_color, 30).hex()
   }, [activeBackground.display_mode, activeBackground.sub_color])
 
   const strokeWidth = 20
@@ -38,8 +38,8 @@ const TimeBackground = ({radius, percentage}: Props) => {
   }, [radius])
 
   const circumference = useMemo(() => {
-    return 2 * Math.PI * radius
-  }, [radius])
+    return (2 * Math.PI * size) / 2
+  }, [size])
 
   const progressOffset = useMemo(() => {
     return circumference - (percentage / 100) * circumference
