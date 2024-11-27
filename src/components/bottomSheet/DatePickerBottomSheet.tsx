@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react'
+import {useRef, useState, useCallback, useEffect} from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
 import {BottomSheetBackdropProps, BottomSheetHandleProps, BottomSheetModal} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
@@ -15,27 +15,23 @@ interface Props {
   onChange: Function
 }
 const DatePickerBottomSheet = ({value, onChange}: Props) => {
-  const datePickerBottomSheetRef = React.useRef<BottomSheetModal>(null)
-  const datePickerRef = React.useRef<DatePickerRef>(null)
+  const datePickerBottomSheetRef = useRef<BottomSheetModal>(null)
+  const datePickerRef = useRef<DatePickerRef>(null)
 
-  const [selectDate, changeDate] = React.useState(value)
+  const [selectDate, changeDate] = useState(value)
 
   const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
   const activeTheme = useRecoilValue(activeThemeState)
 
-  const bottomSheetBackgroundColor = useMemo(() => {
-    return activeTheme.theme_id === 1 ? '#ffffff' : activeTheme.color6
-  }, [activeTheme.theme_id, activeTheme.color6])
-
-  const onDismiss = () => {
+  const onDismiss = useCallback(() => {
     setShowDatePickerBottomSheet(false)
-  }
+  }, [setShowDatePickerBottomSheet])
 
-  React.useEffect(() => {
+  useEffect(() => {
     changeDate(value)
   }, [value])
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (showDatePickerBottomSheet) {
       datePickerBottomSheetRef.current?.present()
     } else {
@@ -43,27 +39,30 @@ const DatePickerBottomSheet = ({value, onChange}: Props) => {
     }
   }, [showDatePickerBottomSheet])
 
-  const onChangeDate = (arg: string) => {
-    if (arg) {
-      changeDate(arg)
-    }
-  }
+  const onChangeDate = useCallback(
+    (arg: string) => {
+      if (arg) {
+        changeDate(arg)
+      }
+    },
+    [changeDate]
+  )
 
-  const changeToday = () => {
+  const changeToday = useCallback(() => {
     datePickerRef.current?.today()
-  }
+  }, [])
 
-  const confirm = () => {
+  const confirm = useCallback(() => {
     onChange(selectDate)
     onDismiss()
-  }
+  }, [selectDate, onChange, onDismiss])
 
   // components
-  const bottomSheetBackdrop = React.useCallback((props: BottomSheetBackdropProps) => {
+  const bottomSheetBackdrop = useCallback((props: BottomSheetBackdropProps) => {
     return <BottomSheetBackdrop props={props} />
   }, [])
 
-  const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
+  const bottomSheetHandler = useCallback((props: BottomSheetHandleProps) => {
     return (
       <BottomSheetHandler
         shadow={false}
@@ -78,7 +77,7 @@ const DatePickerBottomSheet = ({value, onChange}: Props) => {
     <BottomSheetModal
       name="datePicker"
       ref={datePickerBottomSheetRef}
-      backgroundStyle={{backgroundColor: bottomSheetBackgroundColor}}
+      backgroundStyle={{backgroundColor: activeTheme.color5}}
       backdropComponent={bottomSheetBackdrop}
       handleComponent={bottomSheetHandler}
       index={0}
