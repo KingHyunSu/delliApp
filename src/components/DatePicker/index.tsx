@@ -1,38 +1,27 @@
-import {forwardRef, useImperativeHandle, useState, useMemo, useCallback, useEffect} from 'react'
-import {StyleSheet, FlatList, View, Text} from 'react-native'
-
+import {useState, useCallback, useLayoutEffect, useEffect} from 'react'
+import {ListRenderItem, StyleSheet, FlatList, View, Text} from 'react-native'
 import ControlBar from './src/ControlBar'
 import DateItem from './src/DateItem'
 
-import {setDigit} from '@/utils/helper'
-import {getDateList, getRemainPrevDateList, getRemainNextDateList} from './utils/date'
-import {Item} from './type'
 import {dateItemStyles} from './style'
 import {useRecoilValue} from 'recoil'
 import {activeThemeState} from '@/store/system'
-import {format} from 'date-fns'
+import {format, startOfMonth, startOfWeek, addDays} from 'date-fns'
 
-interface DateItemParams {
-  item: Item
-}
 interface Props {
   value: string | null
   hasNull?: boolean
   disableDate?: string
   onChange: (value: string) => void
 }
-export interface Refs {
-  today: () => void
-}
-const DatePicker = forwardRef<Refs, Props>((props, ref) => {
-  const {value: datePickerValue, hasNull = false, disableDate, onChange} = props
 
+const DatePicker = ({value: datePickerValue, hasNull = false, disableDate, onChange}: Props) => {
   // 요일
   const weekdays = ['일', '월', '화', '수', '목', '금', '토']
 
-  const [date, setDate] = useState<string | null>(null)
-  const [currentDate, setCurrentDate] = useState<Date | null>(null)
-  const [dayList, setDateList] = useState<Item[]>([])
+  const [currentDate, setCurrentDate] = useState<Date>(new Date())
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [dateList, setDateList] = useState<Date[]>([])
 
   const activeTheme = useRecoilValue(activeThemeState)
 
@@ -51,37 +40,28 @@ const DatePicker = forwardRef<Refs, Props>((props, ref) => {
   )
 
   useEffect(() => {
-    setDate(datePickerValue)
+    if (datePickerValue && datePickerValue !== '9999-12-31') {
+      setCurrentDate(new Date(datePickerValue))
+    }
+    setSelectedDate(datePickerValue)
   }, [datePickerValue])
 
-  useEffect(() => {
-    if ((hasNull && date === '9999-12-31') || !date) {
-      setCurrentDate(new Date())
-    } else {
-      setCurrentDate(new Date(date))
-    }
-  }, [date, hasNull])
-
   const changeDate = useCallback(
-    (item: Item) => {
-      let dateStr = `${item.year}-${setDigit(item.month)}-${setDigit(item.day)}`
+    (value: Date) => {
+      let formatedValue = format(value, 'yyyy-MM-dd')
 
-      if (hasNull && dateStr === date) {
-        dateStr = '9999-12-31'
+      if (hasNull && formatedValue === selectedDate) {
+        formatedValue = '9999-12-31'
       }
 
-      setDate(dateStr)
-      onChange(dateStr)
+      setSelectedDate(formatedValue)
+      onChange(formatedValue)
     },
-    [date, hasNull, setDate, onChange]
+    [selectedDate, hasNull, setSelectedDate, onChange]
   )
 
   const changeCurrentDate = useCallback((data: Date) => {
     setCurrentDate(data)
-  }, [])
-
-  const getKey = useCallback((item: Item, index: number) => {
-    return String(index)
   }, [])
 
   const getItemLayout = useCallback((_, index: number) => {
@@ -92,39 +72,35 @@ const DatePicker = forwardRef<Refs, Props>((props, ref) => {
     }
   }, [])
 
-  useEffect(() => {
-    if (currentDate) {
-      const currentDateList = getDateList(currentDate)
-      const remainPrevDateList = getRemainPrevDateList(currentDate)
-      const remainNextDateList = getRemainNextDateList(currentDate)
+  useLayoutEffect(() => {
+    const monthStart = startOfMonth(currentDate)
+    const startDate = startOfWeek(monthStart)
+    const endDate = addDays(startDate, 34)
 
-      setDateList([...remainPrevDateList, ...currentDateList, ...remainNextDateList])
+    const _dateList = []
+    let _date = startDate
+
+    while (_date <= endDate) {
+      _dateList.push(_date)
+      _date = addDays(_date, 1)
     }
+
+    setDateList(_dateList)
   }, [currentDate])
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        today() {
-          const today = new Date()
-          const todayFormat = format(new Date(), 'yyyy-MM-dd')
-
-          setCurrentDate(today)
-          onChange(todayFormat)
-        }
-      }
-    },
-    [onChange]
-  )
-
-  const renderItem = useCallback(
-    ({item}: DateItemParams) => {
+  const renderItem: ListRenderItem<Date> = useCallback(
+    ({item}) => {
       return (
-        <DateItem item={item} value={date} disableDate={disableDate} activeTheme={activeTheme} onChange={changeDate} />
+        <DateItem
+          item={item}
+          value={selectedDate}
+          disableDate={disableDate}
+          activeTheme={activeTheme}
+          onChange={changeDate}
+        />
       )
     },
-    [date, disableDate, activeTheme, changeDate]
+    [selectedDate, disableDate, activeTheme, changeDate]
   )
 
   return (
@@ -140,8 +116,8 @@ const DatePicker = forwardRef<Refs, Props>((props, ref) => {
       </View>
 
       <FlatList
-        data={dayList}
-        keyExtractor={getKey}
+        data={dateList}
+        keyExtractor={(item, index) => String(index)}
         renderItem={renderItem}
         numColumns={7}
         initialNumToRender={49}
@@ -152,7 +128,7 @@ const DatePicker = forwardRef<Refs, Props>((props, ref) => {
       />
     </View>
   )
-})
+}
 
 const styles = StyleSheet.create({
   weekContainer: {

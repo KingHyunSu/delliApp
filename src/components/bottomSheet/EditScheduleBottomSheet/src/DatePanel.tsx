@@ -1,15 +1,14 @@
-import {memo, useState, useMemo, useCallback, useEffect} from 'react'
-import {ViewStyle, TextStyle, Image, StyleSheet, Text, View} from 'react-native'
-import {format} from 'date-fns'
+import {memo, useState, useMemo, useCallback} from 'react'
+import {ViewStyle, TextStyle, Image, StyleSheet, Text, View, Pressable} from 'react-native'
 import Panel from '@/components/Panel'
 import DatePicker from '@/components/DatePicker'
-import {useRecoilValue} from 'recoil'
-import {scheduleDateState} from '@/store/schedule'
+import {format} from 'date-fns'
 
 interface Props {
   value: boolean
   data: Schedule
   activeTheme: ActiveTheme
+  displayMode: DisplayMode
   borderColor: string
   itemPanelHeight: number
   headerContainerStyle: ViewStyle
@@ -26,6 +25,7 @@ const DatePanel = memo(
     value,
     data,
     activeTheme,
+    displayMode,
     borderColor,
     itemPanelHeight,
     headerContainerStyle,
@@ -37,9 +37,19 @@ const DatePanel = memo(
     changeStartDate,
     changeEndDate
   }: Props) => {
-    const panelItemContentsHeight = 370
-    const [activeDatePanelItemIndex, setActiveDatePanelItemIndex] = useState(-1)
-    const scheduleDate = useRecoilValue(scheduleDateState)
+    const datePickerHeight = 298
+    const panelItemContentsHeight = datePickerHeight + 92
+    const [activeDatePanelItemIndex, setActiveDatePanelItemIndex] = useState(0)
+
+    const [startDateKey, setStartDateKey] = useState(new Date().getTime())
+    const [endDateKey, setEndDateKey] = useState(new Date().getTime())
+
+    const buttonStyle = useMemo(() => {
+      const borderWidth = displayMode === 1 ? 1 : 0
+      let backgroundColor = activeTheme.color5
+
+      return [styles.button, {backgroundColor, borderWidth}]
+    }, [displayMode, activeTheme.color5])
 
     const endDate = useMemo(() => {
       return data.end_date !== '9999-12-31' ? data.end_date : '없음'
@@ -70,24 +80,49 @@ const DatePanel = memo(
     )
 
     const handleStartDatePanel = useCallback(() => {
-      if (data.schedule_id) {
-        return
-      }
-
       setActiveDatePanelItemIndex(0)
-    }, [data.schedule_id])
+    }, [])
 
     const handleEndDatePanel = useCallback(() => {
       setActiveDatePanelItemIndex(1)
     }, [])
 
-    useEffect(() => {
-      if (data.schedule_id) {
-        setActiveDatePanelItemIndex(1)
+    const changeToday = useCallback(
+      (type: 'start' | 'end') => () => {
+        const currentDate = new Date()
+        const today = format(currentDate, 'yyyy-MM-dd')
+
+        if (type === 'start') {
+          if (today === data.start_date) {
+            setStartDateKey(currentDate.getTime())
+          } else {
+            changeStartDate(today)
+          }
+        } else if (type === 'end') {
+          if (today === data.end_date) {
+            setEndDateKey(currentDate.getTime())
+          } else {
+            changeEndDate(today)
+          }
+        }
+      },
+      [data.start_date, data.end_date, changeStartDate, changeEndDate]
+    )
+
+    const changeEndDateToStartDate = useCallback(() => {
+      const currentDate = new Date()
+      const today = format(currentDate, 'yyyy-MM-dd')
+
+      if (today === data.end_date) {
+        setEndDateKey(currentDate.getTime())
       } else {
-        setActiveDatePanelItemIndex(0)
+        changeEndDate(data.start_date)
       }
-    }, [data.schedule_id])
+    }, [data.start_date, data.end_date, changeEndDate])
+
+    const changeNoDate = useCallback(() => {
+      changeEndDate('9999-12-31')
+    }, [changeEndDate])
 
     return (
       <Panel
@@ -124,11 +159,13 @@ const DatePanel = memo(
               }
               contentsComponent={
                 <View style={styles.panelItemContents}>
-                  <DatePicker
-                    value={data.start_date}
-                    disableDate={format(scheduleDate, 'yyyy-MM-dd')}
-                    onChange={changeStartDate}
-                  />
+                  <DatePicker key={startDateKey} value={data.start_date} onChange={changeStartDate} />
+
+                  <View style={styles.buttonWrapper}>
+                    <Pressable style={buttonStyle} onPress={changeToday('start')}>
+                      <Text style={[styles.buttonText, {color: activeTheme.color3}]}>오늘</Text>
+                    </Pressable>
+                  </View>
                 </View>
               }
             />
@@ -151,7 +188,27 @@ const DatePanel = memo(
               }
               contentsComponent={
                 <View style={styles.panelItemContents}>
-                  <DatePicker value={data.end_date} hasNull disableDate={data.start_date} onChange={changeEndDate} />
+                  <DatePicker
+                    key={endDateKey}
+                    value={data.end_date}
+                    hasNull
+                    disableDate={data.start_date}
+                    onChange={changeEndDate}
+                  />
+
+                  <View style={styles.buttonWrapper}>
+                    <Pressable style={buttonStyle} onPress={changeToday('end')}>
+                      <Text style={[styles.buttonText, {color: activeTheme.color3}]}>오늘</Text>
+                    </Pressable>
+
+                    <Pressable style={buttonStyle} onPress={changeEndDateToStartDate}>
+                      <Text style={[styles.buttonText, {color: activeTheme.color3}]}>시작일</Text>
+                    </Pressable>
+
+                    <Pressable style={buttonStyle} onPress={changeNoDate}>
+                      <Text style={[styles.buttonText, {color: activeTheme.color3}]}>없음</Text>
+                    </Pressable>
+                  </View>
                 </View>
               }
             />
@@ -191,7 +248,27 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   panelItemContents: {
-    paddingTop: 20
+    paddingTop: 20,
+    paddingBottom: 20
+  },
+  buttonWrapper: {
+    flexDirection: 'row',
+    gap: 10,
+    marginTop: 10,
+    paddingHorizontal: 16
+  },
+  button: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 42,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: '#ffffff',
+    borderColor: '#eeeded'
+  },
+  buttonText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 14
   }
 })
 

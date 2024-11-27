@@ -1,10 +1,10 @@
-import React from 'react'
+import {useMemo, useCallback} from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
 
 import LeftArrowIcon from '@/assets/icons/arrow_left.svg'
 import RightArrowIcon from '@/assets/icons/arrow_right.svg'
 
-import {addMonths} from 'date-fns'
+import {subMonths, addMonths} from 'date-fns'
 
 interface Props {
   activeTheme: ActiveTheme
@@ -12,7 +12,7 @@ interface Props {
   onChange: Function
 }
 const ControlBar = ({activeTheme, currentDate, onChange}: Props) => {
-  const dateText = React.useMemo(() => {
+  const dateText = useMemo(() => {
     if (!currentDate) {
       return ''
     }
@@ -20,17 +20,15 @@ const ControlBar = ({activeTheme, currentDate, onChange}: Props) => {
     return `${currentDate.getFullYear()}년 ${currentDate.getMonth() + 1}월`
   }, [currentDate])
 
-  const handlePrev = React.useCallback(() => {
+  const handlePrev = useCallback(() => {
     if (currentDate) {
-      const calcDate = addMonths(currentDate, -1)
-      onChange(calcDate)
+      onChange(subMonths(currentDate, 1))
     }
   }, [currentDate, onChange])
 
-  const handleNext = React.useCallback(() => {
+  const handleNext = useCallback(() => {
     if (currentDate) {
-      const calcDate = addMonths(currentDate, 1)
-      onChange(calcDate)
+      onChange(addMonths(currentDate, 1))
     }
   }, [currentDate, onChange])
 

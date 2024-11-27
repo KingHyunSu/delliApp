@@ -1,50 +1,38 @@
-import React from 'react'
+import {memo, useMemo, useCallback} from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
-
 import {format, isBefore} from 'date-fns'
-import {setDigit} from '@/utils/helper'
-import {Item} from '../type'
 import {dateItemStyles} from '../style'
 
 interface DateItemProps {
-  item: Item
+  item: Date
   value: string | null
   disableDate?: string
   activeTheme: ActiveTheme
-  onChange: Function
+  onChange: (value: Date) => void
 }
 
-const DateItem = React.memo(({item, value, disableDate, activeTheme, onChange}: DateItemProps) => {
-  const isToday = React.useMemo(() => {
-    return `${item.year}${setDigit(item.month)}${setDigit(item.day)}` === format(new Date(), 'yyyyMMdd')
+const DateItem = memo(({item, value, disableDate, activeTheme, onChange}: DateItemProps) => {
+  const formatedItem = useMemo(() => {
+    return format(item, 'yyyy-MM-dd')
   }, [item])
 
-  const isActive = React.useMemo(() => {
-    if (!value) {
-      return false
-    }
+  const isToday = useMemo(() => {
+    return formatedItem === format(new Date(), 'yyyy-MM-dd')
+  }, [formatedItem])
 
-    const itemYear = item.year
-    const itemMonth = item.month
-    const itemDay = item.day
+  const isActive = useMemo(() => {
+    return formatedItem === value
+  }, [formatedItem, value])
 
-    const [selectYear, selectMonth, selectDay] = value.split('-')
-
-    const itemDateStr = `${itemYear}${setDigit(itemMonth)}${setDigit(itemDay)}`
-    const selectDateStr = `${selectYear}${selectMonth}${selectDay}`
-
-    return itemDateStr === selectDateStr
-  }, [item, value])
-
-  const isDisable = React.useMemo(() => {
+  const isDisable = useMemo(() => {
     if (disableDate) {
-      return isBefore(new Date(`${item.year}-${item.month}-${item.day}`), new Date(disableDate))
+      return isBefore(new Date(formatedItem), new Date(disableDate))
     }
 
     return false
-  }, [item.year, item.month, item.day, disableDate])
+  }, [formatedItem, disableDate])
 
-  const handleChange = React.useCallback(() => {
+  const handleChange = useCallback(() => {
     if (isDisable) {
       return
     }
@@ -52,14 +40,14 @@ const DateItem = React.memo(({item, value, disableDate, activeTheme, onChange}: 
     onChange(item)
   }, [isDisable, onChange, item])
 
-  const itemStyle = React.useMemo(() => {
+  const itemStyle = useMemo(() => {
     if (isActive) {
       return activeItemStyle
     }
     return isActive ? activeItemStyle : styles.item
   }, [isActive])
 
-  const textStyle = React.useMemo(() => {
+  const textStyle = useMemo(() => {
     let color = activeTheme.color3
 
     if (isActive || isToday) {
@@ -74,7 +62,7 @@ const DateItem = React.memo(({item, value, disableDate, activeTheme, onChange}: 
   return (
     <Pressable style={dateItemStyles.wrapper} onPress={handleChange}>
       <View style={itemStyle}>
-        <Text style={textStyle}>{item.day}</Text>
+        <Text style={textStyle}>{item.getDate()}</Text>
       </View>
     </Pressable>
   )
