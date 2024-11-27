@@ -8,7 +8,7 @@ import DatePicker from '@/components/DatePicker'
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {showDatePickerBottomSheetState} from '@/store/bottomSheet'
 import {activeThemeState} from '@/store/system'
-import type {Refs as DatePickerRef} from '@/components/DatePicker'
+import {format} from 'date-fns'
 
 interface Props {
   value: string | null
@@ -16,7 +16,7 @@ interface Props {
 }
 const DatePickerBottomSheet = ({value, onChange}: Props) => {
   const datePickerBottomSheetRef = useRef<BottomSheetModal>(null)
-  const datePickerRef = useRef<DatePickerRef>(null)
+  const [datePickerKey, setDatePickerKey] = useState(new Date().getTime())
 
   const [selectDate, changeDate] = useState(value)
 
@@ -49,7 +49,9 @@ const DatePickerBottomSheet = ({value, onChange}: Props) => {
   )
 
   const changeToday = useCallback(() => {
-    datePickerRef.current?.today()
+    const currentDate = new Date()
+    changeDate(format(currentDate, 'yyyy-MM-dd'))
+    setDatePickerKey(currentDate.getTime())
   }, [])
 
   const confirm = useCallback(() => {
@@ -84,7 +86,7 @@ const DatePickerBottomSheet = ({value, onChange}: Props) => {
       snapPoints={[500]}
       onDismiss={onDismiss}>
       <View style={styles.container}>
-        <DatePicker ref={datePickerRef} value={selectDate} onChange={onChangeDate} />
+        <DatePicker key={datePickerKey} value={selectDate} onChange={onChangeDate} />
 
         <View style={styles.buttonWrapper}>
           <Pressable
