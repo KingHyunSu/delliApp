@@ -12,11 +12,12 @@ import {useRecoilValue} from 'recoil'
 interface Props {
   visible: boolean
   translateY: number
+  color: string
   moveMyThemeList: () => void
   moveEditSchedule: () => void
   onClose: () => void
 }
-const HomeFabExtensionModal = ({visible, translateY, moveMyThemeList, moveEditSchedule, onClose}: Props) => {
+const HomeFabExtensionModal = ({visible, translateY, color, moveMyThemeList, moveEditSchedule, onClose}: Props) => {
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const rotate = useSharedValue(0)
@@ -115,7 +116,7 @@ const HomeFabExtensionModal = ({visible, translateY, moveMyThemeList, moveEditSc
       </Animated.View>
 
       <Animated.View style={[styles.fabWrapper, animatedStyle1, {bottom}]}>
-        <Pressable style={ButtonStyle} onPress={handleClose}>
+        <Pressable style={[styles.fab, {backgroundColor: color}]} onPress={handleClose}>
           <PlusIcon stroke="#ffffff" strokeWidth={3} />
         </Pressable>
       </Animated.View>
@@ -156,6 +157,5 @@ const styles = StyleSheet.create({
 })
 
 const themeButtonStyle = StyleSheet.compose(styles.fab, {backgroundColor: '#ffffff'})
-const ButtonStyle = StyleSheet.compose(styles.fab, {backgroundColor: '#424242'})
 
 export default HomeFabExtensionModal

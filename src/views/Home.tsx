@@ -35,7 +35,8 @@ import {
   activeThemeState,
   activeBackgroundState,
   statusBarColorState,
-  bottomSafeAreaColorState
+  bottomSafeAreaColorState,
+  statusBarTextStyleState
 } from '@/store/system'
 import {
   scheduleDateState,
@@ -56,6 +57,7 @@ import * as widgetApi from '@/apis/widget'
 import {HomeScreenProps} from '@/types/navigation'
 import {useGetScheduleList, useSetScheduleFocusTime} from '@/apis/hooks/useSchedule'
 import HomeFabExtensionModal from '@/components/modal/HomeFabExtensionModal'
+import {colorKit} from 'reanimated-color-picker'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
@@ -90,6 +92,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const setToast = useSetRecoilState(toastState)
   const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
   const setFocusModeInfo = useSetRecoilState(focusModeInfoState)
+  const setStatusBarTextStyle = useSetRecoilState(statusBarTextStyleState)
   const setStatusBarColor = useSetRecoilState(statusBarColorState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
 
@@ -114,6 +117,13 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       />
     )
   }, [activeBackground])
+
+  const fabBackgroundColor = React.useMemo(() => {
+    if (activeBackground.display_mode === 0) {
+      return colorKit.darken(activeBackground.sub_color, 11).hex()
+    }
+    return colorKit.brighten(activeBackground.sub_color, 11).hex()
+  }, [activeBackground.display_mode, activeBackground.sub_color])
 
   const currentScheduleDateString = React.useMemo(() => {
     const weekdays = ['일', '월', '화', '수', '목', '금', '토']
@@ -219,6 +229,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   // android 뒤로가기 제어
   useFocusEffect(
     React.useCallback(() => {
+      setStatusBarTextStyle(activeBackground.display_mode === 0 ? 'dark-content' : 'light-content')
       setStatusBarColor(activeBackground.background_color)
       setBottomSafeAreaColor(activeTheme.color5)
 
@@ -408,7 +419,9 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         </Animated.View>
       ) : (
         <Animated.View style={fabContainerStyle}>
-          <Pressable style={scheduleFabStyle} onPress={() => setShowFabExtensionModal(true)}>
+          <Pressable
+            style={[homeStyles.fab, {backgroundColor: fabBackgroundColor}]}
+            onPress={() => setShowFabExtensionModal(true)}>
             <PlusIcon stroke="#ffffff" strokeWidth={3} />
           </Pressable>
         </Animated.View>
@@ -420,6 +433,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       <HomeFabExtensionModal
         visible={showFabExtensionModal}
         translateY={fabTranslateY.value}
+        color={fabBackgroundColor}
         moveMyThemeList={moveMyThemeList}
         moveEditSchedule={moveEditSchedule}
         onClose={() => setShowFabExtensionModal(false)}
@@ -498,7 +512,6 @@ const homeStyles = StyleSheet.create({
   }
 })
 
-const scheduleFabStyle = StyleSheet.compose(homeStyles.fab, {backgroundColor: '#424242'})
 const focusTimeFabStyle = StyleSheet.compose(homeStyles.fab, {backgroundColor: '#FF7043'})
 
 export default Home
