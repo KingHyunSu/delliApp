@@ -7,10 +7,18 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin'
 import * as KakaoAuth from '@react-native-seoul/kakao-login'
 import {LOGIN_TYPE} from '@/utils/types'
 
-import {useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
+import {useSetRecoilState, useResetRecoilState, useRecoilValue, useRecoilState} from 'recoil'
 import {scheduleDateState, scheduleListState} from '@/store/schedule'
 import {activeTimeTableCategoryState} from '@/store/timetable'
-import {isEditState, loginState} from '@/store/system'
+import {
+  activeThemeState,
+  bottomSafeAreaColorState,
+  displayModeState,
+  loginState,
+  statusBarColorState,
+  statusBarTextStyleState,
+  windowDimensionsState
+} from '@/store/system'
 
 import * as termsApi from '@/apis/terms'
 import * as authApi from '@/apis/auth'
@@ -22,26 +30,44 @@ import {SettingNavigationProps} from '@/types/navigation'
 
 import {setTestData, deleteAllScheduleData} from '@/utils/test'
 import {format} from 'date-fns'
+import {useUpdateDisplayMode} from '@/apis/hooks/useUser'
 
 const Setting = ({navigation}: SettingNavigationProps) => {
+  const {mutateAsync: updateDisplayMutateAsync} = useUpdateDisplayMode()
+
+  const activeTheme = useRecoilValue(activeThemeState)
+  const windowDimensions = useRecoilValue(windowDimensionsState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const scheduleList = useRecoilValue(scheduleListState)
 
-  const setIsEdit = useSetRecoilState(isEditState)
+  const [displayMode, setDisplayMode] = useRecoilState(displayModeState)
+  const setStatusBarColor = useSetRecoilState(statusBarColorState)
+  const setStatusBarTextStyle = useSetRecoilState(statusBarTextStyleState)
+  const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
   const setIsLogin = useSetRecoilState(loginState)
   const resetScheduleDate = useResetRecoilState(scheduleDateState)
   const resetScheduleList = useResetRecoilState(scheduleListState)
   const resetActiveTimeTableCategoryState = useResetRecoilState(activeTimeTableCategoryState)
 
-  const handleMove = React.useCallback(() => {
-    // navigation.navigate('Home')
-    // setIsEdit(true)
-  }, [])
-
   const getTermsUrl = async (type: string) => {
     const response = await termsApi.getTermsUrl(type)
     return response.data.url || ''
   }
+
+  const displayStyle = React.useMemo(() => {
+    const aspectRatio = 1.77
+    const width = windowDimensions.width / 4
+    const height = width * aspectRatio
+
+    return [displayModeStyle.display, {width, height}]
+  }, [windowDimensions.width])
+
+  const getPickWrapperStyle = React.useCallback(
+    (mode: DisplayMode) => {
+      return displayMode === mode ? activePickWrapper : displayModeStyle.pickWrapper
+    },
+    [displayMode]
+  )
 
   const version = React.useMemo(() => {
     if (Platform.OS === 'ios') {
@@ -51,6 +77,28 @@ const Setting = ({navigation}: SettingNavigationProps) => {
     }
     return ''
   }, [Platform.OS])
+
+  const changeDisplayMode = React.useCallback(
+    (displayMode: DisplayMode) => async () => {
+      await updateDisplayMutateAsync(displayMode)
+      setDisplayMode(displayMode)
+      // setBottomSafeAreaColor(activeTheme.color1)
+    },
+    [updateDisplayMutateAsync, setDisplayMode]
+  )
+
+  React.useEffect(() => {
+    setStatusBarTextStyle(displayMode === 1 ? 'dark-content' : 'light-content')
+    setStatusBarColor(activeTheme.color1)
+    setBottomSafeAreaColor(activeTheme.color5)
+  }, [
+    displayMode,
+    activeTheme.color1,
+    activeTheme.color5,
+    setStatusBarTextStyle,
+    setStatusBarColor,
+    setBottomSafeAreaColor
+  ])
 
   const moveServiceTermsPage = React.useCallback(async () => {
     // const url = await getTermsUrl('1')
@@ -131,20 +179,8 @@ const Setting = ({navigation}: SettingNavigationProps) => {
   }, [])
 
   return (
-    <View style={styles.container}>
-      <AppBar>
-        <View style={headerStyles.section}>
-          <Pressable style={styles.backButton} onPress={navigation.goBack}>
-            <ArrowLeftIcon stroke="#242933" />
-          </Pressable>
-        </View>
-
-        <View style={headerStyles.titleSection}>
-          <Text style={styles.appBarTitle}>설정</Text>
-        </View>
-
-        <View style={headerStyles.section} />
-      </AppBar>
+    <View style={[styles.container, {backgroundColor: activeTheme.color1}]}>
+      <AppBar backPress color={activeTheme.color1} backPressIconColor={activeTheme.color3} />
 
       <ScrollView style={styles.scrollContainer}>
         {/* <Pressable style={styles.item} onPress={handleMove}>
@@ -153,40 +189,70 @@ const Setting = ({navigation}: SettingNavigationProps) => {
 
         <View style={styles.blank} /> */}
 
-        <Pressable style={styles.item} onPress={moveServiceTermsPage}>
-          <Text style={styles.contentText}>서비스 이용 약관</Text>
-          <ArrowRightIcon stroke="#242933" />
+        <View style={[displayModeStyle.container, {backgroundColor: activeTheme.color2}]}>
+          <View style={displayModeStyle.wrapper}>
+            <Text style={[displayModeStyle.label, {color: activeTheme.color3}]}>라이트</Text>
+
+            <Pressable style={[displayStyle, {backgroundColor: '#ffffff'}]} onPress={changeDisplayMode(1)}>
+              <View style={[displayModeStyle.displayItem, {backgroundColor: '#f9f9f9'}]} />
+              <View style={[displayModeStyle.displayItem, {backgroundColor: '#f9f9f9'}]} />
+            </Pressable>
+
+            <View style={getPickWrapperStyle(1)}>
+              <View style={displayModeStyle.pick} />
+            </View>
+          </View>
+
+          <View style={displayModeStyle.wrapper}>
+            <Text style={[displayModeStyle.label, {color: activeTheme.color3}]}>다크</Text>
+
+            <Pressable style={[displayStyle, {backgroundColor: '#202023'}]} onPress={changeDisplayMode(2)}>
+              <View style={[displayModeStyle.displayItem, {backgroundColor: '#35353B'}]} />
+              <View style={[displayModeStyle.displayItem, {backgroundColor: '#35353B'}]} />
+            </Pressable>
+
+            <View style={getPickWrapperStyle(2)}>
+              <View style={displayModeStyle.pick} />
+            </View>
+          </View>
+        </View>
+
+        <Pressable
+          style={[styles.item, {borderBottomWidth: 1, borderBottomColor: activeTheme.color2}]}
+          onPress={moveServiceTermsPage}>
+          <Text style={[styles.contentText, {color: activeTheme.color3}]}>서비스 이용 약관</Text>
+          <ArrowRightIcon stroke={activeTheme.color3} />
         </Pressable>
 
         <Pressable style={styles.item} onPress={movePrivacyPage}>
-          <Text style={styles.contentText}>개인정보 처리방침</Text>
-          <ArrowRightIcon stroke="#242933" />
+          <Text style={[styles.contentText, {color: activeTheme.color3}]}>개인정보 처리방침</Text>
+          <ArrowRightIcon stroke={activeTheme.color3} />
         </Pressable>
 
-        <View style={styles.blank} />
+        <View style={[styles.blank, {backgroundColor: activeTheme.color2}]} />
 
         {__DEV__ && (
           <>
             <Pressable style={styles.item} onPress={setTest}>
-              <Text style={styles.contentText}>테스트 데이터 추가</Text>
+              <Text style={[styles.contentText, {color: activeTheme.color3}]}>테스트 데이터 추가</Text>
             </Pressable>
             <Pressable style={styles.item} onPress={deleteAllSchedule}>
-              <Text style={styles.contentText}>테스트 데이터 삭제</Text>
+              <Text style={[styles.contentText, {color: activeTheme.color3}]}>테스트 데이터 삭제</Text>
             </Pressable>
 
-            <View style={styles.blank} />
+            <View style={[styles.blank, {backgroundColor: activeTheme.color2}]} />
 
             <Pressable style={styles.item} onPress={deleteToken}>
-              <Text style={styles.contentText}>토큰 삭제</Text>
+              <Text style={[styles.contentText, {color: activeTheme.color3}]}>토큰 삭제</Text>
             </Pressable>
-            <View style={styles.blank} />
+            <View style={[styles.blank, {backgroundColor: activeTheme.color2}]} />
           </>
         )}
 
         <View style={styles.footer}>
           <View style={styles.item}>
-            <Text style={styles.contentText}>버전</Text>
-            <Text style={styles.contentText}>{version}</Text>
+            <Text style={[styles.contentText, {color: activeTheme.color3}]}>버전</Text>
+            <Text style={[styles.contentText, {color: activeTheme.color3}]}>{version}</Text>
           </View>
 
           {/* 2024-05-18 서버 제거로 인해 비활성화 */}
@@ -205,8 +271,7 @@ const Setting = ({navigation}: SettingNavigationProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff'
+    flex: 1
   },
   scrollContainer: {
     flex: 1,
@@ -244,14 +309,53 @@ const styles = StyleSheet.create({
   }
 })
 
-const headerStyles = StyleSheet.create({
-  section: {
-    flex: 1
+const displayModeStyle = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    backgroundColor: '#f5f6f8',
+    paddingVertical: 20
   },
-  titleSection: {
+  wrapper: {
     flex: 1,
+    alignItems: 'center',
+    gap: 10
+  },
+  label: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 14,
+    color: '#424242'
+  },
+
+  display: {
+    backgroundColor: '#ffffff',
+    borderRadius: 10,
+    padding: 10,
+    gap: 10
+  },
+  displayItem: {
+    width: '100%',
+    height: '30%',
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10
+  },
+
+  pickWrapper: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    // backgroundColor: '#1E90FF',
+    backgroundColor: '#efefef',
+    justifyContent: 'center',
     alignItems: 'center'
+  },
+  pick: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#ffffff'
   }
 })
+
+const activePickWrapper = StyleSheet.compose(displayModeStyle.pickWrapper, {backgroundColor: '#1E90FF'})
 
 export default Setting
