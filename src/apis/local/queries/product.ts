@@ -1,22 +1,32 @@
-export const getDownloadThemeListQuery = () => {
-  return `SELECT * FROM THEME`
-}
-
-export const getActiveThemeQuery = () => {
-  return `SELECT * FROM THEME WHERE theme_id = ?`
-}
-
-export const setDefaultThemeQuery = () => {
+export const setDefaultBackgroundQuery = () => {
   return `
-    INSERT INTO THEME (theme_id, file_name, color1, color2, color3, color4, color5, color6, color7, color8, display_mode)
-    SELECT 1, 'white.png', '#ffffff', '#f5f6f8', '#424242', '', '#ffffff', '#f9f9f9', '#424242', '#babfc5', 0
-    WHERE NOT EXISTS (SELECT 1 FROM THEME WHERE theme_id = 1)
-	`
+    INSERT INTO background (background_id, file_name, display_mode, background_color, sub_color, accent_color)
+    SELECT 1, 'beige.png', 0, '#F8F4EC', '#F3EBDE', '#424242'
+    WHERE NOT EXISTS (SELECT 1 FROM background WHERE background_id = 1)
+  `
 }
 
-export const setThemeQuery = () => {
+export const getDownloadedBackgroundListQuery = () => {
+  return `SELECT background_id, file_name FROM background`
+}
+
+export const setDownloadBackgroundQuery = () => {
   return `
-    INSERT INTO THEME (theme_id, file_name, color1, color2, color3, color4, color5, color6, color7, color8, display_mode)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO background (background_id, file_name, display_mode, background_color, sub_color, accent_color) 
+    VALUES (?, ?, ?, ?, ?, ?)
+  `
+}
+
+export const getActiveBackgroundQuery = () => {
+  return `
+    SELECT 
+      background_id, 
+      file_name, 
+      display_mode, 
+      background_color, 
+      sub_color,
+      accent_color 
+    FROM background 
+    WHERE background_id = ?
   `
 }

@@ -20,7 +20,9 @@ import {
   isLoadingState,
   editScheduleListStatusState,
   editTimetableTranslateYState,
-  activeThemeState
+  activeThemeState,
+  displayModeState,
+  activeBackgroundState
 } from '@/store/system'
 import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
 import {
@@ -56,7 +58,9 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   // TODO 글자 중앙 정렬 sudo code
   // const [isFixedAlignCenter, setIsFixedAlignCenter] = useRecoilState(isFixedAlignCenterState)
 
+  const displayMode = useRecoilValue(displayModeState)
   const activeTheme = useRecoilValue(activeThemeState)
+  const activeBackground = useRecoilValue(activeBackgroundState)
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
   const scheduleList = useRecoilValue(scheduleListState)
   const disableScheduleList = useRecoilValue(disableScheduleListState)
@@ -221,20 +225,20 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   }, [editTimetableTranslateY, setIsRendered])
 
   const background = React.useMemo(() => {
-    if (activeTheme.theme_id === 1) {
-      return <Image style={styles.backgroundImage} source={require('@/assets/white.png')} />
+    if (!activeBackground || activeBackground.background_id === 1) {
+      return <Image style={styles.backgroundImage} source={require('@/assets/beige.png')} />
     }
 
     return (
       <Image
         style={styles.backgroundImage}
-        source={{uri: `file://${RNFetchBlob.fs.dirs.DocumentDir}/${activeTheme.file_name}`}}
+        source={{uri: `file://${RNFetchBlob.fs.dirs.DocumentDir}/${activeBackground.file_name}`}}
       />
     )
-  }, [activeTheme.theme_id, activeTheme.file_name])
+  }, [activeBackground])
 
   return (
-    <View style={[styles.container, {backgroundColor: activeTheme.color1}]}>
+    <View style={[styles.container, {backgroundColor: activeBackground.background_color}]}>
       <AppBar color="transparent">
         <Animated.View style={timeInfoContainerStyle}>
           <View style={styles.timeInfoWrapper}>
@@ -248,7 +252,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         <View />
 
         <Pressable style={styles.appBarRightButton} onPress={closeEditScheduleBottomSheet}>
-          <CancelIcon stroke={activeTheme.color7} strokeWidth={3} />
+          <CancelIcon stroke={activeBackground.accent_color} strokeWidth={3} />
         </Pressable>
       </AppBar>
 
@@ -272,7 +276,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         <ControlBar
           ref={controlBarRef}
           schedule={schedule}
-          displayMode={activeTheme.display_mode === 0 ? 'light' : 'dark'}
+          displayMode={displayMode === 1 ? 'light' : 'dark'}
           isActiveSubmit={activeSubmit}
           changeFontSize={changeFontSize}
           onActiveControlMode={handleActiveControlMode}

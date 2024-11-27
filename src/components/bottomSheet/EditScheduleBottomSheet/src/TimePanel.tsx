@@ -8,7 +8,8 @@ import {addMinutes, startOfToday} from 'date-fns'
 interface Props {
   value: boolean
   data: Schedule
-  activeTheme: ActiveTheme
+  displayMode: DisplayMode
+  borderColor: string
   itemPanelHeight: number
   headerContainerStyle: ViewStyle
   headerTitleWrapper: ViewStyle
@@ -23,7 +24,8 @@ const TimePanel = memo(
   ({
     value,
     data,
-    activeTheme,
+    displayMode,
+    borderColor,
     itemPanelHeight,
     headerContainerStyle,
     headerTitleWrapper,
@@ -35,8 +37,8 @@ const TimePanel = memo(
     changeEndTime
   }: Props) => {
     const themeVariant = useMemo(() => {
-      return activeTheme.display_mode === 0 ? 'light' : 'dark'
-    }, [activeTheme.display_mode])
+      return displayMode === 1 ? 'light' : 'dark'
+    }, [displayMode])
 
     const startTimeObj = useMemo(() => {
       return getTimeOfMinute(data.start_time)
@@ -184,7 +186,7 @@ const TimePanel = memo(
               {startTimeButton}
             </View>
 
-            <View style={[styles.itemHeaderContainer, {height: itemPanelHeight, borderTopColor: activeTheme.color2}]}>
+            <View style={[styles.itemHeaderContainer, {height: itemPanelHeight, borderTopColor: borderColor}]}>
               <Text style={itemHeaderLabelStyle}>종료 시간</Text>
 
               {endTimeButton}
@@ -209,7 +211,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    borderTopWidth: 2
+    borderTopWidth: 1
   },
   button: {
     paddingVertical: 10,

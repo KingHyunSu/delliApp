@@ -1,13 +1,15 @@
 import {
-  GetActiveThemeResponse,
-  GetMyThemeListResponse,
-  GetThemeDetailResponse,
-  GetThemeListResponse
+  GetActiveBackgroundResponse,
+  GetDownloadedBackgroundListResponse,
+  GetMyBackgroundListResponse,
+  GetProductBackgroundDetailResponse,
+  GetProductBackgroundListResponse
 } from '@/apis/types/product'
 
 declare global {
-  interface ThemeListItem extends GetThemeListResponse {}
-  interface ThemeDetail extends GetThemeDetailResponse {}
-  interface ActiveTheme extends GetActiveThemeResponse {}
-  interface MyThemeListItem extends GetMyThemeListResponse {}
+  interface ActiveBackground extends GetActiveBackgroundResponse {}
+  interface ProductBackgroundItem extends GetProductBackgroundListResponse {}
+  interface ProductBackgroundDetail extends GetProductBackgroundDetailResponse {}
+  interface DownloadedBackgroundItem extends GetDownloadedBackgroundListResponse {}
+  interface MyBackgroundItem extends GetMyBackgroundListResponse {}
 }

@@ -11,10 +11,18 @@ export const useGetUser = () => {
   })
 }
 
-export const useUpdateTheme = () => {
+export const useUpdateActiveBackgroundId = () => {
   return useMutation({
     mutationFn: (id: number) => {
-      return userRepository.updateTheme(id)
+      return userRepository.updateActiveBackgroundId(id)
+    }
+  })
+}
+
+export const useUpdateDisplayMode = () => {
+  return useMutation({
+    mutationFn: async (displayMode: DisplayMode) => {
+      return userRepository.updateDisplayMode(displayMode)
     }
   })
 }

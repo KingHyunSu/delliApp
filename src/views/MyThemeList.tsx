@@ -1,21 +1,36 @@
-import {useCallback, useEffect, useMemo, useState} from 'react'
-import {StyleSheet, View, Text, FlatList, ListRenderItem, Pressable, Image} from 'react-native'
+import {useState, useMemo, useCallback, useEffect} from 'react'
+import {StyleSheet, View, Text, FlatList, ListRenderItem, Pressable, Image, ActivityIndicator} from 'react-native'
 import AppBar from '@/components/AppBar'
-import CheckIcon from '@/assets/icons/check.svg'
+import DownloadIcon from '@/assets/icons/download.svg'
+import RNFetchBlob from 'rn-fetch-blob'
+
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {activeThemeState, alertState, windowDimensionsState} from '@/store/system'
-import {useGetActiveTheme, useGetMyThemeList} from '@/apis/hooks/useProduct'
-import {useUpdateTheme} from '@/apis/hooks/useUser'
+import {activeBackgroundState, alertState, windowDimensionsState} from '@/store/system'
+import {useQueryClient} from '@tanstack/react-query'
+import {
+  useGetMyBackgroundList,
+  useGetDownloadedBackgroundList,
+  useGetActiveBackground,
+  useGetBackgroundDetailMutation,
+  useSetDownloadBackground
+} from '@/apis/hooks/useProduct'
+import {useUpdateActiveBackgroundId} from '@/apis/hooks/useUser'
 
 const MyThemeList = () => {
-  const {mutateAsync: getMyThemeListMutateAsync} = useGetMyThemeList()
-  const {mutateAsync: updateThemeMutateAsync} = useUpdateTheme()
-  const {mutateAsync: getActiveThemeMutateAsync} = useGetActiveTheme()
+  const queryClient = useQueryClient()
 
-  const [myThemeList, setMyThemeList] = useState<MyThemeListItem[]>([])
+  const {data: downloadBackgroundList} = useGetDownloadedBackgroundList()
+  const {mutateAsync: getMyBackgroundListMutateAsync} = useGetMyBackgroundList()
+  const {mutateAsync: updateActiveBackgroundIdMutateAsync} = useUpdateActiveBackgroundId()
+  const {mutateAsync: getActiveBackgroundMutateAsync} = useGetActiveBackground()
+  const {mutateAsync: getBackgroundDetailMutationAsync} = useGetBackgroundDetailMutation()
+  const {mutateAsync: setDownloadBackgroundMutateAsync} = useSetDownloadBackground()
 
-  const [activeTheme, setActiveTheme] = useRecoilState(activeThemeState)
+  const [myBackgroundList, setMyBackgroundList] = useState<MyBackgroundItem[]>([])
+  const [isDownLoading, setIsDownLoading] = useState(false)
+
   const windowDimensions = useRecoilValue(windowDimensionsState)
+  const [activeBackground, setActiveBackground] = useRecoilState(activeBackgroundState)
   const alert = useSetRecoilState(alertState)
 
   const imageWidth = useMemo(() => {
@@ -24,9 +39,53 @@ const MyThemeList = () => {
     return (windowDimensions.width - totalPadding - totalGap) / 3
   }, [windowDimensions.width])
 
+  const handleDownload = useCallback(
+    async (detail: ProductBackgroundDetail) => {
+      try {
+        await RNFetchBlob.config({
+          fileCache: true,
+          path: `${RNFetchBlob.fs.dirs.DocumentDir}/${detail.file_name}`
+        }).fetch('GET', detail.main_url)
+
+        await setDownloadBackgroundMutateAsync({
+          background_id: detail.product_background_id,
+          file_name: detail.file_name,
+          display_mode: detail.display_mode,
+          background_color: detail.background_color,
+          sub_color: detail.sub_color,
+          accent_color: detail.accent_color
+        })
+      } catch (e) {
+        throw e
+      }
+    },
+    [setDownloadBackgroundMutateAsync]
+  )
+
+  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
+  const downloadTheme = useCallback(
+    (id: number) => async () => {
+      try {
+        setIsDownLoading(true)
+
+        const backgroundDetail = await getBackgroundDetailMutationAsync(id)
+
+        await Promise.all([handleDownload(backgroundDetail), delay(3000)])
+
+        await queryClient.invalidateQueries({queryKey: ['downloadBackgroundList']})
+      } catch (e) {
+        console.error('Download error:', e)
+      } finally {
+        setIsDownLoading(false)
+      }
+    },
+    [setIsDownLoading, handleDownload, getBackgroundDetailMutationAsync, queryClient]
+  )
+
   const changeActiveTheme = useCallback(
     (id: number) => () => {
-      if (id === activeTheme.theme_id) {
+      if (id === activeBackground.background_id) {
         return
       }
 
@@ -35,41 +94,67 @@ const MyThemeList = () => {
         title: '테마를 변경할까요?',
         confirmButtonText: '변경하기',
         confirmFn: async () => {
-          await updateThemeMutateAsync(id)
-          const themeDetail = await getActiveThemeMutateAsync(id)
+          await updateActiveBackgroundIdMutateAsync(id)
+          const _activeBackground = await getActiveBackgroundMutateAsync(id)
 
-          setActiveTheme(themeDetail)
+          setActiveBackground(_activeBackground)
         }
       })
     },
-    [activeTheme.theme_id, updateThemeMutateAsync, getActiveThemeMutateAsync, setActiveTheme]
+    [
+      activeBackground.background_id,
+      updateActiveBackgroundIdMutateAsync,
+      getActiveBackgroundMutateAsync,
+      alert,
+      setActiveBackground
+    ]
   )
 
   useEffect(() => {
     const init = async () => {
-      const _myThemeList = await getMyThemeListMutateAsync()
-      setMyThemeList(_myThemeList)
+      const _myBackgroundList = await getMyBackgroundListMutateAsync()
+      setMyBackgroundList(_myBackgroundList)
     }
 
     init()
-  }, [getMyThemeListMutateAsync, setMyThemeList])
+  }, [getMyBackgroundListMutateAsync, setMyBackgroundList])
 
-  const getRenderItem: ListRenderItem<MyThemeListItem> = useCallback(
+  const downloadIcon = useMemo(() => {
+    if (isDownLoading) {
+      return <ActivityIndicator color="#e8eaed" />
+    }
+
+    return <DownloadIcon stroke="#f5f6f8" />
+  }, [isDownLoading])
+
+  const getRenderItem: ListRenderItem<MyBackgroundItem> = useCallback(
     ({item}) => {
       const aspectRatio = 1.77
 
-      const isActive = activeTheme.theme_id === item.theme_id
+      const isActive = activeBackground.background_id === item.product_background_id
+      const isDownloaded = downloadBackgroundList.some(sItem => sItem.background_id === item.product_background_id)
 
+      let handlePress = changeActiveTheme(item.product_background_id)
+
+      if (!isDownloaded) {
+        handlePress = downloadTheme(item.product_background_id)
+      }
       return (
-        <Pressable style={itemStyles.container} onPress={changeActiveTheme(item.theme_id)}>
+        <Pressable style={itemStyles.container} onPress={handlePress}>
           <Image
             style={{width: imageWidth, height: imageWidth * aspectRatio, borderRadius: 10}}
             source={{uri: item.thumb_url}}
           />
 
-          {isActive && (
+          {!isDownloaded && (
             <View style={[itemStyles.overlap, {width: imageWidth, height: imageWidth * aspectRatio}]}>
-              <CheckIcon width="30%" height="30%" strokeWidth={3} stroke="#f5f6f8" />
+              {downloadIcon}
+            </View>
+          )}
+
+          {isActive && (
+            <View style={itemStyles.activeLabel}>
+              <Text style={itemStyles.activeLabelText}>적용중</Text>
             </View>
           )}
 
@@ -79,7 +164,7 @@ const MyThemeList = () => {
         </Pressable>
       )
     },
-    [activeTheme, imageWidth]
+    [downloadBackgroundList, downloadIcon, activeBackground, downloadTheme, imageWidth, changeActiveTheme]
   )
 
   return (
@@ -91,7 +176,7 @@ const MyThemeList = () => {
       <FlatList
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.listColumnWrapper}
-        data={myThemeList}
+        data={myBackgroundList}
         renderItem={getRenderItem}
         numColumns={3}
       />
@@ -103,6 +188,21 @@ const itemStyles = StyleSheet.create({
   container: {
     gap: 5
   },
+  activeLabel: {
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: '#1E90FF',
+    borderRadius: 20
+  },
+  activeLabelText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 12,
+    color: '#ffffff'
+  },
+
   overlap: {
     position: 'absolute',
     justifyContent: 'center',

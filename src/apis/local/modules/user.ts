@@ -7,7 +7,7 @@ export const getUser = async () => {
   const db = await openDatabase()
   const [result] = await db.executeSql(query)
 
-  return result.rows.item(0) as User
+  return result.rows.item(0) as UserInfo
 }
 
 export const setUser = async () => {
@@ -19,8 +19,15 @@ export const setUser = async () => {
   await db.executeSql(query, [userId])
 }
 
-export const updateTheme = async (id: number) => {
-  const query = userQueries.updateThemeQuery()
+export const updateDisplayMode = async (displayMode: DisplayMode) => {
+  const query = userQueries.updateDisplayModeQuery()
+  const db = await openDatabase()
+
+  return db.executeSql(query, [displayMode])
+}
+
+export const updateActiveBackgroundId = async (id: number) => {
+  const query = userQueries.updateActiveBackgroundIdQuery()
   const db = await openDatabase()
 
   return db.executeSql(query, [id])

@@ -38,6 +38,7 @@ import CategoryStats from '@/views/CategoryStats'
 // components
 import Toast from '@/components/Toast'
 import {Alert} from '@/components/messageBox'
+import Loading from '@/components/Loading'
 
 // icons
 import HomeIcon from '@/assets/icons/home.svg'
@@ -47,13 +48,17 @@ import RoutineIcon from '@/assets/icons/routine.svg'
 import StoreIcon from '@/assets/icons/store.svg'
 
 // stores
-import {useRecoilState, useSetRecoilState, useRecoilSnapshot} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState, useRecoilSnapshot} from 'recoil'
 import {
   loginState,
   isLunchState,
   windowDimensionsState,
   bottomSafeAreaColorState,
-  activeThemeState
+  activeThemeState,
+  displayModeState,
+  activeBackgroundState,
+  statusBarColorState,
+  statusBarTextStyleState
 } from '@/store/system'
 
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
@@ -62,7 +67,7 @@ import initDatabase from '@/apis/local/utils/init'
 import {focusModeInfoState} from '@/store/schedule'
 
 import {useGetUser, useAccess} from '@/apis/hooks/useUser'
-import {useGetActiveTheme} from '@/apis/hooks/useProduct'
+import {useGetActiveBackground} from '@/apis/hooks/useProduct'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
@@ -73,7 +78,7 @@ interface BottomTabsProps {
   activeTheme: ActiveTheme
 }
 const BottomTabs = React.memo(({activeTheme}: BottomTabsProps) => {
-  const borderTopColor = activeTheme.theme_id === 1 ? '#D8D8D8' : activeTheme.color1
+  const borderTopColor = activeTheme.color6
 
   return (
     <Tab.Navigator
@@ -136,7 +141,7 @@ const linking: LinkingOptions<BottomTabNavigator> = {
 function App(): JSX.Element {
   const {mutateAsync: getUserMutateAsync} = useGetUser()
   const {mutateAsync: accessMutateAsync} = useAccess()
-  const {mutateAsync: getActiveThemeMutateAsync} = useGetActiveTheme()
+  const {mutateAsync: getActiveBackgroundMutateAsync} = useGetActiveBackground()
 
   const windowDimensions = useWindowDimensions()
 
@@ -148,14 +153,18 @@ function App(): JSX.Element {
   const [isActiveApp, setIsActiveApp] = React.useState(false)
   const [isInit, setIsInit] = React.useState(false)
 
-  const [activeTheme, setActiveTheme] = useRecoilState(activeThemeState)
   const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
+
+  const [displayMode, setDisplayMode] = useRecoilState(displayModeState)
+  const [activeBackground, setActiveBackground] = useRecoilState(activeBackgroundState)
+  const activeTheme = useRecoilValue(activeThemeState)
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
 
+  const [statusBarColor, setStatusBarColor] = useRecoilState(statusBarColorState)
+  const [statusBarTextStyle, setStatusBarTextStyle] = useRecoilState(statusBarTextStyleState)
   const [bottomSafeAreaColor, setBottomSafeAreaColor] = useRecoilState(bottomSafeAreaColorState)
-  const [statusBarColor, setStatusBarColor] = React.useState('#ffffff')
 
   const screenOptions = React.useMemo(() => {
     return {headerShown: false}
@@ -173,14 +182,6 @@ function App(): JSX.Element {
     }
   }, [statusBarColor])
 
-  const statusBarContentStyle = React.useMemo(() => {
-    if (statusBarColor === '#f5f6f8') {
-      return 'dark-content'
-    }
-
-    return activeTheme.display_mode === 0 ? 'dark-content' : 'light-content'
-  }, [statusBarColor, activeTheme.display_mode])
-
   const containerStyle = React.useMemo(() => {
     return {flex: 1, backgroundColor: bottomSafeAreaColor}
   }, [bottomSafeAreaColor])
@@ -188,17 +189,16 @@ function App(): JSX.Element {
   const changeRoute = React.useCallback(() => {
     const route = navigationRef.current?.getCurrentRoute()
 
-    let _statusBarColor = activeTheme.color1
     let _bottomSafeAreaColor: string | null = activeTheme.color5
 
     switch (route?.name) {
       // case 'Stats':
       case 'StoreList':
-        _statusBarColor = '#f5f6f8'
+        setStatusBarColor('#f5f6f8')
         break
       case 'ThemeDetail':
       case 'MyThemeList':
-        _statusBarColor = '#f5f6f8'
+        setStatusBarColor('#f5f6f8')
         _bottomSafeAreaColor = '#f5f6f8'
         break
       case 'EditRoutine':
@@ -213,7 +213,6 @@ function App(): JSX.Element {
       //   break
     }
 
-    setStatusBarColor(_statusBarColor)
     if (_bottomSafeAreaColor) {
       setBottomSafeAreaColor(_bottomSafeAreaColor)
     }
@@ -270,25 +269,31 @@ function App(): JSX.Element {
       const isInitDatabase = await initDatabase()
 
       const user = await getUserMutateAsync()
-
       const accessResponse = await accessMutateAsync({id: user.user_id})
 
       if (accessResponse && accessResponse.token) {
         await AsyncStorage.setItem('token', accessResponse.token)
       }
 
-      const activeThemeId = user.active_theme_id || 1
-      const themeDetail = await getActiveThemeMutateAsync(activeThemeId)
+      const activeBackgroundId = user.active_background_id || 1
+      const backgroundDetail = await getActiveBackgroundMutateAsync(activeBackgroundId)
 
-      setStatusBarColor(themeDetail.color1)
-      setBottomSafeAreaColor(themeDetail.color5)
-      setActiveTheme(themeDetail)
+      setStatusBarTextStyle(backgroundDetail.display_mode === 0 ? 'dark-content' : 'light-content')
+      setActiveBackground(backgroundDetail)
+      setDisplayMode(user.display_mode)
 
       setIsInit(isInitDatabase)
     }
 
     init()
-  }, [getActiveThemeMutateAsync, getUserMutateAsync, setActiveTheme])
+  }, [
+    accessMutateAsync,
+    getUserMutateAsync,
+    getActiveBackgroundMutateAsync,
+    setStatusBarTextStyle,
+    setActiveBackground,
+    setDisplayMode
+  ])
 
   /**
    * 테스트용 광고 비활성화 start
@@ -417,12 +422,13 @@ function App(): JSX.Element {
     <GestureHandlerRootView style={styles.container}>
       {/* <RecoilDebugObserver /> */}
       <BottomSheetModalProvider>
-        <StatusBar translucent backgroundColor="transparent" barStyle={statusBarContentStyle} />
+        <StatusBar translucent backgroundColor="transparent" barStyle={statusBarTextStyle} />
 
         <SafeAreaView style={statusBarStyle} />
 
         <Toast />
         <Alert />
+        <Loading />
 
         <SafeAreaView style={containerStyle}>
           <NavigationContainer ref={navigationRef} linking={linking} onStateChange={changeRoute}>
@@ -431,7 +437,7 @@ function App(): JSX.Element {
               <Stack.Screen name="MainTabs">{() => <BottomTabs activeTheme={activeTheme} />}</Stack.Screen>
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
               <Stack.Screen name="ThemeDetail" component={ThemeDetailScreen} />
-              <Stack.Screen name="MyThemeList" component={MyThemeListScreen} />
+              <Stack.Screen name="MyThemeList" component={MyThemeListScreen} options={{animationEnabled: false}} />
               <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
               <Stack.Screen name="EditTodo" component={EditTodoScreen} />
 

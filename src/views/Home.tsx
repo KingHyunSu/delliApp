@@ -32,7 +32,10 @@ import {
   isLoadingState,
   toastState,
   editTimetableTranslateYState,
-  activeThemeState
+  activeThemeState,
+  activeBackgroundState,
+  statusBarColorState,
+  bottomSafeAreaColorState
 } from '@/store/system'
 import {
   scheduleDateState,
@@ -74,6 +77,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
 
+  const activeBackground = useRecoilValue(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
   const focusModeInfo = useRecoilValue(focusModeInfoState)
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
@@ -86,6 +90,8 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const setToast = useSetRecoilState(toastState)
   const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
   const setFocusModeInfo = useSetRecoilState(focusModeInfoState)
+  const setStatusBarColor = useSetRecoilState(statusBarColorState)
+  const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
 
   React.useEffect(() => {
     setScheduleList(_scheduleList)
@@ -97,17 +103,17 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   }, [_scheduleList, setScheduleList, setIsLunch, setIsLoading])
 
   const background = React.useMemo(() => {
-    if (activeTheme.theme_id === 1) {
-      return <Image style={homeStyles.backgroundImage} source={require('@/assets/white.png')} />
+    if (!activeBackground || activeBackground.background_id === 1) {
+      return <Image style={homeStyles.backgroundImage} source={require('@/assets/beige.png')} />
     }
 
     return (
       <Image
         style={homeStyles.backgroundImage}
-        source={{uri: `file://${RNFetchBlob.fs.dirs.DocumentDir}/${activeTheme.file_name}`}}
+        source={{uri: `file://${RNFetchBlob.fs.dirs.DocumentDir}/${activeBackground.file_name}`}}
       />
     )
-  }, [activeTheme.theme_id, activeTheme.file_name])
+  }, [activeBackground])
 
   const currentScheduleDateString = React.useMemo(() => {
     const weekdays = ['일', '월', '화', '수', '목', '금', '토']
@@ -213,6 +219,9 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   // android 뒤로가기 제어
   useFocusEffect(
     React.useCallback(() => {
+      setStatusBarColor(activeBackground.background_color)
+      setBottomSafeAreaColor(activeTheme.color5)
+
       const onBackPress = () => {
         if (isEdit) {
           // edit bottom sheet
@@ -242,10 +251,14 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
       return () => subscription.remove()
     }, [
+      activeBackground.background_color,
+      activeTheme.color5,
       isEdit,
       showEditMenuBottomSheet,
       showDatePickerBottomSheet,
       backPressCount,
+      setStatusBarColor,
+      setBottomSafeAreaColor,
       setShowEditMenuBottomSheet,
       setShowDatePickerBottomSheet
     ])
@@ -367,7 +380,9 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
         <View style={homeStyles.dateButtonWrapper}>
           <Pressable style={homeStyles.dateButton} onPress={() => setShowDatePickerBottomSheet(true)}>
-            <Text style={[homeStyles.dateButtonText, {color: activeTheme.color3}]}>{currentScheduleDateString}</Text>
+            <Text style={[homeStyles.dateButtonText, {color: activeBackground.accent_color}]}>
+              {currentScheduleDateString}
+            </Text>
             {/*<RightArrowIcon stroke="#424242" strokeWidth={3} />*/}
           </Pressable>
         </View>
@@ -411,8 +426,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       />
       {/*<TimetableCategoryBottomSheet />*/}
       {/* <ScheduleCompleteModal /> */}
-
-      <Loading />
     </View>
   )
 }

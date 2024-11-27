@@ -1,45 +1,45 @@
 import {openDatabase} from '../utils/helper'
 import * as productQueries from '../queries/product'
-import {GetActiveThemeRequest, GetActiveThemeResponse, SetThemeRequest} from '@/apis/types/product'
+import {
+  GetActiveBackgroundRequest,
+  GetActiveBackgroundResponse,
+  GetDownloadedBackgroundListResponse,
+  SetDownloadBackgroundRequest
+} from '@/apis/types/product'
 
-export const getDownloadThemeList = async () => {
-  const query = productQueries.getDownloadThemeListQuery()
-  const db = await openDatabase()
-  const [result] = await db.executeSql(query)
-
-  return result.rows.raw() as GetActiveThemeResponse[]
-}
-
-export const getActiveTheme = async (params: GetActiveThemeRequest) => {
-  const query = productQueries.getActiveThemeQuery()
-  const db = await openDatabase()
-  const [result] = await db.executeSql(query, [params.theme_id])
-
-  return result.rows.item(0) as GetActiveThemeResponse
-}
-
-export const setDefaultTheme = async () => {
-  const query = productQueries.setDefaultThemeQuery()
+export const setDefaultBackground = async () => {
+  const query = productQueries.setDefaultBackgroundQuery()
   const db = await openDatabase()
 
   return await db.executeSql(query)
 }
 
-export const setTheme = async (params: SetThemeRequest) => {
-  const query = productQueries.setThemeQuery()
+export const getDownloadedBackgroundList = async () => {
+  const query = productQueries.getDownloadedBackgroundListQuery()
+  const db = await openDatabase()
+  const [result] = await db.executeSql(query)
+
+  return result.rows.raw() as GetDownloadedBackgroundListResponse[]
+}
+
+export const setDownloadBackground = async (params: SetDownloadBackgroundRequest) => {
+  const query = productQueries.setDownloadBackgroundQuery()
   const db = await openDatabase()
 
   return await db.executeSql(query, [
-    params.theme_id,
+    params.background_id,
     params.file_name,
-    params.color1,
-    params.color2,
-    params.color3,
-    params.color4,
-    params.color5,
-    params.color6,
-    params.color7,
-    params.color8,
-    params.display_mode
+    params.display_mode,
+    params.background_color,
+    params.sub_color,
+    params.accent_color
   ])
+}
+
+export const getActiveBackground = async (params: GetActiveBackgroundRequest) => {
+  const query = productQueries.getActiveBackgroundQuery()
+  const db = await openDatabase()
+  const [result] = await db.executeSql(query, [params.background_id])
+
+  return result.rows.item(0) as GetActiveBackgroundResponse
 }

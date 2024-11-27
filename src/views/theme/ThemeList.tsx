@@ -2,7 +2,7 @@ import {useCallback, useMemo} from 'react'
 import {StyleSheet, FlatList, View, Text, Image, Pressable, ListRenderItem} from 'react-native'
 import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
-import {useGetThemeList} from '@/apis/hooks/useProduct'
+import {useGetBackgroundList} from '@/apis/hooks/useProduct'
 
 interface Props {
   moveDetail: (id: number) => void
@@ -10,7 +10,7 @@ interface Props {
 
 const aspectRatio = 1.77
 const ThemeList = ({moveDetail}: Props) => {
-  const {data: themeList} = useGetThemeList()
+  const {data: backgroundList} = useGetBackgroundList()
   const windowDimensions = useRecoilValue(windowDimensionsState)
 
   const imageWidth = useMemo(() => {
@@ -26,13 +26,13 @@ const ThemeList = ({moveDetail}: Props) => {
     [moveDetail]
   )
 
-  const getRenderItem: ListRenderItem<ThemeListItem> = useCallback(
+  const getRenderItem: ListRenderItem<ProductBackgroundItem> = useCallback(
     ({item}) => {
       // TODO 나중에 서버에서 제어하기
       const priceText = item.price === 0 ? '무료' : item.price
 
       return (
-        <Pressable style={itemStyles.container} onPress={handleMoveDetail(item.theme_id)}>
+        <Pressable style={itemStyles.container} onPress={handleMoveDetail(item.product_background_id)}>
           <Image
             style={{width: imageWidth, height: imageWidth * aspectRatio, borderRadius: 10}}
             source={{uri: item.thumb_url}}
@@ -44,7 +44,7 @@ const ThemeList = ({moveDetail}: Props) => {
         </Pressable>
       )
     },
-    [imageWidth, moveDetail]
+    [handleMoveDetail, imageWidth, moveDetail]
   )
 
   return (
@@ -52,7 +52,7 @@ const ThemeList = ({moveDetail}: Props) => {
       <FlatList
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.listColumnWrapper}
-        data={themeList}
+        data={backgroundList}
         renderItem={getRenderItem}
         numColumns={3}
       />

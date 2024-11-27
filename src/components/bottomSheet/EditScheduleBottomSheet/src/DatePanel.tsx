@@ -10,6 +10,7 @@ interface Props {
   value: boolean
   data: Schedule
   activeTheme: ActiveTheme
+  borderColor: string
   itemPanelHeight: number
   headerContainerStyle: ViewStyle
   headerTitleWrapper: ViewStyle
@@ -25,6 +26,7 @@ const DatePanel = memo(
     value,
     data,
     activeTheme,
+    borderColor,
     itemPanelHeight,
     headerContainerStyle,
     headerTitleWrapper,
@@ -139,7 +141,7 @@ const DatePanel = memo(
               contentsHeight={panelItemContentsHeight}
               handleExpansion={handleEndDatePanel}
               headerComponent={
-                <View style={[styles.panelItemHeader, {borderTopColor: activeTheme.color2}]}>
+                <View style={[styles.panelItemHeader, {borderTopColor: borderColor}]}>
                   <Text style={itemHeaderLabelStyle}>종료일</Text>
 
                   <View style={getDatePanelItemHeaderWrapperStyle(1)}>
@@ -175,7 +177,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    borderTopWidth: 2
+    borderTopWidth: 1
   },
   panelItemButton: {
     paddingVertical: 10,

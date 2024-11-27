@@ -7,16 +7,32 @@ import {userRepository, productRepository} from '../index'
 
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {
-    //     tx.executeSql(`
-    // --                       DROP TABLE THEME
-    //                     update USER set active_theme_id = 1
-    //                     `)
+    // tx.executeSql(`
+    //                                       DROP TABLE background
+    // --                                     update USER set active_theme_id = 1
+    //                                      `)
 
     // user table
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "USER" (
         "user_id" TEXT NOT NULL
       );
+    `)
+
+    // background
+    tx.executeSql(`
+      CREATE TABLE IF NOT EXISTS "background" (
+        "background_id" INTEGER NOT NULL,
+        "file_name" TEXT NOT NULL,
+        "display_mode" INTEGER NOT NULL,
+        "background_color" TEXT NOT NULL,
+        "sub_color" TEXT NOT NULL,
+        "accent_color" TEXT NOT NULL
+      )
+    `)
+
+    tx.executeSql(`
+      CREATE INDEX IF NOT EXISTS "idx_background_id" ON "background" ("background_id")
     `)
 
     // theme table
@@ -141,6 +157,8 @@ const createTable = async (db: SQLiteDatabase) => {
         PRIMARY KEY("version")
       )
     `)
+
+    // tx.executeSql('ALTER TABLE USER ADD COLUMN active_background_id INTEGER default 1')
   })
 }
 
@@ -163,7 +181,7 @@ export default async function init() {
 
     await createTable(db)
     await userRepository.setUser()
-    await productRepository.setDefaultTheme()
+    await productRepository.setDefaultBackground()
 
     const currentVersion = await getCurrentVersion(db)
     const latestVersion = upgrade.version

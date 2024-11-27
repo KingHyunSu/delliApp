@@ -1,21 +1,19 @@
 export const getUser = () => {
-  const query = `
-		SELECT * FROM USER
-	`
-
-  return query
+  return `SELECT * FROM USER`
 }
 
 export const setUser = () => {
-  const query = `
+  return `
 		INSERT INTO "USER" ("user_id")
 		SELECT ?
 		WHERE NOT EXISTS (SELECT 1 FROM "USER")
 	`
-
-  return query
 }
 
-export const updateThemeQuery = () => {
-  return `UPDATE USER SET active_theme_id = ?`
+export const updateDisplayModeQuery = () => {
+  return `UPDATE USER SET display_mode = ?`
+}
+
+export const updateActiveBackgroundIdQuery = () => {
+  return `UPDATE USER SET active_background_id = ?`
 }

@@ -17,6 +17,7 @@ interface Props {
   value: boolean
   data: Schedule
   activeTheme: ActiveTheme
+  displayMode: DisplayMode
   headerContainerStyle: ViewStyle
   headerTitleWrapper: ViewStyle
   headerLabelStyle: TextStyle
@@ -29,6 +30,7 @@ const DayOfWeekPanel = ({
   value,
   data,
   activeTheme,
+  displayMode,
   headerContainerStyle,
   headerTitleWrapper,
   headerLabelStyle,
@@ -39,7 +41,7 @@ const DayOfWeekPanel = ({
 }: Props) => {
   const getDayOfWeekSelectButtonStyle = useCallback(
     (flag: string) => {
-      const borderWidth = activeTheme.theme_id === 1 ? 1 : 0
+      const borderWidth = displayMode === 1 ? 1 : 0
       let backgroundColor = activeTheme.color2
 
       if (flag === '1') {
@@ -48,12 +50,12 @@ const DayOfWeekPanel = ({
 
       return [styles.dayOfWeek, {backgroundColor, borderWidth}]
     },
-    [activeTheme.theme_id, activeTheme.color2, activeTheme.color5]
+    [displayMode, activeTheme.color2, activeTheme.color5]
   )
 
   const controlButtonStyle = useCallback(
     (bool: boolean) => {
-      const borderWidth = activeTheme.theme_id === 1 ? 1 : 0
+      const borderWidth = displayMode === 1 ? 1 : 0
       let backgroundColor = activeTheme.color5
 
       if (bool) {
@@ -62,7 +64,7 @@ const DayOfWeekPanel = ({
 
       return [styles.controlButton, {backgroundColor, borderWidth}]
     },
-    [activeTheme.theme_id, activeTheme.color5]
+    [displayMode, activeTheme.color5]
   )
 
   const controlButtonTextStyle = useCallback(

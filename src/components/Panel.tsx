@@ -5,7 +5,7 @@ import ArrowUpIcon from '@/assets/icons/arrow_up.svg'
 import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
 import {useRecoilValue} from 'recoil'
-import {activeThemeState} from '@/store/system'
+import {activeThemeState, displayModeState} from '@/store/system'
 
 interface Props {
   type?: 'container' | 'item'
@@ -27,6 +27,7 @@ const Panel = ({
   headerComponent,
   contentsComponent
 }: Props) => {
+  const displayMode = useRecoilValue(displayModeState)
   const activeTheme = useRecoilValue(activeThemeState)
 
   const panelHeight = useSharedValue(headerHeight)
@@ -36,16 +37,16 @@ const Panel = ({
   }))
 
   const containerStyle = React.useMemo(() => {
-    const backgroundColor = activeTheme.theme_id === 1 ? '#ffffff' : activeTheme.color6
-    const borderWidth = activeTheme.theme_id === 1 ? 2 : 0
+    const backgroundColor = activeTheme.color9
+    const borderColor = displayMode === 1 ? '#eeeded' : activeTheme.color9
 
-    let style: ViewStyle = [styles.container, {backgroundColor, borderWidth, borderColor: activeTheme.color2}]
+    let style: ViewStyle = [styles.container, {backgroundColor, borderColor}]
 
     if (type === 'item') {
       style = styles.itemContainer
     }
     return [style, heightAnimatedStyle]
-  }, [activeTheme.theme_id, activeTheme.color2, activeTheme.color6, type])
+  }, [displayMode, activeTheme.color9, type])
 
   const headerStyle = React.useMemo(() => {
     let style: ViewStyle = styles.header
@@ -88,7 +89,9 @@ const Panel = ({
       </Pressable>
 
       {contentsComponent && (
-        <View style={[styles.contents, {borderTopColor: activeTheme.color2}]}>{contentsComponent}</View>
+        <View style={[styles.contents, {borderTopColor: displayMode === 1 ? '#eeeded' : activeTheme.color2}]}>
+          {contentsComponent}
+        </View>
       )}
     </Animated.View>
   )
@@ -97,7 +100,7 @@ const Panel = ({
 const styles = StyleSheet.create({
   container: {
     overflow: 'hidden',
-    borderWidth: 0,
+    borderWidth: 1,
     borderRadius: 10
   },
   itemContainer: {
@@ -114,7 +117,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   contents: {
-    borderTopWidth: 2
+    borderTopWidth: 1
   }
 })
 

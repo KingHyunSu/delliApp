@@ -15,7 +15,8 @@ import {
   editScheduleListSnapPointState,
   isEditState,
   editScheduleListStatusState,
-  activeThemeState
+  activeThemeState,
+  displayModeState
 } from '@/store/system'
 import {scheduleState, isInputModeState} from '@/store/schedule'
 
@@ -38,6 +39,7 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
 
   const isEdit = useRecoilValue(isEditState)
   const editScheduleListSnapPoint = useRecoilValue(editScheduleListSnapPointState)
+  const displayMode = useRecoilValue(displayModeState)
   const activeTheme = useRecoilValue(activeThemeState)
 
   const setIsInputMode = useSetRecoilState(isInputModeState)
@@ -68,6 +70,12 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
     return [styles.panelItemLabel, {color: activeTheme.color3}] as TextStyle
   }, [activeTheme.color3])
 
+  const titleButtonStyle = useMemo(() => {
+    const borderBottomColor = displayMode === 1 ? '#eeeded' : activeTheme.color2
+
+    return [styles.titleButton, {borderBottomColor}]
+  }, [displayMode, activeTheme.color2])
+
   const handleBottomSheetChanged = useCallback((index: number) => {
     setEditScheduleListStatus(index)
 
@@ -75,6 +83,10 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
       closeAllPanel()
     }
   }, [])
+
+  const penelBorderColor = useMemo(() => {
+    return displayMode === 1 ? '#eeeded' : activeTheme.color2
+  }, [displayMode, activeTheme.color2])
 
   const handleCategoryPanel = useCallback(() => {
     closeAllPanel()
@@ -244,7 +256,7 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
       onChange={handleBottomSheetChanged}>
       <BottomSheetScrollView ref={bottomSheetScrollViewRef} contentContainerStyle={styles.container}>
         {/* 일정명 */}
-        <Pressable style={[styles.titleButton, {borderBottomColor: activeTheme.color2}]} onPress={focusTitleInput}>
+        <Pressable style={titleButtonStyle} onPress={focusTitleInput}>
           {schedule.title ? (
             <Text style={[styles.titleText, {color: activeTheme.color3}]}>{schedule.title}</Text>
           ) : (
@@ -281,7 +293,8 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
         <TimePanel
           value={activeTimePanel}
           data={schedule}
-          activeTheme={activeTheme}
+          displayMode={displayMode}
+          borderColor={penelBorderColor}
           itemPanelHeight={defaultItemPanelHeight}
           headerContainerStyle={styles.panelHeaderContainer}
           headerTitleWrapper={styles.panelHeaderTitleWrapper}
@@ -298,6 +311,7 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
           value={activeDatePanel}
           data={schedule}
           activeTheme={activeTheme}
+          borderColor={penelBorderColor}
           itemPanelHeight={defaultItemPanelHeight}
           headerContainerStyle={styles.panelHeaderContainer}
           headerTitleWrapper={styles.panelHeaderTitleWrapper}
@@ -314,6 +328,7 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
           value={activeDayOfWeekPanel}
           data={schedule}
           activeTheme={activeTheme}
+          displayMode={displayMode}
           headerContainerStyle={styles.panelHeaderContainer}
           headerTitleWrapper={styles.panelHeaderTitleWrapper}
           headerLabelStyle={panelHeaderLabelStyle}
@@ -336,7 +351,7 @@ const styles = StyleSheet.create({
   },
   titleButton: {
     paddingVertical: 20,
-    borderBottomWidth: 2
+    borderBottomWidth: 1
   },
   titleText: {
     fontFamily: 'Pretendard-SemiBold',
