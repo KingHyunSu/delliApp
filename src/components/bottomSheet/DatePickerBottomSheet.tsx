@@ -105,20 +105,19 @@ const DatePickerBottomSheet = ({value, onChange}: Props) => {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 20,
+    gap: 30,
     justifyContent: 'space-between',
     borderTopLeftRadius: 15,
     borderTopRightRadius: 15,
     paddingHorizontal: 16,
-    paddingTop: 20,
-    paddingBottom: 40
+    paddingTop: 20
   },
   buttonWrapper: {
     flexDirection: 'row',
     gap: 10
   },
   button: {
-    height: 48,
+    height: 52,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10
