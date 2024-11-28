@@ -51,6 +51,7 @@ export type RoutineScreenProps = CompositeScreenProps<
 >
 
 export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
+export type MyThemeListProps = StackScreenProps<StackNavigator, 'MyThemeList'>
 export type ThemeDetailScreenProps = StackScreenProps<StackNavigator, 'ThemeDetail'>
 
 export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>

@@ -1,6 +1,7 @@
 import {useState, useMemo, useCallback, useEffect} from 'react'
 import {StyleSheet, View, Text, FlatList, ListRenderItem, Pressable, Image, ActivityIndicator} from 'react-native'
 import AppBar from '@/components/AppBar'
+import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 import DownloadIcon from '@/assets/icons/download.svg'
 import RNFetchBlob from 'rn-fetch-blob'
 
@@ -15,8 +16,9 @@ import {
   useSetDownloadBackground
 } from '@/apis/hooks/useProduct'
 import {useUpdateActiveBackgroundId} from '@/apis/hooks/useUser'
+import {MyThemeListProps} from '@/types/navigation'
 
-const MyThemeList = () => {
+const MyThemeList = ({navigation}: MyThemeListProps) => {
   const queryClient = useQueryClient()
 
   const {data: downloadBackgroundList} = useGetDownloadedBackgroundList()
@@ -38,6 +40,13 @@ const MyThemeList = () => {
     const totalGap = 20
     return (windowDimensions.width - totalPadding - totalGap) / 3
   }, [windowDimensions.width])
+
+  const moveHome = useCallback(() => {
+    navigation.navigate('MainTabs', {
+      screen: 'Home',
+      params: {scheduleUpdated: false}
+    })
+  }, [navigation])
 
   const handleDownload = useCallback(
     async (detail: ProductBackgroundDetail) => {
@@ -71,7 +80,7 @@ const MyThemeList = () => {
 
         const backgroundDetail = await getBackgroundDetailMutationAsync(id)
 
-        await Promise.all([handleDownload(backgroundDetail), delay(3000)])
+        await Promise.all([handleDownload(backgroundDetail), delay(1500)])
 
         await queryClient.invalidateQueries({queryKey: ['downloadBackgroundList']})
       } catch (e) {
@@ -169,7 +178,11 @@ const MyThemeList = () => {
 
   return (
     <View style={styles.container}>
-      <AppBar color="#f5f6f8" backPress />
+      <AppBar color="#f5f6f8">
+        <Pressable style={styles.backButton} onPress={moveHome}>
+          <ArrowLeftIcon width={28} height={28} stroke="#424242" strokeWidth={3} />
+        </Pressable>
+      </AppBar>
 
       <Text style={styles.label}>내 테마</Text>
 
@@ -224,6 +237,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f6f8'
+  },
+  backButton: {
+    width: 48,
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center'
   },
   label: {
     fontFamily: 'Pretendard-Bold',
