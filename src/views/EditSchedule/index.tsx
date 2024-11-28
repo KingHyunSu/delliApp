@@ -315,21 +315,7 @@ const styles = StyleSheet.create({
   timeIntoContainer: {
     paddingVertical: 7,
     paddingHorizontal: 10,
-    borderRadius: 10,
-
-    ...Platform.select({
-      ios: {
-        borderWidth: 1,
-        borderColor: '#00000010',
-
-        shadowColor: '#00000010',
-        shadowOffset: {width: 0, height: 1},
-        shadowOpacity: 1
-      },
-      android: {
-        elevation: 2
-      }
-    })
+    borderRadius: 10
   },
   timeInfoWrapper: {
     paddingLeft: 10,

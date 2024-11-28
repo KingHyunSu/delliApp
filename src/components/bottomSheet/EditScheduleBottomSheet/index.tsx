@@ -84,7 +84,7 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
     }
   }, [])
 
-  const penelBorderColor = useMemo(() => {
+  const panelBorderColor = useMemo(() => {
     return displayMode === 1 ? '#eeeded' : activeTheme.color2
   }, [displayMode, activeTheme.color2])
 
@@ -294,7 +294,7 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
           value={activeTimePanel}
           data={schedule}
           displayMode={displayMode}
-          borderColor={penelBorderColor}
+          borderColor={panelBorderColor}
           itemPanelHeight={defaultItemPanelHeight}
           headerContainerStyle={styles.panelHeaderContainer}
           headerTitleWrapper={styles.panelHeaderTitleWrapper}
@@ -311,7 +311,8 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
           value={activeDatePanel}
           data={schedule}
           activeTheme={activeTheme}
-          borderColor={penelBorderColor}
+          displayMode={displayMode}
+          borderColor={panelBorderColor}
           itemPanelHeight={defaultItemPanelHeight}
           headerContainerStyle={styles.panelHeaderContainer}
           headerTitleWrapper={styles.panelHeaderTitleWrapper}
