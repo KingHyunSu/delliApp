@@ -6,6 +6,7 @@ import {Shadow} from 'react-native-shadow-2'
 import CustomBackdrop from './src/CustomBackdrop'
 import DefaultColorList from './src/DefaultColorList'
 import MyColorList from './src/MyColorList'
+import ThemeColorList from './src/ThemeColorList'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
@@ -15,17 +16,24 @@ import {
   safeAreaInsetsState,
   windowDimensionsState
 } from '@/store/system'
-import {colorToChangeState, scheduleState} from '@/store/schedule'
+import {colorToChangeState, scheduleListState, scheduleState} from '@/store/schedule'
 import {showColorPickerModalState} from '@/store/modal'
 import {useGetColorList} from '@/apis/hooks/useColor'
 
-type Tab = 'default' | 'my'
-const ColorSelectorBottomSheet = () => {
+type CategoryTab = 'theme' | 'custom'
+type CustomTab = 'default' | 'my'
+interface Props {
+  activeColorTheme: ActiveColorTheme | null
+  onChangeActiveColorTheme: (value: ActiveColorTheme | null) => void
+}
+const ColorSelectorBottomSheet = ({activeColorTheme, onChangeActiveColorTheme}: Props) => {
   const {data: myColorList} = useGetColorList()
 
   const bottomSheetRef = useRef<BottomSheetModal>(null)
+  const isRender = useRef(false)
 
-  const [activeTab, setActiveTab] = useState<Tab>('default')
+  const [activeCategoryTab, setActiveCategoryTab] = useState<CategoryTab>('custom')
+  const [activeCustomTab, setActiveCustomTab] = useState<CustomTab>('default')
   const [activeDeletedItem, setActiveDeletedItem] = useState<Color | null>(null)
 
   const [showColorSelectorBottomSheet, setShowColorSelectorBottomSheet] = useRecoilState(
@@ -34,6 +42,7 @@ const ColorSelectorBottomSheet = () => {
   const [showColorPickerModal, setShowColorPickerModal] = useRecoilState(showColorPickerModalState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
+  const scheduleList = useRecoilValue(scheduleListState)
   const activeTheme = useRecoilValue(activeThemeState)
   const [minEditScheduleListSnapPoint] = useRecoilValue(editScheduleListSnapPointState)
   const windowDimensions = useRecoilValue(windowDimensionsState)
@@ -41,10 +50,10 @@ const ColorSelectorBottomSheet = () => {
   const colorToChange = useRecoilValue(colorToChangeState)
 
   const getTabButtonTextStyle = useCallback(
-    (type: Tab) => {
-      return [styles.tabButtonText, {color: activeTab === type ? activeTheme.color7 : activeTheme.color8}]
+    (type: CustomTab) => {
+      return [styles.tabButtonText, {color: activeCustomTab === type ? activeTheme.color7 : activeTheme.color8}]
     },
-    [activeTheme.color7, activeTheme.color8, activeTab]
+    [activeTheme.color7, activeTheme.color8, activeCustomTab]
   )
 
   const colorButtonStyle = useMemo(() => {
@@ -87,8 +96,12 @@ const ColorSelectorBottomSheet = () => {
   }, [myColorList])
 
   const snapPoints = useMemo(() => {
+    const controlTypeButtonWrapperHeight = 70
+    const colorTypeButtonWrapperHeight = 62
+
     const minSnapPoint = minEditScheduleListSnapPoint + safeAreaInsets.bottom
-    const maxSnapPoint = windowDimensions.height - (safeAreaInsets.top + 75)
+    const maxSnapPoint =
+      windowDimensions.height - (safeAreaInsets.top + controlTypeButtonWrapperHeight + colorTypeButtonWrapperHeight)
 
     return [minSnapPoint, maxSnapPoint]
   }, [minEditScheduleListSnapPoint, safeAreaInsets.top, safeAreaInsets.bottom, windowDimensions.height])
@@ -106,6 +119,10 @@ const ColorSelectorBottomSheet = () => {
 
   const changeColor = useCallback(
     (color: string) => {
+      if (activeColorTheme) {
+        onChangeActiveColorTheme(null)
+      }
+
       if (colorToChange === 'background') {
         setSchedule(prevState => ({
           ...prevState,
@@ -118,14 +135,39 @@ const ColorSelectorBottomSheet = () => {
         }))
       }
     },
-    [colorToChange, setSchedule]
+    [activeColorTheme, onChangeActiveColorTheme, colorToChange, setSchedule]
+  )
+
+  const changeActiveColorTheme = useCallback(
+    (value: ActiveColorTheme | null) => {
+      if (value && activeColorTheme && value.product_color_theme_id === activeColorTheme.product_color_theme_id) {
+        onChangeActiveColorTheme(null)
+
+        return
+      }
+
+      if (value) {
+        const targetSchedule = scheduleList.find(item => item.schedule_id === schedule.schedule_id)
+
+        if (targetSchedule) {
+          setSchedule(prevState => ({
+            ...prevState,
+            background_color: targetSchedule.background_color,
+            text_color: targetSchedule.text_color
+          }))
+        }
+      }
+
+      onChangeActiveColorTheme(value)
+    },
+    [scheduleList, schedule, activeColorTheme, onChangeActiveColorTheme, setSchedule]
   )
 
   const changeTab = useCallback(
-    (tab: Tab) => () => {
-      setActiveTab(tab)
+    (tab: CustomTab) => () => {
+      setActiveCustomTab(tab)
     },
-    [setActiveTab]
+    [setActiveCustomTab]
   )
 
   const closeMenu = useCallback(() => {
@@ -135,18 +177,35 @@ const ColorSelectorBottomSheet = () => {
   useEffect(() => {
     if (showColorSelectorBottomSheet) {
       bottomSheetRef.current?.present()
+
+      if (!isRender.current) {
+        if (activeColorTheme) {
+          setActiveCategoryTab('theme')
+        } else {
+          setActiveCategoryTab('custom')
+        }
+      }
+
+      isRender.current = true
     } else {
       bottomSheetRef.current?.dismiss()
     }
-  }, [showColorSelectorBottomSheet])
+  }, [showColorSelectorBottomSheet, activeColorTheme])
 
   const getBackdropComponent = useCallback(
     (props: BottomSheetBackdropProps) => {
       return (
-        <CustomBackdrop props={props} activeTheme={activeTheme} onClose={() => bottomSheetRef.current?.dismiss()} />
+        <CustomBackdrop
+          props={props}
+          activeCategoryTab={activeCategoryTab}
+          activeTheme={activeTheme}
+          snapPoints={snapPoints}
+          onChangeCategoryTab={setActiveCategoryTab}
+          onClose={() => bottomSheetRef.current?.dismiss()}
+        />
       )
     },
-    [activeTheme]
+    [activeCategoryTab, activeTheme, snapPoints]
   )
 
   const getHandleComponent = useCallback((props: BottomSheetHandleProps) => {
@@ -173,56 +232,66 @@ const ColorSelectorBottomSheet = () => {
       snapPoints={snapPoints}
       onDismiss={handleClose}>
       <View style={styles.container}>
-        <View style={styles.tabButtonContainer}>
-          <Pressable style={styles.tabButton} onPress={changeTab('default')}>
-            <Text style={getTabButtonTextStyle('default')}>기본 색상</Text>
-          </Pressable>
+        {activeCategoryTab === 'theme' ? (
+          <View style={styles.wrapper}>
+            <ThemeColorList value={activeColorTheme} onChange={changeActiveColorTheme} />
+          </View>
+        ) : (
+          <View style={styles.wrapper}>
+            <View style={styles.tabButtonContainer}>
+              <Pressable style={styles.tabButton} onPress={changeTab('default')}>
+                <Text style={getTabButtonTextStyle('default')}>기본 색상</Text>
+              </Pressable>
 
-          <Text style={styles.separatorText}>|</Text>
+              <Text style={styles.separatorText}>|</Text>
 
-          <Pressable style={styles.tabButton} onPress={changeTab('my')}>
-            <Text style={getTabButtonTextStyle('my')}>내 색상</Text>
-          </Pressable>
-        </View>
+              <Pressable style={styles.tabButton} onPress={changeTab('my')}>
+                <Text style={getTabButtonTextStyle('my')}>내 색상</Text>
+              </Pressable>
+            </View>
 
-        {activeTab === 'default' && (
-          <DefaultColorList
-            color={activeColor}
-            colorButtonStyle={colorButtonStyle}
-            activeColorButtonStyle={activeColorPointStyle}
-            contentContainerStyle={styles.scrollContainer}
-            columnWrapperStyle={styles.scrollColumnWrapper}
-            onChange={changeColor}
-          />
-        )}
+            {activeCustomTab === 'default' && (
+              <DefaultColorList
+                color={activeColor}
+                colorButtonStyle={colorButtonStyle}
+                activeColorButtonStyle={activeColorPointStyle}
+                contentContainerStyle={styles.scrollContainer}
+                columnWrapperStyle={styles.scrollColumnWrapper}
+                onChange={changeColor}
+              />
+            )}
 
-        {activeTab === 'my' && activeDeletedItem && <Pressable style={styles.menuOverlay} onPress={closeMenu} />}
+            {activeCustomTab === 'my' && activeDeletedItem && (
+              <Pressable style={styles.menuOverlay} onPress={closeMenu} />
+            )}
 
-        {activeTab === 'my' && (
-          <MyColorList
-            activeDeletedItem={activeDeletedItem}
-            color={activeColor}
-            myColorList={convertMyColorList}
-            colorButtonStyle={colorButtonStyle}
-            activeColorButtonStyle={activeColorPointStyle}
-            contentContainerStyle={styles.scrollContainer}
-            columnWrapperStyle={styles.scrollColumnWrapper}
-            closeMenu={closeMenu}
-            onItemLongPress={handleItemLongPress}
-            onChange={changeColor}
-          />
-        )}
+            {activeCustomTab === 'my' && (
+              <MyColorList
+                activeDeletedItem={activeDeletedItem}
+                color={activeColor}
+                myColorList={convertMyColorList}
+                colorButtonStyle={colorButtonStyle}
+                activeColorButtonStyle={activeColorPointStyle}
+                contentContainerStyle={styles.scrollContainer}
+                columnWrapperStyle={styles.scrollColumnWrapper}
+                closeMenu={closeMenu}
+                onItemLongPress={handleItemLongPress}
+                onChange={changeColor}
+              />
+            )}
 
-        {activeTab === 'my' && (
-          <Shadow
-            containerStyle={[styles.makeButtonWrapper, {bottom: safeAreaInsets.bottom + 20}]}
-            stretch={true}
-            startColor={activeTheme.color1}
-            distance={30}>
-            <Pressable style={makeButtonStyle} onPress={() => setShowColorPickerModal(true)}>
-              <Text style={styles.makeButtonText}>색상 만들기</Text>
-            </Pressable>
-          </Shadow>
+            {activeCustomTab === 'my' && (
+              <Shadow
+                containerStyle={[styles.makeButtonWrapper, {bottom: safeAreaInsets.bottom + 20}]}
+                stretch={true}
+                startColor={activeTheme.color1}
+                distance={30}>
+                <Pressable style={makeButtonStyle} onPress={() => setShowColorPickerModal(true)}>
+                  <Text style={styles.makeButtonText}>색상 만들기</Text>
+                </Pressable>
+              </Shadow>
+            )}
+          </View>
         )}
       </View>
     </BottomSheetModal>
@@ -234,6 +303,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 30
+  },
+  wrapper: {
+    flex: 1
   },
   separatorText: {
     fontFamily: 'Pretendard-SemiBold',

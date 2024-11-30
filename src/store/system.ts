@@ -55,6 +55,11 @@ export const activeBackgroundState = atom<ActiveBackground>({
   }
 })
 
+export const activeColorThemeState = atom<ActiveColorTheme | null>({
+  key: 'activeColorThemeState',
+  default: null
+})
+
 export const keyboardAppearanceState = selector({
   key: 'keyboardAppearanceState',
   get: ({get}) => {

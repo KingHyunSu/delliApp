@@ -7,6 +7,5 @@ declare global {
     user_id: string
     display_mode: DisplayMode
     active_background_id: number
-    active_theme_id: number
   }
 }

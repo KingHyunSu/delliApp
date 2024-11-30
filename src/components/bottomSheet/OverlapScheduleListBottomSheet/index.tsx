@@ -21,9 +21,9 @@ import {scheduleRepository} from '@/apis/local'
 import {UpdateScheduleDeleted} from '@/apis/local/types/schedule'
 
 interface Props {
-  setScheduleMutate: Function
+  onSubmit: () => void
 }
-const OverlapScheduleListBottomSheet = ({setScheduleMutate}: Props) => {
+const OverlapScheduleListBottomSheet = ({onSubmit}: Props) => {
   const [showOverlapScheduleListBottomSheet, setShowOverlapScheduleListBottomSheet] = useRecoilState(
     showOverlapScheduleListBottomSheetState
   )
@@ -105,7 +105,7 @@ const OverlapScheduleListBottomSheet = ({setScheduleMutate}: Props) => {
     },
     onSuccess: () => {
       handleDismiss()
-      setScheduleMutate()
+      onSubmit()
     },
     onError: error => {
       console.error('error', error)

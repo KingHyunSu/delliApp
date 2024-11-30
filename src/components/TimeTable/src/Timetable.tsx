@@ -7,10 +7,10 @@ import TimeBackground from '../components/TimeBackground'
 import Background from '../components/Background'
 import SchedulePie from '../components/SchedulePie'
 import ScheduleText from '../components/ScheduleText'
-import DefaultTimeAnchor from '@/assets/icons/default_time_anchor.svg'
+// import DefaultTimeAnchor from '@/assets/icons/default_time_anchor.svg'
 
 import {useSetRecoilState, useRecoilValue, useRecoilState} from 'recoil'
-import {timetableContainerHeightState, timetableWrapperSizeState} from '@/store/system'
+import {activeColorThemeState, timetableContainerHeightState, timetableWrapperSizeState} from '@/store/system'
 import {scheduleState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
@@ -28,6 +28,7 @@ const Timetable = ({data, isRendered}: Props) => {
 
   const timetableContainerHeight = useRecoilValue(timetableContainerHeightState)
   const timetableWrapperSize = useRecoilValue(timetableWrapperSizeState)
+  const activeColorTheme = useRecoilValue(activeColorThemeState)
   const setSchedule = useSetRecoilState(scheduleState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
@@ -138,6 +139,14 @@ const Timetable = ({data, isRendered}: Props) => {
     })
   }, [data])
 
+  const colorThemeItemList = useMemo(() => {
+    if (!activeColorTheme) {
+      return null
+    }
+
+    return activeColorTheme.item_list.sort((a, b) => a.order - b.order)
+  }, [activeColorTheme])
+
   const radius = useMemo(() => {
     return timetableWrapperSize - 40
   }, [timetableWrapperSize])
@@ -148,6 +157,17 @@ const Timetable = ({data, isRendered}: Props) => {
       setShowEditMenuBottomSheet(true)
     },
     [setSchedule, setShowEditMenuBottomSheet]
+  )
+
+  const getSchedulePieColor = useCallback(
+    (index: number) => {
+      if (!colorThemeItemList) {
+        return null
+      }
+
+      return colorThemeItemList[index % colorThemeItemList.length].color
+    },
+    [colorThemeItemList]
   )
 
   useEffect(() => {
@@ -231,6 +251,7 @@ const Timetable = ({data, isRendered}: Props) => {
                   radius={radius}
                   startTime={item.start_time}
                   endTime={item.end_time}
+                  color={getSchedulePieColor(index)}
                   isEdit={false}
                   onClick={openEditMenuBottomSheet}
                 />

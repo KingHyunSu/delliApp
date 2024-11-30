@@ -3,6 +3,7 @@ import {
   GetMyBackgroundListResponse,
   GetProductBackgroundDetailResponse,
   GetProductBackgroundListResponse,
+  GetProductColorThemeListResponse,
   SetMyBackgroundRequest,
   SetMyBackgroundResponse
 } from '@/apis/types/product'
@@ -21,4 +22,8 @@ export const setMyBackground = (data: SetMyBackgroundRequest) => {
 
 export const getMyBackgroundList = () => {
   return http.post<any, Response<GetMyBackgroundListResponse[]>>('product/background/my/list')
+}
+
+export const getProductColorThemeList = () => {
+  return http.get<any, Response<GetProductColorThemeListResponse[]>>('product/color-theme/list')
 }

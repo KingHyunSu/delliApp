@@ -3,6 +3,10 @@ import * as productApi from '@/apis/server/product'
 import {productRepository} from '../local'
 import {SetDownloadBackgroundRequest, SetMyBackgroundRequest} from '@/apis/types/product'
 
+/**
+ * background
+ */
+
 export const useGetActiveBackground = () => {
   return useMutation({
     mutationFn: (id: number) => {
@@ -79,6 +83,21 @@ export const useGetMyBackgroundList = () => {
       const response = await productApi.getMyBackgroundList()
 
       return response.data as MyBackgroundItem[]
+    }
+  })
+}
+
+/**
+ * color theme
+ */
+
+export const useGetProductColorThemeList = () => {
+  return useQuery({
+    queryKey: ['productColorThemeList'],
+    queryFn: async () => {
+      const response = await productApi.getProductColorThemeList()
+
+      return response.data as ProductColorThemeItem[]
     }
   })
 }

@@ -23,6 +23,7 @@ interface Props {
   x: number
   y: number
   radius: number
+  color: string | null
   isInputMode: Boolean
   onChangeSchedule: Function
   onChangeScheduleDisabled: (value: ExistSchedule[]) => void
@@ -38,6 +39,7 @@ const EditSchedulePie = ({
   x,
   y,
   radius,
+  color,
   isInputMode,
   onChangeSchedule,
   onChangeScheduleDisabled,
@@ -254,7 +256,15 @@ const EditSchedulePie = ({
   return (
     <>
       <Svg>
-        <SchedulePie data={data} x={x} y={y} radius={radius} startTime={newStartTimeState} endTime={newEndTimeState} />
+        <SchedulePie
+          data={data}
+          x={x}
+          y={y}
+          radius={radius}
+          startTime={newStartTimeState}
+          endTime={newEndTimeState}
+          color={color}
+        />
       </Svg>
 
       {isShowAnchor && (

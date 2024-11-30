@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useCallback} from 'react'
 import {StyleSheet, View, Pressable} from 'react-native'
 import {Svg} from 'react-native-svg'
 
@@ -15,16 +15,18 @@ import {scheduleState, disableScheduleListState, isInputModeState} from '@/store
 
 interface Props {
   data: Schedule[]
+  colorTheme: ActiveColorTheme | null
   isRendered: boolean
   onChangeStartTime: (value: number) => void
   onChangeEndTime: (value: number) => void
 }
-const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: Props) => {
-  const timetableContainerHeight = useRecoilValue(timetableContainerHeightState)
-  const timetableWrapperSize = useRecoilValue(timetableWrapperSizeState)
+const EditTimetable = ({data, colorTheme, isRendered, onChangeStartTime, onChangeEndTime}: Props) => {
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
+
+  const timetableContainerHeight = useRecoilValue(timetableContainerHeightState)
+  const timetableWrapperSize = useRecoilValue(timetableWrapperSizeState)
 
   // styles
   const containerStyle = React.useMemo(() => {
@@ -41,24 +43,59 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
     ]
   }, [timetableWrapperSize])
 
+  const sortedScheduleList = React.useMemo(() => {
+    return [...data].sort((a, b) => {
+      if (a.update_date && b.update_date) {
+        return new Date(a.update_date).getTime() - new Date(b.update_date).getTime()
+      }
+
+      if (!a.update_date) return -1
+      if (!b.update_date) return 1
+
+      return 0
+    })
+  }, [data])
+
   const scheduleList = React.useMemo(() => {
-    return data
-      .filter(item => item.schedule_id !== schedule.schedule_id)
-      .sort((a, b) => {
-        if (a.update_date && b.update_date) {
-          return new Date(a.update_date).getTime() - new Date(b.update_date).getTime()
-        }
+    return sortedScheduleList.filter(item => item.schedule_id !== schedule.schedule_id)
+  }, [sortedScheduleList, schedule.schedule_id])
 
-        if (!a.update_date) return -1
-        if (!b.update_date) return 1
+  const colorThemeItemList = React.useMemo(() => {
+    if (!colorTheme) {
+      return null
+    }
 
-        return 0
-      })
-  }, [data, schedule.schedule_id])
+    return colorTheme.item_list.sort((a, b) => a.order - b.order)
+  }, [colorTheme])
 
   const radius = React.useMemo(() => {
     return timetableWrapperSize - 40
   }, [timetableWrapperSize])
+
+  const getSchedulePieColor = useCallback(
+    (index: number) => {
+      if (!colorThemeItemList) {
+        return null
+      }
+
+      return colorThemeItemList[index % colorThemeItemList.length].color
+    },
+    [colorThemeItemList]
+  )
+
+  const editSchedulePieColor = React.useMemo(() => {
+    if (colorThemeItemList) {
+      const targetIndex = sortedScheduleList.findIndex(item => item.schedule_id === schedule.schedule_id)
+
+      if (targetIndex !== -1) {
+        return getSchedulePieColor(targetIndex)
+      }
+
+      return colorThemeItemList[0].color
+    }
+
+    return null
+  }, [sortedScheduleList, schedule, getSchedulePieColor, colorThemeItemList])
 
   const closeKeyboard = React.useCallback(() => {
     setIsInputMode(false)
@@ -109,6 +146,7 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
                   radius={radius}
                   startTime={item.start_time}
                   endTime={item.end_time}
+                  color={getSchedulePieColor(index)}
                   isEdit={true}
                   disableScheduleList={disableScheduleList}
                 />
@@ -128,6 +166,7 @@ const EditTimetable = ({data, isRendered, onChangeStartTime, onChangeEndTime}: P
             x={timetableWrapperSize}
             y={timetableWrapperSize}
             radius={radius}
+            color={editSchedulePieColor}
             isInputMode={isInputMode}
             onChangeSchedule={changeSchedule}
             onChangeScheduleDisabled={changeScheduleDisabled}

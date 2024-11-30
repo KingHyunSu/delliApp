@@ -58,7 +58,8 @@ import {
   displayModeState,
   activeBackgroundState,
   statusBarColorState,
-  statusBarTextStyleState
+  statusBarTextStyleState,
+  activeColorThemeState
 } from '@/store/system'
 
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
@@ -160,6 +161,7 @@ function App(): JSX.Element {
   const [displayMode, setDisplayMode] = useRecoilState(displayModeState)
   const [activeBackground, setActiveBackground] = useRecoilState(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
+  const setActiveColorTheme = useSetRecoilState(activeColorThemeState)
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
 
   const [statusBarColor, setStatusBarColor] = useRecoilState(statusBarColorState)
@@ -305,6 +307,7 @@ function App(): JSX.Element {
       setStatusBarTextStyle(backgroundDetail.display_mode === 0 ? 'dark-content' : 'light-content')
       setActiveBackground(backgroundDetail)
       setDisplayMode(user.display_mode)
+      setActiveColorTheme(accessResponse.active_color_theme)
 
       setIsInit(isInitDatabase)
     }
@@ -316,7 +319,8 @@ function App(): JSX.Element {
     getActiveBackgroundMutateAsync,
     setStatusBarTextStyle,
     setActiveBackground,
-    setDisplayMode
+    setDisplayMode,
+    setActiveColorTheme
   ])
 
   /**
