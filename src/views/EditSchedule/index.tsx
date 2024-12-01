@@ -1,5 +1,5 @@
 import React, {useRef, useState} from 'react'
-import {StyleSheet, View, Pressable, Text, Alert, Image} from 'react-native'
+import {StyleSheet, View, Pressable, Alert, Image} from 'react-native'
 import Animated, {runOnJS, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
 
 import AppBar from '@/components/AppBar'
@@ -37,7 +37,6 @@ import RNFetchBlob from 'rn-fetch-blob'
 import {useQueryClient} from '@tanstack/react-query'
 import {useGetExistScheduleList, useSetSchedule} from '@/apis/hooks/useSchedule'
 import {useUpdateActiveColorTheme} from '@/apis/hooks/useUser'
-import {getTimeOfMinute} from '@/utils/helper'
 import {EditScheduleProps} from '@/types/navigation'
 import type {EditScheduleBottomSheetRef} from '@/components/bottomSheet/EditScheduleBottomSheet'
 import type {Ref as ControlBarRef} from './components/ControlBar'
@@ -64,7 +63,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   // const [isFixedAlignCenter, setIsFixedAlignCenter] = useRecoilState(isFixedAlignCenterState)
 
   const displayMode = useRecoilValue(displayModeState)
-  const activeTheme = useRecoilValue(activeThemeState)
   const activeBackground = useRecoilValue(activeBackgroundState)
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
   const scheduleList = useRecoilValue(scheduleListState)
@@ -97,18 +95,9 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     return !!(schedule.title && dayOfWeekList.some(item => item === '1'))
   }, [schedule.title, schedule.mon, schedule.tue, schedule.wed, schedule.thu, schedule.fri, schedule.sat, schedule.sun])
 
-  const timeInfoAnimatedStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{translateX: timeInfoTranslateX.value}]
-    }
-  })
   const timetableAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{translateY: timeTableTranslateY.value}]
   }))
-
-  const timeInfoContainerStyle = React.useMemo(() => {
-    return [timeInfoAnimatedStyle, styles.timeIntoContainer, {backgroundColor: activeTheme.color5}]
-  }, [activeTheme.color5])
 
   const timetableStyle = React.useMemo(() => {
     return [timetableAnimatedStyle, {opacity: isLoading ? 0.6 : 1}]
@@ -118,18 +107,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   // const fixedAlignCenterColor = React.useMemo(() => {
   //   return isFixedAlignCenter ? '#ffffff' : '#696969'
   // }, [isFixedAlignCenter])
-
-  const startTimeString = React.useMemo(() => {
-    const timeOfMinute = getTimeOfMinute(newStartTime)
-
-    return `${timeOfMinute.meridiem} ${timeOfMinute.hour}시 ${timeOfMinute.minute}분`
-  }, [newStartTime])
-
-  const endTimeString = React.useMemo(() => {
-    const timeOfMinute = getTimeOfMinute(newEndTime)
-
-    return `${timeOfMinute.meridiem} ${timeOfMinute.hour}시 ${timeOfMinute.minute}분`
-  }, [newEndTime])
 
   const closeEditScheduleBottomSheet = React.useCallback(() => {
     Alert.alert('나가기', '작성한 내용은 저장되지 않아요.', [
@@ -279,17 +256,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   return (
     <View style={[styles.container, {backgroundColor: activeBackground.background_color}]}>
       <AppBar color="transparent">
-        <Animated.View style={timeInfoContainerStyle}>
-          <View style={styles.timeInfoWrapper}>
-            <Image source={require('@/assets/icons/time.png')} style={styles.timeInfoIcon} />
-            <Text style={[styles.timeInfoText, {color: activeTheme.color3}]}>{startTimeString}</Text>
-            <Text style={{color: activeTheme.color3}}>-</Text>
-            <Text style={[styles.timeInfoText, {color: activeTheme.color3}]}>{endTimeString}</Text>
-          </View>
-        </Animated.View>
-
-        <View />
-
         <Pressable style={styles.appBarRightButton} onPress={closeEditScheduleBottomSheet}>
           <CancelIcon stroke={activeBackground.accent_color} strokeWidth={3} />
         </Pressable>
@@ -324,7 +290,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         />
       </View>
 
-      <EditScheduleBottomSheet ref={editScheduleBottomSheetRef} />
+      <EditScheduleBottomSheet ref={editScheduleBottomSheetRef} startTime={newStartTime} endTime={newEndTime} />
       <ScheduleCategorySelectorBottomSheet />
       <OverlapScheduleListBottomSheet onSubmit={doSubmit} />
       <ColorSelectorBottomSheet activeColorTheme={colorTheme} onChangeActiveColorTheme={setColorTheme} />
@@ -350,26 +316,6 @@ const styles = StyleSheet.create({
     marginRight: 16,
     justifyContent: 'center',
     alignItems: 'flex-end'
-  },
-
-  timeIntoContainer: {
-    paddingVertical: 7,
-    paddingHorizontal: 10,
-    borderRadius: 10
-  },
-  timeInfoWrapper: {
-    paddingLeft: 10,
-    gap: 5,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  timeInfoIcon: {
-    width: 16,
-    height: 16
-  },
-  timeInfoText: {
-    fontSize: 12,
-    fontFamily: 'Pretendard-SemiBold'
   },
 
   controlBar: {

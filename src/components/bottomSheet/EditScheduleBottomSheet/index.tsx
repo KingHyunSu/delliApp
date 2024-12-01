@@ -1,9 +1,14 @@
 import {useRef, useState, useCallback, useEffect, forwardRef, useImperativeHandle, useMemo} from 'react'
 import {StyleSheet, ScrollView, Text, Pressable, TextStyle} from 'react-native'
-import BottomSheet, {BottomSheetHandleProps, BottomSheetScrollView} from '@gorhom/bottom-sheet'
+import BottomSheet, {
+  BottomSheetBackdropProps,
+  BottomSheetHandleProps,
+  BottomSheetScrollView
+} from '@gorhom/bottom-sheet'
 import {isAfter} from 'date-fns'
 
 import BottomSheetHandler from '@/components/BottomSheetHandler'
+import CustomBackdrop from './src/CustomBackdrop'
 import ColorPanel from './src/ColorPanel'
 import TimePanel from './src/TimePanel'
 import DatePanel from './src/DatePanel'
@@ -29,7 +34,11 @@ import type {DayOfWeeks} from './src/DayOfWeekPanel'
 export interface EditScheduleBottomSheetRef {
   collapse: () => void
 }
-const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref) => {
+interface Props {
+  startTime: number
+  endTime: number
+}
+const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(({startTime, endTime}, ref) => {
   const defaultItemPanelHeight = 56
 
   const bottomSheetRef = useRef<BottomSheet>(null)
@@ -246,6 +255,13 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
     )
   }, [])
 
+  const getBackdropComponent = useCallback(
+    (props: BottomSheetBackdropProps) => {
+      return <CustomBackdrop props={props} activeTheme={activeTheme} startTime={startTime} endTime={endTime} />
+    },
+    [activeTheme, startTime, endTime]
+  )
+
   return (
     <BottomSheet
       ref={bottomSheetRef}
@@ -253,6 +269,7 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef>(({}, ref)
       snapPoints={editScheduleListSnapPoint}
       backgroundStyle={{backgroundColor: activeTheme.color5}}
       handleComponent={bottomSheetHandler}
+      backdropComponent={getBackdropComponent}
       onChange={handleBottomSheetChanged}>
       <BottomSheetScrollView ref={bottomSheetScrollViewRef} contentContainerStyle={styles.container}>
         {/* 일정명 */}
