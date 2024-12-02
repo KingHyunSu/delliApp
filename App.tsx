@@ -11,11 +11,12 @@ import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
 // navigations
 import {NavigationContainer, LinkingOptions} from '@react-navigation/native'
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
-import {createStackNavigator} from '@react-navigation/stack'
+import {createNativeStackNavigator} from '@react-navigation/native-stack'
 import {navigationRef} from '@/utils/navigation'
 
 // views
 import HomeScreen from '@/views/Home'
+import HomeCustomScreen from '@/views/HomeCustom'
 import MyThemeListScreen from '@/views/MyThemeList'
 import ThemeDetailScreen from '@/views/theme/ThemeDetail'
 import EditRoutineScreen from '@/views/EditRoutine'
@@ -73,7 +74,7 @@ import {useGetActiveBackground} from '@/apis/hooks/useProduct'
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
 const Tab = createBottomTabNavigator<BottomTabNavigator>()
-const Stack = createStackNavigator<StackNavigator>()
+const Stack = createNativeStackNavigator<StackNavigator>()
 
 interface BottomTabsProps {
   activeTheme: ActiveTheme
@@ -198,6 +199,7 @@ function App(): JSX.Element {
     switch (route?.name) {
       // case 'Stats':
       case 'Home':
+      case 'HomeCustom':
       case 'EditSchedule':
         _statusBarColor = null
         _statusBarTextStyle = activeBackground.display_mode === 1 ? 'dark-content' : 'light-content'
@@ -463,9 +465,14 @@ function App(): JSX.Element {
             <Stack.Navigator initialRouteName="MainTabs" screenOptions={screenOptions}>
               {/*<Stack.Screen name="MainTabs" component={BottomTabs} />*/}
               <Stack.Screen name="MainTabs">{() => <BottomTabs activeTheme={activeTheme} />}</Stack.Screen>
-              <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={editScheduleScreenOptions} />
+              <Stack.Screen
+                name="HomeCustom"
+                component={HomeCustomScreen}
+                options={{animation: 'fade', animationDuration: 300}}
+              />
+              <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animation: 'none'}} />
               <Stack.Screen name="ThemeDetail" component={ThemeDetailScreen} />
-              <Stack.Screen name="MyThemeList" component={MyThemeListScreen} options={{animationEnabled: false}} />
+              <Stack.Screen name="MyThemeList" component={MyThemeListScreen} options={{animation: 'none'}} />
               <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
               <Stack.Screen name="EditTodo" component={EditTodoScreen} />
 

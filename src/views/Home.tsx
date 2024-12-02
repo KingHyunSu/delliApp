@@ -108,6 +108,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const background = React.useMemo(() => {
     if (!activeBackground || activeBackground.background_id === 1) {
       return <Image style={homeStyles.backgroundImage} source={require('@/assets/beige.png')} />
+      // return <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#2E2A25'}} />
     }
 
     return (
@@ -139,8 +140,8 @@ const Home = ({navigation, route}: HomeScreenProps) => {
     [setScheduleDate]
   )
 
-  const moveMyThemeList = React.useCallback(() => {
-    navigation.navigate('MyThemeList')
+  const moveHomeCustom = React.useCallback(() => {
+    navigation.navigate('HomeCustom')
   }, [navigation])
 
   const moveEditSchedule = React.useCallback(() => {
@@ -421,9 +422,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         </Animated.View>
       ) : (
         <Animated.View style={fabContainerStyle}>
-          <Pressable
-            style={[homeStyles.fab, {backgroundColor: fabBackgroundColor}]}
-            onPress={() => setShowFabExtensionModal(true)}>
+          <Pressable style={homeStyles.fab} onPress={() => setShowFabExtensionModal(true)}>
             <PlusIcon stroke="#ffffff" strokeWidth={3} />
           </Pressable>
         </Animated.View>
@@ -436,7 +435,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         visible={showFabExtensionModal}
         translateY={fabTranslateY.value}
         color={fabBackgroundColor}
-        moveMyThemeList={moveMyThemeList}
+        moveHomeCustom={moveHomeCustom}
         moveEditSchedule={moveEditSchedule}
         onClose={() => setShowFabExtensionModal(false)}
       />
@@ -504,7 +503,8 @@ const homeStyles = StyleSheet.create({
     height: 52,
     borderRadius: 26,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: '#1E90FF'
   },
   focusTimeText: {
     textAlign: 'center',

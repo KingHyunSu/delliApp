@@ -23,6 +23,10 @@ export interface GetProductBackgroundDetailResponse {
 export interface GetDownloadedBackgroundListResponse {
   background_id: number
   file_name: string
+  display_mode: number
+  background_color: string
+  sub_color: string
+  accent_color: string
 }
 
 export interface SetDownloadBackgroundRequest {
@@ -58,6 +62,10 @@ export interface SetMyBackgroundResponse {
 export interface GetMyBackgroundListResponse {
   product_background_id: number
   thumb_url: string
+  display_mode: number
+  background_color: string
+  sub_color: string
+  accent_color: string
   title: string
 }
 

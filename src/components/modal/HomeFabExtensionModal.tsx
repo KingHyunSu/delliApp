@@ -13,11 +13,11 @@ interface Props {
   visible: boolean
   translateY: number
   color: string
-  moveMyThemeList: () => void
+  moveHomeCustom: () => void
   moveEditSchedule: () => void
   onClose: () => void
 }
-const HomeFabExtensionModal = ({visible, translateY, color, moveMyThemeList, moveEditSchedule, onClose}: Props) => {
+const HomeFabExtensionModal = ({visible, translateY, color, moveHomeCustom, moveEditSchedule, onClose}: Props) => {
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const rotate = useSharedValue(0)
@@ -63,10 +63,10 @@ const HomeFabExtensionModal = ({visible, translateY, color, moveMyThemeList, mov
     fabOpacity2.value = withTiming(0, {duration: 200})
   }, [onClose])
 
-  const handleMoveMyThemeList = useCallback(() => {
-    moveMyThemeList()
+  const handleMoveHomeCustom = useCallback(() => {
+    moveHomeCustom()
     onClose()
-  }, [onClose, moveMyThemeList])
+  }, [onClose, moveHomeCustom])
 
   const handleMoveEditSchedule = useCallback(() => {
     moveEditSchedule()
@@ -100,9 +100,9 @@ const HomeFabExtensionModal = ({visible, translateY, color, moveMyThemeList, mov
       <Animated.View style={[styles.overlay, animatedOverlayStyle]} />
 
       <Animated.View style={[styles.fabWrapper, animatedStyle3, {bottom}]}>
-        <Text style={styles.fabText}>테마</Text>
+        <Text style={styles.fabText}>꾸미기</Text>
 
-        <Pressable style={themeButtonStyle} onPress={handleMoveMyThemeList}>
+        <Pressable style={themeButtonStyle} onPress={handleMoveHomeCustom}>
           <ThemeIcon width={24} height={24} fill="#424242" />
         </Pressable>
       </Animated.View>
@@ -116,7 +116,7 @@ const HomeFabExtensionModal = ({visible, translateY, color, moveMyThemeList, mov
       </Animated.View>
 
       <Animated.View style={[styles.fabWrapper, animatedStyle1, {bottom}]}>
-        <Pressable style={[styles.fab, {backgroundColor: color}]} onPress={handleClose}>
+        <Pressable style={styles.fab} onPress={handleClose}>
           <PlusIcon stroke="#ffffff" strokeWidth={3} />
         </Pressable>
       </Animated.View>
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'green'
+    backgroundColor: '#1E90FF'
   },
   fabText: {
     fontFamily: 'Pretendard-SemiBold',

@@ -7,7 +7,7 @@ export const setDefaultBackgroundQuery = () => {
 }
 
 export const getDownloadedBackgroundListQuery = () => {
-  return `SELECT background_id, file_name FROM background`
+  return `SELECT background_id, file_name, display_mode, background_color, sub_color, accent_color FROM background`
 }
 
 export const setDownloadBackgroundQuery = () => {

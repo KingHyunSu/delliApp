@@ -8,6 +8,7 @@ export type StackNavigator = {
     screen: keyof BottomTabNavigator
     params?: BottomTabNavigator[keyof BottomTabNavigator]
   }
+  HomeCustom: undefined
   EditSchedule: undefined
   EditRoutine: {
     scheduleId: number
@@ -50,6 +51,7 @@ export type RoutineScreenProps = CompositeScreenProps<
   StackScreenProps<StackNavigator>
 >
 
+export type HomeCustomProps = StackScreenProps<StackNavigator, 'HomeCustom'>
 export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
 export type MyThemeListProps = StackScreenProps<StackNavigator, 'MyThemeList'>
 export type ThemeDetailScreenProps = StackScreenProps<StackNavigator, 'ThemeDetail'>

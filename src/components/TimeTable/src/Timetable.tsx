@@ -18,9 +18,10 @@ import {updateWidgetWithImage} from '@/utils/widget'
 
 interface Props {
   data: Schedule[]
+  readonly?: boolean
   isRendered: boolean
 }
-const Timetable = ({data, isRendered}: Props) => {
+const Timetable = ({data, readonly = false, isRendered}: Props) => {
   const refs = useRef<View>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -153,10 +154,14 @@ const Timetable = ({data, isRendered}: Props) => {
 
   const openEditMenuBottomSheet = useCallback(
     (value: Schedule) => {
+      if (readonly) {
+        return
+      }
+
       setSchedule(value)
       setShowEditMenuBottomSheet(true)
     },
-    [setSchedule, setShowEditMenuBottomSheet]
+    [readonly, setSchedule, setShowEditMenuBottomSheet]
   )
 
   const getSchedulePieColor = useCallback(
