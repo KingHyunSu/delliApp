@@ -2,7 +2,7 @@ import {useState, useMemo, useCallback, useEffect} from 'react'
 import {StyleSheet, ActivityIndicator, View, Text, Image, Pressable} from 'react-native'
 import AppBar from '@/components/AppBar'
 import {Timetable} from '@/components/TimeTable'
-import {CustomBackgroundBottomSheet} from '@/components/bottomSheet/homeCustom'
+import HomeCustomBottomSheet from '@/components/bottomSheet/HomeCustomBottomSheet'
 
 import RNFetchBlob from 'rn-fetch-blob'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
@@ -137,10 +137,11 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
         </Pressable>
       </View>
 
-      <CustomBackgroundBottomSheet
-        visible={activeMenu === 'background'}
-        value={background}
-        onChange={setBackground}
+      <HomeCustomBottomSheet
+        visible={!!activeMenu}
+        activeMenu={activeMenu}
+        activeBackground={background}
+        onChangeBackground={setBackground}
         onDismiss={closeBottomSheet}
       />
     </View>

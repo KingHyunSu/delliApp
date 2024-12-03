@@ -1,10 +1,8 @@
-import {useRef, useMemo, useEffect, useCallback, useState} from 'react'
-import {ListRenderItem, StyleSheet, ActivityIndicator, View, Text, Pressable, Image} from 'react-native'
-import {BottomSheetBackdropProps, BottomSheetModal, BottomSheetFlatList} from '@gorhom/bottom-sheet'
-import CustomBackdrop from './CustomBackdrop'
+import {useCallback, useEffect, useMemo, useState} from 'react'
+import {ActivityIndicator, Image, ListRenderItem, Pressable, StyleSheet, Text, View} from 'react-native'
+import {BottomSheetFlatList} from '@gorhom/bottom-sheet'
+import DownloadIcon from '@/assets/icons/download.svg'
 
-import {alertState, safeAreaInsetsState, windowDimensionsState} from '@/store/system'
-import {useRecoilValue, useSetRecoilState} from 'recoil'
 import {useQueryClient} from '@tanstack/react-query'
 import {
   useGetBackgroundDetailMutation,
@@ -12,16 +10,15 @@ import {
   useGetMyBackgroundList,
   useSetDownloadBackground
 } from '@/apis/hooks/useProduct'
+import {useRecoilValue} from 'recoil'
+import {windowDimensionsState} from '@/store/system'
 import RNFetchBlob from 'rn-fetch-blob'
-import DownloadIcon from '@/assets/icons/download.svg'
 
 interface Props {
-  visible: boolean
-  value: DownloadedBackgroundItem | null
+  activeItem: DownloadedBackgroundItem | null
   onChange: (value: DownloadedBackgroundItem) => void
-  onDismiss: () => void
 }
-const CustomBackgroundBottomSheet = ({visible, value, onChange, onDismiss}: Props) => {
+const BackgroundList = ({activeItem, onChange}: Props) => {
   const queryClient = useQueryClient()
 
   const {data: downloadBackgroundList} = useGetDownloadedBackgroundList()
@@ -29,24 +26,16 @@ const CustomBackgroundBottomSheet = ({visible, value, onChange, onDismiss}: Prop
   const {mutateAsync: getBackgroundDetailMutationAsync} = useGetBackgroundDetailMutation()
   const {mutateAsync: setDownloadBackgroundMutateAsync} = useSetDownloadBackground()
 
-  const customBackgroundBottomSheetRef = useRef<BottomSheetModal>(null)
-
   const [myBackgroundList, setMyBackgroundList] = useState<MyBackgroundItem[]>([])
   const [isDownLoading, setIsDownLoading] = useState(false)
 
-  const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
   const windowDimensions = useRecoilValue(windowDimensionsState)
-  const alert = useSetRecoilState(alertState)
 
   const imageWidth = useMemo(() => {
     const totalPadding = 40
     const totalGap = 60
     return (windowDimensions.width - totalPadding - totalGap) / 4
   }, [windowDimensions.width])
-
-  const bottomInset = useMemo(() => {
-    return 72 + 1 + safeAreaInsets.bottom
-  }, [safeAreaInsets.bottom])
 
   const doDownloadBackground = useCallback(
     async (detail: ProductBackgroundDetail) => {
@@ -88,7 +77,7 @@ const CustomBackgroundBottomSheet = ({visible, value, onChange, onDismiss}: Prop
 
   const changeBackground = useCallback(
     (item: MyBackgroundItem) => async () => {
-      if (item.product_background_id === value?.background_id) {
+      if (item.product_background_id === activeItem?.background_id) {
         return
       }
 
@@ -98,16 +87,8 @@ const CustomBackgroundBottomSheet = ({visible, value, onChange, onDismiss}: Prop
         onChange(target)
       }
     },
-    [value, downloadBackgroundList, onChange]
+    [activeItem, downloadBackgroundList, onChange]
   )
-
-  useEffect(() => {
-    if (visible) {
-      customBackgroundBottomSheetRef.current?.present()
-    } else {
-      customBackgroundBottomSheetRef.current?.dismiss()
-    }
-  }, [visible])
 
   useEffect(() => {
     const init = async () => {
@@ -126,13 +107,6 @@ const CustomBackgroundBottomSheet = ({visible, value, onChange, onDismiss}: Prop
   }, [getMyBackgroundListMutateAsync, setMyBackgroundList])
 
   // components
-  const getBottomSheetBackdrop = useCallback(
-    (props: BottomSheetBackdropProps) => {
-      return <CustomBackdrop props={props} onClose={onDismiss} />
-    },
-    [onDismiss]
-  )
-
   const downloadIcon = useMemo(() => {
     if (isDownLoading) {
       return <ActivityIndicator color="#e8eaed" />
@@ -145,7 +119,7 @@ const CustomBackgroundBottomSheet = ({visible, value, onChange, onDismiss}: Prop
     ({item}) => {
       const aspectRatio = 1.77
 
-      const isActive = value?.background_id === item.product_background_id
+      const isActive = activeItem?.background_id === item.product_background_id
       const isDownloaded = downloadBackgroundList.some(sItem => sItem.background_id === item.product_background_id)
 
       let handlePress = changeBackground(item)
@@ -175,37 +149,22 @@ const CustomBackgroundBottomSheet = ({visible, value, onChange, onDismiss}: Prop
         </Pressable>
       )
     },
-    [downloadBackgroundList, value, downloadIcon, downloadBackground, imageWidth, changeBackground]
+    [downloadBackgroundList, activeItem, downloadIcon, downloadBackground, imageWidth, changeBackground]
   )
 
   return (
-    <BottomSheetModal
-      name="CustomBackground"
-      ref={customBackgroundBottomSheetRef}
-      snapPoints={['50%', '90%']}
-      bottomInset={bottomInset}
-      backdropComponent={getBottomSheetBackdrop}
-      onDismiss={onDismiss}>
-      <View style={styles.container}>
-        <BottomSheetFlatList
-          data={myBackgroundList}
-          renderItem={getRenderItem}
-          numColumns={4}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContainer}
-          columnWrapperStyle={styles.listColumnWrapper}
-        />
-      </View>
-    </BottomSheetModal>
+    <BottomSheetFlatList
+      data={myBackgroundList}
+      renderItem={getRenderItem}
+      numColumns={4}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.listContainer}
+      columnWrapperStyle={styles.listColumnWrapper}
+    />
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20
-  },
   listContainer: {
     paddingTop: 20,
     paddingBottom: 30,
@@ -243,4 +202,4 @@ const itemStyles = StyleSheet.create({
   }
 })
 
-export default CustomBackgroundBottomSheet
+export default BackgroundList
