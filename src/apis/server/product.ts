@@ -1,11 +1,14 @@
 import http from '@/utils/http'
 import {
   GetMyBackgroundListResponse,
+  GetMyOutlineListResponse,
   GetProductBackgroundDetailResponse,
   GetProductBackgroundListResponse,
   GetProductColorThemeListResponse,
   SetMyBackgroundRequest,
-  SetMyBackgroundResponse
+  SetMyBackgroundResponse,
+  UpdateOutlineColorRequest,
+  UpdateOutlineColorResponse
 } from '@/apis/types/product'
 
 export const getProductBackgroundList = () => {
@@ -22,6 +25,14 @@ export const setMyBackground = (data: SetMyBackgroundRequest) => {
 
 export const getMyBackgroundList = () => {
   return http.post<any, Response<GetMyBackgroundListResponse[]>>('product/background/my/list')
+}
+
+export const getMyOutlineList = () => {
+  return http.get<any, Response<GetMyOutlineListResponse[]>>('product/outline/my/list')
+}
+
+export const updateOutlineColor = (data: UpdateOutlineColorRequest) => {
+  return http.post<any, Response<UpdateOutlineColorResponse>>('product/outline/color', data)
 }
 
 export const getProductColorThemeList = () => {

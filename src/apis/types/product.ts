@@ -4,7 +4,6 @@ export interface GetProductBackgroundListResponse {
   title: string
   price: number
 }
-
 export interface GetProductBackgroundDetailResponse {
   product_background_id: number
   main_url: string
@@ -19,7 +18,6 @@ export interface GetProductBackgroundDetailResponse {
   title: string
   purchased: boolean
 }
-
 export interface GetDownloadedBackgroundListResponse {
   background_id: number
   file_name: string
@@ -28,7 +26,6 @@ export interface GetDownloadedBackgroundListResponse {
   sub_color: string
   accent_color: string
 }
-
 export interface SetDownloadBackgroundRequest {
   background_id: number
   file_name: string
@@ -37,11 +34,9 @@ export interface SetDownloadBackgroundRequest {
   sub_color: string
   accent_color: string
 }
-
 export interface GetActiveBackgroundRequest {
   background_id: number
 }
-
 export interface GetActiveBackgroundResponse {
   background_id: number
   file_name: string
@@ -50,15 +45,12 @@ export interface GetActiveBackgroundResponse {
   sub_color: string
   accent_color: string
 }
-
 export interface SetMyBackgroundRequest {
   background_id: number
 }
-
 export interface SetMyBackgroundResponse {
   result: boolean
 }
-
 export interface GetMyBackgroundListResponse {
   product_background_id: number
   thumb_url: string
@@ -69,13 +61,32 @@ export interface GetMyBackgroundListResponse {
   title: string
 }
 
+export interface GetActiveOutlineResponse {
+  product_outline_id: number
+  background_color: string
+  progress_color: string
+}
+export interface GetMyOutlineListResponse {
+  my_outline_id: number
+  product_outline_id: number
+  background_color: string
+  progress_color: string
+}
+export interface UpdateOutlineColorRequest {
+  outline_id: number
+  background_color: string
+  progress_color: string
+}
+export interface UpdateOutlineColorResponse {
+  result: boolean
+}
+
 export interface GetProductColorThemeListItemResponse {
   product_color_theme_item_id: number
   color_type: string
   color: string
   order: number
 }
-
 export interface GetProductColorThemeListResponse {
   product_color_theme_id: number
   background_url: string

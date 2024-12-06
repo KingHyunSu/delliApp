@@ -2,7 +2,7 @@ import React, {useCallback} from 'react'
 import {StyleSheet, View, Pressable} from 'react-native'
 import {Svg} from 'react-native-svg'
 
-import TimeBackground from '../components/TimeBackground'
+import Outline from '../components/Outline'
 import Background from '../components/Background'
 import SchedulePie from '../components/SchedulePie'
 import ScheduleText from '../components/ScheduleText'
@@ -10,7 +10,7 @@ import EditSchedulePie from '../components/EditSchedulePie'
 import EditScheduleText from '../components/EditScheduleText'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
-import {timetableContainerHeightState, timetableWrapperSizeState} from '@/store/system'
+import {activeOutlineState, timetableContainerHeightState, timetableWrapperSizeState} from '@/store/system'
 import {scheduleState, disableScheduleListState, isInputModeState} from '@/store/schedule'
 
 interface Props {
@@ -27,6 +27,7 @@ const EditTimetable = ({data, colorTheme, isRendered, onChangeStartTime, onChang
 
   const timetableContainerHeight = useRecoilValue(timetableContainerHeightState)
   const timetableWrapperSize = useRecoilValue(timetableWrapperSizeState)
+  const activeOutline = useRecoilValue(activeOutlineState)
 
   // styles
   const containerStyle = React.useMemo(() => {
@@ -130,7 +131,13 @@ const EditTimetable = ({data, colorTheme, isRendered, onChangeStartTime, onChang
   return (
     <Pressable style={containerStyle} onPress={clickBackground}>
       <View style={wrapperStyle}>
-        <TimeBackground radius={radius} percentage={0} />
+        <Outline
+          type={activeOutline.product_outline_id}
+          backgroundColor={activeOutline.background_color}
+          progressColor={activeOutline.progress_color}
+          radius={radius}
+          percentage={0}
+        />
 
         <View>
           <Svg width={radius * 2} height={radius * 2}>

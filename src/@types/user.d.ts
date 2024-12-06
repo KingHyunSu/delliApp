@@ -6,6 +6,7 @@ declare global {
   interface UserInfo {
     user_id: string
     display_mode: DisplayMode
+    active_outline_id: number
     active_background_id: number
   }
 }

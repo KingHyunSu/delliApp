@@ -1,7 +1,12 @@
 import {useMutation, useQuery} from '@tanstack/react-query'
 import * as productApi from '@/apis/server/product'
 import {productRepository} from '../local'
-import {SetDownloadBackgroundRequest, SetMyBackgroundRequest} from '@/apis/types/product'
+import {
+  SetDownloadBackgroundRequest,
+  SetMyBackgroundRequest,
+  UpdateOutlineColorRequest,
+  UpdateOutlineColorResponse
+} from '@/apis/types/product'
 
 /**
  * background
@@ -83,6 +88,32 @@ export const useGetMyBackgroundList = () => {
       const response = await productApi.getMyBackgroundList()
 
       return response.data as MyBackgroundItem[]
+    }
+  })
+}
+
+/**
+ * outline
+ */
+
+export const useGetMyOutlineList = () => {
+  return useQuery({
+    queryKey: ['myOutlineList'],
+    queryFn: async () => {
+      const response = await productApi.getMyOutlineList()
+
+      return response.data as MyOutlineItem[]
+    },
+    initialData: []
+  })
+}
+
+export const useUpdateOutlineColor = () => {
+  return useMutation({
+    mutationFn: async (params: UpdateOutlineColorRequest) => {
+      const response = await productApi.updateOutlineColor(params)
+
+      return response.data as UpdateOutlineColorResponse
     }
   })
 }

@@ -1,7 +1,9 @@
 import {
   GetActiveBackgroundResponse,
+  GetActiveOutlineResponse,
   GetDownloadedBackgroundListResponse,
   GetMyBackgroundListResponse,
+  GetMyOutlineListResponse,
   GetProductBackgroundDetailResponse,
   GetProductBackgroundListResponse,
   GetProductColorThemeListItemResponse,
@@ -15,8 +17,10 @@ declare global {
   interface DownloadedBackgroundItem extends GetDownloadedBackgroundListResponse {}
   interface MyBackgroundItem extends GetMyBackgroundListResponse {}
 
-  interface ProductColorThemeItem extends GetProductColorThemeListResponse {}
+  interface ActiveOutline extends GetActiveOutlineResponse {}
+  interface MyOutlineItem extends GetMyOutlineListResponse {}
 
+  interface ProductColorThemeItem extends GetProductColorThemeListResponse {}
   interface ColorThemeItem extends GetProductColorThemeListItemResponse {}
   interface ActiveColorTheme {
     product_color_theme_id: number

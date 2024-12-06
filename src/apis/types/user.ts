@@ -4,6 +4,7 @@ export interface AccessRequest {
 
 export interface AccessResponse {
   token: string
+  active_outline: ActiveOutline
   active_color_theme: ActiveColorTheme | null
 }
 

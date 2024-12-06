@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useMemo, useState} from 'react'
 import {ActivityIndicator, Image, ListRenderItem, Pressable, StyleSheet, Text, View} from 'react-native'
 import {BottomSheetFlatList} from '@gorhom/bottom-sheet'
+import CheckIcon from '@/assets/icons/check.svg'
 import DownloadIcon from '@/assets/icons/download.svg'
 
 import {useQueryClient} from '@tanstack/react-query'
@@ -15,7 +16,7 @@ import {windowDimensionsState} from '@/store/system'
 import RNFetchBlob from 'rn-fetch-blob'
 
 interface Props {
-  activeItem: DownloadedBackgroundItem | null
+  activeItem: DownloadedBackgroundItem
   onChange: (value: DownloadedBackgroundItem) => void
 }
 const BackgroundList = ({activeItem, onChange}: Props) => {
@@ -77,7 +78,7 @@ const BackgroundList = ({activeItem, onChange}: Props) => {
 
   const changeBackground = useCallback(
     (item: MyBackgroundItem) => async () => {
-      if (item.product_background_id === activeItem?.background_id) {
+      if (item.product_background_id === activeItem.background_id) {
         return
       }
 
@@ -119,7 +120,7 @@ const BackgroundList = ({activeItem, onChange}: Props) => {
     ({item}) => {
       const aspectRatio = 1.77
 
-      const isActive = activeItem?.background_id === item.product_background_id
+      const isActive = activeItem.background_id === item.product_background_id
       const isDownloaded = downloadBackgroundList.some(sItem => sItem.background_id === item.product_background_id)
 
       let handlePress = changeBackground(item)
@@ -142,8 +143,8 @@ const BackgroundList = ({activeItem, onChange}: Props) => {
           )}
 
           {isActive && (
-            <View style={itemStyles.activeLabel}>
-              <Text style={itemStyles.activeLabelText}>적용중</Text>
+            <View style={itemStyles.activeIconWrapper}>
+              <CheckIcon width={14} height={14} stroke="#ffffff" strokeWidth={3} />
             </View>
           )}
         </Pressable>
@@ -179,19 +180,13 @@ const itemStyles = StyleSheet.create({
   container: {
     gap: 5
   },
-  activeLabel: {
+  activeIconWrapper: {
     position: 'absolute',
-    right: 10,
-    top: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
+    right: 7,
+    top: 7,
+    padding: 5,
     backgroundColor: '#1E90FF',
     borderRadius: 20
-  },
-  activeLabelText: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 12,
-    color: '#ffffff'
   },
   overlap: {
     position: 'absolute',

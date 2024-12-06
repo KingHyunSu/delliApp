@@ -1,35 +1,42 @@
-import {useState, useMemo, useCallback, useEffect} from 'react'
+import {useState, useMemo, useCallback} from 'react'
 import {StyleSheet, ActivityIndicator, View, Text, Image, Pressable} from 'react-native'
 import AppBar from '@/components/AppBar'
 import {Timetable} from '@/components/TimeTable'
 import HomeCustomBottomSheet from '@/components/bottomSheet/HomeCustomBottomSheet'
+import OutlineColorPickerModal from '@/components/modal/OutlineColorPickerModal'
 
 import RNFetchBlob from 'rn-fetch-blob'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {activeBackgroundState, activeThemeState, statusBarColorState, statusBarTextStyleState} from '@/store/system'
+import {
+  activeBackgroundState,
+  activeOutlineState,
+  activeThemeState,
+  statusBarColorState,
+  statusBarTextStyleState
+} from '@/store/system'
 import {scheduleListState} from '@/store/schedule'
 import {HomeCustomProps} from '@/types/navigation'
 import {useUpdateActiveBackgroundId} from '@/apis/hooks/useUser'
-import {useGetActiveBackground} from '@/apis/hooks/useProduct'
+import {useGetActiveBackground, useUpdateOutlineColor} from '@/apis/hooks/useProduct'
 
 type ActiveMenu = 'background' | 'outline' | null
 const HomeCustom = ({navigation}: HomeCustomProps) => {
-  const {mutateAsync: updateActiveBackgroundIdMutateAsync} = useUpdateActiveBackgroundId()
   const {mutateAsync: getActiveBackgroundMutateAsync} = useGetActiveBackground()
+  const {mutateAsync: updateActiveBackgroundIdMutateAsync} = useUpdateActiveBackgroundId()
+  const {mutateAsync: updateOutlineColorMutateAsync} = useUpdateOutlineColor()
 
   const [isLoading, setIsLoading] = useState(false)
   const [activeMenu, setActiveMenu] = useState<ActiveMenu>(null)
-  const [background, setBackground] = useState<DownloadedBackgroundItem | null>(null)
 
   const [activeBackground, setActiveBackground] = useRecoilState(activeBackgroundState)
+  const [activeOutline, setActiveOutline] = useRecoilState(activeOutlineState)
   const scheduleList = useRecoilValue(scheduleListState)
   const activeTheme = useRecoilValue(activeThemeState)
   const setStatusBarColor = useSetRecoilState(statusBarColorState)
   const setStatusBarTextStyle = useSetRecoilState(statusBarTextStyleState)
 
-  const headerButtonTextColor = useMemo(() => {
-    return background ? background.accent_color : activeBackground.accent_color
-  }, [background, activeBackground.accent_color])
+  const [background, setBackground] = useState(activeBackground)
+  const [outline, setOutline] = useState(activeOutline)
 
   const getMenuButtonTextStyle = useCallback(
     (type: ActiveMenu) => {
@@ -52,46 +59,47 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
   )
 
   const handleSave = useCallback(async () => {
-    if (!background) {
-      return
-    }
-
     setIsLoading(true)
 
     await updateActiveBackgroundIdMutateAsync(background.background_id)
-    const _activeBackground = await getActiveBackgroundMutateAsync(background.background_id)
+    const {result: updateOutlineColorResult} = await updateOutlineColorMutateAsync({
+      outline_id: outline.product_outline_id,
+      background_color: outline.background_color,
+      progress_color: outline.progress_color
+    })
 
-    setActiveBackground(_activeBackground)
+    if (updateOutlineColorResult) {
+      const _activeBackground = await getActiveBackgroundMutateAsync(background.background_id)
+
+      setActiveBackground(_activeBackground)
+      setActiveOutline(outline)
+
+      navigation.navigate('MainTabs', {
+        screen: 'Home',
+        params: {scheduleUpdated: false}
+      })
+    }
 
     setIsLoading(false)
-    navigation.navigate('MainTabs', {
-      screen: 'Home',
-      params: {scheduleUpdated: false}
-    })
   }, [
     background,
+    outline,
     updateActiveBackgroundIdMutateAsync,
+    updateOutlineColorMutateAsync,
     getActiveBackgroundMutateAsync,
     setIsLoading,
     setActiveBackground,
+    setActiveOutline,
     navigation
   ])
 
-  useEffect(() => {
-    if (!background) {
-      setBackground(activeBackground)
-    }
-  }, [background, activeBackground])
-
   const loadBackground = useCallback(() => {
-    if (background) {
-      setStatusBarColor(background.background_color)
-      setStatusBarTextStyle(background.display_mode === 1 ? 'dark-content' : 'light-content')
-    }
+    setStatusBarColor(background.background_color)
+    setStatusBarTextStyle(background.display_mode === 1 ? 'dark-content' : 'light-content')
   }, [background, setStatusBarColor, setStatusBarTextStyle])
 
   const backgroundComponent = useMemo(() => {
-    if (!background || background.background_id === 1) {
+    if (background.background_id === 1) {
       return <Image style={styles.backgroundImage} source={require('@/assets/beige.png')} onLoad={loadBackground} />
     }
 
@@ -111,16 +119,16 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
 
       <AppBar color="transparent">
         <Pressable style={styles.headerButton} onPress={() => navigation.goBack()}>
-          <Text style={[styles.headerButtonText, {color: headerButtonTextColor}]}>취소</Text>
+          <Text style={[styles.headerButtonText, {color: background.accent_color}]}>취소</Text>
         </Pressable>
 
         <Pressable style={styles.headerButton} onPress={handleSave}>
-          <Text style={[styles.headerButtonText, {color: headerButtonTextColor}]}>완료</Text>
+          <Text style={[styles.headerButtonText, {color: background.accent_color}]}>완료</Text>
         </Pressable>
       </AppBar>
 
       <View style={styles.timetableWrapper}>
-        <Timetable data={scheduleList} readonly isRendered={true} />
+        <Timetable data={scheduleList} readonly isRendered={true} outline={outline} />
 
         <View style={styles.loadingWrapper}>
           <ActivityIndicator size="large" animating={isLoading} />
@@ -141,9 +149,12 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
         visible={!!activeMenu}
         activeMenu={activeMenu}
         activeBackground={background}
+        activeOutline={outline}
         onChangeBackground={setBackground}
         onDismiss={closeBottomSheet}
       />
+
+      <OutlineColorPickerModal value={outline} activeBackground={background} onChange={setOutline} />
     </View>
   )
 }

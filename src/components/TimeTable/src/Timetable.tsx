@@ -3,14 +3,19 @@ import {StyleSheet, View} from 'react-native'
 import Svg, {Text} from 'react-native-svg'
 import {captureRef} from 'react-native-view-shot'
 
-import TimeBackground from '../components/TimeBackground'
+import Outline from '../components/Outline'
 import Background from '../components/Background'
 import SchedulePie from '../components/SchedulePie'
 import ScheduleText from '../components/ScheduleText'
 // import DefaultTimeAnchor from '@/assets/icons/default_time_anchor.svg'
 
 import {useSetRecoilState, useRecoilValue, useRecoilState} from 'recoil'
-import {activeColorThemeState, timetableContainerHeightState, timetableWrapperSizeState} from '@/store/system'
+import {
+  activeColorThemeState,
+  activeOutlineState,
+  timetableContainerHeightState,
+  timetableWrapperSizeState
+} from '@/store/system'
 import {scheduleState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
@@ -20,8 +25,9 @@ interface Props {
   data: Schedule[]
   readonly?: boolean
   isRendered: boolean
+  outline?: ActiveOutline
 }
-const Timetable = ({data, readonly = false, isRendered}: Props) => {
+const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
   const refs = useRef<View>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -30,6 +36,8 @@ const Timetable = ({data, readonly = false, isRendered}: Props) => {
   const timetableContainerHeight = useRecoilValue(timetableContainerHeightState)
   const timetableWrapperSize = useRecoilValue(timetableWrapperSizeState)
   const activeColorTheme = useRecoilValue(activeColorThemeState)
+  const activeOutline = useRecoilValue(activeOutlineState)
+
   const setSchedule = useSetRecoilState(scheduleState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
@@ -225,6 +233,22 @@ const Timetable = ({data, readonly = false, isRendered}: Props) => {
   //   return polarToCartesian(timetableWrapperSize, timetableWrapperSize, radius + 24, currentTimeAngle)
   // }, [timetableWrapperSize, radius, currentTimeAngle])
 
+  const outlineComponent = useMemo(() => {
+    const type = outline ? outline.product_outline_id : activeOutline.product_outline_id
+    const backgroundColor = outline ? outline.background_color : activeOutline.background_color
+    const progressColor = outline ? outline.progress_color : activeOutline.progress_color
+
+    return (
+      <Outline
+        type={type}
+        backgroundColor={backgroundColor}
+        progressColor={progressColor}
+        radius={radius}
+        percentage={currentTimePercent}
+      />
+    )
+  }, [outline, activeOutline, radius, currentTimePercent])
+
   const emptyTextComponent = useMemo(() => {
     if (data.length > 0) {
       return <></>
@@ -240,7 +264,7 @@ const Timetable = ({data, readonly = false, isRendered}: Props) => {
   return (
     <View style={containerStyle}>
       <View style={wrapperStyle}>
-        <TimeBackground radius={radius} percentage={currentTimePercent} />
+        {outlineComponent}
 
         <View ref={refs}>
           <Svg width={radius * 2} height={radius * 2}>
