@@ -1,21 +1,22 @@
 import {useCallback, useMemo} from 'react'
-import {StyleSheet, FlatList, View, Text, Image, Pressable, ListRenderItem} from 'react-native'
+import {StyleSheet, FlatList, View, Text, Pressable, ListRenderItem, Image} from 'react-native'
+import {useGetProductBackgroundList} from '@/apis/hooks/useProduct'
 import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
-import {useGetBackgroundList} from '@/apis/hooks/useProduct'
 
 interface Props {
   moveDetail: (id: number) => void
 }
-
 const aspectRatio = 1.77
-const ThemeList = ({moveDetail}: Props) => {
-  const {data: backgroundList} = useGetBackgroundList()
+const StoreBackgroundList = ({moveDetail}: Props) => {
+  const {data: productBackgroundList} = useGetProductBackgroundList()
+
   const windowDimensions = useRecoilValue(windowDimensionsState)
 
   const imageWidth = useMemo(() => {
     const totalPadding = 40
-    const totalGap = 20
+    const totalGap = 40
+
     return (windowDimensions.width - totalPadding - totalGap) / 3
   }, [windowDimensions.width])
 
@@ -37,6 +38,7 @@ const ThemeList = ({moveDetail}: Props) => {
             style={{width: imageWidth, height: imageWidth * aspectRatio, borderRadius: 10}}
             source={{uri: item.thumb_url}}
           />
+
           <View style={itemStyles.textContainer}>
             <Text style={itemStyles.title}>{item.title}</Text>
             <Text style={itemStyles.priceText}>{priceText}</Text>
@@ -44,7 +46,7 @@ const ThemeList = ({moveDetail}: Props) => {
         </Pressable>
       )
     },
-    [handleMoveDetail, imageWidth, moveDetail]
+    [imageWidth, handleMoveDetail]
   )
 
   return (
@@ -52,7 +54,7 @@ const ThemeList = ({moveDetail}: Props) => {
       <FlatList
         contentContainerStyle={styles.listContainer}
         columnWrapperStyle={styles.listColumnWrapper}
-        data={backgroundList}
+        data={productBackgroundList}
         renderItem={getRenderItem}
         numColumns={3}
       />
@@ -65,12 +67,12 @@ const itemStyles = StyleSheet.create({
     gap: 5
   },
   textContainer: {
-    gap: 0,
+    gap: 3,
     paddingLeft: 5
   },
   title: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 14,
+    fontSize: 16,
     color: '#424242'
   },
   priceText: {
@@ -91,8 +93,8 @@ const styles = StyleSheet.create({
     paddingBottom: 30
   },
   listColumnWrapper: {
-    gap: 10
+    gap: 20
   }
 })
 
-export default ThemeList
+export default StoreBackgroundList

@@ -10,7 +10,7 @@ import {DefaultOutline} from '@/components/timetableOutline'
 type ActiveTab = 'background' | 'progress' | null
 interface Props {
   value: ActiveOutline
-  activeBackground: DownloadedBackgroundItem
+  activeBackground: ActiveBackground
   onChange: (value: ActiveOutline) => void
 }
 const OutlineColorPickerModal = ({value, activeBackground, onChange}: Props) => {

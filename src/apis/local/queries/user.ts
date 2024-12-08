@@ -13,7 +13,3 @@ export const setUser = () => {
 export const updateDisplayModeQuery = () => {
   return `UPDATE USER SET display_mode = ?`
 }
-
-export const updateActiveBackgroundIdQuery = () => {
-  return `UPDATE USER SET active_background_id = ?`
-}

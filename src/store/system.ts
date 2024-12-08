@@ -47,7 +47,7 @@ export const activeBackgroundState = atom<ActiveBackground>({
   key: 'activeBackgroundState',
   default: {
     background_id: 1,
-    file_name: 'beige.png',
+    main_url: 'https://cdn.delli.info/products/themes/main/beige.png',
     display_mode: 0,
     background_color: '#F8F4EC',
     sub_color: '#F3EBDE',

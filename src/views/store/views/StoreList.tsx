@@ -1,12 +1,12 @@
 import {useCallback} from 'react'
 import {StyleSheet, View, Text} from 'react-native'
-import ThemeList from '@/views/theme/ThemeList'
+import BackgroundList from '../components/BackgroundList'
 import {StoreListScreenProps} from '@/types/navigation'
 
 const StoreList = ({navigation}: StoreListScreenProps) => {
-  const moveThemeDetail = useCallback(
+  const moveDetail = useCallback(
     (id: number) => {
-      navigation.navigate('ThemeDetail', {id})
+      navigation.navigate('StoreDetail', {type: 'background', id})
     },
     [navigation]
   )
@@ -17,7 +17,7 @@ const StoreList = ({navigation}: StoreListScreenProps) => {
         <Text style={appBarStyles.title}>상점</Text>
       </View>
 
-      <ThemeList moveDetail={moveThemeDetail} />
+      <BackgroundList moveDetail={moveDetail} />
     </View>
   )
 }

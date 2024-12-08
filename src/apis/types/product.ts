@@ -1,6 +1,7 @@
 export interface GetProductBackgroundListResponse {
   product_background_id: number
   thumb_url: string
+  background_color: string
   title: string
   price: number
 }
@@ -18,33 +19,6 @@ export interface GetProductBackgroundDetailResponse {
   title: string
   purchased: boolean
 }
-export interface GetDownloadedBackgroundListResponse {
-  background_id: number
-  file_name: string
-  display_mode: number
-  background_color: string
-  sub_color: string
-  accent_color: string
-}
-export interface SetDownloadBackgroundRequest {
-  background_id: number
-  file_name: string
-  display_mode: number
-  background_color: string
-  sub_color: string
-  accent_color: string
-}
-export interface GetActiveBackgroundRequest {
-  background_id: number
-}
-export interface GetActiveBackgroundResponse {
-  background_id: number
-  file_name: string
-  display_mode: number
-  background_color: string
-  sub_color: string
-  accent_color: string
-}
 export interface SetMyBackgroundRequest {
   background_id: number
 }
@@ -53,6 +27,7 @@ export interface SetMyBackgroundResponse {
 }
 export interface GetMyBackgroundListResponse {
   product_background_id: number
+  main_url: string
   thumb_url: string
   display_mode: number
   background_color: string
@@ -71,14 +46,6 @@ export interface GetMyOutlineListResponse {
   product_outline_id: number
   background_color: string
   progress_color: string
-}
-export interface UpdateOutlineColorRequest {
-  outline_id: number
-  background_color: string
-  progress_color: string
-}
-export interface UpdateOutlineColorResponse {
-  result: boolean
 }
 
 export interface GetProductColorThemeListItemResponse {

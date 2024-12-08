@@ -1,80 +1,27 @@
-import {useCallback, useEffect, useMemo, useState} from 'react'
-import {ActivityIndicator, Image, ListRenderItem, Pressable, StyleSheet, Text, View} from 'react-native'
+import {useCallback, useMemo} from 'react'
+import {ListRenderItem, StyleSheet, Pressable, Image, View, Text} from 'react-native'
 import {BottomSheetFlatList} from '@gorhom/bottom-sheet'
 import CheckIcon from '@/assets/icons/check.svg'
-import DownloadIcon from '@/assets/icons/download.svg'
+import {Svg, Defs, LinearGradient, Stop, Rect} from 'react-native-svg'
 
-import {useQueryClient} from '@tanstack/react-query'
-import {
-  useGetBackgroundDetailMutation,
-  useGetDownloadedBackgroundList,
-  useGetMyBackgroundList,
-  useSetDownloadBackground
-} from '@/apis/hooks/useProduct'
+import {useGetMyBackgroundList} from '@/apis/hooks/useProduct'
 import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
-import RNFetchBlob from 'rn-fetch-blob'
 
 interface Props {
-  activeItem: DownloadedBackgroundItem
-  onChange: (value: DownloadedBackgroundItem) => void
+  activeItem: ActiveBackground
+  onChange: (value: ActiveBackground) => void
 }
 const BackgroundList = ({activeItem, onChange}: Props) => {
-  const queryClient = useQueryClient()
-
-  const {data: downloadBackgroundList} = useGetDownloadedBackgroundList()
-  const {mutateAsync: getMyBackgroundListMutateAsync} = useGetMyBackgroundList()
-  const {mutateAsync: getBackgroundDetailMutationAsync} = useGetBackgroundDetailMutation()
-  const {mutateAsync: setDownloadBackgroundMutateAsync} = useSetDownloadBackground()
-
-  const [myBackgroundList, setMyBackgroundList] = useState<MyBackgroundItem[]>([])
-  const [isDownLoading, setIsDownLoading] = useState(false)
+  const {data: myBackgroundList} = useGetMyBackgroundList()
 
   const windowDimensions = useRecoilValue(windowDimensionsState)
 
   const imageWidth = useMemo(() => {
     const totalPadding = 40
-    const totalGap = 60
-    return (windowDimensions.width - totalPadding - totalGap) / 4
+    const totalGap = 40
+    return (windowDimensions.width - totalPadding - totalGap) / 3
   }, [windowDimensions.width])
-
-  const doDownloadBackground = useCallback(
-    async (detail: ProductBackgroundDetail) => {
-      try {
-        await RNFetchBlob.config({
-          fileCache: true,
-          path: `${RNFetchBlob.fs.dirs.DocumentDir}/${detail.file_name}`
-        }).fetch('GET', detail.main_url)
-
-        await setDownloadBackgroundMutateAsync({
-          background_id: detail.product_background_id,
-          file_name: detail.file_name,
-          display_mode: detail.display_mode,
-          background_color: detail.background_color,
-          sub_color: detail.sub_color,
-          accent_color: detail.accent_color
-        })
-      } catch (e) {
-        throw e
-      }
-    },
-    [setDownloadBackgroundMutateAsync]
-  )
-
-  const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-
-  const downloadBackground = useCallback(
-    (id: number) => async () => {
-      setIsDownLoading(true)
-
-      const backgroundDetail = await getBackgroundDetailMutationAsync(id)
-
-      await Promise.all([doDownloadBackground(backgroundDetail), delay(1500)])
-
-      await queryClient.invalidateQueries({queryKey: ['downloadBackgroundList']})
-    },
-    [setIsDownLoading, doDownloadBackground, getBackgroundDetailMutationAsync, queryClient]
-  )
 
   const changeBackground = useCallback(
     (item: MyBackgroundItem) => async () => {
@@ -82,82 +29,66 @@ const BackgroundList = ({activeItem, onChange}: Props) => {
         return
       }
 
-      const target = downloadBackgroundList.find(sItem => sItem.background_id === item.product_background_id)
-
-      if (target) {
-        onChange(target)
-      }
+      onChange({
+        background_id: item.product_background_id,
+        main_url: item.main_url,
+        display_mode: item.display_mode,
+        background_color: item.background_color,
+        sub_color: item.sub_color,
+        accent_color: item.accent_color
+      })
     },
-    [activeItem, downloadBackgroundList, onChange]
+    [activeItem, onChange]
   )
 
-  useEffect(() => {
-    const init = async () => {
-      const _myBackgroundList = await getMyBackgroundListMutateAsync()
-      setMyBackgroundList(_myBackgroundList)
-      // setMyBackgroundList([
-      //   ..._myBackgroundList,
-      //   ..._myBackgroundList,
-      //   ..._myBackgroundList,
-      //   ..._myBackgroundList,
-      //   ..._myBackgroundList
-      // ])
-    }
-
-    init()
-  }, [getMyBackgroundListMutateAsync, setMyBackgroundList])
-
   // components
-  const downloadIcon = useMemo(() => {
-    if (isDownLoading) {
-      return <ActivityIndicator color="#e8eaed" />
-    }
-
-    return <DownloadIcon stroke="#f5f6f8" />
-  }, [isDownLoading])
-
   const getRenderItem: ListRenderItem<MyBackgroundItem> = useCallback(
     ({item}) => {
-      const aspectRatio = 1.77
+      const aspectRatio = 1.7
 
       const isActive = activeItem.background_id === item.product_background_id
-      const isDownloaded = downloadBackgroundList.some(sItem => sItem.background_id === item.product_background_id)
-
-      let handlePress = changeBackground(item)
-
-      if (!isDownloaded) {
-        handlePress = downloadBackground(item.product_background_id)
-      }
 
       return (
-        <Pressable style={itemStyles.container} onPress={handlePress}>
+        <Pressable style={itemStyles.container} onPress={changeBackground(item)}>
           <Image
             style={{width: imageWidth, height: imageWidth * aspectRatio, borderRadius: 10}}
             source={{uri: item.thumb_url}}
           />
-
-          {!isDownloaded && (
-            <View style={[itemStyles.overlap, {width: imageWidth, height: imageWidth * aspectRatio}]}>
-              {downloadIcon}
-            </View>
-          )}
 
           {isActive && (
             <View style={itemStyles.activeIconWrapper}>
               <CheckIcon width={14} height={14} stroke="#ffffff" strokeWidth={3} />
             </View>
           )}
+
+          <View style={itemStyles.titleWrapper}>
+            <Svg width={imageWidth} height={45}>
+              <Defs>
+                <LinearGradient id="grad" x1="0" y1="1" x2="0" y2="0">
+                  <Stop offset="0" stopColor="black" stopOpacity="0.5" />
+                  <Stop offset="0.5" stopColor="black" stopOpacity="0.2" />
+                  <Stop offset="1" stopColor={item.background_color} stopOpacity="0" />
+                </LinearGradient>
+              </Defs>
+
+              <Rect width="100%" height="100%" fill="url(#grad)" />
+            </Svg>
+
+            <Text numberOfLines={1} style={itemStyles.title}>
+              {item.title}
+            </Text>
+          </View>
         </Pressable>
       )
     },
-    [downloadBackgroundList, activeItem, downloadIcon, downloadBackground, imageWidth, changeBackground]
+    [activeItem, imageWidth, changeBackground]
   )
 
   return (
     <BottomSheetFlatList
       data={myBackgroundList}
       renderItem={getRenderItem}
-      numColumns={4}
+      numColumns={3}
       showsVerticalScrollIndicator={false}
       contentContainerStyle={styles.listContainer}
       columnWrapperStyle={styles.listColumnWrapper}
@@ -188,12 +119,20 @@ const itemStyles = StyleSheet.create({
     backgroundColor: '#1E90FF',
     borderRadius: 20
   },
-  overlap: {
+  titleWrapper: {
     position: 'absolute',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#00000030',
-    borderRadius: 10
+    bottom: 0,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+    overflow: 'hidden'
+  },
+  title: {
+    position: 'absolute',
+    paddingHorizontal: 10,
+    bottom: 7,
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 12,
+    color: '#ffffff'
   }
 })
 

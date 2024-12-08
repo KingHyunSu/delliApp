@@ -245,12 +245,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       return <Image style={styles.backgroundImage} source={require('@/assets/beige.png')} />
     }
 
-    return (
-      <Image
-        style={styles.backgroundImage}
-        source={{uri: `file://${RNFetchBlob.fs.dirs.DocumentDir}/${activeBackground.file_name}`}}
-      />
-    )
+    return <Image style={styles.backgroundImage} source={{uri: activeBackground.main_url}} />
   }, [activeBackground])
 
   return (

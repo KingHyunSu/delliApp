@@ -1,7 +1,5 @@
 import {
-  GetActiveBackgroundResponse,
   GetActiveOutlineResponse,
-  GetDownloadedBackgroundListResponse,
   GetMyBackgroundListResponse,
   GetMyOutlineListResponse,
   GetProductBackgroundDetailResponse,
@@ -11,11 +9,17 @@ import {
 } from '@/apis/types/product'
 
 declare global {
-  interface ActiveBackground extends GetActiveBackgroundResponse {}
+  interface ActiveBackground {
+    background_id: number
+    main_url: string
+    display_mode: number
+    background_color: string
+    sub_color: string
+    accent_color: string
+  }
+  interface MyBackgroundItem extends GetMyBackgroundListResponse {}
   interface ProductBackgroundItem extends GetProductBackgroundListResponse {}
   interface ProductBackgroundDetail extends GetProductBackgroundDetailResponse {}
-  interface DownloadedBackgroundItem extends GetDownloadedBackgroundListResponse {}
-  interface MyBackgroundItem extends GetMyBackgroundListResponse {}
 
   interface ActiveOutline extends GetActiveOutlineResponse {}
   interface MyOutlineItem extends GetMyOutlineListResponse {}

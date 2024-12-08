@@ -24,3 +24,8 @@ export const showOutlineColorPickerModalState = atom({
   key: 'showOutlineColorPickerModalState',
   default: false
 })
+
+export const showPurchaseCompleteModalState = atom({
+  key: 'showPurchaseCompleteModalState',
+  default: false
+})

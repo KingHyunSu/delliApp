@@ -17,11 +17,9 @@ import {navigationRef} from '@/utils/navigation'
 // views
 import HomeScreen from '@/views/Home'
 import HomeCustomScreen from '@/views/HomeCustom'
-import MyThemeListScreen from '@/views/MyThemeList'
-import ThemeDetailScreen from '@/views/theme/ThemeDetail'
 import EditRoutineScreen from '@/views/EditRoutine'
 import EditTodoScreen from '@/views/EditTodo'
-import StoreListScreen from '@/views/StoreList'
+import {StoreListScreen, StoreDetailScreen} from '@/views/store'
 
 import {
   RoutineList as RoutineListScreen,
@@ -70,7 +68,6 @@ import initDatabase from '@/apis/local/utils/init'
 import {focusModeInfoState} from '@/store/schedule'
 
 import {useGetUser, useAccess} from '@/apis/hooks/useUser'
-import {useGetActiveBackground} from '@/apis/hooks/useProduct'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
@@ -144,8 +141,6 @@ const linking: LinkingOptions<BottomTabNavigator> = {
 function App(): JSX.Element {
   const {mutateAsync: getUserMutateAsync} = useGetUser()
   const {mutateAsync: accessMutateAsync} = useAccess()
-  const {mutateAsync: getActiveBackgroundMutateAsync} = useGetActiveBackground()
-
   const windowDimensions = useWindowDimensions()
 
   const {isLoaded, load, show} = useAppOpenAd(adUnitId)
@@ -174,10 +169,6 @@ function App(): JSX.Element {
 
   const screenOptions = React.useMemo(() => {
     return {headerShown: false}
-  }, [])
-
-  const editScheduleScreenOptions = React.useMemo(() => {
-    return {animationEnabled: false}
   }, [])
 
   const statusBarStyle = React.useMemo(() => {
@@ -210,12 +201,6 @@ function App(): JSX.Element {
       case 'StoreList':
         _statusBarTextStyle = 'dark-content'
         _statusBarColor = '#f5f6f8'
-        break
-      case 'ThemeDetail':
-      case 'MyThemeList':
-        _statusBarTextStyle = 'dark-content'
-        _statusBarColor = '#f5f6f8'
-        _bottomSafeAreaColor = '#f5f6f8'
         break
       case 'EditRoutine':
       case 'EditTodo':
@@ -306,13 +291,12 @@ function App(): JSX.Element {
         await AsyncStorage.setItem('token', accessResponse.token)
       }
 
-      const activeBackgroundId = user.active_background_id || 1
-      const backgroundDetail = await getActiveBackgroundMutateAsync(activeBackgroundId)
-
-      setStatusBarTextStyle(backgroundDetail.display_mode === 0 ? 'dark-content' : 'light-content')
-      setActiveBackground(backgroundDetail)
-
       setDisplayMode(user.display_mode)
+
+      if (accessResponse.active_background) {
+        setStatusBarTextStyle(accessResponse.active_background.display_mode === 0 ? 'dark-content' : 'light-content')
+        setActiveBackground(accessResponse.active_background)
+      }
 
       setActiveOutline(accessResponse.active_outline)
       setActiveColorTheme(accessResponse.active_color_theme)
@@ -324,7 +308,6 @@ function App(): JSX.Element {
   }, [
     accessMutateAsync,
     getUserMutateAsync,
-    getActiveBackgroundMutateAsync,
     setStatusBarTextStyle,
     setDisplayMode,
     setActiveOutline,
@@ -478,8 +461,8 @@ function App(): JSX.Element {
                 options={{animation: 'fade', animationDuration: 300}}
               />
               <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animation: 'none'}} />
-              <Stack.Screen name="ThemeDetail" component={ThemeDetailScreen} />
-              <Stack.Screen name="MyThemeList" component={MyThemeListScreen} options={{animation: 'none'}} />
+              <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
+
               <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
               <Stack.Screen name="EditTodo" component={EditTodoScreen} />
 

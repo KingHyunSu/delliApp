@@ -111,12 +111,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       // return <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#2E2A25'}} />
     }
 
-    return (
-      <Image
-        style={homeStyles.backgroundImage}
-        source={{uri: `file://${RNFetchBlob.fs.dirs.DocumentDir}/${activeBackground.file_name}`}}
-      />
-    )
+    return <Image style={homeStyles.backgroundImage} source={{uri: activeBackground.main_url}} />
   }, [activeBackground])
 
   const fabBackgroundColor = React.useMemo(() => {

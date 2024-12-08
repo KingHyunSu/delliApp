@@ -25,10 +25,3 @@ export const updateDisplayMode = async (displayMode: DisplayMode) => {
 
   return db.executeSql(query, [displayMode])
 }
-
-export const updateActiveBackgroundId = async (id: number) => {
-  const query = userQueries.updateActiveBackgroundIdQuery()
-  const db = await openDatabase()
-
-  return db.executeSql(query, [id])
-}

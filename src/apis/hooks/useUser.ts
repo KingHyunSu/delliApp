@@ -1,20 +1,18 @@
 import {useMutation} from '@tanstack/react-query'
 import {userRepository} from '../local'
 import * as userApi from '@/apis/server/user'
-import {AccessRequest, AccessResponse, UpdateActiveColorThemeRequest} from '@/apis/types/user'
+import {
+  AccessRequest,
+  AccessResponse,
+  UpdateActiveColorThemeRequest,
+  UpdateCustomRequest,
+  UpdateCustomResponse
+} from '@/apis/types/user'
 
 export const useGetUser = () => {
   return useMutation({
     mutationFn: () => {
       return userRepository.getUser()
-    }
-  })
-}
-
-export const useUpdateActiveBackgroundId = () => {
-  return useMutation({
-    mutationFn: (id: number) => {
-      return userRepository.updateActiveBackgroundId(id)
     }
   })
 }
@@ -43,6 +41,16 @@ export const useUpdateActiveColorTheme = () => {
       const response = await userApi.updateActiveColorTheme(params)
 
       return response.data
+    }
+  })
+}
+
+export const useUpdateCustom = () => {
+  return useMutation({
+    mutationFn: async (params: UpdateCustomRequest) => {
+      const response = await userApi.updateCustom(params)
+
+      return response.data as UpdateCustomResponse
     }
   })
 }

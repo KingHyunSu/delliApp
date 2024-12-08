@@ -1,22 +1,33 @@
 import {StyleSheet, Modal, View, Text, Pressable} from 'react-native'
+import {useRecoilState} from 'recoil'
+import {showPurchaseCompleteModalState} from '@/store/modal'
+import {useCallback} from 'react'
+import {navigate} from '@/utils/navigation'
 
-interface Props {
-  visible: boolean
-  onMove: () => void
-  onClose: () => void
-}
-const SuccessModal = ({visible, onMove, onClose}: Props) => {
+const PurchaseCompleteModal = () => {
+  const [showPurchaseCompleteModal, setShowPurchaseCompleteModal] = useRecoilState(showPurchaseCompleteModalState)
+
+  const onClose = useCallback(() => {
+    setShowPurchaseCompleteModal(false)
+  }, [setShowPurchaseCompleteModal])
+
+  const onMove = useCallback(() => {
+    onClose()
+
+    navigate('HomeCustom')
+  }, [onClose])
+
   return (
-    <Modal visible={visible} transparent onRequestClose={onClose}>
+    <Modal visible={showPurchaseCompleteModal} transparent onRequestClose={onClose}>
       <View style={styles.container}>
         <View style={styles.box}>
           <Text style={styles.title}>구입 완료</Text>
 
-          <Text style={styles.desc}>내 테마에서 바로 사용할 수 있어요</Text>
+          <Text style={styles.desc}>꾸미기 모드에서 바로 사용할 수 있어요</Text>
 
           <View style={styles.buttonContainer}>
             <Pressable style={moveButtonStyle} onPress={onMove}>
-              <Text style={moveButtonTextStyle}>내 테마 바로가기</Text>
+              <Text style={moveButtonTextStyle}>꾸미러 가기</Text>
             </Pressable>
 
             <Pressable style={cancelButtonStyle} onPress={onClose}>
@@ -85,4 +96,4 @@ const moveButtonTextStyle = StyleSheet.compose(styles.buttonText, {color: '#ffff
 const cancelButtonStyle = StyleSheet.compose(styles.button, {backgroundColor: '#efefef'})
 const cancelButtonTextStyle = StyleSheet.compose(styles.buttonText, {color: '#6B727E'})
 
-export default SuccessModal
+export default PurchaseCompleteModal

@@ -3,7 +3,9 @@ import {
   AccessRequest,
   AccessResponse,
   UpdateActiveColorThemeRequest,
-  UpdateActiveColorThemeResponse
+  UpdateActiveColorThemeResponse,
+  UpdateCustomRequest,
+  UpdateCustomResponse
 } from '@/apis/types/user'
 
 export const access = (data: AccessRequest) => {
@@ -12,4 +14,8 @@ export const access = (data: AccessRequest) => {
 
 export const updateActiveColorTheme = (data: UpdateActiveColorThemeRequest) => {
   return http.post<any, Response<UpdateActiveColorThemeResponse>>('auth/update/color-theme', data)
+}
+
+export const updateCustom = (data: UpdateCustomRequest) => {
+  return http.post<any, Response<UpdateCustomResponse>>('auth/update/custom', data)
 }

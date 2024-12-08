@@ -5,7 +5,6 @@ import {Timetable} from '@/components/TimeTable'
 import HomeCustomBottomSheet from '@/components/bottomSheet/HomeCustomBottomSheet'
 import OutlineColorPickerModal from '@/components/modal/OutlineColorPickerModal'
 
-import RNFetchBlob from 'rn-fetch-blob'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {
   activeBackgroundState,
@@ -16,14 +15,11 @@ import {
 } from '@/store/system'
 import {scheduleListState} from '@/store/schedule'
 import {HomeCustomProps} from '@/types/navigation'
-import {useUpdateActiveBackgroundId} from '@/apis/hooks/useUser'
-import {useGetActiveBackground, useUpdateOutlineColor} from '@/apis/hooks/useProduct'
+import {useUpdateCustom} from '@/apis/hooks/useUser'
 
 type ActiveMenu = 'background' | 'outline' | null
 const HomeCustom = ({navigation}: HomeCustomProps) => {
-  const {mutateAsync: getActiveBackgroundMutateAsync} = useGetActiveBackground()
-  const {mutateAsync: updateActiveBackgroundIdMutateAsync} = useUpdateActiveBackgroundId()
-  const {mutateAsync: updateOutlineColorMutateAsync} = useUpdateOutlineColor()
+  const {mutateAsync: updateCustomMutateAsync} = useUpdateCustom()
 
   const [isLoading, setIsLoading] = useState(false)
   const [activeMenu, setActiveMenu] = useState<ActiveMenu>(null)
@@ -47,6 +43,13 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
     [activeMenu, activeTheme.color7, activeTheme.color8]
   )
 
+  const moveHome = useCallback(() => {
+    navigation.navigate('MainTabs', {
+      screen: 'Home',
+      params: {scheduleUpdated: false}
+    })
+  }, [navigation])
+
   const closeBottomSheet = useCallback(() => {
     setActiveMenu(null)
   }, [])
@@ -61,17 +64,15 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
   const handleSave = useCallback(async () => {
     setIsLoading(true)
 
-    await updateActiveBackgroundIdMutateAsync(background.background_id)
-    const {result: updateOutlineColorResult} = await updateOutlineColorMutateAsync({
-      outline_id: outline.product_outline_id,
-      background_color: outline.background_color,
-      progress_color: outline.progress_color
+    const response = await updateCustomMutateAsync({
+      active_background_id: background.background_id,
+      active_outline_id: outline.product_outline_id,
+      outline_background_color: outline.background_color,
+      outline_progress_color: outline.progress_color
     })
 
-    if (updateOutlineColorResult) {
-      const _activeBackground = await getActiveBackgroundMutateAsync(background.background_id)
-
-      setActiveBackground(_activeBackground)
+    if (response.result) {
+      setActiveBackground(background)
       setActiveOutline(outline)
 
       navigation.navigate('MainTabs', {
@@ -81,17 +82,7 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
     }
 
     setIsLoading(false)
-  }, [
-    background,
-    outline,
-    updateActiveBackgroundIdMutateAsync,
-    updateOutlineColorMutateAsync,
-    getActiveBackgroundMutateAsync,
-    setIsLoading,
-    setActiveBackground,
-    setActiveOutline,
-    navigation
-  ])
+  }, [background, outline, updateCustomMutateAsync, setIsLoading, setActiveBackground, setActiveOutline, navigation])
 
   const loadBackground = useCallback(() => {
     setStatusBarColor(background.background_color)
@@ -106,7 +97,7 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
     return (
       <Image
         style={styles.backgroundImage}
-        source={{uri: `file://${RNFetchBlob.fs.dirs.DocumentDir}/${background.file_name}`}}
+        source={{uri: background.main_url}}
         onLoad={loadBackground}
         onLoadEnd={() => console.log('onLoadEnd')}
       />
@@ -118,7 +109,7 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
       {backgroundComponent}
 
       <AppBar color="transparent">
-        <Pressable style={styles.headerButton} onPress={() => navigation.goBack()}>
+        <Pressable style={styles.headerButton} onPress={moveHome}>
           <Text style={[styles.headerButtonText, {color: background.accent_color}]}>취소</Text>
         </Pressable>
 

@@ -5,15 +5,6 @@ import * as statsRepository from './modules/stats'
 import * as routineRepository from './modules/routine'
 import * as todoRepository from './modules/todo'
 import * as colorRepository from './modules/color'
-import * as productRepository from './modules/product'
 
-export {
-  userRepository,
-  scheduleRepository,
-  statsRepository,
-  routineRepository,
-  todoRepository,
-  colorRepository,
-  productRepository
-}
+export {userRepository, scheduleRepository, statsRepository, routineRepository, todoRepository, colorRepository}
 export default openDatabase
