@@ -267,11 +267,11 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(({
       ref={bottomSheetRef}
       index={0}
       snapPoints={editScheduleListSnapPoint}
-      backgroundStyle={{backgroundColor: activeTheme.color5}}
+      backgroundStyle={{backgroundColor: activeTheme.color5, borderTopLeftRadius: 40, borderTopRightRadius: 40}}
       handleComponent={bottomSheetHandler}
       backdropComponent={getBackdropComponent}
       onChange={handleBottomSheetChanged}>
-      <BottomSheetScrollView ref={bottomSheetScrollViewRef} contentContainerStyle={styles.container}>
+      <BottomSheetScrollView ref={bottomSheetScrollViewRef} bounces={false} contentContainerStyle={styles.container}>
         {/* 일정명 */}
         <Pressable style={titleButtonStyle} onPress={focusTitleInput}>
           {schedule.title ? (
