@@ -7,6 +7,7 @@ import {Svg, Defs, LinearGradient, Stop, Rect} from 'react-native-svg'
 import {useGetMyBackgroundList} from '@/apis/hooks/useProduct'
 import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
+import {colorKit} from 'reanimated-color-picker'
 
 interface Props {
   activeItem: ActiveBackground
@@ -46,6 +47,7 @@ const BackgroundList = ({activeItem, onChange}: Props) => {
       const aspectRatio = 1.7
 
       const isActive = activeItem.background_id === item.product_background_id
+      const shadowColor = colorKit.darken(item.background_color, 25).hex()
 
       return (
         <Pressable style={itemStyles.container} onPress={changeBackground(item)}>
@@ -61,11 +63,11 @@ const BackgroundList = ({activeItem, onChange}: Props) => {
           )}
 
           <View style={itemStyles.titleWrapper}>
-            <Svg width={imageWidth} height={45}>
+            <Svg width={imageWidth} height={60}>
               <Defs>
                 <LinearGradient id="grad" x1="0" y1="1" x2="0" y2="0">
-                  <Stop offset="0" stopColor="black" stopOpacity="0.5" />
-                  <Stop offset="0.5" stopColor="black" stopOpacity="0.2" />
+                  <Stop offset="0" stopColor={shadowColor} stopOpacity="0.5" />
+                  <Stop offset="0.5" stopColor={shadowColor} stopOpacity="0.2" />
                   <Stop offset="1" stopColor={item.background_color} stopOpacity="0" />
                 </LinearGradient>
               </Defs>
