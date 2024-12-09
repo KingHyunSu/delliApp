@@ -3,14 +3,14 @@ import 'react-native-get-random-values'
 
 import {openDatabase} from './helper'
 import upgrade from './upgrade.json'
-import {userRepository, productRepository} from '../index'
+import {userRepository} from '../index'
 
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {
     // tx.executeSql(`
-    //                                       DROP TABLE background
-    // --                                     update USER set active_theme_id = 1
-    //                                      `)
+    //      DROP TABLE background
+    // --   update USER set active_background_id = 1
+    //  `)
 
     // user table
     tx.executeSql(`
@@ -22,38 +22,9 @@ const createTable = async (db: SQLiteDatabase) => {
     // background
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "background" (
-        "background_id" INTEGER NOT NULL,
-        "file_name" TEXT NOT NULL,
-        "display_mode" INTEGER NOT NULL,
-        "background_color" TEXT NOT NULL,
-        "sub_color" TEXT NOT NULL,
-        "accent_color" TEXT NOT NULL
+        "background_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        "product_background_id" INTEGER NOT NULL
       )
-    `)
-
-    tx.executeSql(`
-      CREATE INDEX IF NOT EXISTS "idx_background_id" ON "background" ("background_id")
-    `)
-
-    // theme table
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS "THEME" (
-        "theme_id" INTEGER NOT NULL,
-        "file_name" TEXT NOT NULL,
-        "color1" TEXT NOT NULL,
-        "color2" TEXT NOT NULL,
-        "color3" TEXT NOT NULL,
-        "color4" TEXT NOT NULL,
-        "color5" TEXT NOT NULL,
-        "color6" TEXT NOT NULL,
-        "color7" TEXT NOT NULL,
-        "color8" TEXT NOT NULL,
-        "display_mode" INTEGER NOT NULL
-      )
-    `)
-
-    tx.executeSql(`
-      CREATE INDEX IF NOT EXISTS "idx_theme_id" ON "THEME" ("theme_id")
     `)
 
     // schedule table
@@ -158,7 +129,7 @@ const createTable = async (db: SQLiteDatabase) => {
       )
     `)
 
-    // tx.executeSql('ALTER TABLE USER ADD COLUMN active_background_id INTEGER default 1')
+    // tx.executeSql('ALTER TABLE USER ADD COLUMN active_outline_id INTEGER default 1')
   })
 }
 
@@ -181,7 +152,6 @@ export default async function init() {
 
     await createTable(db)
     await userRepository.setUser()
-    await productRepository.setDefaultBackground()
 
     const currentVersion = await getCurrentVersion(db)
     const latestVersion = upgrade.version
