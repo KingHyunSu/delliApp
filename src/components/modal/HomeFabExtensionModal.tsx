@@ -12,12 +12,11 @@ import {useRecoilValue} from 'recoil'
 interface Props {
   visible: boolean
   translateY: number
-  color: string
   moveHomeCustom: () => void
   moveEditSchedule: () => void
   onClose: () => void
 }
-const HomeFabExtensionModal = ({visible, translateY, color, moveHomeCustom, moveEditSchedule, onClose}: Props) => {
+const HomeFabExtensionModal = ({visible, translateY, moveHomeCustom, moveEditSchedule, onClose}: Props) => {
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const rotate = useSharedValue(0)

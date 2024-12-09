@@ -14,7 +14,6 @@ declare global {
     main_url: string
     display_mode: number
     background_color: string
-    sub_color: string
     accent_color: string
   }
   interface MyBackgroundItem extends GetMyBackgroundListResponse {}

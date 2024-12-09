@@ -9,10 +9,8 @@ export interface GetProductBackgroundDetailResponse {
   product_background_id: number
   main_url: string
   thumb_url: string
-  file_name: string
   display_mode: number
   background_color: string
-  sub_color: string
   accent_color: string
   price_type: number
   price: number
@@ -31,7 +29,6 @@ export interface GetMyBackgroundListResponse {
   thumb_url: string
   display_mode: number
   background_color: string
-  sub_color: string
   accent_color: string
   title: string
 }

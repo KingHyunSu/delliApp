@@ -5,7 +5,6 @@ import {useFocusEffect} from '@react-navigation/native'
 import {AdEventType, RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
 import Animated, {useSharedValue, useAnimatedStyle, withTiming, runOnJS} from 'react-native-reanimated'
 import {format} from 'date-fns'
-import RNFetchBlob from 'rn-fetch-blob'
 
 // components
 import Loading from '@/components/Loading'
@@ -57,7 +56,6 @@ import * as widgetApi from '@/apis/widget'
 import {HomeScreenProps} from '@/types/navigation'
 import {useGetScheduleList, useSetScheduleFocusTime} from '@/apis/hooks/useSchedule'
 import HomeFabExtensionModal from '@/components/modal/HomeFabExtensionModal'
-import {colorKit} from 'reanimated-color-picker'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
@@ -108,18 +106,11 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const background = React.useMemo(() => {
     if (!activeBackground || activeBackground.background_id === 1) {
       return <Image style={homeStyles.backgroundImage} source={require('@/assets/beige.png')} />
-      // return <View style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#2E2A25'}} />
+      // return <View style={{backgroundColor: '#EFEFEF', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0}} />
     }
 
     return <Image style={homeStyles.backgroundImage} source={{uri: activeBackground.main_url}} />
   }, [activeBackground])
-
-  const fabBackgroundColor = React.useMemo(() => {
-    if (activeBackground.display_mode === 1) {
-      return colorKit.darken(activeBackground.sub_color, 11).hex()
-    }
-    return colorKit.brighten(activeBackground.sub_color, 11).hex()
-  }, [activeBackground.display_mode, activeBackground.sub_color])
 
   const currentScheduleDateString = React.useMemo(() => {
     const weekdays = ['일', '월', '화', '수', '목', '금', '토']
@@ -275,7 +266,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   React.useEffect(() => {
     setSafeAreaInsets(safeAreaInsets)
-  }, [])
+  }, [safeAreaInsets, setSafeAreaInsets])
 
   React.useEffect(() => {
     const path = route.path
@@ -429,7 +420,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       <HomeFabExtensionModal
         visible={showFabExtensionModal}
         translateY={fabTranslateY.value}
-        color={fabBackgroundColor}
         moveHomeCustom={moveHomeCustom}
         moveEditSchedule={moveEditSchedule}
         onClose={() => setShowFabExtensionModal(false)}

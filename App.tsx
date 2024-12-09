@@ -68,6 +68,7 @@ import initDatabase from '@/apis/local/utils/init'
 import {focusModeInfoState} from '@/store/schedule'
 
 import {useGetUser, useAccess} from '@/apis/hooks/useUser'
+import {SafeAreaProvider} from 'react-native-safe-area-context'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
@@ -86,7 +87,15 @@ const BottomTabs = React.memo(({activeTheme}: BottomTabsProps) => {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarStyle: {borderTopColor, borderTopWidth: 1, backgroundColor: activeTheme.color5, height: 56}
+        tabBarStyle: {
+          borderTopColor,
+          borderTopWidth: 1,
+          backgroundColor: activeTheme.color5,
+          height: 56
+        },
+        tabBarItemStyle: {
+          height: 56
+        }
       }} // 탭의 상단 바 제거
     >
       <Tab.Screen
@@ -440,39 +449,41 @@ function App(): JSX.Element {
 
   return (
     <GestureHandlerRootView style={styles.container}>
-      {/* <RecoilDebugObserver /> */}
-      <BottomSheetModalProvider>
-        <StatusBar translucent backgroundColor="transparent" barStyle={statusBarTextStyle} />
+      <SafeAreaProvider>
+        {/* <RecoilDebugObserver /> */}
+        <BottomSheetModalProvider>
+          <StatusBar translucent backgroundColor="transparent" barStyle={statusBarTextStyle} />
 
-        <SafeAreaView style={statusBarStyle} />
+          <SafeAreaView style={statusBarStyle} />
 
-        <Toast />
-        <Alert />
-        <Loading />
+          <Toast />
+          <Alert />
+          <Loading />
 
-        <SafeAreaView style={containerStyle}>
-          <NavigationContainer ref={navigationRef} linking={linking} onStateChange={changeRoute}>
-            <Stack.Navigator initialRouteName="MainTabs" screenOptions={screenOptions}>
-              {/*<Stack.Screen name="MainTabs" component={BottomTabs} />*/}
-              <Stack.Screen name="MainTabs">{() => <BottomTabs activeTheme={activeTheme} />}</Stack.Screen>
-              <Stack.Screen
-                name="HomeCustom"
-                component={HomeCustomScreen}
-                options={{animation: 'fade', animationDuration: 300}}
-              />
-              <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animation: 'none'}} />
-              <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
+          <SafeAreaView style={containerStyle}>
+            <NavigationContainer ref={navigationRef} linking={linking} onStateChange={changeRoute}>
+              <Stack.Navigator initialRouteName="MainTabs" screenOptions={screenOptions}>
+                {/*<Stack.Screen name="MainTabs" component={BottomTabs} />*/}
+                <Stack.Screen name="MainTabs">{() => <BottomTabs activeTheme={activeTheme} />}</Stack.Screen>
+                <Stack.Screen
+                  name="HomeCustom"
+                  component={HomeCustomScreen}
+                  options={{animation: 'fade', animationDuration: 300}}
+                />
+                <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animation: 'none'}} />
+                <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
 
-              <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
-              <Stack.Screen name="EditTodo" component={EditTodoScreen} />
+                <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
+                <Stack.Screen name="EditTodo" component={EditTodoScreen} />
 
-              <Stack.Screen name="CategoryStats" component={CategoryStats} />
-              <Stack.Screen name="RoutineDetail" component={RoutineDetailScreen} />
-              <Stack.Screen name="SearchSchedule" component={SearchScheduleScreen} />
-            </Stack.Navigator>
-          </NavigationContainer>
-        </SafeAreaView>
-      </BottomSheetModalProvider>
+                <Stack.Screen name="CategoryStats" component={CategoryStats} />
+                <Stack.Screen name="RoutineDetail" component={RoutineDetailScreen} />
+                <Stack.Screen name="SearchSchedule" component={SearchScheduleScreen} />
+              </Stack.Navigator>
+            </NavigationContainer>
+          </SafeAreaView>
+        </BottomSheetModalProvider>
+      </SafeAreaProvider>
     </GestureHandlerRootView>
   )
 }

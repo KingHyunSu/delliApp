@@ -34,7 +34,6 @@ const BackgroundList = ({activeItem, onChange}: Props) => {
         main_url: item.main_url,
         display_mode: item.display_mode,
         background_color: item.background_color,
-        sub_color: item.sub_color,
         accent_color: item.accent_color
       })
     },
