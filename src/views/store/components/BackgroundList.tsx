@@ -7,7 +7,7 @@ import {windowDimensionsState} from '@/store/system'
 interface Props {
   moveDetail: (id: number) => void
 }
-const aspectRatio = 1.77
+const aspectRatio = 1.7
 const StoreBackgroundList = ({moveDetail}: Props) => {
   const {data: productBackgroundList} = useGetProductBackgroundList()
 
@@ -40,7 +40,9 @@ const StoreBackgroundList = ({moveDetail}: Props) => {
           />
 
           <View style={itemStyles.textContainer}>
-            <Text style={itemStyles.title}>{item.title}</Text>
+            <Text numberOfLines={1} style={itemStyles.title}>
+              {item.title}
+            </Text>
             <Text style={itemStyles.priceText}>{priceText}</Text>
           </View>
         </Pressable>
@@ -72,7 +74,7 @@ const itemStyles = StyleSheet.create({
   },
   title: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 16,
+    fontSize: 14,
     color: '#424242'
   },
   priceText: {
