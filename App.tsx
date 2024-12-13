@@ -58,8 +58,8 @@ import {
   activeBackgroundState,
   statusBarColorState,
   statusBarTextStyleState,
-  activeColorThemeState,
-  activeOutlineState
+  activeOutlineState,
+  activeColorThemeDetailState
 } from '@/store/system'
 
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
@@ -69,6 +69,7 @@ import {focusModeInfoState} from '@/store/schedule'
 
 import {useGetUser, useAccess} from '@/apis/hooks/useUser'
 import {SafeAreaProvider} from 'react-native-safe-area-context'
+import {colorKit} from 'reanimated-color-picker'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
@@ -169,7 +170,7 @@ function App(): JSX.Element {
   const activeTheme = useRecoilValue(activeThemeState)
 
   const setActiveOutline = useSetRecoilState(activeOutlineState)
-  const setActiveColorTheme = useSetRecoilState(activeColorThemeState)
+  const setActiveColorThemeDetail = useSetRecoilState(activeColorThemeDetailState)
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
 
   const [statusBarColor, setStatusBarColor] = useRecoilState(statusBarColorState)
@@ -307,8 +308,22 @@ function App(): JSX.Element {
         setActiveBackground(accessResponse.active_background)
       }
 
+      let colorThemeDetail = accessResponse.color_theme_detail
+
+      if (colorThemeDetail.color_theme_type === 1) {
+        const activeBackgroundColor = accessResponse.active_background?.background_color || '#F8F4EC'
+
+        colorThemeDetail.color_theme_item_list = [
+          {color_theme_item_id: -1, color: activeBackgroundColor, order: 1},
+          {color_theme_item_id: -1, color: colorKit.brighten(activeBackgroundColor, 20).hex(), order: 2}
+        ]
+      }
+
+      setActiveColorThemeDetail({
+        color_theme_type: colorThemeDetail.color_theme_type,
+        color_theme_item_list: colorThemeDetail.color_theme_item_list
+      })
       setActiveOutline(accessResponse.active_outline)
-      setActiveColorTheme(accessResponse.active_color_theme)
 
       setIsInit(isInitDatabase)
     }
@@ -321,7 +336,7 @@ function App(): JSX.Element {
     setDisplayMode,
     setActiveOutline,
     setActiveBackground,
-    setActiveColorTheme
+    setActiveColorThemeDetail
   ])
 
   /**

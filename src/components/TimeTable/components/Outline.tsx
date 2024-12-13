@@ -6,10 +6,11 @@ interface Props {
   type: number
   backgroundColor: string
   progressColor: string
+  strokeWidth?: number
   radius: number
   percentage: number
 }
-const Outline = ({type, backgroundColor, progressColor, radius, percentage}: Props) => {
+const Outline = ({type, backgroundColor, progressColor, strokeWidth = 20, radius, percentage}: Props) => {
   const component = useMemo(() => {
     switch (type) {
       case 1:
@@ -18,14 +19,14 @@ const Outline = ({type, backgroundColor, progressColor, radius, percentage}: Pro
             backgroundColor={backgroundColor}
             progressColor={progressColor}
             radius={radius}
-            strokeWidth={20}
+            strokeWidth={strokeWidth}
             percentage={percentage}
           />
         )
       default:
         return <></>
     }
-  }, [type, backgroundColor, progressColor, radius, percentage])
+  }, [type, backgroundColor, progressColor, radius, strokeWidth, percentage])
 
   return <View style={styles.container}>{component}</View>
 }

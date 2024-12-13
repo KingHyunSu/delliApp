@@ -63,9 +63,12 @@ export const activeOutlineState = atom<ActiveOutline>({
   }
 })
 
-export const activeColorThemeState = atom<ActiveColorTheme | null>({
-  key: 'activeColorThemeState',
-  default: null
+export const activeColorThemeDetailState = atom<ColorThemeDetail>({
+  key: 'activeColorThemeDetailState',
+  default: {
+    color_theme_type: 0,
+    color_theme_item_list: []
+  }
 })
 
 export const keyboardAppearanceState = selector({

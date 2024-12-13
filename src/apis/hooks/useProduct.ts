@@ -67,18 +67,3 @@ export const useGetMyOutlineList = () => {
     initialData: []
   })
 }
-
-/**
- * color theme
- */
-
-export const useGetProductColorThemeList = () => {
-  return useQuery({
-    queryKey: ['productColorThemeList'],
-    queryFn: async () => {
-      const response = await productApi.getProductColorThemeList()
-
-      return response.data as ProductColorThemeItem[]
-    }
-  })
-}

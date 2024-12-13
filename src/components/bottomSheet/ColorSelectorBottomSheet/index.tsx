@@ -8,25 +8,28 @@ import DefaultColorList from './src/DefaultColorList'
 import MyColorList from './src/MyColorList'
 import ThemeColorList from './src/ThemeColorList'
 
-import {useRecoilState, useRecoilValue} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
 import {
   activeThemeState,
+  alertState,
   editScheduleListSnapPointState,
   safeAreaInsetsState,
   windowDimensionsState
 } from '@/store/system'
-import {colorToChangeState, scheduleListState, scheduleState} from '@/store/schedule'
+import {colorToChangeState, scheduleState} from '@/store/schedule'
 import {showColorPickerModalState} from '@/store/modal'
 import {useGetColorList} from '@/apis/hooks/useColor'
+import {objectEqual} from '@/utils/helper'
 
 type CategoryTab = 'theme' | 'custom'
 type CustomTab = 'default' | 'my'
 interface Props {
-  activeColorTheme: ActiveColorTheme | null
-  onChangeActiveColorTheme: (value: ActiveColorTheme | null) => void
+  colorThemeDetail: ColorThemeDetail
+  editColorThemeDetail: EditColorThemeDetail
+  onChangeEditColorThemeDetail: (value: EditColorThemeDetail) => void
 }
-const ColorSelectorBottomSheet = ({activeColorTheme, onChangeActiveColorTheme}: Props) => {
+const ColorSelectorBottomSheet = ({colorThemeDetail, editColorThemeDetail, onChangeEditColorThemeDetail}: Props) => {
   const {data: myColorList} = useGetColorList()
 
   const bottomSheetRef = useRef<BottomSheetModal>(null)
@@ -42,12 +45,12 @@ const ColorSelectorBottomSheet = ({activeColorTheme, onChangeActiveColorTheme}: 
   const [showColorPickerModal, setShowColorPickerModal] = useRecoilState(showColorPickerModalState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
 
-  const scheduleList = useRecoilValue(scheduleListState)
   const activeTheme = useRecoilValue(activeThemeState)
   const [minEditScheduleListSnapPoint] = useRecoilValue(editScheduleListSnapPointState)
   const windowDimensions = useRecoilValue(windowDimensionsState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
   const colorToChange = useRecoilValue(colorToChangeState)
+  const alert = useSetRecoilState(alertState)
 
   const getTabButtonTextStyle = useCallback(
     (type: CustomTab) => {
@@ -119,10 +122,6 @@ const ColorSelectorBottomSheet = ({activeColorTheme, onChangeActiveColorTheme}: 
 
   const changeColor = useCallback(
     (color: string) => {
-      if (activeColorTheme) {
-        onChangeActiveColorTheme(null)
-      }
-
       if (colorToChange === 'background') {
         setSchedule(prevState => ({
           ...prevState,
@@ -135,39 +134,65 @@ const ColorSelectorBottomSheet = ({activeColorTheme, onChangeActiveColorTheme}: 
         }))
       }
     },
-    [activeColorTheme, onChangeActiveColorTheme, colorToChange, setSchedule]
+    [colorToChange, setSchedule]
   )
 
-  const changeActiveColorTheme = useCallback(
-    (value: ActiveColorTheme | null) => {
-      if (value && activeColorTheme && value.product_color_theme_id === activeColorTheme.product_color_theme_id) {
-        onChangeActiveColorTheme(null)
-
+  const changeCategoryTab = useCallback(
+    (tab: CategoryTab) => {
+      if (tab === activeCategoryTab) {
         return
       }
 
-      if (value) {
-        const targetSchedule = scheduleList.find(item => item.schedule_id === schedule.schedule_id)
+      let editColorThemeItemList: EditColorThemeItem[] = editColorThemeDetail.colorThemeItemList
+      const initColorThemeItem1: EditColorThemeItem = {id: -1, color: '#efefef', order: 1, actionType: 'I'}
+      const initColorThemeItem2: EditColorThemeItem = {id: -1, color: '#ffffff', order: 2, actionType: 'I'}
 
-        if (targetSchedule) {
-          setSchedule(prevState => ({
-            ...prevState,
-            background_color: targetSchedule.background_color,
-            text_color: targetSchedule.text_color
-          }))
+      if (tab === 'custom') {
+        const isUpdated = editColorThemeItemList.some(item => {
+          return item.actionType && !objectEqual(initColorThemeItem1, item) && !objectEqual(initColorThemeItem2, item)
+        })
+
+        if (isUpdated) {
+          alert({
+            type: 'danger',
+            title: '테마 변경 내용이 있어요',
+            desc: '해제하면 변경된 내용이 모두 사라져요.\n테마 적용을 해제할까요?',
+            confirmButtonText: '해제하기',
+            confirmFn: () => {
+              onChangeEditColorThemeDetail({
+                colorThemeType: 0,
+                colorThemeItemList: []
+              })
+              setActiveCategoryTab(tab)
+            }
+          })
+        } else {
+          onChangeEditColorThemeDetail({
+            colorThemeType: 0,
+            colorThemeItemList: []
+          })
+          setActiveCategoryTab(tab)
         }
-      }
+      } else if (tab === 'theme') {
+        if (editColorThemeItemList.length === 0) {
+          editColorThemeItemList = [initColorThemeItem1, initColorThemeItem2]
+        }
 
-      onChangeActiveColorTheme(value)
+        onChangeEditColorThemeDetail({
+          colorThemeType: 1,
+          colorThemeItemList: editColorThemeItemList
+        })
+        setActiveCategoryTab(tab)
+      }
     },
-    [scheduleList, schedule, activeColorTheme, onChangeActiveColorTheme, setSchedule]
+    [activeCategoryTab, editColorThemeDetail.colorThemeItemList, onChangeEditColorThemeDetail, alert]
   )
 
   const changeTab = useCallback(
     (tab: CustomTab) => () => {
       setActiveCustomTab(tab)
     },
-    [setActiveCustomTab]
+    []
   )
 
   const closeMenu = useCallback(() => {
@@ -179,7 +204,7 @@ const ColorSelectorBottomSheet = ({activeColorTheme, onChangeActiveColorTheme}: 
       bottomSheetRef.current?.present()
 
       if (!isRender.current) {
-        if (activeColorTheme) {
+        if (colorThemeDetail.color_theme_type !== 0) {
           setActiveCategoryTab('theme')
         } else {
           setActiveCategoryTab('custom')
@@ -190,7 +215,7 @@ const ColorSelectorBottomSheet = ({activeColorTheme, onChangeActiveColorTheme}: 
     } else {
       bottomSheetRef.current?.dismiss()
     }
-  }, [showColorSelectorBottomSheet, activeColorTheme])
+  }, [showColorSelectorBottomSheet, colorThemeDetail.color_theme_type])
 
   const getBackdropComponent = useCallback(
     (props: BottomSheetBackdropProps) => {
@@ -200,12 +225,12 @@ const ColorSelectorBottomSheet = ({activeColorTheme, onChangeActiveColorTheme}: 
           activeCategoryTab={activeCategoryTab}
           activeTheme={activeTheme}
           snapPoints={snapPoints}
-          onChangeCategoryTab={setActiveCategoryTab}
+          onChangeCategoryTab={changeCategoryTab}
           onClose={() => bottomSheetRef.current?.dismiss()}
         />
       )
     },
-    [activeCategoryTab, activeTheme, snapPoints]
+    [activeCategoryTab, changeCategoryTab, activeTheme, snapPoints]
   )
 
   const getHandleComponent = useCallback((props: BottomSheetHandleProps) => {
@@ -234,7 +259,7 @@ const ColorSelectorBottomSheet = ({activeColorTheme, onChangeActiveColorTheme}: 
       <View style={styles.container}>
         {activeCategoryTab === 'theme' ? (
           <View style={styles.wrapper}>
-            <ThemeColorList value={activeColorTheme} onChange={changeActiveColorTheme} />
+            <ThemeColorList value={editColorThemeDetail} onChange={onChangeEditColorThemeDetail} />
           </View>
         ) : (
           <View style={styles.wrapper}>
@@ -301,8 +326,7 @@ const ColorSelectorBottomSheet = ({activeColorTheme, onChangeActiveColorTheme}: 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 30
+    paddingVertical: 10
   },
   wrapper: {
     flex: 1
@@ -316,7 +340,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 15,
-    marginBottom: 10
+    marginBottom: 10,
+    paddingHorizontal: 30
   },
   tabButton: {
     height: 42,
@@ -352,7 +377,8 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     gap: 15,
-    paddingTop: 20
+    paddingTop: 20,
+    paddingHorizontal: 30
   },
   scrollColumnWrapper: {
     justifyContent: 'space-between'

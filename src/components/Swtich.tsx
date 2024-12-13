@@ -45,7 +45,8 @@ const Switch = ({value = false, readonly = false, onChange}: Props) => {
 }
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 14
+    borderRadius: 14,
+    alignSelf: 'flex-start'
   },
   wrapper: {
     width: 50,

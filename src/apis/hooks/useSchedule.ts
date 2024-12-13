@@ -4,8 +4,10 @@ import {focusModeInfoState, scheduleDateState, scheduleState} from '@/store/sche
 import {isLoadingState} from '@/store/system'
 import {useMutation, useQuery} from '@tanstack/react-query'
 import {scheduleRepository} from '../local'
+import * as scheduleApi from '@/apis/server/schedule'
 import {getDayOfWeekKey} from '@/utils/helper'
 import {UpdateScheduleDisable} from '@/apis/local/types/schedule'
+import {EditColorThemeRequest, EditColorThemeResponse} from '@/apis/types/schedule'
 
 export const useGetScheduleList = () => {
   const scheduleDate = useRecoilValue(scheduleDateState)
@@ -154,5 +156,15 @@ export const useGetSearchScheduleList = () => {
       return scheduleRepository.getSearchScheduleList()
     },
     initialData: []
+  })
+}
+
+export const useEditColorTheme = () => {
+  return useMutation({
+    mutationFn: async (params: EditColorThemeRequest) => {
+      const response = await scheduleApi.editColorTheme(params)
+
+      return response.data as EditColorThemeResponse
+    }
   })
 }

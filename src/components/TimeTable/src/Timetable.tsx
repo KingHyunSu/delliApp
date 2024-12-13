@@ -11,8 +11,8 @@ import ScheduleText from '../components/ScheduleText'
 
 import {useSetRecoilState, useRecoilValue, useRecoilState} from 'recoil'
 import {
-  activeColorThemeState,
   activeOutlineState,
+  activeColorThemeDetailState,
   timetableContainerHeightState,
   timetableWrapperSizeState
 } from '@/store/system'
@@ -35,7 +35,7 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
 
   const timetableContainerHeight = useRecoilValue(timetableContainerHeightState)
   const timetableWrapperSize = useRecoilValue(timetableWrapperSizeState)
-  const activeColorTheme = useRecoilValue(activeColorThemeState)
+  const activeColorThemeDetail = useRecoilValue(activeColorThemeDetailState)
   const activeOutline = useRecoilValue(activeOutlineState)
 
   const setSchedule = useSetRecoilState(scheduleState)
@@ -148,13 +148,13 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
     })
   }, [data])
 
-  const colorThemeItemList = useMemo(() => {
-    if (!activeColorTheme) {
+  const sortedColorThemeItemList = useMemo(() => {
+    if (activeColorThemeDetail.color_theme_type === 0) {
       return null
     }
 
-    return activeColorTheme.item_list.sort((a, b) => a.order - b.order)
-  }, [activeColorTheme])
+    return activeColorThemeDetail.color_theme_item_list.sort((a, b) => a.order - b.order)
+  }, [activeColorThemeDetail])
 
   const radius = useMemo(() => {
     return timetableWrapperSize - 40
@@ -174,13 +174,13 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
 
   const getSchedulePieColor = useCallback(
     (index: number) => {
-      if (!colorThemeItemList) {
+      if (!sortedColorThemeItemList) {
         return null
       }
 
-      return colorThemeItemList[index % colorThemeItemList.length].color
+      return sortedColorThemeItemList[index % sortedColorThemeItemList.length].color
     },
-    [colorThemeItemList]
+    [sortedColorThemeItemList]
   )
 
   useEffect(() => {

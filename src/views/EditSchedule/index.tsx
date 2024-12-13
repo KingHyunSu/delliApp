@@ -18,10 +18,9 @@ import {
   isLoadingState,
   editScheduleListStatusState,
   editTimetableTranslateYState,
-  activeThemeState,
   displayModeState,
   activeBackgroundState,
-  activeColorThemeState
+  activeColorThemeDetailState
 } from '@/store/system'
 import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
 import {
@@ -33,31 +32,41 @@ import {
   isInputModeState
 } from '@/store/schedule'
 
-import RNFetchBlob from 'rn-fetch-blob'
 import {useQueryClient} from '@tanstack/react-query'
-import {useGetExistScheduleList, useSetSchedule} from '@/apis/hooks/useSchedule'
-import {useUpdateActiveColorTheme} from '@/apis/hooks/useUser'
+import {useEditColorTheme, useGetExistScheduleList, useSetSchedule} from '@/apis/hooks/useSchedule'
+import {colorKit} from 'reanimated-color-picker'
 import {EditScheduleProps} from '@/types/navigation'
 import type {EditScheduleBottomSheetRef} from '@/components/bottomSheet/EditScheduleBottomSheet'
 import type {Ref as ControlBarRef} from './components/ControlBar'
+import {EditColorThemeRequest} from '@/apis/types/schedule'
 
 const EditSchedule = ({navigation}: EditScheduleProps) => {
   const queryClient = useQueryClient()
 
   const getExistScheduleList = useGetExistScheduleList()
   const {mutateAsync: setScheduleMutateAsync} = useSetSchedule()
-  const {mutateAsync: updateActiveColorMutateAsync} = useUpdateActiveColorTheme()
+  const {mutateAsync: editColorThemeMutateAsync} = useEditColorTheme()
 
   const editScheduleBottomSheetRef = useRef<EditScheduleBottomSheetRef>(null)
   const controlBarRef = useRef<ControlBarRef>(null)
 
   const [isRendered, setIsRendered] = React.useState(false)
   const [isActiveControlMode, setIsActiveControlMode] = React.useState(false)
-  const [colorTheme, setColorTheme] = useState<ActiveColorTheme | null>(null)
+
+  const [activeColorThemeDetail, setActiveColorThemeDetail] = useRecoilState(activeColorThemeDetailState)
+
+  const [editColorThemeDetail, setEditColorThemeDetail] = useState<EditColorThemeDetail>({
+    colorThemeType: activeColorThemeDetail.color_theme_type,
+    colorThemeItemList: activeColorThemeDetail.color_theme_item_list.map(item => ({
+      id: item.color_theme_item_id,
+      color: item.color,
+      order: item.order,
+      actionType: null
+    }))
+  })
 
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const [schedule, setSchedule] = useRecoilState(scheduleState)
-  const [activeColorTheme, setActiveColorTheme] = useRecoilState(activeColorThemeState)
 
   // TODO 글자 중앙 정렬 sudo code
   // const [isFixedAlignCenter, setIsFixedAlignCenter] = useRecoilState(isFixedAlignCenterState)
@@ -108,6 +117,36 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   //   return isFixedAlignCenter ? '#ffffff' : '#696969'
   // }, [isFixedAlignCenter])
 
+  const colorThemeDetail = React.useMemo<ColorThemeDetail>(() => {
+    let colorThemeItemList: ColorThemeItem[] = []
+
+    switch (editColorThemeDetail.colorThemeType) {
+      case 1:
+        colorThemeItemList = [
+          {color_theme_item_id: -1, color: activeBackground.background_color, order: 1},
+          {color_theme_item_id: -1, color: colorKit.brighten(activeBackground.background_color, 20).hex(), order: 2}
+        ]
+        break
+      case 2:
+        colorThemeItemList = editColorThemeDetail.colorThemeItemList
+          .filter(item => item.actionType !== 'D')
+          .map(item => ({
+            color_theme_item_id: item.id,
+            color: item.color,
+            order: item.order
+          }))
+
+        break
+      default:
+        break
+    }
+
+    return {
+      color_theme_type: editColorThemeDetail.colorThemeType,
+      color_theme_item_list: colorThemeItemList
+    }
+  }, [editColorThemeDetail, activeBackground.background_color])
+
   const closeEditScheduleBottomSheet = React.useCallback(() => {
     Alert.alert('나가기', '작성한 내용은 저장되지 않아요.', [
       {
@@ -149,48 +188,54 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   }, [setIsActiveControlMode])
 
   const doSubmit = React.useCallback(async () => {
-    let isSuccess = true
+    if (activeColorThemeDetail.color_theme_type !== editColorThemeDetail.colorThemeType) {
+      const editColorThemeParams: EditColorThemeRequest = {
+        color_theme_type: editColorThemeDetail.colorThemeType,
+        insert_color_theme_item_list: [],
+        update_color_theme_item_list: [],
+        delete_color_theme_item_list: []
+      }
 
-    if (activeColorTheme?.product_color_theme_id !== colorTheme?.product_color_theme_id) {
-      const activeColorThemeId = colorTheme?.product_color_theme_id || null
-      const response = await updateActiveColorMutateAsync({active_color_theme_id: activeColorThemeId})
+      editColorThemeDetail.colorThemeItemList.forEach(item => {
+        const param: ColorThemeItem = {color_theme_item_id: item.id, color: item.color, order: item.order}
+
+        if (item.actionType === 'I') {
+          editColorThemeParams.insert_color_theme_item_list.push(param)
+        } else if (item.actionType === 'U') {
+          editColorThemeParams.update_color_theme_item_list.push(param)
+        } else if (item.actionType === 'D') {
+          editColorThemeParams.delete_color_theme_item_list.push(param)
+        }
+      })
+
+      const response = await editColorThemeMutateAsync(editColorThemeParams)
 
       if (response.result) {
-        setActiveColorTheme(colorTheme)
-      } else {
-        isSuccess = false
-
-        Alert.alert('네트워크 연결 실패', '네트워크 연결이 지연되고 있습니다.\n잠시 후 다시 시도해주세요.', [
-          {
-            text: '확인',
-            style: 'cancel'
-          }
-        ])
+        setActiveColorThemeDetail(colorThemeDetail)
       }
     }
 
     await setScheduleMutateAsync(schedule)
 
-    if (isSuccess) {
-      invalidScheduleList()
+    invalidScheduleList()
 
-      navigation.navigate('MainTabs', {
-        screen: 'Home',
-        params: {scheduleUpdated: true}
-      })
+    navigation.navigate('MainTabs', {
+      screen: 'Home',
+      params: {scheduleUpdated: true}
+    })
 
-      setIsEdit(false)
-    }
+    setIsEdit(false)
   }, [
+    colorThemeDetail,
+    activeColorThemeDetail.color_theme_type,
+    editColorThemeDetail,
     schedule,
-    activeColorTheme,
-    colorTheme,
     invalidScheduleList,
-    updateActiveColorMutateAsync,
+    editColorThemeMutateAsync,
     setScheduleMutateAsync,
     navigation,
-    setIsEdit,
-    setActiveColorTheme
+    setActiveColorThemeDetail,
+    setIsEdit
   ])
 
   const handleSubmit = React.useCallback(async () => {
@@ -234,12 +279,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     }
   }, [editTimetableTranslateY, setIsRendered])
 
-  React.useEffect(() => {
-    if (activeColorTheme) {
-      setColorTheme(activeColorTheme)
-    }
-  }, [activeColorTheme])
-
   const background = React.useMemo(() => {
     if (!activeBackground || activeBackground.background_id === 1) {
       return <Image style={styles.backgroundImage} source={require('@/assets/beige.png')} />
@@ -263,7 +302,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
         <EditTimetable
           data={scheduleList}
-          colorTheme={colorTheme}
+          colorThemeDetail={colorThemeDetail}
           isRendered={isRendered}
           onChangeStartTime={setNewStartTime}
           onChangeEndTime={setNewEndTime}
@@ -288,7 +327,11 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       <EditScheduleBottomSheet ref={editScheduleBottomSheetRef} startTime={newStartTime} endTime={newEndTime} />
       <ScheduleCategorySelectorBottomSheet />
       <OverlapScheduleListBottomSheet onSubmit={doSubmit} />
-      <ColorSelectorBottomSheet activeColorTheme={colorTheme} onChangeActiveColorTheme={setColorTheme} />
+      <ColorSelectorBottomSheet
+        colorThemeDetail={colorThemeDetail}
+        editColorThemeDetail={editColorThemeDetail}
+        onChangeEditColorThemeDetail={setEditColorThemeDetail}
+      />
       <ColorPickerModal />
     </View>
   )

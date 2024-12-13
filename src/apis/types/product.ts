@@ -44,15 +44,3 @@ export interface GetMyOutlineListResponse {
   background_color: string
   progress_color: string
 }
-
-export interface GetProductColorThemeListItemResponse {
-  product_color_theme_item_id: number
-  color_type: string
-  color: string
-  order: number
-}
-export interface GetProductColorThemeListResponse {
-  product_color_theme_id: number
-  background_url: string
-  item_list: GetProductColorThemeListItemResponse[]
-}

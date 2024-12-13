@@ -3,9 +3,7 @@ import {
   GetMyBackgroundListResponse,
   GetMyOutlineListResponse,
   GetProductBackgroundDetailResponse,
-  GetProductBackgroundListResponse,
-  GetProductColorThemeListItemResponse,
-  GetProductColorThemeListResponse
+  GetProductBackgroundListResponse
 } from '@/apis/types/product'
 
 declare global {
@@ -22,12 +20,4 @@ declare global {
 
   interface ActiveOutline extends GetActiveOutlineResponse {}
   interface MyOutlineItem extends GetMyOutlineListResponse {}
-
-  interface ProductColorThemeItem extends GetProductColorThemeListResponse {}
-  interface ColorThemeItem extends GetProductColorThemeListItemResponse {}
-  interface ActiveColorTheme {
-    product_color_theme_id: number
-    background_url: string
-    item_list: ColorThemeItem[]
-  }
 }

@@ -15,12 +15,12 @@ import {scheduleState, disableScheduleListState, isInputModeState} from '@/store
 
 interface Props {
   data: Schedule[]
-  colorTheme: ActiveColorTheme | null
+  colorThemeDetail: ColorThemeDetail
   isRendered: boolean
   onChangeStartTime: (value: number) => void
   onChangeEndTime: (value: number) => void
 }
-const EditTimetable = ({data, colorTheme, isRendered, onChangeStartTime, onChangeEndTime}: Props) => {
+const EditTimetable = ({data, colorThemeDetail, isRendered, onChangeStartTime, onChangeEndTime}: Props) => {
   const [schedule, setSchedule] = useRecoilState(scheduleState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
@@ -62,12 +62,16 @@ const EditTimetable = ({data, colorTheme, isRendered, onChangeStartTime, onChang
   }, [sortedScheduleList, schedule.schedule_id])
 
   const colorThemeItemList = React.useMemo(() => {
-    if (!colorTheme) {
-      return null
+    switch (colorThemeDetail.color_theme_type) {
+      case 1:
+        return colorThemeDetail.color_theme_item_list
+      case 2:
+        return colorThemeDetail.color_theme_item_list.sort((a, b) => a.order - b.order)
+      case 0:
+      default:
+        return null
     }
-
-    return colorTheme.item_list.sort((a, b) => a.order - b.order)
-  }, [colorTheme])
+  }, [colorThemeDetail])
 
   const radius = React.useMemo(() => {
     return timetableWrapperSize - 40
@@ -85,17 +89,17 @@ const EditTimetable = ({data, colorTheme, isRendered, onChangeStartTime, onChang
   )
 
   const editSchedulePieColor = React.useMemo(() => {
-    if (colorThemeItemList) {
-      const targetIndex = sortedScheduleList.findIndex(item => item.schedule_id === schedule.schedule_id)
-
-      if (targetIndex !== -1) {
-        return getSchedulePieColor(targetIndex)
-      }
-
-      return colorThemeItemList[0].color
+    if (!colorThemeItemList) {
+      return null
     }
 
-    return null
+    const targetIndex = sortedScheduleList.findIndex(item => item.schedule_id === schedule.schedule_id)
+
+    if (targetIndex !== -1) {
+      return getSchedulePieColor(targetIndex)
+    }
+
+    return colorThemeItemList[0].color
   }, [sortedScheduleList, schedule, getSchedulePieColor, colorThemeItemList])
 
   const closeKeyboard = React.useCallback(() => {

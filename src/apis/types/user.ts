@@ -3,9 +3,9 @@ export interface AccessRequest {
 }
 export interface AccessResponse {
   token: string
+  color_theme_detail: ColorThemeDetail
   active_background: ActiveBackground | null
   active_outline: ActiveOutline
-  active_color_theme: ActiveColorTheme | null
 }
 
 export interface UpdateActiveColorThemeRequest {
