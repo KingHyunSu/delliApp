@@ -8,13 +8,6 @@ export interface AccessResponse {
   active_outline: ActiveOutline
 }
 
-export interface UpdateActiveColorThemeRequest {
-  active_color_theme_id: number
-}
-export interface UpdateActiveColorThemeResponse {
-  result: boolean
-}
-
 export interface UpdateCustomRequest {
   active_background_id: number
   active_outline_id: number
