@@ -1,13 +1,3 @@
-export interface AccessRequest {
-  id: string
-}
-export interface AccessResponse {
-  token: string
-  color_theme_detail: ColorThemeDetail
-  active_background: ActiveBackground | null
-  active_outline: ActiveOutline
-}
-
 export interface UpdateCustomRequest {
   active_background_id: number
   active_outline_id: number
@@ -16,4 +6,32 @@ export interface UpdateCustomRequest {
 }
 export interface UpdateCustomResponse {
   result: boolean
+}
+
+export interface SetBackgroundRequest {
+  background_id: number
+}
+export interface SetBackgroundResponse {
+  result: boolean
+}
+export interface GetBackgroundListResponse {
+  product_background_id: number
+  main_url: string
+  thumb_url: string
+  display_mode: number
+  background_color: string
+  accent_color: string
+  title: string
+}
+
+export interface GetActiveOutlineResponse {
+  product_outline_id: number
+  background_color: string
+  progress_color: string
+}
+export interface GetOutlineListResponse {
+  my_outline_id: number
+  product_outline_id: number
+  background_color: string
+  progress_color: string
 }

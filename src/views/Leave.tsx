@@ -1,60 +1,47 @@
-import React from 'react'
-import {StyleSheet, SafeAreaView, Pressable, View, Text} from 'react-native'
+import {useState, useCallback, useMemo} from 'react'
+import {StyleSheet, ActivityIndicator, Pressable, View, Text} from 'react-native'
 import AppBar from '@/components/AppBar'
 import Loading from '@/components/Loading'
 
+import {useRecoilValue, useSetRecoilState} from 'recoil'
+import {loginState, activeThemeState, displayModeState} from '@/store/system'
+
 import AsyncStorage from '@react-native-async-storage/async-storage'
-
-import {useSetRecoilState, useResetRecoilState} from 'recoil'
-import {scheduleDateState, scheduleListState} from '@/store/schedule'
-import {activeTimeTableCategoryState} from '@/store/timetable'
-import {loginState, isLoadingState} from '@/store/system'
-
 import {LOGIN_TYPE} from '@/utils/types'
 
-import * as authApi from '@/apis/auth'
-import * as KakaoAuth from '@react-native-seoul/kakao-login'
+import * as authApi from '@/apis/server/auth'
+import * as kakaoAuth from '@react-native-seoul/kakao-login'
 import {appleAuth} from '@invertase/react-native-apple-authentication'
 import {GoogleSignin} from '@react-native-google-signin/google-signin'
+import {loginInfoState} from '@/store/user'
 
-import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
+const Leave = () => {
+  const [isLoading, setIsLoading] = useState(false)
 
-import {LeaveNavigationProps} from '@/types/navigation'
-
-const Leave = ({navigation}: LeaveNavigationProps) => {
-  const setIsLoading = useSetRecoilState(isLoadingState)
+  const loginInfo = useRecoilValue(loginInfoState)
+  const displayMode = useRecoilValue(displayModeState)
+  const activeTheme = useRecoilValue(activeThemeState)
   const setIsLogin = useSetRecoilState(loginState)
-  const resetScheduleDate = useResetRecoilState(scheduleDateState)
-  const resetScheduleList = useResetRecoilState(scheduleListState)
-  const resetActiveTimeTableCategoryState = useResetRecoilState(activeTimeTableCategoryState)
 
-  const doLeave = React.useCallback(
-    async (params: LeaveRequest) => {
+  const titleStyle = useMemo(() => {
+    const color = displayMode === 1 ? '#000000' : '#ffffff'
+    return [styles.title, {color}]
+  }, [displayMode])
+
+  const handleLeave = useCallback(async () => {
+    if (!loginInfo) {
+      return
+    }
+
+    try {
       setIsLoading(true)
 
-      await authApi.leave(params)
+      const loginType = loginInfo.login_type
+      let code = null
 
-      if (params.loginType === LOGIN_TYPE.GOOGLE) {
-        await GoogleSignin.revokeAccess()
-      } else if (params.loginType === LOGIN_TYPE.KAKAO) {
-        await KakaoAuth.unlink()
-      }
-
-      resetScheduleDate()
-      resetScheduleList()
-      resetActiveTimeTableCategoryState()
-      await AsyncStorage.setItem('token', '')
-      setIsLogin(false)
-    },
-    [setIsLoading, resetActiveTimeTableCategoryState, resetScheduleDate, resetScheduleList, setIsLogin]
-  )
-
-  const handleLeave = React.useCallback(async () => {
-    try {
-      const result = await authApi.getLoginType()
-      const loginType = result.data.login_type
-
-      if (loginType === LOGIN_TYPE.APPLE) {
+      if (loginType === LOGIN_TYPE.KAKAO) {
+        await kakaoAuth.unlink()
+      } else if (loginType === LOGIN_TYPE.APPLE) {
         const response = await appleAuth.performRequest({
           requestedOperation: appleAuth.Operation.LOGIN,
           requestedScopes: [appleAuth.Scope.EMAIL]
@@ -65,39 +52,38 @@ const Leave = ({navigation}: LeaveNavigationProps) => {
         const appleAuthorizationCode = response.authorizationCode
 
         if (credentialState === appleAuth.State.AUTHORIZED) {
-          const params = {loginType, code: appleAuthorizationCode}
-
-          await doLeave(params)
+          code = appleAuthorizationCode
         }
-      } else {
-        const params = {loginType, code: null}
-
-        await doLeave(params)
+      } else if (loginType === LOGIN_TYPE.GOOGLE) {
+        await GoogleSignin.revokeAccess()
       }
 
-      setIsLoading(false)
+      const response = await authApi.leave({loginType, code})
+      const isSuccess = response.data.result
+
+      if (isSuccess) {
+        await AsyncStorage.removeItem('token')
+        setIsLogin(false)
+      }
     } catch (e) {
+      console.error('leave error', e)
+    } finally {
       setIsLoading(false)
     }
-  }, [doLeave, setIsLoading])
+  }, [loginInfo, setIsLoading, setIsLogin])
 
   return (
-    <SafeAreaView style={styles.container}>
-      <AppBar>
-        <View style={headerStyles.section}>
-          <Pressable style={headerStyles.backButton} onPress={navigation.goBack}>
-            <ArrowLeftIcon stroke="#242933" />
-          </Pressable>
+    <View style={[styles.container, {backgroundColor: activeTheme.color1}]}>
+      <AppBar backPress color="transparent" backPressIconColor={activeTheme.color3} />
+
+      {isLoading && (
+        <View style={styles.loadingWrapper}>
+          <ActivityIndicator animating={isLoading} size="large" />
         </View>
+      )}
 
-        <View style={headerStyles.titleSection}>
-          <Text style={headerStyles.title}>탈퇴하기</Text>
-        </View>
-
-        <View style={headerStyles.section} />
-      </AppBar>
-
-      <View style={styles.contents}>
+      <View style={styles.wrapper}>
+        <Text style={titleStyle}>탈퇴하기</Text>
         <Text style={styles.contentsText}>탈퇴하시면 작성하신 일정, 할 일 등</Text>
         <Text style={styles.contentsText}>모든 데이터는 복구 불가능합니다</Text>
 
@@ -106,58 +92,52 @@ const Leave = ({navigation}: LeaveNavigationProps) => {
         </Pressable>
       </View>
       <Loading />
-    </SafeAreaView>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#ffffff'
+    flex: 1
   },
-  contents: {
-    paddingTop: 40,
+  loadingWrapper: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999
+  },
+  wrapper: {
+    paddingTop: 20,
     paddingHorizontal: 16
   },
+  title: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 24,
+    color: '#000',
+    marginBottom: 20
+  },
   contentsText: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 16,
-    color: '#424242',
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 18,
+    color: '#777777',
     marginBottom: 5
   },
   button: {
-    marginTop: 80,
-    height: 48,
+    marginTop: 50,
+    height: 56,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
     backgroundColor: '#404247'
   },
   buttonText: {
-    fontFamily: 'Pretendard-Medium',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 16,
     color: '#e7e7e7'
-  }
-})
-
-const headerStyles = StyleSheet.create({
-  section: {
-    flex: 1
-  },
-  titleSection: {
-    flex: 1,
-    alignItems: 'center'
-  },
-  title: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 16,
-    color: '#000'
-  },
-  backButton: {
-    width: 40,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center'
   }
 })
 

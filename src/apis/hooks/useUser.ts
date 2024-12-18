@@ -1,7 +1,7 @@
-import {useMutation} from '@tanstack/react-query'
+import {useMutation, useQuery} from '@tanstack/react-query'
 import {userRepository} from '../local'
 import * as userApi from '@/apis/server/user'
-import {AccessRequest, AccessResponse, UpdateCustomRequest, UpdateCustomResponse} from '@/apis/types/user'
+import {UpdateCustomRequest, UpdateCustomResponse, SetBackgroundRequest} from '@/apis/types/user'
 
 export const useGetUser = () => {
   return useMutation({
@@ -19,16 +19,6 @@ export const useUpdateDisplayMode = () => {
   })
 }
 
-export const useAccess = () => {
-  return useMutation({
-    mutationFn: async (params: AccessRequest) => {
-      const response = await userApi.access(params)
-
-      return response.data as AccessResponse
-    }
-  })
-}
-
 export const useUpdateCustom = () => {
   return useMutation({
     mutationFn: async (params: UpdateCustomRequest) => {
@@ -36,5 +26,39 @@ export const useUpdateCustom = () => {
 
       return response.data as UpdateCustomResponse
     }
+  })
+}
+
+export const useGetBackgroundList = () => {
+  return useQuery({
+    queryKey: ['myBackgroundList'],
+    queryFn: async () => {
+      const response = await userApi.getBackgroundList()
+
+      return response.data as MyBackgroundItem[]
+    },
+    initialData: []
+  })
+}
+
+export const useSetBackground = () => {
+  return useMutation({
+    mutationFn: async (params: SetBackgroundRequest) => {
+      const response = await userApi.setBackground(params)
+
+      return response.data
+    }
+  })
+}
+
+export const useGetOutlineList = () => {
+  return useQuery({
+    queryKey: ['myOutlineList'],
+    queryFn: async () => {
+      const response = await userApi.getOutlineList()
+
+      return response.data as MyOutlineItem[]
+    },
+    initialData: []
   })
 }

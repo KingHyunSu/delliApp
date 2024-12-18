@@ -54,13 +54,13 @@ import {userRepository} from '@/apis/local'
 import * as widgetApi from '@/apis/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
-import {useGetScheduleList, useSetScheduleFocusTime} from '@/apis/hooks/useSchedule'
+import {useGetCurrentScheduleList, useSetScheduleFocusTime} from '@/apis/hooks/useSchedule'
 import HomeFabExtensionModal from '@/components/modal/HomeFabExtensionModal'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
 const Home = ({navigation, route}: HomeScreenProps) => {
-  const {data: _scheduleList, isError} = useGetScheduleList()
+  const {data: _scheduleList, isError} = useGetCurrentScheduleList()
   const {mutateAsync: setScheduleFocusTimeMutateAsync} = useSetScheduleFocusTime()
 
   const safeAreaInsets = useSafeAreaInsets()
@@ -106,7 +106,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const background = React.useMemo(() => {
     if (!activeBackground || activeBackground.background_id === 1) {
       return <Image style={homeStyles.backgroundImage} source={require('@/assets/beige.png')} />
-      // return <View style={{backgroundColor: '#EFEFEF', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0}} />
+      // return <View style={{backgroundColor: '#F8ECE4', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0}} />
     }
 
     return <Image style={homeStyles.backgroundImage} source={{uri: activeBackground.main_url}} />

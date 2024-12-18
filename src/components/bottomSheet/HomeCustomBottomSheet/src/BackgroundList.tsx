@@ -4,7 +4,7 @@ import {BottomSheetFlatList} from '@gorhom/bottom-sheet'
 import CheckIcon from '@/assets/icons/check.svg'
 import {Svg, Defs, LinearGradient, Stop, Rect} from 'react-native-svg'
 
-import {useGetMyBackgroundList} from '@/apis/hooks/useProduct'
+import {useGetBackgroundList} from '@/apis/hooks/useUser'
 import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
 import {colorKit} from 'reanimated-color-picker'
@@ -14,7 +14,7 @@ interface Props {
   onChange: (value: ActiveBackground) => void
 }
 const BackgroundList = ({activeItem, onChange}: Props) => {
-  const {data: myBackgroundList} = useGetMyBackgroundList()
+  const {data: backgroundList} = useGetBackgroundList()
 
   const windowDimensions = useRecoilValue(windowDimensionsState)
 
@@ -87,7 +87,7 @@ const BackgroundList = ({activeItem, onChange}: Props) => {
 
   return (
     <BottomSheetFlatList
-      data={myBackgroundList}
+      data={backgroundList}
       renderItem={getRenderItem}
       numColumns={3}
       showsVerticalScrollIndicator={false}

@@ -1,10 +1,3 @@
-export interface GetTodoListResponse {
-  todo_id: number
-  title: string
-  complete_date_list: string[]
-  schedule_title: string
-}
-
 export interface GetRoutineListByScheduleResponse {
   routine_id: number
   title: string

@@ -16,8 +16,8 @@ import type {SearchSchedule} from '@/views/SearchSchedule'
 import {GetRoutineListByScheduleResponse} from '@/apis/types/routine'
 import {GetTodoListByScheduleIdResponse} from '@/apis/types/todo'
 
-export const getScheduleList = async (params: GetScheduleList) => {
-  const getScheduleListQuery = scheduleQueries.getScheduleListQuery(params)
+export const getCurrentScheduleList = async (params: GetScheduleList) => {
+  const getScheduleListQuery = scheduleQueries.getCurrentScheduleListQuery(params)
   const getScheduleTodoByScheduleIdQuery = todoQueries.getScheduleTodoByScheduleIdQuery()
   const getRoutineListBySchedule = routineQueries.getRoutineListBySchedule()
   const db = await openDatabase()
@@ -117,15 +117,10 @@ export const getSearchScheduleList = async () => {
 export const setSchedule = async (params: Schedule) => {
   const query = scheduleQueries.setScheduleQuery(params)
   const db = await openDatabase()
-  let insertId = 0
 
-  await db.transaction(tx => {
-    tx.executeSql(query, undefined, (tx2, response) => {
-      insertId = response.insertId
-    })
-  })
+  const [result] = await db.executeSql(query)
 
-  return insertId
+  return result.insertId
 }
 
 export const updateSchedule = async (params: Schedule) => {

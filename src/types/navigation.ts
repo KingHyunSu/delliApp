@@ -2,13 +2,18 @@ import type {CompositeScreenProps} from '@react-navigation/native'
 import type {StackScreenProps} from '@react-navigation/stack'
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs'
 import type {Options as SearchScheduleOptions} from '@/views/SearchSchedule'
+import {LOGIN_TYPE} from '@/utils/types'
 
 export type StackNavigator = {
   MainTabs: {
     screen: keyof BottomTabNavigator
     params?: BottomTabNavigator[keyof BottomTabNavigator]
   }
-  HomeCustom: undefined
+
+  Intro: undefined
+  JoinTerms: {type: (typeof LOGIN_TYPE)[keyof typeof LOGIN_TYPE]; token: string}
+  Leave: undefined
+
   EditSchedule: undefined
   EditRoutine: {
     scheduleId: number
@@ -19,8 +24,9 @@ export type StackNavigator = {
     todoId: number | null
   }
   StoreDetail: {type: 'background' | 'outline'; id: number}
-
   RoutineDetail: {id: number}
+
+  HomeCustom: undefined
 
   CategoryStats: undefined
   SearchSchedule: {options: SearchScheduleOptions}
@@ -32,10 +38,6 @@ export type BottomTabNavigator = {
   Setting: undefined
 }
 
-export type SettingNavigationProps = StackScreenProps<BottomTabNavigator, 'Setting'>
-// export type LoginNavigationProps = StackScreenProps<RootStackParamList, 'Login'>
-// export type JoinTermsNavigationProps = StackScreenProps<RootStackParamList, 'JoinTerms'>
-
 export type HomeScreenProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'Home'>,
   StackScreenProps<StackNavigator>
@@ -44,10 +46,18 @@ export type StoreListScreenProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'StoreList'>,
   StackScreenProps<StackNavigator>
 >
+export type SettingScreenProps = CompositeScreenProps<
+  BottomTabScreenProps<BottomTabNavigator, 'Setting'>,
+  StackScreenProps<StackNavigator>
+>
 export type RoutineScreenProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'Routine'>,
   StackScreenProps<StackNavigator>
 >
+
+// auth
+export type IntroScreenProps = StackScreenProps<StackNavigator, 'Intro'>
+export type JoinTermsScreenProps = StackScreenProps<StackNavigator, 'JoinTerms'>
 
 export type HomeCustomProps = StackScreenProps<StackNavigator, 'HomeCustom'>
 export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>

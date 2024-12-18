@@ -1,69 +1,51 @@
-import React from 'react'
+import {useState, useMemo, useCallback} from 'react'
 import {Linking, StyleSheet, SafeAreaView, ScrollView, View, Pressable, Text} from 'react-native'
 import AppBar from '@/components/AppBar'
 import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 import CheckIcon from '@/assets/icons/check.svg'
-import {JoinTermsNavigationProps} from '@/types/navigation'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
-import {useRecoilValue, useSetRecoilState} from 'recoil'
-import {joinInfoState} from '@/store/auth'
+import {useSetRecoilState} from 'recoil'
 import {loginState} from '@/store/system'
 
-import {useQuery, useMutation} from '@tanstack/react-query'
-import {getJoinTermsList} from '@/apis/terms'
-import {join} from '@/apis/auth'
+import {useAccess, useGetJoinTermsList, useJoin} from '@/apis/hooks/useAuth'
+import {JoinTermsScreenProps} from '@/types/navigation'
 
-const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
-  const joinInfo = useRecoilValue(joinInfoState)
+const JoinTerms = ({route, navigation}: JoinTermsScreenProps) => {
+  const {data: termsList} = useGetJoinTermsList()
+  const {mutateAsync: joinMutateAsync} = useJoin()
+  const {mutateAsync: accessMutateAsync} = useAccess()
+
+  const [isAllChecked, setIsAllChecked] = useState(false)
+  const [checkedList, setCheckedList] = useState<Terms[]>([])
+
   const setIsLogin = useSetRecoilState(loginState)
 
-  const {data: termsList} = useQuery({
-    queryKey: ['termsList'],
-    queryFn: async () => {
-      const params = {
-        token: route.params.token
-      }
-      const response = await getJoinTermsList(params)
-
-      return response.data
-    },
-    initialData: [],
-    enabled: !!route.params.token
-  })
-
-  const joinMutation = useMutation({
-    mutationFn: async (params: JoinReqeust) => {
-      return await join(params)
-    },
-    onSuccess: async response => {
-      if (response.data.token) {
-        await AsyncStorage.setItem('token', response.data.token)
-        setIsLogin(true)
-      }
-    }
-  })
-
-  const [isAllChecked, setIsAllChecked] = React.useState(false)
-  const [checkedList, setCheckedList] = React.useState<Terms[]>([])
-
-  const isDisabled = React.useMemo(() => {
+  const isDisabled = useMemo(() => {
     return checkedList.length !== termsList.length
   }, [checkedList, termsList.length])
 
-  const containerStyle = React.useMemo(() => {
+  const containerStyle = useMemo(() => {
     return [styles.conatiner, !isDisabled && {backgroundColor: '#1E90FF'}]
   }, [isDisabled])
 
-  const submitButtonStyle = React.useMemo(() => {
+  const submitButtonStyle = useMemo(() => {
     return [styles.submitButton, !isDisabled && {backgroundColor: '#1E90FF'}]
   }, [isDisabled])
 
-  const allCheckButton = React.useMemo(() => {
+  const getTermsTitleTextStyle = useCallback((link: string | null) => {
+    if (link) {
+      return [styles.checkButtonText, styles.checkButtonLink]
+    }
+
+    return styles.checkButtonText
+  }, [])
+
+  const allCheckButton = useMemo(() => {
     return [styles.checkButton, isAllChecked && styles.activeCheckButton]
   }, [isAllChecked])
 
-  const getIsChecked = React.useCallback(
+  const getIsChecked = useCallback(
     (item: Terms) => {
       const targetTerms = checkedList.find(terms => terms.type === item.type)
 
@@ -72,7 +54,7 @@ const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
     [checkedList]
   )
 
-  const getCheckButtonStyle = React.useCallback(
+  const getCheckButtonStyle = useCallback(
     (item: Terms) => {
       const isChecked = getIsChecked(item)
 
@@ -81,7 +63,7 @@ const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
     [getIsChecked]
   )
 
-  const handleAllChecked = React.useCallback(() => {
+  const handleAllChecked = useCallback(() => {
     const _isAllChecked = !isAllChecked
 
     if (_isAllChecked) {
@@ -93,7 +75,7 @@ const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
     setIsAllChecked(_isAllChecked)
   }, [isAllChecked, termsList])
 
-  const handleChecked = React.useCallback(
+  const handleChecked = useCallback(
     (item: Terms) => () => {
       const isChecked = getIsChecked(item)
       let _checkedList = [...checkedList]
@@ -113,7 +95,7 @@ const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
     [getIsChecked, termsList, checkedList]
   )
 
-  const getTemrsTitle = React.useCallback((type: string) => {
+  const getTermsTitle = useCallback((type: string) => {
     switch (type) {
       case '1':
         return '서비스 이용약관 동의'
@@ -128,7 +110,7 @@ const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
     }
   }, [])
 
-  const moveTermsPage = React.useCallback(
+  const moveTermsPage = useCallback(
     (link: string | null) => () => {
       if (link) {
         Linking.openURL(link)
@@ -137,23 +119,25 @@ const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
     []
   )
 
-  const getTermsTitleTextStyle = React.useCallback((link: string | null) => {
-    if (link) {
-      return [styles.checkButtonText, styles.checkButtonLink]
-    }
-
-    return styles.checkButtonText
-  }, [])
-
-  const handleSubmit = React.useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     const termsAgreeList = checkedList.map(item => {
-      return {terms_id: item.terms_id}
+      return item.terms_id
     })
 
-    const params = {...joinInfo, terms_agree_list: termsAgreeList}
+    const params = {
+      login_type: route.params.type,
+      token: route.params.token,
+      terms_agree_list: termsAgreeList
+    }
 
-    joinMutation.mutate(params)
-  }, [checkedList, joinInfo, joinMutation])
+    const result = await joinMutateAsync(params)
+
+    if (result.token) {
+      await AsyncStorage.setItem('token', result.token)
+      await accessMutateAsync()
+      setIsLogin(true)
+    }
+  }, [checkedList, route.params.type, route.params.token, setIsLogin, joinMutateAsync, accessMutateAsync])
 
   return (
     <SafeAreaView style={containerStyle}>
@@ -191,7 +175,7 @@ const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
                 <View style={styles.checkButtonTextWrapper}>
                   <Text style={styles.checkButtonText}>[필수]</Text>
                   <Pressable onPress={moveTermsPage(item.url)}>
-                    <Text style={getTermsTitleTextStyle(item.url)}>{getTemrsTitle(item.type)}</Text>
+                    <Text style={getTermsTitleTextStyle(item.url)}>{getTermsTitle(item.type)}</Text>
                   </Pressable>
                 </View>
 
@@ -206,7 +190,7 @@ const JoinTerms = ({route, navigation}: JoinTermsNavigationProps) => {
         </ScrollView>
 
         <Pressable style={submitButtonStyle} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>확인</Text>
+          <Text style={styles.submitButtonText}>시작하기</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -232,7 +216,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontFamily: 'Pretendard-Bold',
-    fontSize: 28
+    fontSize: 28,
+    color: '#424242'
   },
   activeTitle: {
     fontFamily: 'Pretendard-Bold',
@@ -255,7 +240,7 @@ const styles = StyleSheet.create({
   allCheckButtonText: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 16,
-    color: '#1E90FF'
+    color: '#000000'
   },
 
   checkButtonContainer: {
@@ -299,8 +284,11 @@ const styles = StyleSheet.create({
   },
 
   submitButton: {
+    marginBottom: 20,
+    marginHorizontal: 16,
+    borderRadius: 15,
     backgroundColor: '#D4D4D4',
-    height: 52,
+    height: 56,
     justifyContent: 'center',
     alignItems: 'center'
   },

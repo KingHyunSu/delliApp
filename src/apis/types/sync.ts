@@ -1,6 +1,5 @@
-export interface GetCurrentScheduleListResponse {
+export interface GetScheduleListResponse {
   schedule_id: number
-  user_id?: number
   title: string
   start_date: string
   end_date: string
@@ -25,18 +24,25 @@ export interface GetCurrentScheduleListResponse {
   disabled_date: string
   create_date: string
   update_date: string
-
-  schedule_todo_list: ScheduleTodo[]
-  schedule_routine_list: ScheduleRoutine[]
 }
 
-export interface EditColorThemeRequest {
-  color_theme_type: number
-  insert_color_theme_item_list: ColorThemeItem[]
-  update_color_theme_item_list: ColorThemeItem[]
-  delete_color_theme_item_list: ColorThemeItem[]
+export interface GetScheduleTodoListResponse {
+  schedule_todo_id: number
+  title: string
+  memo: string
+  complete_date: string
+  schedule_id: number
 }
 
-export interface EditColorThemeResponse {
-  result: boolean
+export interface GetRoutineListResponse {
+  routine_id: number
+  title: string
+  end_date: string
+  schedule_id: number
+}
+
+export interface GetRoutineCompleteListResponse {
+  complete_id: number
+  complete_date: string
+  routine_id: number
 }

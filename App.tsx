@@ -1,7 +1,7 @@
 import React from 'react'
-import {useWindowDimensions, Platform, AppState, StatusBar, StyleSheet, SafeAreaView} from 'react-native'
+import {useWindowDimensions, Platform, AppState, StatusBar, StyleSheet, SafeAreaView, View} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
-import SplashScreen from 'react-native-splash-screen'
+import SystemSplashScreen from 'react-native-splash-screen'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
@@ -15,6 +15,9 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack'
 import {navigationRef} from '@/utils/navigation'
 
 // views
+import SplashScreen from '@/views/Splash'
+import {IntroScreen, JoinTermsScreen} from '@/views/join'
+import LeaveScreen from '@/views/Leave'
 import HomeScreen from '@/views/Home'
 import HomeCustomScreen from '@/views/HomeCustom'
 import EditRoutineScreen from '@/views/EditRoutine'
@@ -30,7 +33,6 @@ import {
 import StatsScreen from '@/views/Stats'
 import SearchScheduleScreen from '@/views/SearchSchedule'
 import SettingScreen from '@/views/Setting'
-import LeaveScreen from '@/views/Leave'
 import EditScheduleScreen from '@/views/EditSchedule'
 import CategoryStats from '@/views/CategoryStats'
 
@@ -38,6 +40,7 @@ import CategoryStats from '@/views/CategoryStats'
 import Toast from '@/components/Toast'
 import {Alert} from '@/components/messageBox'
 import Loading from '@/components/Loading'
+import LoginBottomSheet from '@/components/bottomSheet/LoginBottomSheet'
 
 // icons
 import HomeIcon from '@/assets/icons/home.svg'
@@ -67,9 +70,10 @@ import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
 import initDatabase from '@/apis/local/utils/init'
 import {focusModeInfoState} from '@/store/schedule'
 
-import {useGetUser, useAccess} from '@/apis/hooks/useUser'
+import {useAccess} from '@/apis/hooks/useAuth'
+import {useGetUser} from '@/apis/hooks/useUser'
 import {SafeAreaProvider} from 'react-native-safe-area-context'
-import {colorKit} from 'reanimated-color-picker'
+import {GoogleSignin} from '@react-native-google-signin/google-signin'
 
 const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
@@ -201,12 +205,17 @@ function App(): JSX.Element {
     let _bottomSafeAreaColor: string | null = activeTheme.color5
 
     switch (route?.name) {
-      // case 'Stats':
+      case 'Intro':
+      case 'JoinTerms':
+        _statusBarTextStyle = 'dark-content'
+        _statusBarColor = '#ffffff'
+        _bottomSafeAreaColor = '#ffffff'
+        break
       case 'Home':
       case 'HomeCustom':
       case 'EditSchedule':
-        _statusBarColor = null
         _statusBarTextStyle = activeBackground.display_mode === 1 ? 'dark-content' : 'light-content'
+        _statusBarColor = null
         break
       case 'StoreList':
         _statusBarTextStyle = 'dark-content'
@@ -214,6 +223,7 @@ function App(): JSX.Element {
         break
       case 'EditRoutine':
       case 'EditTodo':
+      case 'Leave':
         _bottomSafeAreaColor = activeTheme.color1
         break
       // case 'EditSchedule':
@@ -246,16 +256,6 @@ function App(): JSX.Element {
 
   // 2024-05-18 서버 제거로인해 비활성화
   // React.useEffect(() => {
-  //   const updateAccess = async () => {
-  //     await authApi.updateAccess()
-  //   }
-
-  //   if (isActiveApp && isLogin) {
-  //     updateAccess()
-  //   }
-  // }, [isActiveApp, isLogin])
-
-  // React.useEffect(() => {
   //   if (isLogin) {
   //     load()
   //   }
@@ -281,10 +281,18 @@ function App(): JSX.Element {
 
   // React.useEffect(() => {
   //   if (isLunch) {
-  //     SplashScreen.hide()
+  //     SystemSplashScreen.hide()
   //     // crashlytics().crash()
   //   }
   // }, [isLunch])
+
+  React.useEffect(() => {
+    GoogleSignin.configure({
+      scopes: ['openid', 'https://www.googleapis.com/auth/userinfo.email'],
+      webClientId: '284062642616-eanl2f71mnfah7lth13uneipuuc10l9t.apps.googleusercontent.com',
+      offlineAccess: false
+    })
+  }, [])
 
   React.useEffect(() => {
     setWindowDimensions(windowDimensions)
@@ -294,53 +302,23 @@ function App(): JSX.Element {
     const init = async () => {
       const isInitDatabase = await initDatabase()
 
+      const token = await AsyncStorage.getItem('token')
       const user = await getUserMutateAsync()
-      const accessResponse = await accessMutateAsync({id: user.user_id})
 
-      if (accessResponse && accessResponse.token) {
-        await AsyncStorage.setItem('token', accessResponse.token)
+      if (token) {
+        await accessMutateAsync()
+        setDisplayMode(user.display_mode)
+        setIsLogin(true)
       }
-
-      setDisplayMode(user.display_mode)
-
-      if (accessResponse.active_background) {
-        setStatusBarTextStyle(accessResponse.active_background.display_mode === 0 ? 'dark-content' : 'light-content')
-        setActiveBackground(accessResponse.active_background)
-      }
-
-      let colorThemeDetail = accessResponse.color_theme_detail
-
-      if (colorThemeDetail.color_theme_type === 1) {
-        const activeBackgroundColor = accessResponse.active_background?.background_color || '#F8F4EC'
-
-        colorThemeDetail.color_theme_item_list = [
-          {color_theme_item_id: -1, color: activeBackgroundColor, order: 1},
-          {color_theme_item_id: -1, color: colorKit.brighten(activeBackgroundColor, 20).hex(), order: 2}
-        ]
-      }
-
-      setActiveColorThemeDetail({
-        color_theme_type: colorThemeDetail.color_theme_type,
-        color_theme_item_list: colorThemeDetail.color_theme_item_list
-      })
-      setActiveOutline(accessResponse.active_outline)
 
       setIsInit(isInitDatabase)
     }
 
     init()
-  }, [
-    accessMutateAsync,
-    getUserMutateAsync,
-    setStatusBarTextStyle,
-    setDisplayMode,
-    setActiveOutline,
-    setActiveBackground,
-    setActiveColorThemeDetail
-  ])
+  }, [setDisplayMode, setIsLogin, accessMutateAsync, getUserMutateAsync])
 
   /**
-   * 테스트용 광고 비활성화 start
+   * 테스트용 광고 start
    */
   // TODO android v1.0.0 배포에서 제외 2024-07-21
   // React.useEffect(() => {
@@ -356,12 +334,12 @@ function App(): JSX.Element {
   //   }
   // }, [isLoaded])
   /**
-   * 테스트용 광고 비활성화 end
+   * 테스트용 광고 end
    */
 
   React.useEffect(() => {
     if (isInit) {
-      SplashScreen.hide()
+      SystemSplashScreen.hide()
     }
   }, [isInit])
 
@@ -474,26 +452,39 @@ function App(): JSX.Element {
           <Toast />
           <Alert />
           <Loading />
+          <LoginBottomSheet />
 
           <SafeAreaView style={containerStyle}>
             <NavigationContainer ref={navigationRef} linking={linking} onStateChange={changeRoute}>
-              <Stack.Navigator initialRouteName="MainTabs" screenOptions={screenOptions}>
-                {/*<Stack.Screen name="MainTabs" component={BottomTabs} />*/}
-                <Stack.Screen name="MainTabs">{() => <BottomTabs activeTheme={activeTheme} />}</Stack.Screen>
-                <Stack.Screen
-                  name="HomeCustom"
-                  component={HomeCustomScreen}
-                  options={{animation: 'fade', animationDuration: 300}}
-                />
-                <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animation: 'none'}} />
-                <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
+              <Stack.Navigator screenOptions={screenOptions}>
+                {!isInit ? (
+                  <Stack.Screen name="Splash" component={SplashScreen} />
+                ) : isLogin ? (
+                  <>
+                    <Stack.Screen name="MainTabs">{() => <BottomTabs activeTheme={activeTheme} />}</Stack.Screen>
+                    <Stack.Screen
+                      name="HomeCustom"
+                      component={HomeCustomScreen}
+                      options={{animation: 'fade', animationDuration: 300}}
+                    />
+                    <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animation: 'none'}} />
+                    <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
 
-                <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
-                <Stack.Screen name="EditTodo" component={EditTodoScreen} />
+                    <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
+                    <Stack.Screen name="EditTodo" component={EditTodoScreen} />
 
-                <Stack.Screen name="CategoryStats" component={CategoryStats} />
-                <Stack.Screen name="RoutineDetail" component={RoutineDetailScreen} />
-                <Stack.Screen name="SearchSchedule" component={SearchScheduleScreen} />
+                    <Stack.Screen name="CategoryStats" component={CategoryStats} />
+                    <Stack.Screen name="RoutineDetail" component={RoutineDetailScreen} />
+                    <Stack.Screen name="SearchSchedule" component={SearchScheduleScreen} />
+
+                    <Stack.Screen name="Leave" component={LeaveScreen} />
+                  </>
+                ) : (
+                  <>
+                    <Stack.Screen name="Intro" component={IntroScreen} />
+                    <Stack.Screen name="JoinTerms" component={JoinTermsScreen} />
+                  </>
+                )}
               </Stack.Navigator>
             </NavigationContainer>
           </SafeAreaView>

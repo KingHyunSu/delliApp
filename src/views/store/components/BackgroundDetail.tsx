@@ -5,7 +5,8 @@ import Footer from './Footer'
 import ArrowRight from '@/assets/icons/arrow_right2.svg'
 
 import {useQueryClient} from '@tanstack/react-query'
-import {useProductBackgroundDetail, useSetMyBackground} from '@/apis/hooks/useProduct'
+import {useProductBackgroundDetail} from '@/apis/hooks/useProduct'
+import {useSetBackground} from '@/apis/hooks/useUser'
 import {useRecoilValue, useSetRecoilState} from 'recoil'
 import {showPurchaseCompleteModalState} from '@/store/modal'
 import {windowDimensionsState} from '@/store/system'
@@ -18,7 +19,7 @@ const BackgroundDetail = ({id}: Props) => {
   const queryClient = useQueryClient()
 
   const {data: detail} = useProductBackgroundDetail(id)
-  const {mutateAsync: setMyBackgroundMutateAsync} = useSetMyBackground()
+  const {mutateAsync: setMyBackgroundMutateAsync} = useSetBackground()
 
   const windowDimensions = useRecoilValue(windowDimensionsState)
   const setShowPurchaseCompleteModal = useSetRecoilState(showPurchaseCompleteModalState)

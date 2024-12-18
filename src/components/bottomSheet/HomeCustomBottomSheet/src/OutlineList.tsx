@@ -5,7 +5,7 @@ import {DefaultOutline} from '@/components/timetableOutline'
 
 import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
-import {useGetMyOutlineList} from '@/apis/hooks/useProduct'
+import {useGetOutlineList} from '@/apis/hooks/useUser'
 
 interface Item {
   id: number
@@ -17,7 +17,7 @@ interface Props {
 }
 const columnGap = 20
 const OutlineList = ({activeItem, activeBackground}: Props) => {
-  const {data: myOutlineList} = useGetMyOutlineList()
+  const {data: outlineList} = useGetOutlineList()
 
   const windowDimensions = useRecoilValue(windowDimensionsState)
 
@@ -36,7 +36,7 @@ const OutlineList = ({activeItem, activeBackground}: Props) => {
   }, [itemSize])
 
   const list: Array<Item | null> = useMemo(() => {
-    return myOutlineList.map(item => {
+    return outlineList.map(item => {
       const backgroundColor =
         item.product_outline_id === activeItem.product_outline_id ? activeItem.background_color : item.background_color
 
@@ -60,7 +60,7 @@ const OutlineList = ({activeItem, activeBackground}: Props) => {
 
       return null
     })
-  }, [activeItem, myOutlineList, radius])
+  }, [activeItem, outlineList, radius])
 
   const getRenderItem: ListRenderItem<Item | null> = useCallback(
     ({item}) => {

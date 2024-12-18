@@ -1,9 +1,7 @@
 import {SQLiteDatabase} from 'react-native-sqlite-storage'
-import 'react-native-get-random-values'
 
 import {openDatabase} from './helper'
 import upgrade from './upgrade.json'
-import {userRepository} from '../index'
 
 const createTable = async (db: SQLiteDatabase) => {
   await db.transaction(tx => {
@@ -32,10 +30,10 @@ const createTable = async (db: SQLiteDatabase) => {
       CREATE TABLE IF NOT EXISTS "SCHEDULE" (
         "schedule_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         "title"	TEXT NOT NULL,
-        "start_date"	TEXT NOT NULL,
-        "end_date"	TEXT NOT NULL DEFAULT '9999-00-00',
-        "start_time"	INTEGER NOT NULL,
-        "end_time"	INTEGER NOT NULL,
+        "start_date" TEXT NOT NULL,
+        "end_date" TEXT NOT NULL DEFAULT '9999-00-00',
+        "start_time" INTEGER NOT NULL,
+        "end_time" INTEGER NOT NULL,
         "mon"	TEXT,
         "tue"	TEXT,
         "wed"	TEXT,
@@ -45,37 +43,14 @@ const createTable = async (db: SQLiteDatabase) => {
         "sun"	TEXT,
         "title_x"	INTEGER,
         "title_y"	INTEGER,
-        "title_rotate"	INTEGER,
-        "background_color"	TEXT,
-        "text_color"	TEXT,
-        "alarm"	INTEGER,
-        "disable"	TEXT,
-        "disable_date"	TEXT,
+        "title_rotate" INTEGER,
+        "background_color" TEXT,
+        "text_color" TEXT,
+        "alarm"	INTEGER, -- 제거 예정
+        "disable" TEXT,
+        "disable_date" TEXT,
         "create_date"	TEXT NOT NULL,
         "update_date"	TEXT
-      )
-    `)
-
-    // todo table
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS "TODO" (
-        "todo_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        "title"	TEXT NOT NULL,
-        "start_date"	TEXT NOT NULL,
-        "end_date"	TEXT NOT NULL DEFAULT '9999-12-31',
-        "schedule_id"	INTEGER NOT NULL
-      )
-    `)
-
-    // todo complete table
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS "TODO_COMPLETE" (
-        "complete_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        "complete_date"	TEXT NOT NULL,
-        "todo_id"	INTEGER NOT NULL,
-        FOREIGN KEY("todo_id")
-          REFERENCES TODO("todo_id")
-          ON DELETE CASCADE
       )
     `)
 
@@ -86,26 +61,29 @@ const createTable = async (db: SQLiteDatabase) => {
         "title"	TEXT NOT NULL,
         "memo" TEXT,
         "complete_date" TEXT,
-        "schedule_id"	INTEGER NOT NULL
+        "schedule_id"	INTEGER NOT NULL,
+        "sync" INTEGER NOT NULL DEFAULT 0
       )
     `)
 
     // routine table
     tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS "ROUTINE" (
+      CREATE TABLE IF NOT EXISTS "schedule_routine" (
         "routine_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         "title"	TEXT NOT NULL,
         "end_date"	TEXT NOT NULL DEFAULT '9999-12-31',
-        "schedule_id"	INTEGER NOT NULL
+        "schedule_id"	INTEGER NOT NULL,
+          "sync" INTEGER NOT NULL DEFAULT 0
       )
     `)
 
     // routine complete table
     tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS "ROUTINE_COMPLETE" (
+      CREATE TABLE IF NOT EXISTS "schedule_routine_complete" (
         "complete_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         "complete_date"	TEXT NOT NULL,
         "routine_id"	INTEGER NOT NULL,
+        "sync" INTEGER NOT NULL DEFAULT 0,
         FOREIGN KEY("routine_id")
           REFERENCES ROUTINE("routine_id")
           ON DELETE CASCADE
@@ -129,7 +107,7 @@ const createTable = async (db: SQLiteDatabase) => {
       )
     `)
 
-    // tx.executeSql('ALTER TABLE USER ADD COLUMN active_outline_id INTEGER default 1')
+    // tx.executeSql('ALTER TABLE SCHEDULE ADD COLUMN font_size INTEGER default 12')
   })
 }
 
@@ -151,7 +129,6 @@ export default async function init() {
     const db = await openDatabase()
 
     await createTable(db)
-    await userRepository.setUser()
 
     const currentVersion = await getCurrentVersion(db)
     const latestVersion = upgrade.version

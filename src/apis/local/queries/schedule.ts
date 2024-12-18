@@ -9,7 +9,7 @@ import {
   UpdateScheduleFocusTimeParams
 } from '../types/schedule'
 
-export const getScheduleListQuery = (params: GetScheduleList) => {
+export const getCurrentScheduleListQuery = (params: GetScheduleList) => {
   let query = `
     SELECT
       A.schedule_category_id,
@@ -33,9 +33,9 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.background_color as background_color,
       A.text_color as text_color,
       A.alarm,
-      SAL.schedule_activity_log_id,
-      SAL.active_time,
-      SAL.complete_state,
+--      SAL.schedule_activity_log_id,
+--      SAL.active_time,
+--      SAL.complete_state,
 --       G.goal_id,
 --       G.title AS goal_title,
 --       (CASE WHEN (COUNT(B.todo_id) = 0)
@@ -55,9 +55,9 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.update_date
     FROM
       SCHEDULE A
-    LEFT OUTER JOIN SCHEDULE_ACTIVITY_LOG SAL
-      ON SAL.schedule_id = A.schedule_id
-      AND SAL.date = "${params.date}"
+--    LEFT OUTER JOIN SCHEDULE_ACTIVITY_LOG SAL
+--      ON SAL.schedule_id = A.schedule_id
+--      AND SAL.date = "${params.date}"
 --     LEFT OUTER JOIN GOAL_SCHEDULE GS
 --       ON A.schedule_id = GS.schedule_id
 --     LEFT OUTER JOIN GOAL G
@@ -125,9 +125,6 @@ export const getScheduleListQuery = (params: GetScheduleList) => {
       A.background_color,
       A.text_color,
       A.alarm,
-      SAL.schedule_activity_log_id,
-      SAL.active_time,
-      SAL.complete_state,
       A.update_date
     ORDER BY A.start_time asc
   `
@@ -302,7 +299,6 @@ export const setScheduleQuery = (params: Schedule) => {
       title_rotate,
       background_color,
       text_color,
-      schedule_category_id,
       deleted,
       disabled,
       create_date,
@@ -325,7 +321,6 @@ export const setScheduleQuery = (params: Schedule) => {
       ${params.title_rotate},
       "${params.background_color}",
       "${params.text_color}",
-      ${params.schedule_category_id},
       "0",
       "0",
       (SELECT datetime('now', 'localtime')),

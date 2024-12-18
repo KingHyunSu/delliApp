@@ -1,10 +1,25 @@
 import http from '@/utils/http'
-import {AccessRequest, AccessResponse, UpdateCustomRequest, UpdateCustomResponse} from '@/apis/types/user'
-
-export const access = (data: AccessRequest) => {
-  return http.post<any, Response<AccessResponse>>('auth/access', data)
-}
+import {
+  UpdateCustomRequest,
+  UpdateCustomResponse,
+  SetBackgroundRequest,
+  SetBackgroundResponse,
+  GetBackgroundListResponse,
+  GetOutlineListResponse
+} from '@/apis/types/user'
 
 export const updateCustom = (data: UpdateCustomRequest) => {
-  return http.post<any, Response<UpdateCustomResponse>>('auth/update/custom', data)
+  return http.post<any, Response<UpdateCustomResponse>>('user/update/custom', data)
+}
+
+export const setBackground = (data: SetBackgroundRequest) => {
+  return http.post<any, Response<SetBackgroundResponse>>('user/background', data)
+}
+
+export const getBackgroundList = () => {
+  return http.post<any, Response<GetBackgroundListResponse[]>>('user/background/list')
+}
+
+export const getOutlineList = () => {
+  return http.get<any, Response<GetOutlineListResponse[]>>('user/outline/list')
 }

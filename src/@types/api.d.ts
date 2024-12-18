@@ -3,24 +3,6 @@ declare interface Response<T> {
   data: T
 }
 
-interface TermsAgree {
-  terms_id: number
-}
-declare interface JoinReqeust {
-  token: string
-  type: string
-  terms_agree_list: TermsAgree[]
-}
-
-declare interface JoinResponse {
-  token: string
-}
-
-declare interface LoginRequest {
-  token: string
-  type: string
-}
-
 declare interface ReissueRequest {
   token: string
 }
@@ -29,65 +11,6 @@ declare interface LoginResponse {
   token: string
 }
 
-declare interface GetJoinTermsListReqeust {
-  token: string
-}
-
-declare interface LeaveRequest {
-  loginType: string
-  code: string | null
-}
-
-// schedule
-declare interface GetScheduleListRequest {
-  timetable_category_id: number
-  date: string
-  mon?: string
-  tue?: string
-  wed?: string
-  thu?: string
-  fri?: string
-  sat?: string
-  sun?: string
-}
-
-declare interface GetExistScheduleListRequest {
-  schedule_id?: int
-  start_date: string
-  end_date: string
-  start_time: number
-  end_time: number
-  mon: string
-  tue: string
-  wed: string
-  thu: string
-  fri: string
-  sat: string
-  sun: string
-}
-
 declare interface ScheduleDisableReqeust {
   schedule_id: number
-}
-
-interface disableScheduleId {
-  schedule_id: number
-}
-declare interface SetScheduleRequest {
-  schedule: Schedule
-  disableScheduleIdList: disableScheduleId[]
-}
-
-// schedule todo
-declare interface DeleteScheduleTodoReqeust {
-  todo_id: number
-}
-
-declare interface SetScheduleTodoCompleteRequest {
-  todo_id: number
-  complete_date: string
-}
-
-declare interface DeleteScheduleTodoCompleteRequest {
-  complete_id: number
 }

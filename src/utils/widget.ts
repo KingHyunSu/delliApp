@@ -94,7 +94,7 @@ const getScheduleList = async (date: Date) => {
     params[dayOfWeek] = '1'
   }
 
-  return await scheduleRepository.getScheduleList(params)
+  return await scheduleRepository.getCurrentScheduleList(params)
 }
 
 const handleWidgetUpdate = async () => {

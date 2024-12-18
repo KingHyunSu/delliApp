@@ -1,6 +1,5 @@
 import {openDatabase} from '../utils/helper'
 import * as userQueries from '../queries/user'
-import {v4 as uuidV4} from 'uuid'
 
 export const getUser = async () => {
   const query = userQueries.getUser()
@@ -10,11 +9,9 @@ export const getUser = async () => {
   return result.rows.item(0) as UserInfo
 }
 
-export const setUser = async () => {
+export const setUser = async (userId: string) => {
   const query = userQueries.setUser()
   const db = await openDatabase()
-
-  const userId = uuidV4()
 
   await db.executeSql(query, [userId])
 }

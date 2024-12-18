@@ -9,7 +9,7 @@ import {getDayOfWeekKey} from '@/utils/helper'
 import {UpdateScheduleDisable} from '@/apis/local/types/schedule'
 import {EditColorThemeRequest, EditColorThemeResponse} from '@/apis/types/schedule'
 
-export const useGetScheduleList = () => {
+export const useGetCurrentScheduleList = () => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const setIsLoading = useSetRecoilState(isLoadingState)
 
@@ -37,7 +37,8 @@ export const useGetScheduleList = () => {
         params[dayOfWeek] = '1'
       }
 
-      return scheduleRepository.getScheduleList(params)
+      setIsLoading(false)
+      return scheduleRepository.getCurrentScheduleList(params)
     },
     initialData: []
   })

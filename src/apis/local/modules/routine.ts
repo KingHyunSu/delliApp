@@ -11,26 +11,6 @@ import {
   SetRoutineRequest,
   UpdateRoutineRequest
 } from '@/apis/types/routine'
-import {GetTodoListResponse} from '@/apis/types/routine'
-
-// export const getRoutineList = async () => {
-//   const query = routineQueries.getRoutineListQuery()
-//   const db = await openDatabase()
-//   const [result] = await db.executeSql(query)
-//
-//   return result.rows.raw().map(item => {
-//     let completeDateList: string[] = []
-//
-//     if (item.complete_date_list) {
-//       completeDateList = item.complete_date_list.split(',')
-//     }
-//
-//     return {
-//       ...item,
-//       complete_date_list: completeDateList
-//     }
-//   }) as GetTodoListResponse[]
-// }
 
 export const getRoutineDetail = async (params: GetRoutineDetailRequest) => {
   const query = routineQueries.getRoutineDetailQuery()
