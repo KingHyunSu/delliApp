@@ -3,6 +3,7 @@ import {AppRegistry} from 'react-native'
 import App from './App'
 import {name as appName} from './app.json'
 import {Alert} from 'react-native'
+import 'react-native-get-random-values'
 import 'react-native-gesture-handler'
 import {QueryCache, QueryClient, QueryClientProvider} from '@tanstack/react-query'
 
@@ -12,7 +13,8 @@ const RootApp = () => {
   const [isServerError, setIsServerError] = React.useState(false)
 
   const handleGlobalError = errorCode => {
-    // 2024-05-18 서버 제거로인해 비활성화
+    console.log('errorCode', errorCode)
+
     // if (errorCode === 500) {
     setIsServerError(true)
     // }

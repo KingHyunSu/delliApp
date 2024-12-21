@@ -1,7 +1,13 @@
 import {useMutation, useQuery} from '@tanstack/react-query'
 import {userRepository} from '../local'
 import * as userApi from '@/apis/server/user'
-import {UpdateCustomRequest, UpdateCustomResponse, SetBackgroundRequest} from '@/apis/types/user'
+import {
+  UpdateCustomRequest,
+  UpdateCustomResponse,
+  SetBackgroundRequest,
+  UpdateColorThemeRequest,
+  UpdateColorThemeResponse
+} from '@/apis/types/user'
 
 export const useGetUser = () => {
   return useMutation({
@@ -60,5 +66,15 @@ export const useGetOutlineList = () => {
       return response.data as MyOutlineItem[]
     },
     initialData: []
+  })
+}
+
+export const useUpdateColorTheme = () => {
+  return useMutation({
+    mutationFn: async (params: UpdateColorThemeRequest) => {
+      const response = await userApi.updateColorTheme(params)
+
+      return response.data as UpdateColorThemeResponse
+    }
   })
 }

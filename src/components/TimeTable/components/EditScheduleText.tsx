@@ -11,7 +11,7 @@ import {isFixedAlignCenterState, isInputModeState} from '@/store/schedule'
 import RotateGuideIcon from '@/assets/icons/rotate_guide.svg'
 
 interface Props {
-  data: Schedule
+  data: EditScheduleForm
   isRendered: boolean
   centerX: number
   centerY: number

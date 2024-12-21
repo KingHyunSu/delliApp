@@ -5,7 +5,9 @@ import {
   SetBackgroundRequest,
   SetBackgroundResponse,
   GetBackgroundListResponse,
-  GetOutlineListResponse
+  GetOutlineListResponse,
+  UpdateColorThemeRequest,
+  UpdateColorThemeResponse
 } from '@/apis/types/user'
 
 export const updateCustom = (data: UpdateCustomRequest) => {
@@ -22,4 +24,8 @@ export const getBackgroundList = () => {
 
 export const getOutlineList = () => {
   return http.get<any, Response<GetOutlineListResponse[]>>('user/outline/list')
+}
+
+export const updateColorTheme = (data: UpdateColorThemeRequest) => {
+  return http.post<any, Response<UpdateColorThemeResponse>>('user/color-theme', data)
 }

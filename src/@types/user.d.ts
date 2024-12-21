@@ -1,4 +1,5 @@
 import {GetBackgroundListResponse, GetActiveOutlineResponse, GetOutlineListResponse} from '@/apis/types/user'
+import {LOGIN_TYPE} from '@/utils/types'
 
 declare global {
   interface ActiveBackground {
@@ -13,7 +14,7 @@ declare global {
   interface MyOutlineItem extends GetOutlineListResponse {}
 
   interface LoginInfo {
-    login_type: number
+    login_type: (typeof LOGIN_TYPE)[keyof typeof LOGIN_TYPE]
     email: string
   }
 }

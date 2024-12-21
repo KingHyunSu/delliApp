@@ -1,40 +1,32 @@
 import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
-import {ListRenderItem, Platform, Pressable, StyleSheet, Text, View} from 'react-native'
-
+import {ListRenderItem, StyleSheet, Platform, Pressable, Text, View} from 'react-native'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import {
   BottomSheetBackdropProps,
-  BottomSheetFlatList,
   BottomSheetHandleProps,
+  BottomSheetFlatList,
   BottomSheetModal
 } from '@gorhom/bottom-sheet'
 import OverlapSchedule from './src/OverlapSchedule'
 
-import {useRecoilState, useRecoilValue} from 'recoil'
-import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
-import {disableScheduleListState, existScheduleListState} from '@/store/schedule'
+import {useRecoilValue} from 'recoil'
 import {activeThemeState, safeAreaInsetsState} from '@/store/system'
-
-import {useMutation} from '@tanstack/react-query'
-import {scheduleRepository} from '@/apis/local'
-import {UpdateScheduleDeleted} from '@/apis/local/types/schedule'
+import {GetOverlapScheduleListResponse} from '@/apis/types/schedule'
 
 interface Props {
-  onSubmit: () => void
+  visible: boolean
+  data: GetOverlapScheduleListResponse[]
+  onSubmit: (value: number[]) => void
+  onDismiss: () => void
 }
-const OverlapScheduleListBottomSheet = ({onSubmit}: Props) => {
-  const [showOverlapScheduleListBottomSheet, setShowOverlapScheduleListBottomSheet] = useRecoilState(
-    showOverlapScheduleListBottomSheetState
-  )
+const OverlapScheduleListBottomSheet = ({visible, data, onSubmit, onDismiss}: Props) => {
   const activeTheme = useRecoilValue(activeThemeState)
-  const disableScheduleList = useRecoilValue(disableScheduleListState)
-  const existScheduleList = useRecoilValue(existScheduleListState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const editScheduleCheckBottomSheet = useRef<BottomSheetModal>(null)
 
-  const [deletedScheduleIdList, setDeletedScheduleIdList] = useState<UpdateScheduleDeleted[]>([])
+  const [disabledScheduleIdList, setDisabledScheduleIdList] = useState<number[]>([])
 
   const snapPoints = useMemo(() => {
     return ['90%']
@@ -57,66 +49,38 @@ const OverlapScheduleListBottomSheet = ({onSubmit}: Props) => {
   }, [bottomSafeArea])
 
   const list = useMemo(() => {
-    const allList = [...disableScheduleList, ...existScheduleList]
-
-    return allList.reduce<ExistSchedule[]>((acc, cur) => {
+    return data.reduce<GetOverlapScheduleListResponse[]>((acc, cur) => {
       if (acc.findIndex(item => item.schedule_id === cur.schedule_id) === -1) {
         acc.push(cur)
       }
       return acc
     }, [])
-  }, [disableScheduleList, existScheduleList])
-
-  const handleDismiss = useCallback(() => {
-    setShowOverlapScheduleListBottomSheet(false)
-  }, [setShowOverlapScheduleListBottomSheet])
+  }, [data])
 
   const deleteSchedule = useCallback(
-    (schedule: ExistSchedule) => {
-      setDeletedScheduleIdList([...deletedScheduleIdList, {schedule_id: schedule.schedule_id}])
+    (schedule: GetOverlapScheduleListResponse) => {
+      setDisabledScheduleIdList([...disabledScheduleIdList, schedule.schedule_id])
     },
-    [deletedScheduleIdList]
+    [disabledScheduleIdList]
   )
 
   const cancelScheduleDeleted = useCallback(
-    (schedule: ExistSchedule) => {
-      const target = deletedScheduleIdList.find(item => item.schedule_id === schedule.schedule_id)
+    (schedule: GetOverlapScheduleListResponse) => {
+      const target = disabledScheduleIdList.find(item => item === schedule.schedule_id)
 
       if (target) {
-        const newDeletedScheduleIdList = deletedScheduleIdList.filter(item => item.schedule_id !== target.schedule_id)
-        setDeletedScheduleIdList(newDeletedScheduleIdList)
+        const newDisabledScheduleIdList = disabledScheduleIdList.filter(item => item !== target)
+        setDisabledScheduleIdList(newDisabledScheduleIdList)
       }
     },
-    [deletedScheduleIdList]
+    [disabledScheduleIdList]
   )
 
-  const {mutate: setOverlapScheduleMutate} = useMutation({
-    mutationFn: async () => {
-      return Promise.all(
-        list.map(item => {
-          const params = {schedule_id: item.schedule_id}
-          const isDeleted = deletedScheduleIdList.some(sItem => sItem.schedule_id === item.schedule_id)
-
-          if (isDeleted) {
-            return scheduleRepository.updateScheduleDeleted(params)
-          }
-        })
-      )
-    },
-    onSuccess: () => {
-      handleDismiss()
-      onSubmit()
-    },
-    onError: error => {
-      console.error('error', error)
-    }
-  })
-
   const handleSubmit = useCallback(() => {
-    setOverlapScheduleMutate()
-  }, [setOverlapScheduleMutate])
+    onSubmit(disabledScheduleIdList)
+  }, [onSubmit, disabledScheduleIdList])
 
-  const getKeyExtractor = useCallback((item: ExistSchedule) => {
+  const getKeyExtractor = useCallback((item: GetOverlapScheduleListResponse) => {
     return String(item.schedule_id)
   }, [])
 
@@ -149,7 +113,7 @@ const OverlapScheduleListBottomSheet = ({onSubmit}: Props) => {
     )
   }, [activeTheme.color3, activeTheme.color5])
 
-  const renderItem: ListRenderItem<ExistSchedule> = useCallback(
+  const renderItem: ListRenderItem<GetOverlapScheduleListResponse> = useCallback(
     ({item}) => {
       return (
         <OverlapSchedule
@@ -164,12 +128,12 @@ const OverlapScheduleListBottomSheet = ({onSubmit}: Props) => {
   )
 
   useEffect(() => {
-    if (showOverlapScheduleListBottomSheet) {
+    if (visible) {
       editScheduleCheckBottomSheet.current?.present()
     } else {
       editScheduleCheckBottomSheet.current?.dismiss()
     }
-  }, [showOverlapScheduleListBottomSheet])
+  }, [visible])
 
   return (
     <BottomSheetModal
@@ -180,7 +144,7 @@ const OverlapScheduleListBottomSheet = ({onSubmit}: Props) => {
       handleComponent={bottomSheetHandler}
       index={0}
       snapPoints={snapPoints}
-      onDismiss={handleDismiss}>
+      onDismiss={onDismiss}>
       <BottomSheetFlatList
         data={list}
         bounces={false}

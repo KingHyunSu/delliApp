@@ -6,16 +6,22 @@ import {useMutation, useQuery} from '@tanstack/react-query'
 import {scheduleRepository} from '../local'
 import * as scheduleApi from '@/apis/server/schedule'
 import {getDayOfWeekKey} from '@/utils/helper'
-import {UpdateScheduleDisable} from '@/apis/local/types/schedule'
-import {EditColorThemeRequest, EditColorThemeResponse} from '@/apis/types/schedule'
+import {
+  DeleteScheduleRequest,
+  GetOverlapScheduleListRequest,
+  SetScheduleRequest,
+  UpdateScheduleRequest
+} from '@/apis/types/schedule'
+import {isLoginState} from '@/store/user'
 
 export const useGetCurrentScheduleList = () => {
+  const isLogin = useRecoilValue(isLoginState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const setIsLoading = useSetRecoilState(isLoadingState)
 
   return useQuery({
     queryKey: ['scheduleList', scheduleDate],
-    queryFn: () => {
+    queryFn: async () => {
       setIsLoading(true)
 
       const targetDate = format(scheduleDate, 'yyyy-MM-dd')
@@ -29,8 +35,7 @@ export const useGetCurrentScheduleList = () => {
         thu: '',
         fri: '',
         sat: '',
-        sun: '',
-        disable: '0'
+        sun: ''
       }
 
       if (dayOfWeek) {
@@ -38,39 +43,74 @@ export const useGetCurrentScheduleList = () => {
       }
 
       setIsLoading(false)
-      return scheduleRepository.getCurrentScheduleList(params)
+
+      if (isLogin) {
+        const response = await scheduleApi.getCurrentScheduleList(params)
+
+        return response.data
+      }
+      return await scheduleRepository.getCurrentScheduleList(params)
     },
     initialData: []
   })
 }
 
-export const useSetSchedule = () => {
-  return useMutation({
-    mutationFn: async (params: Schedule) => {
-      if (params.schedule_id) {
-        return await scheduleRepository.updateSchedule(params)
-      }
+export const useGetOverlapScheduleList = () => {
+  const isLogin = useRecoilValue(isLoginState)
 
+  return useMutation({
+    mutationFn: async (data: GetOverlapScheduleListRequest) => {
+      if (isLogin) {
+        const response = await scheduleApi.getOverlapScheduleList(data)
+
+        return response.data
+      }
+      return await scheduleRepository.getOverlapScheduleList(data)
+    }
+  })
+}
+
+export const useSetSchedule = () => {
+  const isLogin = useRecoilValue(isLoginState)
+
+  return useMutation({
+    mutationFn: async (params: SetScheduleRequest) => {
+      if (isLogin) {
+        return await scheduleApi.setSchedule(params)
+      }
       return await scheduleRepository.setSchedule(params)
     }
   })
 }
 
-export const useUpdateScheduleDeleted = () => {
+export const useUpdateSchedule = () => {
+  const isLogin = useRecoilValue(isLoginState)
+
   return useMutation({
-    mutationFn: (data: ScheduleDisableReqeust) => {
-      return scheduleRepository.updateScheduleDeleted(data)
+    mutationFn: async (params: UpdateScheduleRequest) => {
+      if (isLogin) {
+        return await scheduleApi.updateSchedule(params)
+      }
+      return await scheduleRepository.updateSchedule(params)
     }
   })
 }
 
-export const useUpdateScheduleDisable = () => {
+export const useUpdateScheduleDeleted = () => {
+  const isLogin = useRecoilValue(isLoginState)
+
   return useMutation({
-    mutationFn: (data: UpdateScheduleDisable) => {
-      return scheduleRepository.updateScheduleDisable(data)
+    mutationFn: async (data: DeleteScheduleRequest) => {
+      if (isLogin) {
+        return await scheduleApi.deleteSchedule(data)
+      }
+
+      return await scheduleRepository.updateScheduleDeleted(data)
     }
   })
 }
+
+// --------
 
 export const useSetScheduleComplete = () => {
   const schedule = useRecoilValue(scheduleState)
@@ -126,30 +166,6 @@ export const useSetScheduleFocusTime = () => {
   })
 }
 
-export const useGetExistScheduleList = () => {
-  const schedule = useRecoilValue(scheduleState)
-  const params = {
-    schedule_id: schedule.schedule_id,
-    start_time: schedule.start_time,
-    end_time: schedule.end_time,
-    mon: schedule.mon,
-    tue: schedule.tue,
-    wed: schedule.wed,
-    thu: schedule.thu,
-    fri: schedule.fri,
-    sat: schedule.sat,
-    sun: schedule.sun,
-    start_date: schedule.start_date,
-    end_date: schedule.end_date
-  }
-
-  return useMutation({
-    mutationFn: () => {
-      return scheduleRepository.getExistScheduleList(params)
-    }
-  })
-}
-
 export const useGetSearchScheduleList = () => {
   return useQuery({
     queryKey: ['getSearchScheduleList'],
@@ -157,15 +173,5 @@ export const useGetSearchScheduleList = () => {
       return scheduleRepository.getSearchScheduleList()
     },
     initialData: []
-  })
-}
-
-export const useEditColorTheme = () => {
-  return useMutation({
-    mutationFn: async (params: EditColorThemeRequest) => {
-      const response = await scheduleApi.editColorTheme(params)
-
-      return response.data as EditColorThemeResponse
-    }
   })
 }

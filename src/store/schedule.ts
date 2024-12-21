@@ -22,11 +22,10 @@ export const existScheduleListState = atom<ExistSchedule[]>({
   default: []
 })
 
-export const scheduleState = atom<Schedule>({
+export const scheduleState = atom<EditScheduleForm>({
   key: 'scheduleState',
   default: {
     schedule_id: null,
-    // timetable_category_id: null,
     start_date: '',
     end_date: '9999-12-31',
     start_time: 0,
@@ -39,22 +38,37 @@ export const scheduleState = atom<Schedule>({
     fri: '1',
     sat: '1',
     sun: '1',
-    memo: '',
-    disable: '0',
     title_x: 10,
     title_y: 45,
     title_rotate: 0,
     font_size: 16,
-    alarm: 0,
-    todo_list: [],
-    routine_list: [],
     background_color: '#ffffff',
-    text_color: '#000000',
-    schedule_category_id: null,
-    schedule_category_title: '',
-    schedule_activity_log_id: null,
-    complete_state: null,
-    active_time: null
+    text_color: '#000000'
+  }
+})
+
+export const editScheduleFormState = atom<EditScheduleForm>({
+  key: 'editScheduleFormState',
+  default: {
+    schedule_id: null,
+    title: '',
+    start_date: '',
+    end_date: '9999-12-31',
+    start_time: 0,
+    end_time: 360,
+    mon: '1',
+    tue: '1',
+    wed: '1',
+    thu: '1',
+    fri: '1',
+    sat: '1',
+    sun: '1',
+    title_x: 10,
+    title_y: 45,
+    title_rotate: 0,
+    font_size: 16,
+    background_color: '#ffffff',
+    text_color: '#000000'
   }
 })
 

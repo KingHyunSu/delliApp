@@ -4,8 +4,6 @@ import * as routineQueries from '../queries/routine'
 import * as todoQueries from '../queries/todo'
 import {
   GetScheduleList,
-  GetExistScheduleList,
-  UpdateScheduleDisable,
   UpdateScheduleDeleted,
   SetScheduleCompleteParams,
   SetScheduleFocusTimeParams,
@@ -15,6 +13,12 @@ import {
 import type {SearchSchedule} from '@/views/SearchSchedule'
 import {GetRoutineListByScheduleResponse} from '@/apis/types/routine'
 import {GetTodoListByScheduleIdResponse} from '@/apis/types/todo'
+import {
+  GetOverlapScheduleListRequest,
+  GetOverlapScheduleListResponse,
+  SetScheduleRequest,
+  UpdateScheduleRequest
+} from '@/apis/types/schedule'
 
 export const getCurrentScheduleList = async (params: GetScheduleList) => {
   const getScheduleListQuery = scheduleQueries.getCurrentScheduleListQuery(params)
@@ -98,12 +102,12 @@ export const getCurrentScheduleList = async (params: GetScheduleList) => {
   return result
 }
 
-export const getExistScheduleList = async (params: GetExistScheduleList) => {
-  const query = scheduleQueries.getExistScheduleListQuery(params)
+export const getOverlapScheduleList = async (params: GetOverlapScheduleListRequest) => {
+  const query = scheduleQueries.getOverlapScheduleListQuery(params)
   const db = await openDatabase()
   const [result] = await db.executeSql(query)
 
-  return result.rows.raw()
+  return result.rows.raw() as GetOverlapScheduleListResponse[]
 }
 
 export const getSearchScheduleList = async () => {
@@ -114,27 +118,107 @@ export const getSearchScheduleList = async () => {
   return result.rows.raw() as SearchSchedule[]
 }
 
-export const setSchedule = async (params: Schedule) => {
-  const query = scheduleQueries.setScheduleQuery(params)
+export const setSchedule = async (params: SetScheduleRequest) => {
+  const placeholders = params.disabled_list.map(item => '?').join(',')
+
+  const updateScheduleDisabledQuery = placeholders ? scheduleQueries.updateScheduleDisabledQuery(placeholders) : null
+  const setScheduleQuery = scheduleQueries.setScheduleQuery()
+
   const db = await openDatabase()
 
-  const [result] = await db.executeSql(query)
+  try {
+    await new Promise<void>((resolve, reject) => {
+      db.transaction(
+        async tx => {
+          if (updateScheduleDisabledQuery) {
+            await tx.executeSql(updateScheduleDisabledQuery, params.disabled_list)
+          }
 
-  return result.insertId
+          await tx.executeSql(setScheduleQuery, [
+            params.form.title,
+            params.form.start_time,
+            params.form.end_time,
+            params.form.start_date,
+            params.form.end_date,
+            params.form.mon,
+            params.form.tue,
+            params.form.wed,
+            params.form.thu,
+            params.form.fri,
+            params.form.sat,
+            params.form.sun,
+            params.form.title_x,
+            params.form.title_y,
+            params.form.title_rotate,
+            params.form.font_size,
+            params.form.background_color,
+            params.form.text_color
+          ])
+        },
+        error => {
+          reject(error)
+        },
+        () => {
+          resolve()
+        }
+      )
+    })
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
 }
 
-export const updateSchedule = async (params: Schedule) => {
-  const query = scheduleQueries.updateScheduleQuery(params)
+export const updateSchedule = async (params: UpdateScheduleRequest) => {
+  const placeholders = params.disabled_list.map(item => '?').join(',')
+
+  const updateScheduleDisabledQuery = placeholders ? scheduleQueries.updateScheduleDisabledQuery(placeholders) : null
+  const updateScheduleQuery = scheduleQueries.updateScheduleQuery()
+
   const db = await openDatabase()
 
-  await db.executeSql(query)
-}
+  try {
+    return new Promise<void>((resolve, reject) => {
+      db.transaction(
+        async tx => {
+          if (updateScheduleDisabledQuery) {
+            await tx.executeSql(updateScheduleDisabledQuery, params.disabled_list)
+          }
 
-export const updateScheduleDisable = async (params: UpdateScheduleDisable) => {
-  const query = scheduleQueries.updateScheduleDisableQuery(params)
-  const db = await openDatabase()
-
-  await db.executeSql(query)
+          await tx.executeSql(updateScheduleQuery, [
+            params.form.title,
+            params.form.start_time,
+            params.form.end_time,
+            params.form.start_date,
+            params.form.end_date,
+            params.form.mon,
+            params.form.tue,
+            params.form.wed,
+            params.form.thu,
+            params.form.fri,
+            params.form.sat,
+            params.form.sun,
+            params.form.title_x,
+            params.form.title_y,
+            params.form.title_rotate,
+            params.form.font_size,
+            params.form.background_color,
+            params.form.text_color,
+            params.schedule_id
+          ])
+        },
+        error => {
+          reject(error)
+        },
+        () => {
+          resolve()
+        }
+      )
+    })
+  } catch (error) {
+    console.error(error)
+    throw error
+  }
 }
 
 export const updateScheduleDeleted = async (params: UpdateScheduleDeleted) => {
@@ -160,6 +244,7 @@ export const getTextColorList = async () => {
   return result.rows.raw()
 }
 
+// ------------ 현재 미사용 (2024-12-21) ------------
 export const setScheduleComplete = async (params: SetScheduleCompleteParams) => {
   const query = scheduleQueries.setScheduleCompleteQuery(params)
   const db = await openDatabase()

@@ -6,7 +6,7 @@ import {format} from 'date-fns'
 
 interface Props {
   value: boolean
-  data: Schedule
+  data: EditScheduleForm
   activeTheme: ActiveTheme
   displayMode: DisplayMode
   borderColor: string

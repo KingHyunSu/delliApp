@@ -7,7 +7,7 @@ import {addMinutes, startOfToday} from 'date-fns'
 
 interface Props {
   value: boolean
-  data: Schedule
+  data: EditScheduleForm
   displayMode: DisplayMode
   borderColor: string
   itemPanelHeight: number

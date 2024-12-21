@@ -12,7 +12,7 @@ export interface Ref {
   close: () => void
 }
 interface Props {
-  schedule: Schedule
+  schedule: EditScheduleForm
   displayMode: 'light' | 'dark'
   isActiveSubmit: boolean
   changeFontSize: (value: number) => void

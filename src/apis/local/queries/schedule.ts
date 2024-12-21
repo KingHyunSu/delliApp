@@ -1,13 +1,12 @@
 import {
   GetScheduleList,
-  GetExistScheduleList,
-  UpdateScheduleDisable,
   UpdateScheduleDeleted,
   SetScheduleCompleteParams,
   SetScheduleFocusTimeParams,
   UpdateScheduleCompleteParams,
   UpdateScheduleFocusTimeParams
 } from '../types/schedule'
+import {GetOverlapScheduleListRequest} from '@/apis/types/schedule'
 
 export const getCurrentScheduleListQuery = (params: GetScheduleList) => {
   let query = `
@@ -30,6 +29,7 @@ export const getCurrentScheduleListQuery = (params: GetScheduleList) => {
       A.title_x,
       A.title_y,
       A.title_rotate,
+      A.font_size,
       A.background_color as background_color,
       A.text_color as text_color,
       A.alarm,
@@ -72,6 +72,8 @@ export const getCurrentScheduleListQuery = (params: GetScheduleList) => {
     WHERE
       A.deleted = '0'
     AND
+      A.disabled = '0'
+    AND
       A.start_date <= "${params.date}"
     AND
       A.end_date >= "${params.date}"
@@ -97,9 +99,6 @@ export const getCurrentScheduleListQuery = (params: GetScheduleList) => {
   }
   if (params.sun) {
     query += `AND A.sun = "${params.sun}"\n`
-  }
-  if (params.disable) {
-    query += `AND A.disabled = "${params.disable}"`
   }
 
   query += `
@@ -132,7 +131,7 @@ export const getCurrentScheduleListQuery = (params: GetScheduleList) => {
   return query
 }
 
-export const getExistScheduleListQuery = (params: GetExistScheduleList) => {
+export const getOverlapScheduleListQuery = (params: GetOverlapScheduleListRequest) => {
   let query = `
     SELECT
       schedule_id,
@@ -279,10 +278,14 @@ export const getSearchScheduleListQuery = () => {
   `
 }
 
-export const setScheduleQuery = (params: Schedule) => {
-  let query = `
+export const setScheduleQuery = () => {
+  return `
     INSERT INTO SCHEDULE (
       title, 
+      start_time, 
+      end_time,
+      start_date, 
+      end_date,
       mon,
       tue,
       wed,
@@ -290,13 +293,10 @@ export const setScheduleQuery = (params: Schedule) => {
       fri,
       sat,
       sun,
-      start_time, 
-      end_time,
-      start_date, 
-      end_date,
       title_x,
       title_y,
       title_rotate,
+      font_size,
       background_color,
       text_color,
       deleted,
@@ -304,76 +304,53 @@ export const setScheduleQuery = (params: Schedule) => {
       create_date,
       update_date
     ) VALUES (
-      "${params.title}", 
-      "${params.mon}",
-      "${params.tue}",
-      "${params.wed}",
-      "${params.thu}",
-      "${params.fri}",
-      "${params.sat}",
-      "${params.sun}",
-      ${params.start_time}, 
-      ${params.end_time}, 
-      "${params.start_date}", 
-      "${params.end_date}", 
-      ${params.title_x},
-      ${params.title_y},
-      ${params.title_rotate},
-      "${params.background_color}",
-      "${params.text_color}",
-      "0",
-      "0",
-      (SELECT datetime('now', 'localtime')),
-      (SELECT datetime('now', 'localtime'))
+      ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 
+      "0", 
+      "0", 
+      (SELECT datetime('now', 'localtime')), (SELECT datetime('now', 'localtime'))
     )
   `
-
-  return query
 }
 
-export const updateScheduleQuery = (params: Schedule) => {
-  let query = `
+export const updateScheduleQuery = () => {
+  return `
     UPDATE
       SCHEDULE
     SET
-      start_time = ${params.start_time},
-      end_time = ${params.end_time},
-      title = "${params.title}",
-      start_date = "${params.start_date}",
-      end_date = "${params.end_date}",
-      mon = "${params.mon}",
-      tue = "${params.tue}",
-      wed = "${params.wed}",
-      thu = "${params.thu}",
-      fri = "${params.fri}",
-      sat = "${params.sat}",
-      sun = "${params.sun}",
-      title_x = ${params.title_x},
-      title_y = ${params.title_y},
-      title_rotate = ${params.title_rotate},
-      background_color = "${params.background_color}",
-      text_color = "${params.text_color}",
-      schedule_category_id = ${params.schedule_category_id},
+      title = ?,
+      start_time = ?,
+      end_time = ?,
+      start_date = ?,
+      end_date = ?,
+      mon = ?,
+      tue = ?,
+      wed = ?,
+      thu = ?,
+      fri = ?,
+      sat = ?,
+      sun = ?,
+      title_x = ?,
+      title_y = ?,
+      title_rotate = ?,
+      font_size = ?,
+      background_color = ?,
+      text_color = ?,
       update_date = (SELECT datetime('now', 'localtime'))
     WHERE
-      schedule_id = ${params.schedule_id}
+      schedule_id = ?
   `
-
-  return query
 }
 
-export const updateScheduleDisableQuery = (params: UpdateScheduleDisable) => {
-  const query = `
+export const updateScheduleDisabledQuery = (placeholders: string) => {
+  return `
     UPDATE
       SCHEDULE
     SET
       disabled = '1',
       disabled_date = (SELECT datetime('now', 'localtime'))
     WHERE
-      schedule_id = ${params.schedule_id}
+      schedule_id IN (${placeholders})
   `
-
-  return query
 }
 
 export const updateScheduleDeletedQuery = (params: UpdateScheduleDeleted) => {

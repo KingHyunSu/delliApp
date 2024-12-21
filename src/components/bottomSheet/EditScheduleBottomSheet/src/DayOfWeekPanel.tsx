@@ -15,7 +15,7 @@ export interface DayOfWeeks {
 }
 interface Props {
   value: boolean
-  data: Schedule
+  data: EditScheduleForm
   activeTheme: ActiveTheme
   displayMode: DisplayMode
   headerContainerStyle: ViewStyle

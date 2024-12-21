@@ -22,39 +22,35 @@ import {
   activeBackgroundState,
   activeColorThemeDetailState
 } from '@/store/system'
-import {showOverlapScheduleListBottomSheetState} from '@/store/bottomSheet'
-import {
-  disableScheduleListState,
-  existScheduleListState,
-  scheduleDateState,
-  scheduleListState,
-  scheduleState,
-  isInputModeState
-} from '@/store/schedule'
+import {scheduleDateState, scheduleListState, isInputModeState, editScheduleFormState} from '@/store/schedule'
 
 import {useQueryClient} from '@tanstack/react-query'
-import {useEditColorTheme, useGetExistScheduleList, useSetSchedule} from '@/apis/hooks/useSchedule'
+import {useGetOverlapScheduleList, useSetSchedule, useUpdateSchedule} from '@/apis/hooks/useSchedule'
+import {useUpdateColorTheme} from '@/apis/hooks/useUser'
 import {colorKit} from 'reanimated-color-picker'
 import {EditScheduleProps} from '@/types/navigation'
 import type {EditScheduleBottomSheetRef} from '@/components/bottomSheet/EditScheduleBottomSheet'
 import type {Ref as ControlBarRef} from './components/ControlBar'
-import {EditColorThemeRequest} from '@/apis/types/schedule'
+import {GetOverlapScheduleListResponse} from '@/apis/types/schedule'
+import {UpdateColorThemeRequest} from '@/apis/types/user'
 
 const EditSchedule = ({navigation}: EditScheduleProps) => {
   const queryClient = useQueryClient()
 
-  const getExistScheduleList = useGetExistScheduleList()
+  const {mutateAsync: getOverlapScheduleListMutateAsync} = useGetOverlapScheduleList()
   const {mutateAsync: setScheduleMutateAsync} = useSetSchedule()
-  const {mutateAsync: editColorThemeMutateAsync} = useEditColorTheme()
+  const {mutateAsync: updateScheduleMutateAsync} = useUpdateSchedule()
+  const {mutateAsync: updateColorThemeMutateAsync} = useUpdateColorTheme()
 
   const editScheduleBottomSheetRef = useRef<EditScheduleBottomSheetRef>(null)
   const controlBarRef = useRef<ControlBarRef>(null)
 
   const [isRendered, setIsRendered] = React.useState(false)
   const [isActiveControlMode, setIsActiveControlMode] = React.useState(false)
+  const [overlapScheduleList, setOverlapScheduleList] = React.useState<GetOverlapScheduleListResponse[]>([])
+  const [showOverlapScheduleListBottomSheet, setShowOverlapScheduleListBottomSheet] = React.useState(false)
 
   const [activeColorThemeDetail, setActiveColorThemeDetail] = useRecoilState(activeColorThemeDetailState)
-
   const [editColorThemeDetail, setEditColorThemeDetail] = useState<EditColorThemeDetail>({
     colorThemeType: activeColorThemeDetail.color_theme_type,
     colorThemeItemList: activeColorThemeDetail.color_theme_item_list.map(item => ({
@@ -66,7 +62,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   })
 
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
-  const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const [editScheduleForm, setEditFormSchedule] = useRecoilState(editScheduleFormState)
 
   // TODO 글자 중앙 정렬 sudo code
   // const [isFixedAlignCenter, setIsFixedAlignCenter] = useRecoilState(isFixedAlignCenterState)
@@ -75,34 +71,40 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const activeBackground = useRecoilValue(activeBackgroundState)
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
   const scheduleList = useRecoilValue(scheduleListState)
-  const disableScheduleList = useRecoilValue(disableScheduleListState)
   const editScheduleListStatus = useRecoilValue(editScheduleListStatusState)
   const scheduleDate = useRecoilValue(scheduleDateState)
 
   const setIsEdit = useSetRecoilState(isEditState)
-  const setExistScheduleList = useSetRecoilState(existScheduleListState)
-  const setShowOverlapScheduleListBottomSheet = useSetRecoilState(showOverlapScheduleListBottomSheetState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
 
-  const [newStartTime, setNewStartTime] = React.useState(schedule.start_time)
-  const [newEndTime, setNewEndTime] = React.useState(schedule.end_time)
+  const [newStartTime, setNewStartTime] = React.useState(editScheduleForm.start_time)
+  const [newEndTime, setNewEndTime] = React.useState(editScheduleForm.end_time)
 
   const timeTableTranslateY = useSharedValue(0)
   const timeInfoTranslateX = useSharedValue(-250)
 
   const activeSubmit = React.useMemo(() => {
     const dayOfWeekList = [
-      schedule.mon,
-      schedule.tue,
-      schedule.wed,
-      schedule.thu,
-      schedule.fri,
-      schedule.sat,
-      schedule.sun
+      editScheduleForm.mon,
+      editScheduleForm.tue,
+      editScheduleForm.wed,
+      editScheduleForm.thu,
+      editScheduleForm.fri,
+      editScheduleForm.sat,
+      editScheduleForm.sun
     ]
 
-    return !!(schedule.title && dayOfWeekList.some(item => item === '1'))
-  }, [schedule.title, schedule.mon, schedule.tue, schedule.wed, schedule.thu, schedule.fri, schedule.sat, schedule.sun])
+    return !!(editScheduleForm.title && dayOfWeekList.some(item => item === '1'))
+  }, [
+    editScheduleForm.title,
+    editScheduleForm.mon,
+    editScheduleForm.tue,
+    editScheduleForm.wed,
+    editScheduleForm.thu,
+    editScheduleForm.fri,
+    editScheduleForm.sat,
+    editScheduleForm.sun
+  ])
 
   const timetableAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{translateY: timeTableTranslateY.value}]
@@ -162,18 +164,14 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     ])
   }, [setIsEdit, navigation])
 
-  const invalidScheduleList = React.useCallback(() => {
-    queryClient.invalidateQueries({queryKey: ['scheduleList', scheduleDate]})
-  }, [queryClient, scheduleDate])
-
   const changeFontSize = React.useCallback(
     (value: number) => {
-      setSchedule(prevState => ({
+      setEditFormSchedule(prevState => ({
         ...prevState,
         font_size: value
       }))
     },
-    [setSchedule]
+    [setEditFormSchedule]
   )
 
   const handleActiveControlMode = React.useCallback(() => {
@@ -187,78 +185,109 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     setIsActiveControlMode(false)
   }, [setIsActiveControlMode])
 
-  const doSubmit = React.useCallback(async () => {
-    if (activeColorThemeDetail.color_theme_type !== editColorThemeDetail.colorThemeType) {
-      const editColorThemeParams: EditColorThemeRequest = {
-        color_theme_type: editColorThemeDetail.colorThemeType,
-        insert_color_theme_item_list: [],
-        update_color_theme_item_list: [],
-        delete_color_theme_item_list: []
+  const doSubmit = React.useCallback(
+    async (disabledScheduleList: number[]) => {
+      const isCustomColorThemeChanged = editColorThemeDetail.colorThemeItemList.some(
+        item => item.actionType === 'I' || item.actionType === 'U' || item.actionType === 'D'
+      )
+
+      if (
+        isCustomColorThemeChanged ||
+        activeColorThemeDetail.color_theme_type !== editColorThemeDetail.colorThemeType
+      ) {
+        const params: UpdateColorThemeRequest = {
+          color_theme_type: editColorThemeDetail.colorThemeType,
+          insert_color_theme_item_list: [],
+          update_color_theme_item_list: [],
+          delete_color_theme_item_list: []
+        }
+
+        if (editColorThemeDetail.colorThemeType === 3) {
+          editColorThemeDetail.colorThemeItemList.forEach(item => {
+            const param: ColorThemeItem = {color_theme_item_id: item.id, color: item.color, order: item.order}
+
+            if (item.actionType === 'I') {
+              params.insert_color_theme_item_list.push(param)
+            } else if (item.actionType === 'U') {
+              params.update_color_theme_item_list.push(param)
+            } else if (item.actionType === 'D') {
+              params.delete_color_theme_item_list.push(param)
+            }
+          })
+        }
+
+        const response = await updateColorThemeMutateAsync(params)
+
+        if (response.result) {
+          setActiveColorThemeDetail(colorThemeDetail)
+        }
       }
 
-      editColorThemeDetail.colorThemeItemList.forEach(item => {
-        const param: ColorThemeItem = {color_theme_item_id: item.id, color: item.color, order: item.order}
+      const {schedule_id, ...form} = editScheduleForm
 
-        if (item.actionType === 'I') {
-          editColorThemeParams.insert_color_theme_item_list.push(param)
-        } else if (item.actionType === 'U') {
-          editColorThemeParams.update_color_theme_item_list.push(param)
-        } else if (item.actionType === 'D') {
-          editColorThemeParams.delete_color_theme_item_list.push(param)
-        }
+      if (schedule_id) {
+        await updateScheduleMutateAsync({
+          form,
+          disabled_list: disabledScheduleList,
+          schedule_id
+        })
+      } else {
+        await setScheduleMutateAsync({
+          form,
+          disabled_list: disabledScheduleList
+        })
+      }
+
+      await queryClient.invalidateQueries({queryKey: ['scheduleList', scheduleDate]})
+
+      navigation.navigate('MainTabs', {
+        screen: 'Home',
+        params: {scheduleUpdated: true}
       })
 
-      const response = await editColorThemeMutateAsync(editColorThemeParams)
-
-      if (response.result) {
-        setActiveColorThemeDetail(colorThemeDetail)
-      }
-    }
-
-    await setScheduleMutateAsync(schedule)
-
-    invalidScheduleList()
-
-    navigation.navigate('MainTabs', {
-      screen: 'Home',
-      params: {scheduleUpdated: true}
-    })
-
-    setIsEdit(false)
-  }, [
-    colorThemeDetail,
-    activeColorThemeDetail.color_theme_type,
-    editColorThemeDetail,
-    schedule,
-    invalidScheduleList,
-    editColorThemeMutateAsync,
-    setScheduleMutateAsync,
-    navigation,
-    setActiveColorThemeDetail,
-    setIsEdit
-  ])
+      setIsEdit(false)
+    },
+    [
+      queryClient,
+      activeColorThemeDetail.color_theme_type,
+      editColorThemeDetail,
+      editScheduleForm,
+      colorThemeDetail,
+      scheduleDate,
+      setScheduleMutateAsync,
+      updateColorThemeMutateAsync,
+      updateScheduleMutateAsync,
+      navigation,
+      setActiveColorThemeDetail,
+      setIsEdit
+    ]
+  )
 
   const handleSubmit = React.useCallback(async () => {
-    try {
-      const existScheduleList = await getExistScheduleList.mutateAsync()
-      setExistScheduleList(existScheduleList)
+    const _overlapScheduleList = await getOverlapScheduleListMutateAsync({
+      schedule_id: editScheduleForm.schedule_id || null,
+      start_time: editScheduleForm.start_time,
+      end_time: editScheduleForm.end_time,
+      start_date: editScheduleForm.start_date,
+      end_date: editScheduleForm.end_date,
+      mon: editScheduleForm.mon,
+      tue: editScheduleForm.tue,
+      wed: editScheduleForm.wed,
+      thu: editScheduleForm.thu,
+      fri: editScheduleForm.fri,
+      sat: editScheduleForm.sat,
+      sun: editScheduleForm.sun
+    })
 
-      if (existScheduleList.length > 0 || disableScheduleList.length > 0) {
-        setShowOverlapScheduleListBottomSheet(true)
-        return
-      }
+    if (_overlapScheduleList.length > 0) {
+      setOverlapScheduleList(_overlapScheduleList)
 
-      await doSubmit()
-    } catch (e) {
-      console.error('error', e)
+      setShowOverlapScheduleListBottomSheet(true)
+      return
     }
-  }, [
-    getExistScheduleList,
-    disableScheduleList.length,
-    doSubmit,
-    setExistScheduleList,
-    setShowOverlapScheduleListBottomSheet
-  ])
+
+    await doSubmit([])
+  }, [editScheduleForm, getOverlapScheduleListMutateAsync, doSubmit])
 
   React.useEffect(() => {
     if (editScheduleListStatus === 0) {
@@ -315,7 +344,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       <View style={styles.controlBar}>
         <ControlBar
           ref={controlBarRef}
-          schedule={schedule}
+          schedule={editScheduleForm}
           displayMode={displayMode === 1 ? 'light' : 'dark'}
           isActiveSubmit={activeSubmit}
           changeFontSize={changeFontSize}
@@ -324,15 +353,28 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         />
       </View>
 
-      <EditScheduleBottomSheet ref={editScheduleBottomSheetRef} startTime={newStartTime} endTime={newEndTime} />
-      <ScheduleCategorySelectorBottomSheet />
-      <OverlapScheduleListBottomSheet onSubmit={doSubmit} />
+      <EditScheduleBottomSheet
+        ref={editScheduleBottomSheetRef}
+        data={editScheduleForm}
+        startTime={newStartTime}
+        endTime={newEndTime}
+        onChange={setEditFormSchedule}
+      />
       <ColorSelectorBottomSheet
+        data={editScheduleForm}
         colorThemeDetail={colorThemeDetail}
         editColorThemeDetail={editColorThemeDetail}
+        onChange={setEditFormSchedule}
         onChangeEditColorThemeDetail={setEditColorThemeDetail}
       />
       <ColorPickerModal />
+      {/*<ScheduleCategorySelectorBottomSheet />*/}
+      <OverlapScheduleListBottomSheet
+        visible={showOverlapScheduleListBottomSheet}
+        data={overlapScheduleList}
+        onDismiss={() => setShowOverlapScheduleListBottomSheet(false)}
+        onSubmit={doSubmit}
+      />
     </View>
   )
 }

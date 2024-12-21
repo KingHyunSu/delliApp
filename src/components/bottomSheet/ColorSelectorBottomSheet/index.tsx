@@ -17,7 +17,7 @@ import {
   safeAreaInsetsState,
   windowDimensionsState
 } from '@/store/system'
-import {colorToChangeState, scheduleState} from '@/store/schedule'
+import {colorToChangeState} from '@/store/schedule'
 import {showColorPickerModalState} from '@/store/modal'
 import {useGetColorList} from '@/apis/hooks/useColor'
 import {objectEqual} from '@/utils/helper'
@@ -25,11 +25,19 @@ import {objectEqual} from '@/utils/helper'
 type CategoryTab = 'theme' | 'custom'
 type CustomTab = 'default' | 'my'
 interface Props {
+  data: EditScheduleForm
   colorThemeDetail: ColorThemeDetail
   editColorThemeDetail: EditColorThemeDetail
+  onChange: (value: EditScheduleForm) => void
   onChangeEditColorThemeDetail: (value: EditColorThemeDetail) => void
 }
-const ColorSelectorBottomSheet = ({colorThemeDetail, editColorThemeDetail, onChangeEditColorThemeDetail}: Props) => {
+const ColorSelectorBottomSheet = ({
+  data,
+  colorThemeDetail,
+  editColorThemeDetail,
+  onChange,
+  onChangeEditColorThemeDetail
+}: Props) => {
   const {data: myColorList} = useGetColorList()
 
   const bottomSheetRef = useRef<BottomSheetModal>(null)
@@ -43,7 +51,6 @@ const ColorSelectorBottomSheet = ({colorThemeDetail, editColorThemeDetail, onCha
     showColorSelectorBottomSheetState
   )
   const [showColorPickerModal, setShowColorPickerModal] = useRecoilState(showColorPickerModalState)
-  const [schedule, setSchedule] = useRecoilState(scheduleState)
 
   const activeTheme = useRecoilValue(activeThemeState)
   const [minEditScheduleListSnapPoint] = useRecoilValue(editScheduleListSnapPointState)
@@ -76,13 +83,13 @@ const ColorSelectorBottomSheet = ({colorThemeDetail, editColorThemeDetail, onCha
   const activeColor = useMemo(() => {
     switch (colorToChange) {
       case 'background':
-        return schedule.background_color
+        return data.background_color
       case 'font':
-        return schedule.text_color
+        return data.text_color
       default:
         return ''
     }
-  }, [schedule.background_color, schedule.text_color, colorToChange])
+  }, [data.background_color, data.text_color, colorToChange])
 
   const convertMyColorList = useMemo(() => {
     if (myColorList.length % 5 !== 0) {
@@ -123,18 +130,12 @@ const ColorSelectorBottomSheet = ({colorThemeDetail, editColorThemeDetail, onCha
   const changeColor = useCallback(
     (color: string) => {
       if (colorToChange === 'background') {
-        setSchedule(prevState => ({
-          ...prevState,
-          background_color: color
-        }))
+        onChange({...data, background_color: color})
       } else if (colorToChange === 'font') {
-        setSchedule(prevState => ({
-          ...prevState,
-          text_color: color
-        }))
+        onChange({...data, text_color: color})
       }
     },
-    [colorToChange, setSchedule]
+    [colorToChange, data, onChange]
   )
 
   const changeCategoryTab = useCallback(

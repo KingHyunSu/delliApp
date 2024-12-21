@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react'
+import {useMemo, useCallback} from 'react'
 import {StyleSheet, View, Pressable} from 'react-native'
 import {Svg} from 'react-native-svg'
 
@@ -11,7 +11,7 @@ import EditScheduleText from '../components/EditScheduleText'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {activeOutlineState, timetableContainerHeightState, timetableWrapperSizeState} from '@/store/system'
-import {scheduleState, disableScheduleListState, isInputModeState} from '@/store/schedule'
+import {disableScheduleListState, isInputModeState, editScheduleFormState} from '@/store/schedule'
 
 interface Props {
   data: Schedule[]
@@ -21,7 +21,7 @@ interface Props {
   onChangeEndTime: (value: number) => void
 }
 const EditTimetable = ({data, colorThemeDetail, isRendered, onChangeStartTime, onChangeEndTime}: Props) => {
-  const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const [editScheduleForm, setEditFormSchedule] = useRecoilState(editScheduleFormState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
 
@@ -30,11 +30,11 @@ const EditTimetable = ({data, colorThemeDetail, isRendered, onChangeStartTime, o
   const activeOutline = useRecoilValue(activeOutlineState)
 
   // styles
-  const containerStyle = React.useMemo(() => {
+  const containerStyle = useMemo(() => {
     return [styles.container, {height: timetableContainerHeight}]
   }, [timetableContainerHeight])
 
-  const wrapperStyle = React.useMemo(() => {
+  const wrapperStyle = useMemo(() => {
     return [
       styles.wrapper,
       {
@@ -44,7 +44,7 @@ const EditTimetable = ({data, colorThemeDetail, isRendered, onChangeStartTime, o
     ]
   }, [timetableWrapperSize])
 
-  const sortedScheduleList = React.useMemo(() => {
+  const sortedScheduleList = useMemo(() => {
     return [...data].sort((a, b) => {
       if (a.update_date && b.update_date) {
         return new Date(a.update_date).getTime() - new Date(b.update_date).getTime()
@@ -57,11 +57,11 @@ const EditTimetable = ({data, colorThemeDetail, isRendered, onChangeStartTime, o
     })
   }, [data])
 
-  const scheduleList = React.useMemo(() => {
-    return sortedScheduleList.filter(item => item.schedule_id !== schedule.schedule_id)
-  }, [sortedScheduleList, schedule.schedule_id])
+  const scheduleList = useMemo(() => {
+    return sortedScheduleList.filter(item => item.schedule_id !== editScheduleForm.schedule_id)
+  }, [sortedScheduleList, editScheduleForm.schedule_id])
 
-  const colorThemeItemList = React.useMemo(() => {
+  const colorThemeItemList = useMemo(() => {
     switch (colorThemeDetail.color_theme_type) {
       case 1:
         return colorThemeDetail.color_theme_item_list
@@ -73,7 +73,7 @@ const EditTimetable = ({data, colorThemeDetail, isRendered, onChangeStartTime, o
     }
   }, [colorThemeDetail])
 
-  const radius = React.useMemo(() => {
+  const radius = useMemo(() => {
     return timetableWrapperSize - 40
   }, [timetableWrapperSize])
 
@@ -88,39 +88,39 @@ const EditTimetable = ({data, colorThemeDetail, isRendered, onChangeStartTime, o
     [colorThemeItemList]
   )
 
-  const editSchedulePieColor = React.useMemo(() => {
+  const editSchedulePieColor = useMemo(() => {
     if (!colorThemeItemList) {
       return null
     }
 
-    const targetIndex = sortedScheduleList.findIndex(item => item.schedule_id === schedule.schedule_id)
+    const targetIndex = sortedScheduleList.findIndex(item => item.schedule_id === editScheduleForm.schedule_id)
 
     if (targetIndex !== -1) {
       return getSchedulePieColor(targetIndex)
     }
 
     return colorThemeItemList[0].color
-  }, [sortedScheduleList, schedule, getSchedulePieColor, colorThemeItemList])
+  }, [sortedScheduleList, editScheduleForm, getSchedulePieColor, colorThemeItemList])
 
-  const closeKeyboard = React.useCallback(() => {
+  const closeKeyboard = useCallback(() => {
     setIsInputMode(false)
   }, [setIsInputMode])
 
-  const clickBackground = React.useCallback(() => {
+  const clickBackground = useCallback(() => {
     closeKeyboard()
   }, [closeKeyboard])
 
-  const changeSchedule = React.useCallback(
+  const changeSchedule = useCallback(
     (value: Object) => {
-      setSchedule(prevState => ({
+      setEditFormSchedule(prevState => ({
         ...prevState,
         ...value
       }))
     },
-    [setSchedule]
+    [setEditFormSchedule]
   )
 
-  const changeScheduleDisabled = React.useCallback(
+  const changeScheduleDisabled = useCallback(
     (value: ExistSchedule[]) => {
       setDisableScheduleList(prevState => {
         if (prevState === value || (prevState.length === 0 && value.length === 0)) {
@@ -172,7 +172,7 @@ const EditTimetable = ({data, colorThemeDetail, isRendered, onChangeStartTime, o
 
         <View style={styles.editContainer}>
           <EditSchedulePie
-            data={schedule}
+            data={editScheduleForm}
             scheduleList={data}
             x={timetableWrapperSize}
             y={timetableWrapperSize}
@@ -186,7 +186,7 @@ const EditTimetable = ({data, colorThemeDetail, isRendered, onChangeStartTime, o
           />
 
           <EditScheduleText
-            data={schedule}
+            data={editScheduleForm}
             isRendered={isRendered}
             centerX={timetableWrapperSize}
             centerY={timetableWrapperSize}

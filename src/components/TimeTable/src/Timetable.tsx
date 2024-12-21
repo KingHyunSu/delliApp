@@ -16,7 +16,7 @@ import {
   timetableContainerHeightState,
   timetableWrapperSizeState
 } from '@/store/system'
-import {scheduleState} from '@/store/schedule'
+import {editScheduleFormState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 import {updateWidgetWithImage} from '@/utils/widget'
@@ -38,7 +38,7 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
   const activeColorThemeDetail = useRecoilValue(activeColorThemeDetailState)
   const activeOutline = useRecoilValue(activeOutlineState)
 
-  const setSchedule = useSetRecoilState(scheduleState)
+  const setEditScheduleForm = useSetRecoilState(editScheduleFormState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
 
   // styles
@@ -166,10 +166,10 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
         return
       }
 
-      setSchedule(value)
+      setEditScheduleForm(value)
       setShowEditMenuBottomSheet(true)
     },
-    [readonly, setSchedule, setShowEditMenuBottomSheet]
+    [readonly, setEditScheduleForm, setShowEditMenuBottomSheet]
   )
 
   const getSchedulePieColor = useCallback(

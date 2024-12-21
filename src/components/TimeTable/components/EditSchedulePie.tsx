@@ -18,7 +18,7 @@ import {homeHeaderHeight} from '@/store/system'
 import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
 
 interface Props {
-  data: Schedule
+  data: EditScheduleForm
   scheduleList: Schedule[]
   x: number
   y: number

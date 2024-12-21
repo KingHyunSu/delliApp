@@ -2,13 +2,14 @@ import {useMemo, useCallback, useState} from 'react'
 import {Platform, StyleSheet, Text, View, Pressable} from 'react-native'
 import ScheduleItem from '@/components/ScheduleItem'
 import {trigger} from 'react-native-haptic-feedback'
+import {GetOverlapScheduleListResponse} from '@/apis/types/schedule'
 
 type ButtonType = 'OVERLAP' | 'DELETE'
 interface Props {
-  schedule: ExistSchedule
+  schedule: GetOverlapScheduleListResponse
   activeTheme: ActiveTheme
-  onDelete: (schedule: ExistSchedule) => void
-  onCancelDeleted: (schedule: ExistSchedule) => void
+  onDelete: (schedule: GetOverlapScheduleListResponse) => void
+  onCancelDeleted: (schedule: GetOverlapScheduleListResponse) => void
 }
 
 const OverlapSchedule = ({schedule, activeTheme, onDelete, onCancelDeleted}: Props) => {

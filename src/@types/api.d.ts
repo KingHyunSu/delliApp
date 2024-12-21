@@ -10,7 +10,3 @@ declare interface ReissueRequest {
 declare interface LoginResponse {
   token: string
 }
-
-declare interface ScheduleDisableReqeust {
-  schedule_id: number
-}

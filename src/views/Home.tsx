@@ -39,11 +39,11 @@ import {
 } from '@/store/system'
 import {
   scheduleDateState,
-  scheduleState,
   scheduleListState,
   disableScheduleListState,
   isInputModeState,
-  focusModeInfoState
+  focusModeInfoState,
+  editScheduleFormState
 } from '@/store/schedule'
 import {showEditMenuBottomSheetState, showDatePickerBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
@@ -73,7 +73,8 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
-  const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const [editScheduleForm, setEditFormSchedule] = useRecoilState(editScheduleFormState)
+
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
 
@@ -84,7 +85,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   const setIsLunch = useSetRecoilState(isLunchState)
   const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
-  const resetSchedule = useResetRecoilState(scheduleState)
+  const resetEditScheduleForm = useResetRecoilState(editScheduleFormState)
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setToast = useSetRecoilState(toastState)
@@ -133,8 +134,8 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const moveEditSchedule = React.useCallback(() => {
     setIsEdit(true)
 
-    if (!schedule.schedule_id) {
-      setSchedule(prevState => ({
+    if (!editScheduleForm.schedule_id) {
+      setEditFormSchedule(prevState => ({
         ...prevState,
         // timetable_category_id: activeTimeTableCategory.timetable_category_id,
         start_date: format(scheduleDate, 'yyyy-MM-dd')
@@ -142,20 +143,20 @@ const Home = ({navigation, route}: HomeScreenProps) => {
     }
 
     navigation.navigate('EditSchedule')
-  }, [schedule.schedule_id, scheduleDate, setSchedule, setIsEdit, navigation])
+  }, [editScheduleForm.schedule_id, scheduleDate, setEditFormSchedule, setIsEdit, navigation])
 
   const openEditMenuBottomSheet = React.useCallback(
     (value: Schedule) => {
-      setSchedule(value)
+      setEditFormSchedule(value)
       setShowEditMenuBottomSheet(true)
     },
-    [setSchedule, setShowEditMenuBottomSheet]
+    [setEditFormSchedule, setShowEditMenuBottomSheet]
   )
 
   const handleStopFocusTime = React.useCallback(async () => {
     const newScheduleActivityLogId = await setScheduleFocusTimeMutateAsync()
 
-    setSchedule(prevState => ({
+    setEditFormSchedule(prevState => ({
       ...prevState,
       schedule_activity_log_id: newScheduleActivityLogId,
       active_time: focusModeInfo?.seconds || 0
@@ -179,7 +180,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
     })
 
     setFocusModeInfo(null)
-  }, [focusModeInfo, setScheduleFocusTimeMutateAsync, setSchedule, setScheduleList, setFocusModeInfo])
+  }, [focusModeInfo, setScheduleFocusTimeMutateAsync, setEditFormSchedule, setScheduleList, setFocusModeInfo])
 
   const changeScheduleListBottomSheetAnimate = React.useCallback((fromIndex: number, toIndex: number) => {
     if (toIndex === 1) {
@@ -340,9 +341,9 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       timeTableTranslateY.value = withTiming(0, {duration: 300}, () => {
         runOnJS(setIsRendered)(true)
       })
-      resetSchedule()
+      resetEditScheduleForm()
     }
-  }, [isEdit, editTimetableTranslateY, resetSchedule, resetDisableScheduleList, setIsInputMode])
+  }, [isEdit, editTimetableTranslateY, resetEditScheduleForm, resetDisableScheduleList, setIsInputMode])
 
   React.useEffect(() => {
     if (isError) {

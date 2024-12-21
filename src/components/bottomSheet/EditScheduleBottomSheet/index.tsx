@@ -15,7 +15,7 @@ import DatePanel from './src/DatePanel'
 import DayOfWeekPanel from './src/DayOfWeekPanel'
 import CategoryPanel from './src/CategoryPanel'
 
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {useRecoilValue, useSetRecoilState} from 'recoil'
 import {
   editScheduleListSnapPointState,
   isEditState,
@@ -23,7 +23,7 @@ import {
   activeThemeState,
   displayModeState
 } from '@/store/system'
-import {scheduleState, isInputModeState} from '@/store/schedule'
+import {isInputModeState} from '@/store/schedule'
 
 import {RANGE_FLAG} from '@/utils/types'
 
@@ -35,330 +35,314 @@ export interface EditScheduleBottomSheetRef {
   collapse: () => void
 }
 interface Props {
+  data: EditScheduleForm
   startTime: number
   endTime: number
+  onChange: (value: EditScheduleForm) => void
 }
-const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(({startTime, endTime}, ref) => {
-  const defaultItemPanelHeight = 56
+const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(
+  ({data, startTime, endTime, onChange}, ref) => {
+    const defaultItemPanelHeight = 56
 
-  const bottomSheetRef = useRef<BottomSheet>(null)
-  const bottomSheetScrollViewRef = useRef<ScrollView>(null)
+    const bottomSheetRef = useRef<BottomSheet>(null)
+    const bottomSheetScrollViewRef = useRef<ScrollView>(null)
 
-  const [schedule, setSchedule] = useRecoilState(scheduleState)
+    const isEdit = useRecoilValue(isEditState)
+    const editScheduleListSnapPoint = useRecoilValue(editScheduleListSnapPointState)
+    const displayMode = useRecoilValue(displayModeState)
+    const activeTheme = useRecoilValue(activeThemeState)
 
-  const isEdit = useRecoilValue(isEditState)
-  const editScheduleListSnapPoint = useRecoilValue(editScheduleListSnapPointState)
-  const displayMode = useRecoilValue(displayModeState)
-  const activeTheme = useRecoilValue(activeThemeState)
+    const setIsInputMode = useSetRecoilState(isInputModeState)
+    const showScheduleCategorySelectorBottomSheet = useSetRecoilState(showScheduleCategorySelectorBottomSheetState)
+    const setEditScheduleListStatus = useSetRecoilState(editScheduleListStatusState)
 
-  const setIsInputMode = useSetRecoilState(isInputModeState)
-  const showScheduleCategorySelectorBottomSheet = useSetRecoilState(showScheduleCategorySelectorBottomSheetState)
-  const setEditScheduleListStatus = useSetRecoilState(editScheduleListStatusState)
+    const [activeColorPanel, setActiveColorPanel] = useState(false)
+    const [activeTimePanel, setActiveTimePanel] = useState(false)
+    const [activeDatePanel, setActiveDatePanel] = useState(false)
+    const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = useState(false)
 
-  const [activeColorPanel, setActiveColorPanel] = useState(false)
-  const [activeTimePanel, setActiveTimePanel] = useState(false)
-  const [activeDatePanel, setActiveDatePanel] = useState(false)
-  const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = useState(false)
-
-  const closeAllPanel = () => {
-    setActiveColorPanel(false)
-    setActiveTimePanel(false)
-    setActiveDatePanel(false)
-    setActiveDayOfWeekPanel(false)
-  }
-
-  const panelHeaderLabelStyle = useMemo(() => {
-    return [styles.panelHeaderLabel, {color: activeTheme.color3}] as TextStyle
-  }, [activeTheme.color3])
-
-  const panelHeaderTitleStyle = useMemo(() => {
-    return [styles.panelHeaderTitle, {color: activeTheme.color3}] as TextStyle
-  }, [activeTheme.color3])
-
-  const panelItemLabelStyle = useMemo(() => {
-    return [styles.panelItemLabel, {color: activeTheme.color3}] as TextStyle
-  }, [activeTheme.color3])
-
-  const titleButtonStyle = useMemo(() => {
-    const borderBottomColor = displayMode === 1 ? '#eeeded' : activeTheme.color2
-
-    return [styles.titleButton, {borderBottomColor}]
-  }, [displayMode, activeTheme.color2])
-
-  const handleBottomSheetChanged = useCallback((index: number) => {
-    setEditScheduleListStatus(index)
-
-    if (index === 0) {
-      closeAllPanel()
+    const closeAllPanel = () => {
+      setActiveColorPanel(false)
+      setActiveTimePanel(false)
+      setActiveDatePanel(false)
+      setActiveDayOfWeekPanel(false)
     }
-  }, [])
 
-  const panelBorderColor = useMemo(() => {
-    return displayMode === 1 ? '#eeeded' : activeTheme.color2
-  }, [displayMode, activeTheme.color2])
+    const panelHeaderLabelStyle = useMemo(() => {
+      return [styles.panelHeaderLabel, {color: activeTheme.color3}] as TextStyle
+    }, [activeTheme.color3])
 
-  const handleCategoryPanel = useCallback(() => {
-    closeAllPanel()
-    showScheduleCategorySelectorBottomSheet(true)
-  }, [])
+    const panelHeaderTitleStyle = useMemo(() => {
+      return [styles.panelHeaderTitle, {color: activeTheme.color3}] as TextStyle
+    }, [activeTheme.color3])
 
-  const handleColorPanel = useCallback(() => {
-    closeAllPanel()
-    setActiveColorPanel(!activeColorPanel)
-  }, [activeColorPanel])
+    const panelItemLabelStyle = useMemo(() => {
+      return [styles.panelItemLabel, {color: activeTheme.color3}] as TextStyle
+    }, [activeTheme.color3])
 
-  const handleTimePanel = useCallback(() => {
-    closeAllPanel()
-    setActiveTimePanel(!activeTimePanel)
-  }, [activeTimePanel])
+    const titleButtonStyle = useMemo(() => {
+      const borderBottomColor = displayMode === 1 ? '#eeeded' : activeTheme.color2
 
-  const handleDatePanel = useCallback(() => {
-    closeAllPanel()
-    setActiveDatePanel(!activeDatePanel)
-  }, [activeDatePanel])
+      return [styles.titleButton, {borderBottomColor}]
+    }, [displayMode, activeTheme.color2])
 
-  const handleDayOfWeekPanel = useCallback(() => {
-    closeAllPanel()
-    setActiveDayOfWeekPanel(!activeDayOfWeekPanel)
-  }, [activeDayOfWeekPanel])
+    const handleBottomSheetChanged = useCallback((index: number) => {
+      setEditScheduleListStatus(index)
 
-  const focusTitleInput = useCallback(() => {
-    bottomSheetRef.current?.collapse()
-    setIsInputMode(true)
-  }, [setIsInputMode])
-
-  const changeBackgroundColor = useCallback(
-    (color: string) => {
-      setSchedule(prevState => ({
-        ...prevState,
-        background_color: color
-      }))
-    },
-    [setSchedule]
-  )
-
-  const changeTextColor = useCallback(
-    (color: string) => {
-      setSchedule(prevState => ({
-        ...prevState,
-        text_color: color
-      }))
-    },
-    [setSchedule]
-  )
-
-  const changeDate = useCallback(
-    (date: string, flag: RANGE_FLAG) => {
-      if (flag === RANGE_FLAG.START) {
-        setSchedule(prevState => ({
-          ...prevState,
-          start_date: date
-        }))
-      } else if (flag === RANGE_FLAG.END) {
-        setSchedule(prevState => ({
-          ...prevState,
-          end_date: date
-        }))
+      if (index === 0) {
+        closeAllPanel()
       }
-    },
-    [setSchedule]
-  )
+    }, [])
 
-  const changeStartTime = useCallback(
-    (time: number) => {
-      setSchedule(prevState => ({
-        ...prevState,
-        start_time: time
-      }))
-    },
-    [setSchedule]
-  )
+    const panelBorderColor = useMemo(() => {
+      return displayMode === 1 ? '#eeeded' : activeTheme.color2
+    }, [displayMode, activeTheme.color2])
 
-  const changeEndTime = useCallback(
-    (time: number) => {
-      setSchedule(prevState => ({
-        ...prevState,
-        end_time: time
-      }))
-    },
-    [setSchedule]
-  )
-
-  const changeStartDate = useCallback(
-    (date: string) => {
-      if (isAfter(new Date(date), new Date(schedule.end_date))) {
-        changeDate('9999-12-31', RANGE_FLAG.END)
-      }
-      changeDate(date, RANGE_FLAG.START)
-    },
-    [schedule.end_date, changeDate]
-  )
-
-  const changeEndDate = useCallback(
-    (date: string) => {
-      changeDate(date, RANGE_FLAG.END)
-    },
-    [changeDate]
-  )
-
-  const changeDayOfWeek = useCallback(
-    (key: DAY_OF_WEEK) => {
-      const flag = schedule[key] === '1' ? '0' : '1'
-
-      setSchedule(prevState => ({...prevState, [key]: flag}))
-    },
-    [schedule, setSchedule]
-  )
-
-  const changeDayOfWeeks = useCallback(
-    (value: DayOfWeeks) => {
-      setSchedule(prevState => ({
-        ...prevState,
-        ...value
-      }))
-    },
-    [setSchedule]
-  )
-
-  useEffect(() => {
-    if (isEdit) {
-      bottomSheetRef.current?.snapToIndex(0)
-    } else {
-      bottomSheetRef.current?.close()
-      bottomSheetScrollViewRef.current?.scrollTo({y: 0})
+    const handleCategoryPanel = useCallback(() => {
       closeAllPanel()
-    }
-  }, [bottomSheetRef, isEdit])
+      showScheduleCategorySelectorBottomSheet(true)
+    }, [])
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        collapse() {
-          bottomSheetRef.current?.collapse()
-          bottomSheetScrollViewRef.current?.scrollTo({y: 0})
-          closeAllPanel()
-        }
-      }
-    },
-    []
-  )
+    const handleColorPanel = useCallback(() => {
+      closeAllPanel()
+      setActiveColorPanel(!activeColorPanel)
+    }, [activeColorPanel])
 
-  // components
-  const bottomSheetHandler = useCallback((props: BottomSheetHandleProps) => {
-    return (
-      <BottomSheetHandler
-        maxSnapIndex={2}
-        animatedIndex={props.animatedIndex}
-        animatedPosition={props.animatedPosition}
-      />
+    const handleTimePanel = useCallback(() => {
+      closeAllPanel()
+      setActiveTimePanel(!activeTimePanel)
+    }, [activeTimePanel])
+
+    const handleDatePanel = useCallback(() => {
+      closeAllPanel()
+      setActiveDatePanel(!activeDatePanel)
+    }, [activeDatePanel])
+
+    const handleDayOfWeekPanel = useCallback(() => {
+      closeAllPanel()
+      setActiveDayOfWeekPanel(!activeDayOfWeekPanel)
+    }, [activeDayOfWeekPanel])
+
+    const focusTitleInput = useCallback(() => {
+      bottomSheetRef.current?.collapse()
+      setIsInputMode(true)
+    }, [setIsInputMode])
+
+    const changeBackgroundColor = useCallback(
+      (color: string) => {
+        onChange({...data, background_color: color})
+      },
+      [data, onChange]
     )
-  }, [])
 
-  const getBackdropComponent = useCallback(
-    (props: BottomSheetBackdropProps) => {
-      return <CustomBackdrop props={props} activeTheme={activeTheme} startTime={startTime} endTime={endTime} />
-    },
-    [activeTheme, startTime, endTime]
-  )
+    const changeTextColor = useCallback(
+      (color: string) => {
+        onChange({...data, text_color: color})
+      },
+      [data, onChange]
+    )
 
-  return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      index={0}
-      snapPoints={editScheduleListSnapPoint}
-      backgroundStyle={{backgroundColor: activeTheme.color5, borderTopLeftRadius: 40, borderTopRightRadius: 40}}
-      handleComponent={bottomSheetHandler}
-      backdropComponent={getBackdropComponent}
-      onChange={handleBottomSheetChanged}>
-      <BottomSheetScrollView ref={bottomSheetScrollViewRef} bounces={false} contentContainerStyle={styles.container}>
-        {/* 일정명 */}
-        <Pressable style={titleButtonStyle} onPress={focusTitleInput}>
-          {schedule.title ? (
-            <Text style={[styles.titleText, {color: activeTheme.color3}]}>{schedule.title}</Text>
-          ) : (
-            <Text style={titleTextStyle}>일정명을 입력해주세요</Text>
-          )}
-        </Pressable>
+    const changeDate = useCallback(
+      (date: string, flag: RANGE_FLAG) => {
+        if (flag === RANGE_FLAG.START) {
+          onChange({...data, start_date: date})
+        } else if (flag === RANGE_FLAG.END) {
+          onChange({...data, end_date: date})
+        }
+      },
+      [data, onChange]
+    )
 
-        {/* 카테고리 */}
-        {/*<CategoryPanel*/}
-        {/*  data={schedule}*/}
-        {/*  headerContainerStyle={styles.panelHeaderContainer}*/}
-        {/*  headerTitleWrapper={styles.panelHeaderTitleWrapper}*/}
-        {/*  headerLabelStyle={styles.panelHeaderLabel}*/}
-        {/*  headerTitleStyle={styles.panelHeaderTitle}*/}
-        {/*  handleExpansion={handleCategoryPanel}*/}
-        {/*/>*/}
+    const changeStartTime = useCallback(
+      (time: number) => {
+        onChange({...data, start_time: time})
+      },
+      [data, onChange]
+    )
 
-        {/* 색상 */}
-        {/*<ColorPanel*/}
-        {/*  value={activeColorPanel}*/}
-        {/*  isEdit={isEdit}*/}
-        {/*  data={schedule}*/}
-        {/*  itemPanelHeight={defaultItemPanelHeight}*/}
-        {/*  headerContainerStyle={styles.panelHeaderContainer}*/}
-        {/*  headerLabelStyle={styles.panelHeaderLabel}*/}
-        {/*  itemHeaderContainerStyle={styles.panelItemHeader}*/}
-        {/*  itemHeaderLabelStyle={styles.panelItemLabel}*/}
-        {/*  handleExpansion={handleColorPanel}*/}
-        {/*  changeBackgroundColor={changeBackgroundColor}*/}
-        {/*  changeTextColor={changeTextColor}*/}
-        {/*/>*/}
+    const changeEndTime = useCallback(
+      (time: number) => {
+        onChange({...data, end_time: time})
+      },
+      [data, onChange]
+    )
 
-        {/* 시간 */}
-        <TimePanel
-          value={activeTimePanel}
-          data={schedule}
-          displayMode={displayMode}
-          borderColor={panelBorderColor}
-          itemPanelHeight={defaultItemPanelHeight}
-          headerContainerStyle={styles.panelHeaderContainer}
-          headerTitleWrapper={styles.panelHeaderTitleWrapper}
-          headerLabelStyle={panelHeaderLabelStyle}
-          headerTitleStyle={panelHeaderTitleStyle}
-          itemHeaderLabelStyle={panelItemLabelStyle}
-          handleExpansion={handleTimePanel}
-          changeStartTime={changeStartTime}
-          changeEndTime={changeEndTime}
+    const changeStartDate = useCallback(
+      (date: string) => {
+        if (isAfter(new Date(date), new Date(data.end_date))) {
+          changeDate('9999-12-31', RANGE_FLAG.END)
+        }
+        changeDate(date, RANGE_FLAG.START)
+      },
+      [data.end_date, changeDate]
+    )
+
+    const changeEndDate = useCallback(
+      (date: string) => {
+        changeDate(date, RANGE_FLAG.END)
+      },
+      [changeDate]
+    )
+
+    const changeDayOfWeek = useCallback(
+      (key: DAY_OF_WEEK) => {
+        const flag = data[key] === '1' ? '0' : '1'
+
+        onChange({...data, [key]: flag})
+      },
+      [data, onChange]
+    )
+
+    const changeDayOfWeeks = useCallback(
+      (value: DayOfWeeks) => {
+        onChange({
+          ...data,
+          ...value
+        })
+      },
+      [data, onChange]
+    )
+
+    useEffect(() => {
+      if (isEdit) {
+        bottomSheetRef.current?.snapToIndex(0)
+      } else {
+        bottomSheetRef.current?.close()
+        bottomSheetScrollViewRef.current?.scrollTo({y: 0})
+        closeAllPanel()
+      }
+    }, [bottomSheetRef, isEdit])
+
+    useImperativeHandle(
+      ref,
+      () => {
+        return {
+          collapse() {
+            bottomSheetRef.current?.collapse()
+            bottomSheetScrollViewRef.current?.scrollTo({y: 0})
+            closeAllPanel()
+          }
+        }
+      },
+      []
+    )
+
+    // components
+    const bottomSheetHandler = useCallback((props: BottomSheetHandleProps) => {
+      return (
+        <BottomSheetHandler
+          maxSnapIndex={2}
+          animatedIndex={props.animatedIndex}
+          animatedPosition={props.animatedPosition}
         />
+      )
+    }, [])
 
-        {/* 기간 */}
-        <DatePanel
-          value={activeDatePanel}
-          data={schedule}
-          activeTheme={activeTheme}
-          displayMode={displayMode}
-          borderColor={panelBorderColor}
-          itemPanelHeight={defaultItemPanelHeight}
-          headerContainerStyle={styles.panelHeaderContainer}
-          headerTitleWrapper={styles.panelHeaderTitleWrapper}
-          headerLabelStyle={panelHeaderLabelStyle}
-          headerTitleStyle={panelHeaderTitleStyle}
-          itemHeaderLabelStyle={panelItemLabelStyle}
-          handleExpansion={handleDatePanel}
-          changeStartDate={changeStartDate}
-          changeEndDate={changeEndDate}
-        />
+    const getBackdropComponent = useCallback(
+      (props: BottomSheetBackdropProps) => {
+        return <CustomBackdrop props={props} activeTheme={activeTheme} startTime={startTime} endTime={endTime} />
+      },
+      [activeTheme, startTime, endTime]
+    )
 
-        {/* 요일 */}
-        <DayOfWeekPanel
-          value={activeDayOfWeekPanel}
-          data={schedule}
-          activeTheme={activeTheme}
-          displayMode={displayMode}
-          headerContainerStyle={styles.panelHeaderContainer}
-          headerTitleWrapper={styles.panelHeaderTitleWrapper}
-          headerLabelStyle={panelHeaderLabelStyle}
-          headerTitleStyle={panelHeaderTitleStyle}
-          handleExpansion={handleDayOfWeekPanel}
-          changeDayOfWeek={changeDayOfWeek}
-          changeDayOfWeeks={changeDayOfWeeks}
-        />
-      </BottomSheetScrollView>
-    </BottomSheet>
-  )
-})
+    return (
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={0}
+        snapPoints={editScheduleListSnapPoint}
+        backgroundStyle={{backgroundColor: activeTheme.color5, borderTopLeftRadius: 40, borderTopRightRadius: 40}}
+        handleComponent={bottomSheetHandler}
+        backdropComponent={getBackdropComponent}
+        onChange={handleBottomSheetChanged}>
+        <BottomSheetScrollView ref={bottomSheetScrollViewRef} bounces={false} contentContainerStyle={styles.container}>
+          {/* 일정명 */}
+          <Pressable style={titleButtonStyle} onPress={focusTitleInput}>
+            {data.title ? (
+              <Text style={[styles.titleText, {color: activeTheme.color3}]}>{data.title}</Text>
+            ) : (
+              <Text style={titleTextStyle}>일정명을 입력해주세요</Text>
+            )}
+          </Pressable>
+
+          {/* 카테고리 */}
+          {/*<CategoryPanel*/}
+          {/*  data={data}*/}
+          {/*  headerContainerStyle={styles.panelHeaderContainer}*/}
+          {/*  headerTitleWrapper={styles.panelHeaderTitleWrapper}*/}
+          {/*  headerLabelStyle={styles.panelHeaderLabel}*/}
+          {/*  headerTitleStyle={styles.panelHeaderTitle}*/}
+          {/*  handleExpansion={handleCategoryPanel}*/}
+          {/*/>*/}
+
+          {/* 색상 */}
+          {/*<ColorPanel*/}
+          {/*  value={activeColorPanel}*/}
+          {/*  isEdit={isEdit}*/}
+          {/*  data={data}*/}
+          {/*  itemPanelHeight={defaultItemPanelHeight}*/}
+          {/*  headerContainerStyle={styles.panelHeaderContainer}*/}
+          {/*  headerLabelStyle={styles.panelHeaderLabel}*/}
+          {/*  itemHeaderContainerStyle={styles.panelItemHeader}*/}
+          {/*  itemHeaderLabelStyle={styles.panelItemLabel}*/}
+          {/*  handleExpansion={handleColorPanel}*/}
+          {/*  changeBackgroundColor={changeBackgroundColor}*/}
+          {/*  changeTextColor={changeTextColor}*/}
+          {/*/>*/}
+
+          {/* 시간 */}
+          <TimePanel
+            value={activeTimePanel}
+            data={data}
+            displayMode={displayMode}
+            borderColor={panelBorderColor}
+            itemPanelHeight={defaultItemPanelHeight}
+            headerContainerStyle={styles.panelHeaderContainer}
+            headerTitleWrapper={styles.panelHeaderTitleWrapper}
+            headerLabelStyle={panelHeaderLabelStyle}
+            headerTitleStyle={panelHeaderTitleStyle}
+            itemHeaderLabelStyle={panelItemLabelStyle}
+            handleExpansion={handleTimePanel}
+            changeStartTime={changeStartTime}
+            changeEndTime={changeEndTime}
+          />
+
+          {/* 기간 */}
+          <DatePanel
+            value={activeDatePanel}
+            data={data}
+            activeTheme={activeTheme}
+            displayMode={displayMode}
+            borderColor={panelBorderColor}
+            itemPanelHeight={defaultItemPanelHeight}
+            headerContainerStyle={styles.panelHeaderContainer}
+            headerTitleWrapper={styles.panelHeaderTitleWrapper}
+            headerLabelStyle={panelHeaderLabelStyle}
+            headerTitleStyle={panelHeaderTitleStyle}
+            itemHeaderLabelStyle={panelItemLabelStyle}
+            handleExpansion={handleDatePanel}
+            changeStartDate={changeStartDate}
+            changeEndDate={changeEndDate}
+          />
+
+          {/* 요일 */}
+          <DayOfWeekPanel
+            value={activeDayOfWeekPanel}
+            data={data}
+            activeTheme={activeTheme}
+            displayMode={displayMode}
+            headerContainerStyle={styles.panelHeaderContainer}
+            headerTitleWrapper={styles.panelHeaderTitleWrapper}
+            headerLabelStyle={panelHeaderLabelStyle}
+            headerTitleStyle={panelHeaderTitleStyle}
+            handleExpansion={handleDayOfWeekPanel}
+            changeDayOfWeek={changeDayOfWeek}
+            changeDayOfWeeks={changeDayOfWeeks}
+          />
+        </BottomSheetScrollView>
+      </BottomSheet>
+    )
+  }
+)
 
 const styles = StyleSheet.create({
   container: {
