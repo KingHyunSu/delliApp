@@ -69,7 +69,7 @@ const createTable = async (db: SQLiteDatabase) => {
     // routine table
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "schedule_routine" (
-        "routine_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        "schedule_routine_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         "title"	TEXT NOT NULL,
         "end_date"	TEXT NOT NULL DEFAULT '9999-12-31',
         "schedule_id"	INTEGER NOT NULL,
@@ -80,12 +80,12 @@ const createTable = async (db: SQLiteDatabase) => {
     // routine complete table
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "schedule_routine_complete" (
-        "complete_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+        "schedule_routine_complete_id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
         "complete_date"	TEXT NOT NULL,
-        "routine_id"	INTEGER NOT NULL,
+        "schedule_routine_id"	INTEGER NOT NULL,
         "sync" INTEGER NOT NULL DEFAULT 0,
-        FOREIGN KEY("routine_id")
-          REFERENCES ROUTINE("routine_id")
+        FOREIGN KEY("schedule_routine_id")
+          REFERENCES schedule_routine("schedule_routine_id")
           ON DELETE CASCADE
       )
     `)

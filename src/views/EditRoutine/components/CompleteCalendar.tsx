@@ -5,7 +5,7 @@ import ArrowDownIcon from '@/assets/icons/arrow_down.svg'
 import CheckIcon from '@/assets/icons/check.svg'
 import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
-import {useGetRoutineCompleteList} from '@/apis/hooks/useRoutine'
+import {useGetScheduleRoutineCompleteList} from '@/apis/hooks/useRoutine'
 
 interface Props {
   value: Date
@@ -14,7 +14,7 @@ interface Props {
   openYearMonthPickerModal: () => void
 }
 const CompleteCalendar = ({value, id, activeTheme, openYearMonthPickerModal}: Props) => {
-  const {mutateAsync: getRoutineCompleteListMutateAsync} = useGetRoutineCompleteList()
+  const {mutateAsync: getScheduleRoutineCompleteListMutateAsync} = useGetScheduleRoutineCompleteList()
 
   const [completeDateList, setCompleteDateList] = useState<RoutineComplete[]>([])
 
@@ -53,8 +53,8 @@ const CompleteCalendar = ({value, id, activeTheme, openYearMonthPickerModal}: Pr
       const endDate = format(lastDayOfMonth, 'yyyy-MM-dd')
 
       if (id) {
-        const routineCompleteList = await getRoutineCompleteListMutateAsync({
-          routine_id: id,
+        const routineCompleteList = await getScheduleRoutineCompleteListMutateAsync({
+          id,
           start_date: startDate,
           end_date: endDate
         })
@@ -64,7 +64,7 @@ const CompleteCalendar = ({value, id, activeTheme, openYearMonthPickerModal}: Pr
     }
 
     init()
-  }, [id, value, setCompleteDateList, getRoutineCompleteListMutateAsync])
+  }, [id, value, setCompleteDateList, getScheduleRoutineCompleteListMutateAsync])
 
   const getRenderItem: ListRenderItem<Date | null> = useCallback(
     ({item, index}) => {

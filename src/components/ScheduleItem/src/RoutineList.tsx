@@ -7,7 +7,7 @@ import {scheduleDateState, scheduleListState} from '@/store/schedule'
 
 import {format} from 'date-fns'
 import {navigate} from '@/utils/navigation'
-import {useSetRoutineComplete, useDeleteRoutineComplete} from '@/apis/hooks/useRoutine'
+import {useCompleteScheduleRoutine, useIncompleteScheduleRoutine} from '@/apis/hooks/useRoutine'
 
 interface Props {
   data: ScheduleRoutine[]
@@ -15,14 +15,14 @@ interface Props {
 }
 
 const ScheduleRoutineList = ({data, activeTheme}: Props) => {
-  const {mutateAsync: setRoutineCompleteMutateAsync} = useSetRoutineComplete()
-  const {mutateAsync: deleteRoutineCompleteMutateAsync} = useDeleteRoutineComplete()
+  const {mutateAsync: completeScheduleRoutineMutateAsync} = useCompleteScheduleRoutine()
+  const {mutateAsync: incompleteScheduleRoutineMutateAsync} = useIncompleteScheduleRoutine()
 
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const scheduleDate = useRecoilValue(scheduleDateState)
 
   const moveEdit = useCallback((value: ScheduleRoutine) => {
-    navigate('EditRoutine', {scheduleId: value.schedule_id, routineId: value.routine_id})
+    navigate('EditRoutine', {scheduleId: value.schedule_id, routineId: value.schedule_routine_id})
   }, [])
 
   const getNewScheduleList = useCallback(
@@ -30,7 +30,7 @@ const ScheduleRoutineList = ({data, activeTheme}: Props) => {
       return scheduleList.map(scheduleItem => {
         if (scheduleItem.schedule_id === newRoutine.schedule_id) {
           const newRoutineList = scheduleItem.routine_list.map(routineItem => {
-            if (routineItem.routine_id === newRoutine.routine_id) {
+            if (routineItem.schedule_routine_id === newRoutine.schedule_routine_id) {
               return newRoutine
             }
 
@@ -51,38 +51,41 @@ const ScheduleRoutineList = ({data, activeTheme}: Props) => {
       let newRoutine = {...value}
 
       if (isCompleted) {
-        const completeDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
-
-        const completeId = await setRoutineCompleteMutateAsync({
-          routine_id: value.routine_id,
-          complete_date: completeDate
-        })
-
-        newRoutine = {
-          ...newRoutine,
-          complete_id: completeId,
-          complete_date: completeDate,
-          complete_date_list: [...newRoutine.complete_date_list, completeDate]
-        }
-      } else {
-        if (!value.complete_id) {
+        if (!value.schedule_routine_complete_id) {
           return
         }
 
-        await deleteRoutineCompleteMutateAsync({complete_id: value.complete_id})
+        await incompleteScheduleRoutineMutateAsync({schedule_routine_complete_id: value.schedule_routine_complete_id})
 
         newRoutine = {
           ...newRoutine,
-          complete_id: null,
+          schedule_routine_complete_id: null,
           complete_date: null,
           complete_date_list: newRoutine.complete_date_list.filter(item => item !== value.complete_date)
+        }
+      } else {
+        const completeDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
+
+        const completeId = await completeScheduleRoutineMutateAsync({schedule_routine_id: value.schedule_routine_id})
+
+        newRoutine = {
+          ...newRoutine,
+          schedule_routine_complete_id: completeId,
+          complete_date: completeDate,
+          complete_date_list: [...(newRoutine.complete_date_list || []), completeDate]
         }
       }
 
       const newScheduleList = getNewScheduleList(newRoutine)
       setScheduleList(newScheduleList)
     },
-    [scheduleDate, setRoutineCompleteMutateAsync, deleteRoutineCompleteMutateAsync, getNewScheduleList, setScheduleList]
+    [
+      scheduleDate,
+      getNewScheduleList,
+      completeScheduleRoutineMutateAsync,
+      incompleteScheduleRoutineMutateAsync,
+      setScheduleList
+    ]
   )
 
   const keyExtractor = useCallback((item: ScheduleRoutine, index: number) => {

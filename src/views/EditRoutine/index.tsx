@@ -8,19 +8,24 @@ import DeleteIcon from '@/assets/icons/trash.svg'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {activeThemeState, alertState, keyboardAppearanceState} from '@/store/system'
 import {scheduleListState, scheduleState} from '@/store/schedule'
-import {useGetRoutineDetail, useDeleteRoutine, useSetRoutine, useUpdateRoutine} from '@/apis/hooks/useRoutine'
+import {
+  useGetScheduleRoutineDetail,
+  useSetScheduleRoutine,
+  useUpdateScheduleRoutine,
+  useDeleteScheduleRoutine
+} from '@/apis/hooks/useRoutine'
 import {EditRoutineScreenProps} from '@/types/navigation'
 
 const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
-  const {mutateAsync: getRoutineDetailMutateAsync} = useGetRoutineDetail()
-  const {mutateAsync: setRoutineMutateAsync} = useSetRoutine()
-  const {mutateAsync: updateRoutineMutateAsync} = useUpdateRoutine()
-  const {mutate: deleteRoutineMutate, isSuccess: isSuccessDeleteRoutine} = useDeleteRoutine()
+  const {mutateAsync: getScheduleRoutineDetailMutateAsync} = useGetScheduleRoutineDetail()
+  const {mutateAsync: setScheduleRoutineMutateAsync} = useSetScheduleRoutine()
+  const {mutateAsync: updateScheduleRoutineMutateAsync} = useUpdateScheduleRoutine()
+  const {mutate: deleteScheduleRoutineMutate, isSuccess: isSuccessDeleteRoutine} = useDeleteScheduleRoutine()
 
   const [currentDate, setCurrentDate] = useState(new Date())
   const [showYearMonthPickerModal, setShowYearMonthPickerModal] = useState(false)
   const [editRoutineForm, setEditRoutineForm] = useState<EditRoutineForm>({
-    routine_id: null,
+    schedule_routine_id: null,
     title: '',
     schedule_id: null
   })
@@ -33,8 +38,8 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   const alert = useSetRecoilState(alertState)
 
   const isUpdate = useMemo(() => {
-    return !!editRoutineForm.routine_id
-  }, [editRoutineForm.routine_id])
+    return !!editRoutineForm.schedule_routine_id
+  }, [editRoutineForm.schedule_routine_id])
 
   const targetSchedule = useMemo(() => {
     if (editRoutineForm.schedule_id) {
@@ -60,13 +65,16 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
         if (item.schedule_id === targetSchedule?.schedule_id) {
           let newRoutineList = [...item.routine_list]
 
-          const updateRoutineIndex = newRoutineList.findIndex(routineItem => routineItem.routine_id === newRoutineId)
+          const updateRoutineIndex = newRoutineList.findIndex(
+            routineItem => routineItem.schedule_routine_id === newRoutineId
+          )
 
           const newRoutine: ScheduleRoutine = {
-            routine_id: newRoutineId!,
+            schedule_routine_id: newRoutineId!,
             title: editRoutineForm.title,
             schedule_id: targetSchedule.schedule_id!,
-            complete_id: updateRoutineIndex !== -1 ? newRoutineList[updateRoutineIndex].complete_id : null,
+            schedule_routine_complete_id:
+              updateRoutineIndex !== -1 ? newRoutineList[updateRoutineIndex].schedule_routine_complete_id : null,
             complete_date: updateRoutineIndex !== -1 ? newRoutineList[updateRoutineIndex].complete_date : null,
             complete_date_list: updateRoutineIndex !== -1 ? newRoutineList[updateRoutineIndex].complete_date_list : []
           }
@@ -92,17 +100,17 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   const handleSubmit = useCallback(async () => {
     let resultId: number | null = null
 
-    if (editRoutineForm.routine_id) {
-      resultId = await updateRoutineMutateAsync({
+    if (editRoutineForm.schedule_routine_id) {
+      resultId = await updateScheduleRoutineMutateAsync({
         title: editRoutineForm.title,
-        routine_id: editRoutineForm.routine_id
+        schedule_routine_id: editRoutineForm.schedule_routine_id
       })
     } else {
       if (!targetSchedule?.schedule_id) {
         throw new Error('잘못된 일정')
       }
 
-      resultId = await setRoutineMutateAsync({
+      resultId = await setScheduleRoutineMutateAsync({
         title: editRoutineForm.title,
         schedule_id: targetSchedule.schedule_id
       })
@@ -122,10 +130,10 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
     })
   }, [
     targetSchedule,
-    editRoutineForm.routine_id,
+    editRoutineForm.schedule_routine_id,
     editRoutineForm.title,
-    updateRoutineMutateAsync,
-    setRoutineMutateAsync,
+    updateScheduleRoutineMutateAsync,
+    setScheduleRoutineMutateAsync,
     getNewScheduleList,
     setScheduleList,
     navigation
@@ -137,18 +145,18 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
       title: '루틴을 삭제할까요?',
       confirmButtonText: '삭제하기',
       confirmFn: () => {
-        if (editRoutineForm.routine_id) {
-          deleteRoutineMutate(editRoutineForm.routine_id)
+        if (editRoutineForm.schedule_routine_id) {
+          deleteScheduleRoutineMutate({schedule_routine_id: editRoutineForm.schedule_routine_id})
         }
       }
     })
-  }, [alert, editRoutineForm.routine_id, deleteRoutineMutate])
+  }, [alert, editRoutineForm.schedule_routine_id, deleteScheduleRoutineMutate])
 
   useEffect(() => {
     if (isSuccessDeleteRoutine) {
       const newScheduleList = scheduleList.map(scheduleItem => {
         const newRoutineList = scheduleItem.routine_list.filter(routineItem => {
-          return routineItem.routine_id !== editRoutineForm.routine_id
+          return routineItem.schedule_routine_id !== editRoutineForm.schedule_routine_id
         })
 
         return {
@@ -164,14 +172,14 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
         params: {scheduleUpdated: false}
       })
     }
-  }, [isSuccessDeleteRoutine, editRoutineForm.routine_id, setScheduleList, navigation])
+  }, [isSuccessDeleteRoutine, editRoutineForm.schedule_routine_id, setScheduleList, navigation])
 
   useEffect(() => {
     const init = async () => {
       if (route.params.routineId) {
-        const routineDetail = await getRoutineDetailMutateAsync(route.params.routineId)
+        const scheduleRoutineDetail = await getScheduleRoutineDetailMutateAsync(route.params.routineId)
 
-        setEditRoutineForm(routineDetail)
+        setEditRoutineForm(scheduleRoutineDetail)
       } else {
         setEditRoutineForm(prevState => ({
           ...prevState,
@@ -181,7 +189,7 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
     }
 
     init()
-  }, [route.params.scheduleId, route.params.routineId, getRoutineDetailMutateAsync])
+  }, [route.params.scheduleId, route.params.routineId, getScheduleRoutineDetailMutateAsync])
 
   return (
     <View style={[styles.container, {backgroundColor: activeTheme.color1}]}>
@@ -213,11 +221,11 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
           onChangeText={changeTitle}
         />
 
-        {editRoutineForm.routine_id && (
+        {editRoutineForm.schedule_routine_id && (
           <View style={styles.completeCalendarWrapper}>
             <CompleteCalendar
               value={currentDate}
-              id={editRoutineForm.routine_id}
+              id={editRoutineForm.schedule_routine_id}
               activeTheme={activeTheme}
               openYearMonthPickerModal={() => setShowYearMonthPickerModal(true)}
             />

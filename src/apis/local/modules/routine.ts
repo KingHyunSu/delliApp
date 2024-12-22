@@ -1,69 +1,69 @@
 import * as routineQueries from '@/apis/local/queries/routine'
 import {openDatabase} from '../utils/helper'
 import {
-  DeleteRoutineDeleteRequest,
-  DeleteRoutineRequest,
-  GetRoutineCompleteListRequest,
-  GetRoutineCompleteListResponse,
-  GetRoutineDetailRequest,
-  GetRoutineDetailResponse,
-  SetRoutineDeleteRequest,
-  SetRoutineRequest,
-  UpdateRoutineRequest
+  GetScheduleRoutineCompleteListRequest,
+  GetScheduleRoutineCompleteListResponse,
+  GetScheduleRoutineDetailRequest,
+  GetScheduleRoutineDetailResponse,
+  SetScheduleRoutineRequest,
+  UpdateScheduleRoutineRequest,
+  DeleteScheduleRoutineRequest,
+  CompleteScheduleRoutineRequest,
+  IncompleteScheduleRoutineRequest
 } from '@/apis/types/routine'
 
-export const getRoutineDetail = async (params: GetRoutineDetailRequest) => {
-  const query = routineQueries.getRoutineDetailQuery()
+export const getScheduleRoutineCompleteList = async (params: GetScheduleRoutineCompleteListRequest) => {
+  const query = routineQueries.getScheduleRoutineCompleteListQuery()
   const db = await openDatabase()
-  const [result] = await db.executeSql(query, [params.routine_id])
+  const [result] = await db.executeSql(query, [params.id, params.start_date, params.end_date])
 
-  return result.rows.item(0) as GetRoutineDetailResponse
+  return result.rows.raw() as GetScheduleRoutineCompleteListResponse[]
 }
 
-export const getRoutineCompleteList = async (params: GetRoutineCompleteListRequest) => {
-  const query = routineQueries.getRoutineCompleteListQuery()
+export const getScheduleRoutineDetail = async (params: GetScheduleRoutineDetailRequest) => {
+  const query = routineQueries.getScheduleRoutineDetailQuery()
   const db = await openDatabase()
-  const [result] = await db.executeSql(query, [params.routine_id, params.start_date, params.end_date])
+  const [result] = await db.executeSql(query, [params.schedule_routine_id])
 
-  return result.rows.raw() as GetRoutineCompleteListResponse[]
+  return result.rows.item(0) as GetScheduleRoutineDetailResponse
 }
 
-export const setRoutine = async (params: SetRoutineRequest) => {
-  const query = routineQueries.setRoutineQuery()
+export const setScheduleRoutine = async (params: SetScheduleRoutineRequest) => {
+  const query = routineQueries.setScheduleRoutineQuery()
   const db = await openDatabase()
   const [result] = await db.executeSql(query, [params.title, params.schedule_id])
 
   return result.insertId
 }
 
-export const updateRoutine = async (params: UpdateRoutineRequest) => {
-  const query = routineQueries.updateRoutineQuery()
+export const updateScheduleRoutine = async (params: UpdateScheduleRoutineRequest) => {
+  const query = routineQueries.updateScheduleRoutineQuery()
   const db = await openDatabase()
-  await db.executeSql(query, [params.title, params.routine_id])
+  await db.executeSql(query, [params.title, params.schedule_routine_id])
 
-  return params.routine_id
+  return params.schedule_routine_id
 }
 
-export const deleteRoutine = async (params: DeleteRoutineRequest) => {
-  const query = routineQueries.deleteRoutineQuery()
+export const deleteScheduleRoutine = async (params: DeleteScheduleRoutineRequest) => {
+  const query = routineQueries.deleteScheduleRoutineQuery()
   const db = await openDatabase()
-  await db.executeSql(query, [params.routine_id])
+  await db.executeSql(query, [params.schedule_routine_id])
 
-  return params.routine_id
+  return params.schedule_routine_id
 }
 
-export const setRoutineComplete = async (params: SetRoutineDeleteRequest) => {
-  const query = routineQueries.setRoutineCompleteQuery()
+export const completeScheduleRoutine = async (params: CompleteScheduleRoutineRequest) => {
+  const query = routineQueries.completeScheduleRoutineQuery()
   const db = await openDatabase()
-  const [result] = await db.executeSql(query, [params.routine_id, params.complete_date])
+  const [result] = await db.executeSql(query, [params.schedule_routine_id, params.schedule_routine_complete_id])
 
   return result.insertId
 }
 
-export const deleteRoutineComplete = async (params: DeleteRoutineDeleteRequest) => {
-  const query = routineQueries.deleteRoutineCompleteQuery()
+export const incompleteScheduleRoutine = async (params: IncompleteScheduleRoutineRequest) => {
+  const query = routineQueries.incompleteScheduleRoutineQuery()
   const db = await openDatabase()
-  await db.executeSql(query, [params.complete_id])
+  await db.executeSql(query, [params.schedule_routine_complete_id])
 
-  return params.complete_id
+  return params.schedule_routine_complete_id
 }

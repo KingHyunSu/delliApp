@@ -1,6 +1,6 @@
 import {openDatabase} from '../utils/helper'
 import {
-  GetRoutineCompleteListResponse,
+  GetScheduleRoutineCompleteListResponse,
   GetRoutineListResponse,
   GetScheduleListResponse,
   GetScheduleTodoListResponse
@@ -23,7 +23,8 @@ export const getSyncData = async () => {
     scheduleList: scheduleListResult.rows.raw() as GetScheduleListResponse[],
     scheduleTodoList: scheduleTodoListResult.rows.raw() as GetScheduleTodoListResponse[],
     scheduleRoutineList: scheduleRoutineListResult.rows.raw() as GetRoutineListResponse[],
-    scheduleRoutineCompleteList: scheduleRoutineCompleteListResult.rows.raw() as GetRoutineCompleteListResponse[]
+    scheduleRoutineCompleteList:
+      scheduleRoutineCompleteListResult.rows.raw() as GetScheduleRoutineCompleteListResponse[]
   }
 }
 

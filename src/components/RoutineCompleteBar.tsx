@@ -17,7 +17,7 @@ const RoutineCompleteBar = ({completeDateList, itemSize = 24, gap = 3, activeThe
 
     return dateList.map((date, index) => {
       const formatDate = format(date, 'yyyy-MM-dd')
-      const isActive = completeDateList.includes(formatDate)
+      const isActive = completeDateList?.includes(formatDate)
 
       const itemStyle = isActive ? activeItemStyle : [styles.item, {backgroundColor: activeTheme?.color6}]
       const itemTextStyle = isActive ? activeItemTextStyle : styles.itemText

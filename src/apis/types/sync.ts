@@ -35,14 +35,14 @@ export interface GetScheduleTodoListResponse {
 }
 
 export interface GetRoutineListResponse {
-  routine_id: number
+  schedule_routine_id: number
   title: string
   end_date: string
   schedule_id: number
 }
 
-export interface GetRoutineCompleteListResponse {
-  complete_id: number
+export interface GetScheduleRoutineCompleteListResponse {
+  schedule_routine_complete_id: number
   complete_date: string
-  routine_id: number
+  schedule_routine_id: number
 }

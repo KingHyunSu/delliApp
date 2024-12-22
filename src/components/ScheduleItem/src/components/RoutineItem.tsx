@@ -12,8 +12,8 @@ interface Props {
 }
 const RoutineItem = ({value, activeTheme, moveEdit, onChange}: Props) => {
   const isCompleted = useMemo(() => {
-    return !!value.complete_id
-  }, [value.complete_id])
+    return !!value.complete_date
+  }, [value.complete_date])
 
   const checkButtonStyle = useMemo(() => {
     return isCompleted ? activeCheckButtonStyle : styles.checkButton
@@ -26,7 +26,7 @@ const RoutineItem = ({value, activeTheme, moveEdit, onChange}: Props) => {
   const debounceChanged = useMemo(
     () =>
       debounce(() => {
-        onChange(!isCompleted, value)
+        onChange(isCompleted, value)
       }, 200),
     [isCompleted, value, onChange]
   )

@@ -1,7 +1,7 @@
 import {
-  GetRoutineCompleteListResponse,
   GetRoutineListResponse,
   GetScheduleListResponse,
+  GetScheduleRoutineCompleteListResponse,
   GetScheduleTodoListResponse
 } from '@/apis/types/sync'
 
@@ -38,7 +38,7 @@ export interface LoginLinkSNSRequest {
   schedule_list: GetScheduleListResponse[]
   schedule_todo_list: GetScheduleTodoListResponse[]
   schedule_routine_list: GetRoutineListResponse[]
-  schedule_routine_complete_list: GetRoutineCompleteListResponse[]
+  schedule_routine_complete_list: GetScheduleRoutineCompleteListResponse[]
 }
 export interface LoginLinkSNSResponse {
   token: string
