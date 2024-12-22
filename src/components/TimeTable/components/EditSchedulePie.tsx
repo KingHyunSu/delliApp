@@ -1,21 +1,16 @@
-import React from 'react'
+import {useMemo, useCallback, useEffect, useLayoutEffect} from 'react'
 import {StyleSheet} from 'react-native'
 import Svg, {Circle} from 'react-native-svg'
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
-import Animated, {
-  runOnJS,
-  useAnimatedReaction,
-  useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue
-} from 'react-native-reanimated'
+import Animated, {useAnimatedStyle, useDerivedValue} from 'react-native-reanimated'
 import {trigger} from 'react-native-haptic-feedback'
 
 import SchedulePie from './SchedulePie'
 
-import {useRecoilValue} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
 import {homeHeaderHeight} from '@/store/system'
 import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
+import {editScheduleTimeState} from '@/store/schedule'
 
 interface Props {
   data: EditScheduleForm
@@ -27,8 +22,6 @@ interface Props {
   isInputMode: Boolean
   onChangeSchedule: Function
   onChangeScheduleDisabled: (value: ExistSchedule[]) => void
-  onChangeStartTime: (value: number) => void
-  onChangeEndTime: (value: number) => void
 }
 
 const MINUTE_INTERVAL = 10
@@ -42,20 +35,14 @@ const EditSchedulePie = ({
   color,
   isInputMode,
   onChangeSchedule,
-  onChangeScheduleDisabled,
-  onChangeStartTime,
-  onChangeEndTime
+  onChangeScheduleDisabled
 }: Props) => {
-  const [newStartTimeState, setNewStartTimeState] = React.useState(-1)
-  const [newEndTimeState, setNewEndTimeState] = React.useState(-1)
+  const [editScheduleTime, setEditScheduleTime] = useRecoilState(editScheduleTimeState)
 
   const showColorSelectorBottomSheet = useRecoilValue(showColorSelectorBottomSheetState)
 
-  const newStartTime = useSharedValue(data.start_time)
-  const newEndTime = useSharedValue(data.end_time)
-
   const startAnchorPosition = useDerivedValue(() => {
-    const angle = newStartTime.value * 0.25
+    const angle = editScheduleTime.start * 0.25
     const angleInRadians = ((angle - 90) * Math.PI) / 180.0
 
     return {
@@ -65,7 +52,7 @@ const EditSchedulePie = ({
   })
 
   const endAnchorPosition = useDerivedValue(() => {
-    const angle = newEndTime.value * 0.25
+    const angle = editScheduleTime.end * 0.25
     const angleInRadians = ((angle - 90) * Math.PI) / 180.0
 
     return {
@@ -90,22 +77,22 @@ const EditSchedulePie = ({
     }
   })
 
-  const startAnchorStyle = React.useMemo(() => {
+  const startAnchorStyle = useMemo(() => {
     return [styles.anchor, startAnchorAnimatedStyle]
   }, [])
 
-  const endAnchorStyle = React.useMemo(() => {
+  const endAnchorStyle = useMemo(() => {
     return [styles.anchor, endAnchorAnimatedStyle]
   }, [])
 
-  const isShowAnchor = React.useMemo(() => {
+  const isShowAnchor = useMemo(() => {
     return !isInputMode && !showColorSelectorBottomSheet
   }, [isInputMode, showColorSelectorBottomSheet])
   /**
    * style end
    */
 
-  const getCalcTotalMinute = React.useCallback((angle: number) => {
+  const getCalcTotalMinute = useCallback((angle: number) => {
     const totalMinute = angle / 0.25
 
     if (totalMinute % 10 < 3) {
@@ -133,11 +120,14 @@ const EditSchedulePie = ({
       const calcTotalMinute = getCalcTotalMinute(angle)
 
       if (calcTotalMinute !== null) {
-        newStartTime.value = calcTotalMinute
+        setEditScheduleTime(prevState => ({
+          ...prevState,
+          start: calcTotalMinute
+        }))
       }
     })
     .onEnd(() => {
-      onChangeSchedule({start_time: newStartTime.value})
+      onChangeSchedule({start_time: editScheduleTime.start})
     })
     .runOnJS(true)
 
@@ -152,63 +142,30 @@ const EditSchedulePie = ({
       const calcTotalMinute = getCalcTotalMinute(angle)
 
       if (calcTotalMinute !== null) {
-        newEndTime.value = calcTotalMinute
+        setEditScheduleTime(prevState => ({
+          ...prevState,
+          end: calcTotalMinute
+        }))
       }
     })
     .onEnd(() => {
-      onChangeSchedule({end_time: newEndTime.value})
+      onChangeSchedule({end_time: editScheduleTime.end})
     })
     .runOnJS(true)
   /**
    * gesture event end
    */
 
-  useAnimatedReaction(
-    () => {
-      return newStartTime.value
-    },
-    (currentValue, previousValue) => {
-      if (currentValue !== previousValue) {
-        runOnJS(setNewStartTimeState)(currentValue)
-        runOnJS(onChangeStartTime)(currentValue)
+  useEffect(() => {
+    trigger('soft', {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false
+    })
+  }, [editScheduleTime.start, editScheduleTime.end])
 
-        runOnJS(trigger)('soft', {
-          enableVibrateFallback: true,
-          ignoreAndroidSystemSettings: false
-        })
-      }
-    }
-  )
-
-  useAnimatedReaction(
-    () => {
-      return newEndTime.value
-    },
-    (currentValue, previousValue) => {
-      if (currentValue !== previousValue) {
-        runOnJS(setNewEndTimeState)(currentValue)
-        runOnJS(onChangeEndTime)(currentValue)
-
-        runOnJS(trigger)('soft', {
-          enableVibrateFallback: true,
-          ignoreAndroidSystemSettings: false
-        })
-      }
-    }
-  )
-
-  React.useEffect(() => {
-    newStartTime.value = data.start_time
-    newEndTime.value = data.end_time
-  }, [data.start_time, data.end_time])
-
-  React.useLayoutEffect(() => {
-    if (newStartTimeState === -1 || newEndTimeState === -1) {
-      return
-    }
-
-    const pStartTime = newStartTimeState
-    const pEndTime = newEndTimeState
+  useLayoutEffect(() => {
+    const pStartTime = editScheduleTime.start
+    const pEndTime = editScheduleTime.end
 
     const result = scheduleList.filter(item => {
       if (data.schedule_id === item.schedule_id) {
@@ -251,7 +208,7 @@ const EditSchedulePie = ({
     })
 
     onChangeScheduleDisabled(result as ExistSchedule[])
-  }, [data.schedule_id, newStartTimeState, newEndTimeState, scheduleList, onChangeScheduleDisabled])
+  }, [data.schedule_id, editScheduleTime.start, editScheduleTime.end, scheduleList, onChangeScheduleDisabled])
 
   return (
     <>
@@ -261,8 +218,8 @@ const EditSchedulePie = ({
           x={x}
           y={y}
           radius={radius}
-          startTime={newStartTimeState}
-          endTime={newEndTimeState}
+          startTime={editScheduleTime.start}
+          endTime={editScheduleTime.end}
           color={color}
         />
       </Svg>

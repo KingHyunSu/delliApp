@@ -3,14 +3,16 @@ import {StyleSheet, Image, Text, View} from 'react-native'
 import Animated, {Extrapolation, interpolate, useAnimatedStyle} from 'react-native-reanimated'
 import {getTimeOfMinute} from '@/utils/helper'
 import {BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
+import {useRecoilValue} from 'recoil'
+import {editScheduleTimeState} from '@/store/schedule'
 
 interface Props {
   props: BottomSheetBackdropProps
   activeTheme: ActiveTheme
-  startTime: number
-  endTime: number
 }
-const CustomBackdrop = ({props, activeTheme, startTime, endTime}: Props) => {
+const CustomBackdrop = ({props, activeTheme}: Props) => {
+  const editScheduleTime = useRecoilValue(editScheduleTimeState)
+
   const containerAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [{translateX: interpolate(props.animatedIndex.value, [-1, 0, 1], [250, 0, 250], Extrapolation.CLAMP)}]
@@ -18,16 +20,16 @@ const CustomBackdrop = ({props, activeTheme, startTime, endTime}: Props) => {
   }, [])
 
   const startTimeString = useMemo(() => {
-    const timeOfMinute = getTimeOfMinute(startTime)
+    const timeOfMinute = getTimeOfMinute(editScheduleTime.start)
 
     return `${timeOfMinute.meridiem} ${timeOfMinute.hour}시 ${timeOfMinute.minute}분`
-  }, [startTime])
+  }, [editScheduleTime.start])
 
   const endTimeString = useMemo(() => {
-    const timeOfMinute = getTimeOfMinute(endTime)
+    const timeOfMinute = getTimeOfMinute(editScheduleTime.end)
 
     return `${timeOfMinute.meridiem} ${timeOfMinute.hour}시 ${timeOfMinute.minute}분`
-  }, [endTime])
+  }, [editScheduleTime.end])
 
   return (
     <Animated.View style={[containerAnimatedStyle, styles.container, {backgroundColor: activeTheme.color5}]}>

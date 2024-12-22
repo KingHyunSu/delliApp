@@ -22,7 +22,13 @@ import {
   activeBackgroundState,
   activeColorThemeDetailState
 } from '@/store/system'
-import {scheduleDateState, scheduleListState, isInputModeState, editScheduleFormState} from '@/store/schedule'
+import {
+  scheduleDateState,
+  scheduleListState,
+  isInputModeState,
+  editScheduleFormState,
+  editScheduleTimeState
+} from '@/store/schedule'
 
 import {useQueryClient} from '@tanstack/react-query'
 import {useGetOverlapScheduleList, useSetSchedule, useUpdateSchedule} from '@/apis/hooks/useSchedule'
@@ -76,9 +82,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
   const setIsEdit = useSetRecoilState(isEditState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
-
-  const [newStartTime, setNewStartTime] = React.useState(editScheduleForm.start_time)
-  const [newEndTime, setNewEndTime] = React.useState(editScheduleForm.end_time)
+  const setEditScheduleTime = useSetRecoilState(editScheduleTimeState)
 
   const timeTableTranslateY = useSharedValue(0)
   const timeInfoTranslateX = useSharedValue(-250)
@@ -308,6 +312,13 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     }
   }, [editTimetableTranslateY, setIsRendered])
 
+  React.useLayoutEffect(() => {
+    setEditScheduleTime({
+      start: editScheduleForm.start_time,
+      end: editScheduleForm.end_time
+    })
+  }, [editScheduleForm.start_time, editScheduleForm.end_time, setEditScheduleTime])
+
   const background = React.useMemo(() => {
     if (!activeBackground || activeBackground.background_id === 1) {
       return <Image style={styles.backgroundImage} source={require('@/assets/beige.png')} />
@@ -329,13 +340,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       <Animated.View style={timetableStyle}>
         {background}
 
-        <EditTimetable
-          data={scheduleList}
-          colorThemeDetail={colorThemeDetail}
-          isRendered={isRendered}
-          onChangeStartTime={setNewStartTime}
-          onChangeEndTime={setNewEndTime}
-        />
+        <EditTimetable data={scheduleList} colorThemeDetail={colorThemeDetail} isRendered={isRendered} />
       </Animated.View>
 
       {/* control mode 닫기 overlay */}
@@ -356,8 +361,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       <EditScheduleBottomSheet
         ref={editScheduleBottomSheetRef}
         data={editScheduleForm}
-        startTime={newStartTime}
-        endTime={newEndTime}
         onChange={setEditScheduleForm}
       />
       <ColorSelectorBottomSheet

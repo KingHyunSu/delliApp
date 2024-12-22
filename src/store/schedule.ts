@@ -72,6 +72,14 @@ export const editScheduleFormState = atom<EditScheduleForm>({
   }
 })
 
+export const editScheduleTimeState = atom({
+  key: 'editScheduleTimeState',
+  default: {
+    start: 0,
+    end: 360
+  }
+})
+
 export const scheduleCategoryListState = atom<ScheduleCategory[]>({
   key: 'scheduleCategoryListState',
   default: [
