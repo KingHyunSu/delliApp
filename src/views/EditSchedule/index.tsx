@@ -62,7 +62,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   })
 
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
-  const [editScheduleForm, setEditFormSchedule] = useRecoilState(editScheduleFormState)
+  const [editScheduleForm, setEditScheduleForm] = useRecoilState(editScheduleFormState)
 
   // TODO 글자 중앙 정렬 sudo code
   // const [isFixedAlignCenter, setIsFixedAlignCenter] = useRecoilState(isFixedAlignCenterState)
@@ -166,12 +166,12 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
   const changeFontSize = React.useCallback(
     (value: number) => {
-      setEditFormSchedule(prevState => ({
+      setEditScheduleForm(prevState => ({
         ...prevState,
         font_size: value
       }))
     },
-    [setEditFormSchedule]
+    [setEditScheduleForm]
   )
 
   const handleActiveControlMode = React.useCallback(() => {
@@ -358,13 +358,13 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         data={editScheduleForm}
         startTime={newStartTime}
         endTime={newEndTime}
-        onChange={setEditFormSchedule}
+        onChange={setEditScheduleForm}
       />
       <ColorSelectorBottomSheet
         data={editScheduleForm}
         colorThemeDetail={colorThemeDetail}
         editColorThemeDetail={editColorThemeDetail}
-        onChange={setEditFormSchedule}
+        onChange={setEditScheduleForm}
         onChangeEditColorThemeDetail={setEditColorThemeDetail}
       />
       <ColorPickerModal />

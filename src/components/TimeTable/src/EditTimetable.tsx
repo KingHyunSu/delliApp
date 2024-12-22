@@ -21,7 +21,7 @@ interface Props {
   onChangeEndTime: (value: number) => void
 }
 const EditTimetable = ({data, colorThemeDetail, isRendered, onChangeStartTime, onChangeEndTime}: Props) => {
-  const [editScheduleForm, setEditFormSchedule] = useRecoilState(editScheduleFormState)
+  const [editScheduleForm, setEditScheduleForm] = useRecoilState(editScheduleFormState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
 
@@ -112,12 +112,12 @@ const EditTimetable = ({data, colorThemeDetail, isRendered, onChangeStartTime, o
 
   const changeSchedule = useCallback(
     (value: Object) => {
-      setEditFormSchedule(prevState => ({
+      setEditScheduleForm(prevState => ({
         ...prevState,
         ...value
       }))
     },
-    [setEditFormSchedule]
+    [setEditScheduleForm]
   )
 
   const changeScheduleDisabled = useCallback(

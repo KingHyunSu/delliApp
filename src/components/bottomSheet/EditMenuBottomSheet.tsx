@@ -44,7 +44,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const [showEditScheduleBottomSheet, setShowEditScheduleBottomSheet] = React.useState(false)
 
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
-  const [editScheduleForm, setEditFormSchedule] = useRecoilState(editScheduleFormState)
+  const [editScheduleForm, setEditScheduleForm] = useRecoilState(editScheduleFormState)
 
   const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
 
@@ -170,7 +170,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const handleStopFocusMode = React.useCallback(async () => {
     const newScheduleActivityLogId = await setScheduleFocusTime.mutateAsync()
 
-    setEditFormSchedule(prevState => ({
+    setEditScheduleForm(prevState => ({
       ...prevState,
       schedule_activity_log_id: newScheduleActivityLogId,
       active_time: focusModeInfo?.seconds || 0
@@ -194,7 +194,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
     })
 
     setFocusModeInfo(null)
-  }, [focusModeInfo, setScheduleFocusTime, setEditFormSchedule, setScheduleList, setFocusModeInfo])
+  }, [focusModeInfo, setScheduleFocusTime, setEditScheduleForm, setScheduleList, setFocusModeInfo])
 
   // const handleStartFocusMode = React.useCallback(() => {
   //   if (editScheduleForm.schedule_id) {
