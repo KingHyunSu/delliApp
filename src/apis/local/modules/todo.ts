@@ -6,7 +6,7 @@ import {
   SetScheduleTodoRequest,
   UpdateScheduleTodoRequest,
   DeleteScheduleTodoRequest,
-  UpdateScheduleTodoCompleteRequest
+  CompleteScheduleTodoRequest
 } from '@/apis/types/todo'
 
 export const getScheduleTodoDetail = async (params: GetScheduleTodoDetailRequest) => {
@@ -41,8 +41,8 @@ export const deleteScheduleTodo = async (params: DeleteScheduleTodoRequest) => {
   return params.schedule_todo_id
 }
 
-export const updateScheduleTodoComplete = async (params: UpdateScheduleTodoCompleteRequest) => {
-  const query = todoQueries.updateScheduleTodoCompleteQuery()
+export const completeScheduleTodo = async (params: CompleteScheduleTodoRequest) => {
+  const query = todoQueries.completeScheduleTodo()
   const db = await openDatabase()
   const [result] = await db.executeSql(query, [params.complete_date, params.schedule_todo_id])
 

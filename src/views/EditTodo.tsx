@@ -50,9 +50,13 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
 
   const completeDate = useMemo(() => {
     if (editTodoForm.complete_date) {
-      const values = editTodoForm.complete_date.split('-')
+      const date = new Date(editTodoForm.complete_date)
 
-      return `${values[0]}년 ${values[1]}월 ${values[2]}일`
+      const year = date.getFullYear()
+      const month = date.getMonth() + 1 // 월은 0부터 시작하므로 +1 필요
+      const day = date.getDate()
+
+      return `${year}년 ${month}월 ${day}일`
     }
 
     return ''
@@ -167,7 +171,7 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
       confirmButtonText: '삭제하기',
       confirmFn: () => {
         if (editTodoForm.schedule_todo_id) {
-          deleteTodoMutate(editTodoForm.schedule_todo_id)
+          deleteTodoMutate({schedule_todo_id: editTodoForm.schedule_todo_id})
         }
       }
     })

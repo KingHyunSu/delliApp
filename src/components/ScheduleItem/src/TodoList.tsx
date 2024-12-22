@@ -5,7 +5,7 @@ import TodoItem from './components/TodoItem'
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {scheduleDateState, scheduleListState} from '@/store/schedule'
 
-import {useUpdateScheduleTodoComplete} from '@/apis/hooks/useTodo'
+import {useCompleteScheduleTodo} from '@/apis/hooks/useTodo'
 
 import {updateWidget} from '@/utils/widget'
 
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const ScheduleTodoList = ({data, activeTheme}: Props) => {
-  const {mutateAsync: updateScheduleTodoCompleteMutateAsync} = useUpdateScheduleTodoComplete()
+  const {mutateAsync: completeScheduleTodoMutateAsync} = useCompleteScheduleTodo()
 
   const scheduleDate = useRecoilValue(scheduleDateState)
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
@@ -53,9 +53,9 @@ const ScheduleTodoList = ({data, activeTheme}: Props) => {
       let newTodo = {...value}
 
       if (isCompleted) {
-        const completeDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
+        const completeDate = format(new Date(scheduleDate), 'yyyy-MM-dd HH:mm')
 
-        await updateScheduleTodoCompleteMutateAsync({
+        await completeScheduleTodoMutateAsync({
           schedule_todo_id: value.schedule_todo_id,
           complete_date: completeDate
         })
@@ -65,7 +65,7 @@ const ScheduleTodoList = ({data, activeTheme}: Props) => {
           complete_date: completeDate
         }
       } else {
-        await updateScheduleTodoCompleteMutateAsync({
+        await completeScheduleTodoMutateAsync({
           schedule_todo_id: value.schedule_todo_id,
           complete_date: null
         })
@@ -79,7 +79,7 @@ const ScheduleTodoList = ({data, activeTheme}: Props) => {
       const newScheduleList = getNewScheduleList(newTodo)
       setScheduleList(newScheduleList)
     },
-    [scheduleDate, updateScheduleTodoCompleteMutateAsync, getNewScheduleList, setScheduleList]
+    [scheduleDate, completeScheduleTodoMutateAsync, getNewScheduleList, setScheduleList]
   )
 
   const keyExtractor = useCallback((item: ScheduleTodo, index: number) => {

@@ -42,7 +42,7 @@ export const getScheduleTodoByScheduleIdQuery = () => {
   `
 }
 
-export const updateScheduleTodoCompleteQuery = () => {
+export const completeScheduleTodo = () => {
   return `
     UPDATE schedule_todo SET complete_date = ? WHERE schedule_todo_id = ?
   `
