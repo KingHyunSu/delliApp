@@ -64,7 +64,7 @@ export const getScheduleRoutineCompleteListQuery = () => {
 }
 
 export const completeScheduleRoutineQuery = () => {
-  return `INSERT INtO schedule_routine_complete (schedule_routine_id, complete_date) VALUES (?, ?)`
+  return `INSERT INtO schedule_routine_complete (schedule_routine_id, complete_date) VALUES (?, DATE('now'))`
 }
 
 export const incompleteScheduleRoutineQuery = () => {
