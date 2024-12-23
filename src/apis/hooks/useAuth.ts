@@ -2,12 +2,12 @@ import {useMutation, useQuery} from '@tanstack/react-query'
 import * as authApi from '@/apis/server/auth'
 import {GetJoinTermsListResponse, JoinRequest, JoinResponse} from '@/apis/types/auth'
 import {v4 as uuidV4} from 'uuid'
-import {userRepository} from '@/apis/local'
 import {useSetRecoilState} from 'recoil'
 import {
   activeBackgroundState,
   activeColorThemeDetailState,
   activeOutlineState,
+  displayModeState,
   statusBarTextStyleState
 } from '@/store/system'
 import {colorKit} from 'reanimated-color-picker'
@@ -29,8 +29,6 @@ export const useJoin = () => {
   return useMutation({
     mutationFn: async (params: Omit<JoinRequest, 'uuid'>) => {
       const uuid = uuidV4()
-      await userRepository.setUser(uuid)
-
       const response = await authApi.join({...params, uuid: uuid})
 
       return response.data as JoinResponse
@@ -43,6 +41,7 @@ export const useAccess = () => {
   const setActiveBackground = useSetRecoilState(activeBackgroundState)
   const setActiveColorThemeDetail = useSetRecoilState(activeColorThemeDetailState)
   const setActiveOutline = useSetRecoilState(activeOutlineState)
+  const setDisplayMode = useSetRecoilState(displayModeState)
   const setLoginInfo = useSetRecoilState(loginInfoState)
 
   return useMutation({
@@ -67,6 +66,7 @@ export const useAccess = () => {
         ]
       }
 
+      setDisplayMode(accessInfo.active_display_mode)
       setActiveOutline(accessInfo.active_outline)
       setActiveColorThemeDetail({
         color_theme_type: colorThemeDetail.color_theme_type,

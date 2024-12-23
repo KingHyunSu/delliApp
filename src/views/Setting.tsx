@@ -76,8 +76,11 @@ const Setting = ({navigation}: SettingScreenProps) => {
 
   const changeDisplayMode = useCallback(
     (mode: DisplayMode) => async () => {
-      await updateDisplayMutateAsync(mode)
-      setDisplayMode(mode)
+      const response = await updateDisplayMutateAsync({display_mode: mode})
+
+      if (response.result) {
+        setDisplayMode(mode)
+      }
     },
     [updateDisplayMutateAsync, setDisplayMode]
   )

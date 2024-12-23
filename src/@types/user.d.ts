@@ -13,6 +13,8 @@ declare global {
   interface ActiveOutline extends GetActiveOutlineResponse {}
   interface MyOutlineItem extends GetOutlineListResponse {}
 
+  type DisplayMode = 1 | 2 // 1: 라이트, 2: 다크
+
   interface LoginInfo {
     login_type: (typeof LOGIN_TYPE)[keyof typeof LOGIN_TYPE]
     email: string

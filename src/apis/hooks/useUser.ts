@@ -1,7 +1,7 @@
 import {useMutation, useQuery} from '@tanstack/react-query'
-import {userRepository} from '../local'
 import * as userApi from '@/apis/server/user'
 import {
+  UpdateDisplayModeRequest,
   UpdateCustomRequest,
   UpdateCustomResponse,
   SetBackgroundRequest,
@@ -9,18 +9,12 @@ import {
   UpdateColorThemeResponse
 } from '@/apis/types/user'
 
-export const useGetUser = () => {
-  return useMutation({
-    mutationFn: () => {
-      return userRepository.getUser()
-    }
-  })
-}
-
 export const useUpdateDisplayMode = () => {
   return useMutation({
-    mutationFn: async (displayMode: DisplayMode) => {
-      return userRepository.updateDisplayMode(displayMode)
+    mutationFn: async (params: UpdateDisplayModeRequest) => {
+      const response = await userApi.updateDisplayMode(params)
+
+      return response.data
     }
   })
 }

@@ -50,7 +50,6 @@ import {widgetWithImageUpdatedState} from '@/store/widget'
 
 import {getFocusTimeText} from '@/utils/helper'
 
-import {userRepository} from '@/apis/local'
 import * as widgetApi from '@/apis/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
@@ -282,9 +281,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
       // 광고 로드 완료
       const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, async () => {
-        const user = await userRepository.getUser()
-        const params = {id: user.user_id}
-        const response = await widgetApi.getWidgetReloadable(params)
+        const response = await widgetApi.getWidgetReloadable()
 
         if (!response.data.widget_reloadable) {
           Alert.alert('광고 시청하고\n위젯 새로고침', '', [
@@ -304,9 +301,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
       // 광고 시청 완료
       const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, async reward => {
-        const user = await userRepository.getUser()
-        const params = {id: user.user_id}
-        await widgetApi.updateWidgetReloadable(params)
+        await widgetApi.updateWidgetReloadable()
 
         setWidgetWithImageUpdated(true)
       })

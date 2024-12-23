@@ -1,5 +1,7 @@
 import http from '@/utils/http'
 import {
+  UpdateDisplayModeRequest,
+  UpdateDisplayModeResponse,
   UpdateCustomRequest,
   UpdateCustomResponse,
   SetBackgroundRequest,
@@ -9,6 +11,10 @@ import {
   UpdateColorThemeRequest,
   UpdateColorThemeResponse
 } from '@/apis/types/user'
+
+export const updateDisplayMode = (data: UpdateDisplayModeRequest) => {
+  return http.post<any, Response<UpdateDisplayModeResponse>>('user/update/display_mode', data)
+}
 
 export const updateCustom = (data: UpdateCustomRequest) => {
   return http.post<any, Response<UpdateCustomResponse>>('user/update/custom', data)

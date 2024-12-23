@@ -60,9 +60,7 @@ import {
   displayModeState,
   activeBackgroundState,
   statusBarColorState,
-  statusBarTextStyleState,
-  activeOutlineState,
-  activeColorThemeDetailState
+  statusBarTextStyleState
 } from '@/store/system'
 
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
@@ -71,7 +69,6 @@ import initDatabase from '@/apis/local/utils/init'
 import {focusModeInfoState} from '@/store/schedule'
 
 import {useAccess} from '@/apis/hooks/useAuth'
-import {useGetUser} from '@/apis/hooks/useUser'
 import {SafeAreaProvider} from 'react-native-safe-area-context'
 import {GoogleSignin} from '@react-native-google-signin/google-signin'
 
@@ -153,7 +150,6 @@ const linking: LinkingOptions<BottomTabNavigator> = {
 }
 
 function App(): JSX.Element {
-  const {mutateAsync: getUserMutateAsync} = useGetUser()
   const {mutateAsync: accessMutateAsync} = useAccess()
   const windowDimensions = useWindowDimensions()
 
@@ -169,12 +165,10 @@ function App(): JSX.Element {
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [isLunch, setIsLunch] = useRecoilState(isLunchState)
 
-  const [displayMode, setDisplayMode] = useRecoilState(displayModeState)
-  const [activeBackground, setActiveBackground] = useRecoilState(activeBackgroundState)
+  const displayMode = useRecoilValue(displayModeState)
+  const activeBackground = useRecoilValue(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
 
-  const setActiveOutline = useSetRecoilState(activeOutlineState)
-  const setActiveColorThemeDetail = useSetRecoilState(activeColorThemeDetailState)
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
 
   const [statusBarColor, setStatusBarColor] = useRecoilState(statusBarColorState)
@@ -303,11 +297,9 @@ function App(): JSX.Element {
       const isInitDatabase = await initDatabase()
 
       const token = await AsyncStorage.getItem('token')
-      const user = await getUserMutateAsync()
 
       if (token) {
         await accessMutateAsync()
-        setDisplayMode(user.display_mode)
         setIsLogin(true)
       }
 
@@ -315,7 +307,7 @@ function App(): JSX.Element {
     }
 
     init()
-  }, [setDisplayMode, setIsLogin, accessMutateAsync, getUserMutateAsync])
+  }, [setIsLogin, accessMutateAsync])
 
   /**
    * 테스트용 광고 start

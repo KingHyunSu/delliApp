@@ -10,21 +10,6 @@ const createTable = async (db: SQLiteDatabase) => {
     // --   update USER set active_background_id = 1
     //  `)
 
-    // user table
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS "USER" (
-        "user_id" TEXT NOT NULL
-      );
-    `)
-
-    // background
-    tx.executeSql(`
-      CREATE TABLE IF NOT EXISTS "background" (
-        "background_id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-        "product_background_id" INTEGER NOT NULL
-      )
-    `)
-
     // schedule table
     tx.executeSql(`
       CREATE TABLE IF NOT EXISTS "SCHEDULE" (

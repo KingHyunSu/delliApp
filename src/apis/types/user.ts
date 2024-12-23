@@ -1,3 +1,10 @@
+export interface UpdateDisplayModeRequest {
+  display_mode: DisplayMode
+}
+export interface UpdateDisplayModeResponse {
+  result: boolean
+}
+
 export interface UpdateCustomRequest {
   active_background_id: number
   active_outline_id: number

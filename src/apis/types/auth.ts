@@ -4,6 +4,7 @@ import {
   GetScheduleRoutineCompleteListResponse,
   GetScheduleTodoListResponse
 } from '@/apis/types/sync'
+import {LOGIN_TYPE} from '@/utils/types'
 
 export interface GetJoinTermsListResponse {
   terms_id: number
@@ -48,7 +49,8 @@ export interface AccessResponse {
   color_theme_detail: ColorThemeDetail
   active_background: ActiveBackground | null
   active_outline: ActiveOutline
-  login_type: number
+  active_display_mode: DisplayMode
+  login_type: (typeof LOGIN_TYPE)[keyof typeof LOGIN_TYPE]
   email: string
 }
 
