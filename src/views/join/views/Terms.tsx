@@ -10,6 +10,7 @@ import {loginState} from '@/store/system'
 
 import {useAccess, useGetJoinTermsList, useJoin} from '@/apis/hooks/useAuth'
 import {JoinTermsScreenProps} from '@/types/navigation'
+import {GetJoinTermsListResponse} from '@/apis/types/auth'
 
 const JoinTerms = ({route, navigation}: JoinTermsScreenProps) => {
   const {data: termsList} = useGetJoinTermsList()
@@ -17,7 +18,7 @@ const JoinTerms = ({route, navigation}: JoinTermsScreenProps) => {
   const {mutateAsync: accessMutateAsync} = useAccess()
 
   const [isAllChecked, setIsAllChecked] = useState(false)
-  const [checkedList, setCheckedList] = useState<Terms[]>([])
+  const [checkedList, setCheckedList] = useState<GetJoinTermsListResponse[]>([])
 
   const setIsLogin = useSetRecoilState(loginState)
 
@@ -46,7 +47,7 @@ const JoinTerms = ({route, navigation}: JoinTermsScreenProps) => {
   }, [isAllChecked])
 
   const getIsChecked = useCallback(
-    (item: Terms) => {
+    (item: GetJoinTermsListResponse) => {
       const targetTerms = checkedList.find(terms => terms.type === item.type)
 
       return !!targetTerms
@@ -55,7 +56,7 @@ const JoinTerms = ({route, navigation}: JoinTermsScreenProps) => {
   )
 
   const getCheckButtonStyle = useCallback(
-    (item: Terms) => {
+    (item: GetJoinTermsListResponse) => {
       const isChecked = getIsChecked(item)
 
       return [styles.checkButton, isChecked && styles.activeCheckButton]
@@ -76,7 +77,7 @@ const JoinTerms = ({route, navigation}: JoinTermsScreenProps) => {
   }, [isAllChecked, termsList])
 
   const handleChecked = useCallback(
-    (item: Terms) => () => {
+    (item: GetJoinTermsListResponse) => () => {
       const isChecked = getIsChecked(item)
       let _checkedList = [...checkedList]
 
