@@ -60,7 +60,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const [editColorThemeDetail, setEditColorThemeDetail] = useState<EditColorThemeDetail>({
     isActiveColorTheme: activeColorThemeDetail.is_active_color_theme,
     colorThemeItemList: activeColorThemeDetail.color_theme_item_list.map(item => ({
-      id: item.color_theme_item_id,
+      color_theme_item_id: item.color_theme_item_id,
       color: item.color,
       order: item.order,
       actionType: null
@@ -130,7 +130,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       colorThemeItemList = editColorThemeDetail.colorThemeItemList
         .filter(item => item.actionType !== 'D')
         .map(item => ({
-          color_theme_item_id: item.id,
+          color_theme_item_id: item.color_theme_item_id,
           color: item.color,
           order: item.order
         }))
@@ -197,7 +197,11 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
         if (editColorThemeDetail.isActiveColorTheme) {
           editColorThemeDetail.colorThemeItemList.forEach(item => {
-            const param: ColorThemeItem = {color_theme_item_id: item.id, color: item.color, order: item.order}
+            const param: ColorThemeItem = {
+              color_theme_item_id: item.color_theme_item_id,
+              color: item.color,
+              order: item.order
+            }
 
             if (item.actionType === 'I') {
               params.insert_color_theme_item_list.push(param)

@@ -96,7 +96,7 @@ const ThemeColorList = ({value, onChange}: Props) => {
 
   const insertColorThemeItem = useCallback(() => {
     const newColorThemeItem: EditColorThemeItem = {
-      id: -1,
+      color_theme_item_id: -1,
       color: '#ffffff',
       order: value.colorThemeItemList.length + 1,
       actionType: 'I'
@@ -127,8 +127,18 @@ const ThemeColorList = ({value, onChange}: Props) => {
   )
 
   const warningTextComponent = useMemo(() => {
-    const initColorThemeItem1: EditColorThemeItem = {id: -1, color: '#efefef', order: 1, actionType: 'I'}
-    const initColorThemeItem2: EditColorThemeItem = {id: -1, color: '#ffffff', order: 2, actionType: 'I'}
+    const initColorThemeItem1: EditColorThemeItem = {
+      color_theme_item_id: -1,
+      color: '#efefef',
+      order: 1,
+      actionType: 'I'
+    }
+    const initColorThemeItem2: EditColorThemeItem = {
+      color_theme_item_id: -1,
+      color: '#ffffff',
+      order: 2,
+      actionType: 'I'
+    }
 
     const isUpdated = value.colorThemeItemList.some(item => {
       return item.actionType && !objectEqual(initColorThemeItem1, item) && !objectEqual(initColorThemeItem2, item)

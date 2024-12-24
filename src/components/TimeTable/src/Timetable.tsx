@@ -178,6 +178,10 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
         return null
       }
 
+      if (sortedColorThemeItemList.length === 0) {
+        return '#ffffff'
+      }
+
       const targetIndex = data.findIndex(sItem => item.schedule_id === sItem.schedule_id)
 
       return sortedColorThemeItemList[targetIndex % sortedColorThemeItemList.length].color

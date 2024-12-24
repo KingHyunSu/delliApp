@@ -164,8 +164,18 @@ const ColorSelectorBottomSheet = ({
         let editColorThemeItemList: EditColorThemeItem[] = editColorThemeDetail.colorThemeItemList
 
         if (editColorThemeItemList.length === 0) {
-          const initColorThemeItem1: EditColorThemeItem = {id: -1, color: '#efefef', order: 1, actionType: 'I'}
-          const initColorThemeItem2: EditColorThemeItem = {id: -1, color: '#ffffff', order: 2, actionType: 'I'}
+          const initColorThemeItem1: EditColorThemeItem = {
+            color_theme_item_id: -1,
+            color: '#efefef',
+            order: 1,
+            actionType: 'I'
+          }
+          const initColorThemeItem2: EditColorThemeItem = {
+            color_theme_item_id: -1,
+            color: '#ffffff',
+            order: 2,
+            actionType: 'I'
+          }
 
           editColorThemeItemList = [initColorThemeItem1, initColorThemeItem2]
         }

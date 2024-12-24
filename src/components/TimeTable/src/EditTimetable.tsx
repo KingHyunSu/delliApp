@@ -76,6 +76,10 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
         return null
       }
 
+      if (colorThemeItemList.length === 0) {
+        return '#ffffff'
+      }
+
       const targetIndex = data.findIndex(sItem => item.schedule_id === sItem.schedule_id)
 
       return colorThemeItemList[targetIndex % colorThemeItemList.length].color

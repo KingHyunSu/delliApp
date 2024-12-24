@@ -126,7 +126,7 @@ declare global {
     color_theme_item_list: ColorThemeItem[]
   }
   interface EditColorThemeItem {
-    id: number
+    color_theme_item_id: number
     color: string
     order: number
     actionType: 'I' | 'U' | 'D' | null
