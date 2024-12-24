@@ -149,11 +149,11 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
   }, [data])
 
   const sortedColorThemeItemList = useMemo(() => {
-    if (activeColorThemeDetail.color_theme_type === 0) {
+    if (!activeColorThemeDetail.is_active_color_theme) {
       return null
     }
 
-    return activeColorThemeDetail.color_theme_item_list.sort((a, b) => a.order - b.order)
+    return [...activeColorThemeDetail.color_theme_item_list].sort((a, b) => a.order - b.order)
   }, [activeColorThemeDetail])
 
   const radius = useMemo(() => {
@@ -173,14 +173,16 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
   )
 
   const getSchedulePieColor = useCallback(
-    (index: number) => {
+    (item: Schedule) => {
       if (!sortedColorThemeItemList) {
         return null
       }
 
-      return sortedColorThemeItemList[index % sortedColorThemeItemList.length].color
+      const targetIndex = data.findIndex(sItem => item.schedule_id === sItem.schedule_id)
+
+      return sortedColorThemeItemList[targetIndex % sortedColorThemeItemList.length].color
     },
-    [sortedColorThemeItemList]
+    [sortedColorThemeItemList, data]
   )
 
   useEffect(() => {
@@ -280,7 +282,7 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
                   radius={radius}
                   startTime={item.start_time}
                   endTime={item.end_time}
-                  color={getSchedulePieColor(index)}
+                  color={getSchedulePieColor(item)}
                   isEdit={false}
                   onClick={openEditMenuBottomSheet}
                 />

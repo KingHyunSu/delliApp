@@ -12,15 +12,14 @@ import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
 import {
   activeThemeState,
-  alertState,
   editScheduleListSnapPointState,
   safeAreaInsetsState,
+  toastState,
   windowDimensionsState
 } from '@/store/system'
 import {colorToChangeState} from '@/store/schedule'
 import {showColorPickerModalState} from '@/store/modal'
 import {useGetColorList} from '@/apis/hooks/useColor'
-import {objectEqual} from '@/utils/helper'
 
 type CategoryTab = 'theme' | 'custom'
 type CustomTab = 'default' | 'my'
@@ -57,7 +56,7 @@ const ColorSelectorBottomSheet = ({
   const windowDimensions = useRecoilValue(windowDimensionsState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
   const colorToChange = useRecoilValue(colorToChangeState)
-  const alert = useSetRecoilState(alertState)
+  const toast = useSetRecoilState(toastState)
 
   const getTabButtonTextStyle = useCallback(
     (type: CustomTab) => {
@@ -129,13 +128,30 @@ const ColorSelectorBottomSheet = ({
 
   const changeColor = useCallback(
     (color: string) => {
+      if (editColorThemeDetail.isActiveColorTheme) {
+        onChangeEditColorThemeDetail({
+          isActiveColorTheme: false,
+          colorThemeItemList: editColorThemeDetail.colorThemeItemList
+        })
+
+        toast({visible: true, message: '테마 적용이 취소됐어요'})
+      }
+
       if (colorToChange === 'background') {
         onChange({...data, background_color: color})
       } else if (colorToChange === 'font') {
         onChange({...data, text_color: color})
       }
     },
-    [colorToChange, data, onChange]
+    [
+      toast,
+      colorToChange,
+      onChangeEditColorThemeDetail,
+      editColorThemeDetail.isActiveColorTheme,
+      editColorThemeDetail.colorThemeItemList,
+      data,
+      onChange
+    ]
   )
 
   const changeCategoryTab = useCallback(
@@ -144,49 +160,30 @@ const ColorSelectorBottomSheet = ({
         return
       }
 
-      let editColorThemeItemList: EditColorThemeItem[] = editColorThemeDetail.colorThemeItemList
-      const initColorThemeItem1: EditColorThemeItem = {id: -1, color: '#efefef', order: 1, actionType: 'I'}
-      const initColorThemeItem2: EditColorThemeItem = {id: -1, color: '#ffffff', order: 2, actionType: 'I'}
+      if (tab === 'theme') {
+        let editColorThemeItemList: EditColorThemeItem[] = editColorThemeDetail.colorThemeItemList
 
-      if (tab === 'custom') {
-        const isUpdated = editColorThemeItemList.some(item => {
-          return item.actionType && !objectEqual(initColorThemeItem1, item) && !objectEqual(initColorThemeItem2, item)
-        })
-
-        if (isUpdated) {
-          alert({
-            type: 'danger',
-            title: '테마 변경 내용이 있어요',
-            desc: '해제하면 변경된 내용이 모두 사라져요.\n테마 적용을 해제할까요?',
-            confirmButtonText: '해제하기',
-            confirmFn: () => {
-              onChangeEditColorThemeDetail({
-                colorThemeType: 0,
-                colorThemeItemList: []
-              })
-              setActiveCategoryTab(tab)
-            }
-          })
-        } else {
-          onChangeEditColorThemeDetail({
-            colorThemeType: 0,
-            colorThemeItemList: []
-          })
-          setActiveCategoryTab(tab)
-        }
-      } else if (tab === 'theme') {
         if (editColorThemeItemList.length === 0) {
+          const initColorThemeItem1: EditColorThemeItem = {id: -1, color: '#efefef', order: 1, actionType: 'I'}
+          const initColorThemeItem2: EditColorThemeItem = {id: -1, color: '#ffffff', order: 2, actionType: 'I'}
+
           editColorThemeItemList = [initColorThemeItem1, initColorThemeItem2]
         }
 
         onChangeEditColorThemeDetail({
-          colorThemeType: 1,
+          isActiveColorTheme: editColorThemeDetail.isActiveColorTheme,
           colorThemeItemList: editColorThemeItemList
         })
-        setActiveCategoryTab(tab)
       }
+
+      setActiveCategoryTab(tab)
     },
-    [activeCategoryTab, editColorThemeDetail.colorThemeItemList, onChangeEditColorThemeDetail, alert]
+    [
+      activeCategoryTab,
+      editColorThemeDetail.isActiveColorTheme,
+      editColorThemeDetail.colorThemeItemList,
+      onChangeEditColorThemeDetail
+    ]
   )
 
   const changeTab = useCallback(
@@ -205,7 +202,7 @@ const ColorSelectorBottomSheet = ({
       bottomSheetRef.current?.present()
 
       if (!isRender.current) {
-        if (colorThemeDetail.color_theme_type !== 0) {
+        if (colorThemeDetail.is_active_color_theme) {
           setActiveCategoryTab('theme')
         } else {
           setActiveCategoryTab('custom')
@@ -216,7 +213,7 @@ const ColorSelectorBottomSheet = ({
     } else {
       bottomSheetRef.current?.dismiss()
     }
-  }, [showColorSelectorBottomSheet, colorThemeDetail.color_theme_type])
+  }, [showColorSelectorBottomSheet, colorThemeDetail.is_active_color_theme])
 
   const getBackdropComponent = useCallback(
     (props: BottomSheetBackdropProps) => {

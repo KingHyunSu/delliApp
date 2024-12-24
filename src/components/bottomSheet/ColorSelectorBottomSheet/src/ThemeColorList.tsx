@@ -1,5 +1,5 @@
 import {useCallback, useMemo, useState} from 'react'
-import {Pressable, StyleSheet, Text, View} from 'react-native'
+import {StyleSheet, Pressable, Text, View} from 'react-native'
 import DraggableFlatList, {RenderItemParams, DragEndParams} from 'react-native-draggable-flatlist'
 import Switch from '@/components/Swtich'
 import ColorThemeColorPickerModal from '@/components/modal/ColorThemeColorPickerModal'
@@ -7,7 +7,6 @@ import ColorThemeColorPickerModal from '@/components/modal/ColorThemeColorPicker
 import MenuIcon from '@/assets/icons/menu.svg'
 import CancelIcon from '@/assets/icons/cancle.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
-import InfoIcon from '@/assets/icons/info.svg'
 
 import {useRecoilValue} from 'recoil'
 import {activeThemeState} from '@/store/system'
@@ -26,14 +25,10 @@ const ThemeColorList = ({value, onChange}: Props) => {
 
   const _value = useMemo(() => {
     return {
-      colorThemeType: value.colorThemeType,
+      isActiveColorTheme: value.isActiveColorTheme,
       colorThemeItemList: value.colorThemeItemList.filter(item => item.actionType !== 'D')
     }
   }, [value])
-
-  const isCustom = useMemo(() => {
-    return _value.colorThemeType === 2
-  }, [_value.colorThemeType])
 
   const changeOrder = useCallback(
     ({data}: DragEndParams<EditColorThemeItem>) => {
@@ -55,17 +50,17 @@ const ThemeColorList = ({value, onChange}: Props) => {
       })
 
       onChange({
-        colorThemeType: value.colorThemeType,
+        isActiveColorTheme: value.isActiveColorTheme,
         colorThemeItemList: reorderList
       })
     },
-    [onChange, value.colorThemeType]
+    [onChange, value.isActiveColorTheme]
   )
 
-  const changeColorThemeType = useCallback(
+  const activeColorTheme = useCallback(
     (bool: boolean) => {
       onChange({
-        colorThemeType: bool ? 2 : 1,
+        isActiveColorTheme: bool,
         colorThemeItemList: value.colorThemeItemList
       })
     },
@@ -92,7 +87,7 @@ const ThemeColorList = ({value, onChange}: Props) => {
       })
 
       onChange({
-        colorThemeType: value.colorThemeType,
+        isActiveColorTheme: value.isActiveColorTheme,
         colorThemeItemList: newColorThemeItemList
       })
     },
@@ -108,7 +103,7 @@ const ThemeColorList = ({value, onChange}: Props) => {
     }
 
     onChange({
-      colorThemeType: value.colorThemeType,
+      isActiveColorTheme: value.isActiveColorTheme,
       colorThemeItemList: [...value.colorThemeItemList, newColorThemeItem]
     })
   }, [value, onChange])
@@ -124,7 +119,7 @@ const ThemeColorList = ({value, onChange}: Props) => {
       })
 
       onChange({
-        colorThemeType: value.colorThemeType,
+        isActiveColorTheme: value.isActiveColorTheme,
         colorThemeItemList: newColorThemeItemList
       })
     },
@@ -139,10 +134,9 @@ const ThemeColorList = ({value, onChange}: Props) => {
       return item.actionType && !objectEqual(initColorThemeItem1, item) && !objectEqual(initColorThemeItem2, item)
     })
 
-    if (value.colorThemeType === 1 && isUpdated) {
+    if (!value.isActiveColorTheme && isUpdated) {
       return (
         <View style={styles.warningTextWrapper}>
-          <InfoIcon width={16} height={16} fill="#efefef" />
           <Text style={styles.warningText}>변경된 내용은 저장되지 않아요</Text>
         </View>
       )
@@ -155,7 +149,7 @@ const ThemeColorList = ({value, onChange}: Props) => {
     ({item, getIndex, drag, isActive}: RenderItemParams<EditColorThemeItem>) => {
       const index = getIndex() || 0
       const borderTopWidth = index === 0 ? 1 : 0
-      const color = colorKit.darken(item.color, isCustom ? 30 : 10).hex()
+      const color = colorKit.darken(item.color, 30).hex()
 
       return (
         <View
@@ -168,21 +162,18 @@ const ThemeColorList = ({value, onChange}: Props) => {
             }
           ]}>
           <View style={itemStyles.wrapper}>
-            <Pressable style={itemStyles.button} disabled={!isCustom} onPressIn={drag}>
+            <Pressable style={itemStyles.button} onPressIn={drag}>
               <MenuIcon width={20} height={20} fill={color} />
             </Pressable>
 
-            <Pressable
-              style={itemStyles.changeColorButton}
-              disabled={!isCustom}
-              onPress={handleShowColoPickerModal(item)}>
+            <Pressable style={itemStyles.changeColorButton} onPress={handleShowColoPickerModal(item)}>
               <Text style={[itemStyles.buttonText, {color}]}>색상 변경하기</Text>
             </Pressable>
 
             {index === 0 || isActive ? (
               <View style={itemStyles.button} />
             ) : (
-              <Pressable style={itemStyles.button} disabled={!isCustom} onPress={deleteColorThemeItem(item)}>
+              <Pressable style={itemStyles.button} onPress={deleteColorThemeItem(item)}>
                 <CancelIcon width={20} height={20} stroke={color} strokeWidth={2.5} />
               </Pressable>
             )}
@@ -190,15 +181,15 @@ const ThemeColorList = ({value, onChange}: Props) => {
         </View>
       )
     },
-    [isCustom, activeTheme.color2, handleShowColoPickerModal, deleteColorThemeItem]
+    [activeTheme.color2, handleShowColoPickerModal, deleteColorThemeItem]
   )
 
   return (
     <View style={styles.container}>
       <View style={styles.switchWrapper}>
-        <Text style={[styles.switchLabel, {color: activeTheme.color3}]}>직접 지정</Text>
+        <Text style={[styles.switchLabel, {color: activeTheme.color3}]}>활성화</Text>
 
-        <Switch value={isCustom} onChange={changeColorThemeType} />
+        <Switch value={value.isActiveColorTheme} onChange={activeColorTheme} />
       </View>
 
       <View style={styles.wrapper}>
@@ -210,11 +201,8 @@ const ThemeColorList = ({value, onChange}: Props) => {
           bounces={false}
           onDragEnd={changeOrder}
         />
-        {!isCustom && (
-          <View style={styles.disabledOverlay}>
-            <Text style={styles.disabledOverlayText}>시스템 테마 적용중</Text>
-            {warningTextComponent && warningTextComponent}
-          </View>
+        {!value.isActiveColorTheme && (
+          <View style={styles.disabledOverlay}>{warningTextComponent && warningTextComponent}</View>
         )}
       </View>
 
@@ -226,15 +214,13 @@ const ThemeColorList = ({value, onChange}: Props) => {
         onClose={handleCloseColorPickerModal}
       />
 
-      {isCustom && (
-        <View style={styles.footer}>
-          <Pressable style={styles.plusButtonWrapper} onPress={insertColorThemeItem}>
-            <View style={styles.plusButton}>
-              <PlusIcon width={22} height={22} stroke="#ffffff" strokeWidth={3} />
-            </View>
-          </Pressable>
-        </View>
-      )}
+      <View style={styles.footer}>
+        <Pressable style={styles.plusButtonWrapper} onPress={insertColorThemeItem}>
+          <View style={styles.plusButton}>
+            <PlusIcon width={22} height={22} stroke="#ffffff" strokeWidth={3} />
+          </View>
+        </Pressable>
+      </View>
     </View>
   )
 }
@@ -258,11 +244,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  disabledOverlayText: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 16,
-    color: '#efefef'
-  },
   warningTextWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -270,8 +251,8 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   warningText: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 14,
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
     color: '#efefef'
   },
 

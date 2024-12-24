@@ -60,15 +60,10 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
   }, [sortedScheduleList, editScheduleForm.schedule_id])
 
   const colorThemeItemList = useMemo(() => {
-    switch (colorThemeDetail.color_theme_type) {
-      case 1:
-        return colorThemeDetail.color_theme_item_list
-      case 2:
-        return colorThemeDetail.color_theme_item_list.sort((a, b) => a.order - b.order)
-      case 0:
-      default:
-        return null
+    if (colorThemeDetail.is_active_color_theme) {
+      return colorThemeDetail.color_theme_item_list.sort((a, b) => a.order - b.order)
     }
+    return null
   }, [colorThemeDetail])
 
   const radius = useMemo(() => {
@@ -76,14 +71,16 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
   }, [timetableWrapperSize])
 
   const getSchedulePieColor = useCallback(
-    (index: number) => {
+    (item: Schedule) => {
       if (!colorThemeItemList) {
         return null
       }
 
-      return colorThemeItemList[index % colorThemeItemList.length].color
+      const targetIndex = data.findIndex(sItem => item.schedule_id === sItem.schedule_id)
+
+      return colorThemeItemList[targetIndex % colorThemeItemList.length].color
     },
-    [colorThemeItemList]
+    [data, colorThemeItemList]
   )
 
   const editSchedulePieColor = useMemo(() => {
@@ -91,10 +88,10 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
       return null
     }
 
-    const targetIndex = sortedScheduleList.findIndex(item => item.schedule_id === editScheduleForm.schedule_id)
+    const targetItem = sortedScheduleList.find(item => item.schedule_id === editScheduleForm.schedule_id)
 
-    if (targetIndex !== -1) {
-      return getSchedulePieColor(targetIndex)
+    if (targetItem) {
+      return getSchedulePieColor(targetItem)
     }
 
     return colorThemeItemList[0].color
@@ -155,7 +152,7 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
                   radius={radius}
                   startTime={item.start_time}
                   endTime={item.end_time}
-                  color={getSchedulePieColor(index)}
+                  color={getSchedulePieColor(item)}
                   isEdit={true}
                   disableScheduleList={disableScheduleList}
                 />

@@ -122,7 +122,7 @@ declare global {
     order: number
   }
   interface ColorThemeDetail {
-    color_theme_type: number
+    is_active_color_theme: boolean
     color_theme_item_list: ColorThemeItem[]
   }
   interface EditColorThemeItem {
@@ -132,7 +132,7 @@ declare global {
     actionType: 'I' | 'U' | 'D' | null
   }
   interface EditColorThemeDetail {
-    colorThemeType: number
+    isActiveColorTheme: boolean
     colorThemeItemList: EditColorThemeItem[]
   }
 }

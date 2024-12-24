@@ -44,7 +44,7 @@ export interface GetOutlineListResponse {
 }
 
 export interface UpdateColorThemeRequest {
-  color_theme_type: number
+  is_active_color_theme: number
   insert_color_theme_item_list: ColorThemeItem[]
   update_color_theme_item_list: ColorThemeItem[]
   delete_color_theme_item_list: ColorThemeItem[]

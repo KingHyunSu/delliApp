@@ -58,7 +58,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
   const [activeColorThemeDetail, setActiveColorThemeDetail] = useRecoilState(activeColorThemeDetailState)
   const [editColorThemeDetail, setEditColorThemeDetail] = useState<EditColorThemeDetail>({
-    colorThemeType: activeColorThemeDetail.color_theme_type,
+    isActiveColorTheme: activeColorThemeDetail.is_active_color_theme,
     colorThemeItemList: activeColorThemeDetail.color_theme_item_list.map(item => ({
       id: item.color_theme_item_id,
       color: item.color,
@@ -126,32 +126,21 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const colorThemeDetail = React.useMemo<ColorThemeDetail>(() => {
     let colorThemeItemList: ColorThemeItem[] = []
 
-    switch (editColorThemeDetail.colorThemeType) {
-      case 1:
-        colorThemeItemList = [
-          {color_theme_item_id: -1, color: activeBackground.background_color, order: 1},
-          {color_theme_item_id: -1, color: colorKit.brighten(activeBackground.background_color, 20).hex(), order: 2}
-        ]
-        break
-      case 2:
-        colorThemeItemList = editColorThemeDetail.colorThemeItemList
-          .filter(item => item.actionType !== 'D')
-          .map(item => ({
-            color_theme_item_id: item.id,
-            color: item.color,
-            order: item.order
-          }))
-
-        break
-      default:
-        break
+    if (editColorThemeDetail.isActiveColorTheme) {
+      colorThemeItemList = editColorThemeDetail.colorThemeItemList
+        .filter(item => item.actionType !== 'D')
+        .map(item => ({
+          color_theme_item_id: item.id,
+          color: item.color,
+          order: item.order
+        }))
     }
 
     return {
-      color_theme_type: editColorThemeDetail.colorThemeType,
+      is_active_color_theme: editColorThemeDetail.isActiveColorTheme,
       color_theme_item_list: colorThemeItemList
     }
-  }, [editColorThemeDetail, activeBackground.background_color])
+  }, [editColorThemeDetail])
 
   const closeEditScheduleBottomSheet = React.useCallback(() => {
     Alert.alert('나가기', '작성한 내용은 저장되지 않아요.', [
@@ -197,16 +186,16 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
       if (
         isCustomColorThemeChanged ||
-        activeColorThemeDetail.color_theme_type !== editColorThemeDetail.colorThemeType
+        activeColorThemeDetail.is_active_color_theme !== editColorThemeDetail.isActiveColorTheme
       ) {
         const params: UpdateColorThemeRequest = {
-          color_theme_type: editColorThemeDetail.colorThemeType,
+          is_active_color_theme: editColorThemeDetail.isActiveColorTheme ? 1 : 0,
           insert_color_theme_item_list: [],
           update_color_theme_item_list: [],
           delete_color_theme_item_list: []
         }
 
-        if (editColorThemeDetail.colorThemeType === 3) {
+        if (editColorThemeDetail.isActiveColorTheme) {
           editColorThemeDetail.colorThemeItemList.forEach(item => {
             const param: ColorThemeItem = {color_theme_item_id: item.id, color: item.color, order: item.order}
 
@@ -253,7 +242,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     },
     [
       queryClient,
-      activeColorThemeDetail.color_theme_type,
+      activeColorThemeDetail.is_active_color_theme,
       editColorThemeDetail,
       editScheduleForm,
       colorThemeDetail,

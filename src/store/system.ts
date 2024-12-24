@@ -66,7 +66,7 @@ export const activeOutlineState = atom<ActiveOutline>({
 export const activeColorThemeDetailState = atom<ColorThemeDetail>({
   key: 'activeColorThemeDetailState',
   default: {
-    color_theme_type: 0,
+    is_active_color_theme: false,
     color_theme_item_list: []
   }
 })

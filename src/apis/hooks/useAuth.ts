@@ -10,7 +10,6 @@ import {
   displayModeState,
   statusBarTextStyleState
 } from '@/store/system'
-import {colorKit} from 'reanimated-color-picker'
 import {loginInfoState} from '@/store/user'
 
 export const useGetJoinTermsList = () => {
@@ -55,23 +54,9 @@ export const useAccess = () => {
         setActiveBackground(accessInfo.active_background)
       }
 
-      let colorThemeDetail = accessInfo.color_theme_detail
-
-      if (colorThemeDetail.color_theme_type === 1) {
-        const activeBackgroundColor = accessInfo.active_background?.background_color || '#F8F4EC'
-
-        colorThemeDetail.color_theme_item_list = [
-          {color_theme_item_id: -1, color: activeBackgroundColor, order: 1},
-          {color_theme_item_id: -1, color: colorKit.brighten(activeBackgroundColor, 20).hex(), order: 2}
-        ]
-      }
-
       setDisplayMode(accessInfo.active_display_mode)
       setActiveOutline(accessInfo.active_outline)
-      setActiveColorThemeDetail({
-        color_theme_type: colorThemeDetail.color_theme_type,
-        color_theme_item_list: colorThemeDetail.color_theme_item_list
-      })
+      setActiveColorThemeDetail(accessInfo.color_theme_detail)
 
       setLoginInfo({
         login_type: accessInfo.login_type,
