@@ -1,5 +1,6 @@
-import React from 'react'
 import {Circle} from 'react-native-svg'
+import {useRecoilValue} from 'recoil'
+import {activeBackgroundState} from '@/store/system'
 
 interface Props {
   x: number
@@ -7,7 +8,9 @@ interface Props {
   radius: number
 }
 const Background = ({x, y, radius}: Props) => {
-  return <Circle cx={x} cy={y} r={radius} fill={'#f5f6f8'} fillOpacity={1} />
+  const activeBackground = useRecoilValue(activeBackgroundState)
+
+  return <Circle cx={x} cy={y} r={radius} fill={activeBackground.background_color} fillOpacity={1} />
 }
 
 export default Background
