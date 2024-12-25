@@ -1,29 +1,35 @@
 import {useMutation, useQuery} from '@tanstack/react-query'
-import {colorRepository} from '../local'
-import {DeleteColorRequest, SetColorRequest} from '@/apis/local/types/color'
+import * as colorApi from '@/apis/server/color'
+import {DeleteScheduleColorRequest, SetScheduleColorRequest} from '@/apis/types/color'
 
-export const useGetColorList = () => {
+export const useGetScheduleColorList = () => {
   return useQuery({
-    queryKey: ['colorList'],
-    queryFn: () => {
-      return colorRepository.getColorList()
+    queryKey: ['scheduleColorList'],
+    queryFn: async () => {
+      const response = await colorApi.getScheduleColorList()
+
+      return response.data
     },
     initialData: []
   })
 }
 
-export const useSetColor = () => {
+export const useSetScheduleColor = () => {
   return useMutation({
-    mutationFn: (params: SetColorRequest) => {
-      return colorRepository.setColor(params)
+    mutationFn: async (params: SetScheduleColorRequest) => {
+      const response = await colorApi.setScheduleColor(params)
+
+      return response.data
     }
   })
 }
 
-export const useDeleteColor = () => {
+export const useDeleteScheduleColor = () => {
   return useMutation({
-    mutationFn: (params: DeleteColorRequest) => {
-      return colorRepository.deleteColor(params)
+    mutationFn: async (params: DeleteScheduleColorRequest) => {
+      const response = await colorApi.deleteScheduleColor(params)
+
+      return response.data
     }
   })
 }

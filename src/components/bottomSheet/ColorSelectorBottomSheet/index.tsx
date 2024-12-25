@@ -1,6 +1,12 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {ViewStyle, StyleSheet, View, Pressable, Text} from 'react-native'
-import {BottomSheetModal, BottomSheetHandleProps, BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
+import {
+  BottomSheetModal,
+  BottomSheetFooter,
+  BottomSheetHandleProps,
+  BottomSheetBackdropProps,
+  BottomSheetFooterProps
+} from '@gorhom/bottom-sheet'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import {Shadow} from 'react-native-shadow-2'
 import CustomBackdrop from './src/CustomBackdrop'
@@ -19,7 +25,9 @@ import {
 } from '@/store/system'
 import {colorToChangeState} from '@/store/schedule'
 import {showColorPickerModalState} from '@/store/modal'
-import {useGetColorList} from '@/apis/hooks/useColor'
+import {useDeleteScheduleColor, useGetScheduleColorList} from '@/apis/hooks/useColor'
+import {useQueryClient} from '@tanstack/react-query'
+import {trigger} from 'react-native-haptic-feedback'
 
 type CategoryTab = 'theme' | 'custom'
 type CustomTab = 'default' | 'my'
@@ -37,14 +45,18 @@ const ColorSelectorBottomSheet = ({
   onChange,
   onChangeEditColorThemeDetail
 }: Props) => {
-  const {data: myColorList} = useGetColorList()
+  const queryClient = useQueryClient()
+
+  const {data: myColorList} = useGetScheduleColorList()
+  const {mutateAsync: deleteMyColorMutateAsync} = useDeleteScheduleColor()
 
   const bottomSheetRef = useRef<BottomSheetModal>(null)
   const isRender = useRef(false)
 
   const [activeCategoryTab, setActiveCategoryTab] = useState<CategoryTab>('custom')
   const [activeCustomTab, setActiveCustomTab] = useState<CustomTab>('default')
-  const [activeDeletedItem, setActiveDeletedItem] = useState<Color | null>(null)
+  const [isActiveDeleteMyColor, setIsActiveDeleteMyColor] = useState(false)
+  const [deleteMyColorList, setDeleteMyColorList] = useState<number[]>([])
 
   const [showColorSelectorBottomSheet, setShowColorSelectorBottomSheet] = useRecoilState(
     showColorSelectorBottomSheetState
@@ -73,12 +85,6 @@ const ColorSelectorBottomSheet = ({
     return [styles.activeColorPoint, {borderColor: activeTheme.color6}] as ViewStyle
   }, [activeTheme.color6])
 
-  const makeButtonStyle = useMemo(() => {
-    const opacity = showColorPickerModal ? 0.3 : 1
-
-    return [styles.makeButton, {opacity}]
-  }, [showColorPickerModal])
-
   const activeColor = useMemo(() => {
     switch (colorToChange) {
       case 'background':
@@ -96,7 +102,7 @@ const ColorSelectorBottomSheet = ({
       const newMyColorList = [...myColorList]
 
       for (let i = 0; i < emptyCount; i++) {
-        newMyColorList.push({color_id: -1, color: ''})
+        newMyColorList.push({schedule_color_id: -1, color: ''})
       }
 
       return newMyColorList
@@ -119,12 +125,15 @@ const ColorSelectorBottomSheet = ({
     setShowColorSelectorBottomSheet(false)
   }, [setShowColorSelectorBottomSheet])
 
-  const handleItemLongPress = useCallback(
-    (item: Color) => {
-      setActiveDeletedItem(item)
-    },
-    [setActiveDeletedItem]
-  )
+  const handleItemLongPress = useCallback((item: Color) => {
+    trigger('impactLight', {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false
+    })
+
+    setIsActiveDeleteMyColor(true)
+    setDeleteMyColorList(prevState => [...prevState, item.schedule_color_id])
+  }, [])
 
   const changeColor = useCallback(
     (color: string) => {
@@ -153,6 +162,22 @@ const ColorSelectorBottomSheet = ({
       onChange
     ]
   )
+
+  const changeMyColor = useCallback(
+    (item: Color) => {
+      if (activeCategoryTab === 'custom' && activeCustomTab === 'my' && isActiveDeleteMyColor) {
+        setDeleteMyColorList(prevState => [...prevState, item.schedule_color_id])
+      } else {
+        changeColor(item.color)
+      }
+    },
+    [activeCategoryTab, activeCustomTab, isActiveDeleteMyColor, changeColor]
+  )
+
+  const resetDeleteMyItem = useCallback(() => {
+    setIsActiveDeleteMyColor(false)
+    setDeleteMyColorList([])
+  }, [])
 
   const changeCategoryTab = useCallback(
     (tab: CategoryTab) => {
@@ -186,10 +211,12 @@ const ColorSelectorBottomSheet = ({
         })
       }
 
+      resetDeleteMyItem()
       setActiveCategoryTab(tab)
     },
     [
       activeCategoryTab,
+      resetDeleteMyItem,
       editColorThemeDetail.isActiveColorTheme,
       editColorThemeDetail.colorThemeItemList,
       onChangeEditColorThemeDetail
@@ -198,14 +225,27 @@ const ColorSelectorBottomSheet = ({
 
   const changeTab = useCallback(
     (tab: CustomTab) => () => {
+      resetDeleteMyItem()
       setActiveCustomTab(tab)
     },
-    []
+    [resetDeleteMyItem]
   )
 
-  const closeMenu = useCallback(() => {
-    setActiveDeletedItem(null)
-  }, [setActiveDeletedItem])
+  const handleDeleteMyColor = useCallback(async () => {
+    const response = await deleteMyColorMutateAsync({delete_list: deleteMyColorList})
+
+    if (response.result) {
+      const newMyColorList = myColorList.filter(item => {
+        const isDeleted = deleteMyColorList.includes(item.schedule_color_id)
+
+        return !isDeleted
+      })
+
+      queryClient.setQueryData(['scheduleColorList'], newMyColorList)
+
+      resetDeleteMyItem()
+    }
+  }, [deleteMyColorList, deleteMyColorMutateAsync, queryClient, myColorList, resetDeleteMyItem])
 
   useEffect(() => {
     if (showColorSelectorBottomSheet) {
@@ -252,6 +292,48 @@ const ColorSelectorBottomSheet = ({
     )
   }, [])
 
+  const getFooterComponent = useCallback(
+    (props: BottomSheetFooterProps) => {
+      if (activeCategoryTab === 'custom' && activeCustomTab === 'my') {
+        return (
+          <BottomSheetFooter {...props} bottomInset={safeAreaInsets.bottom + 10}>
+            <Shadow containerStyle={styles.makeButtonWrapper} startColor={activeTheme.color1} distance={30}>
+              {isActiveDeleteMyColor ? (
+                <View style={styles.deleteButtonWrapper}>
+                  <Pressable style={deleteButtonStyle} onPress={handleDeleteMyColor}>
+                    <Text style={styles.buttonText}>삭제하기</Text>
+                  </Pressable>
+
+                  <Pressable style={cancelDeleteButtonStyle} onPress={resetDeleteMyItem}>
+                    <Text style={styles.cancelDeleteButtonText}>취소</Text>
+                  </Pressable>
+                </View>
+              ) : (
+                <Pressable
+                  style={[makeButtonStyle, {opacity: showColorPickerModal ? 0.3 : 1}]}
+                  onPress={() => setShowColorPickerModal(true)}>
+                  <Text style={styles.buttonText}>색상 만들기</Text>
+                </Pressable>
+              )}
+            </Shadow>
+          </BottomSheetFooter>
+        )
+      }
+
+      return null
+    },
+    [
+      activeCategoryTab,
+      activeCustomTab,
+      isActiveDeleteMyColor,
+      safeAreaInsets.bottom,
+      activeTheme.color1,
+      handleDeleteMyColor,
+      showColorPickerModal,
+      setShowColorPickerModal
+    ]
+  )
+
   return (
     <BottomSheetModal
       name="CategoryStatsDetail"
@@ -261,6 +343,7 @@ const ColorSelectorBottomSheet = ({
       backgroundStyle={{backgroundColor: activeTheme.color5}}
       backdropComponent={getBackdropComponent}
       handleComponent={getHandleComponent}
+      footerComponent={getFooterComponent}
       index={0}
       snapPoints={snapPoints}
       onDismiss={handleClose}>
@@ -294,35 +377,19 @@ const ColorSelectorBottomSheet = ({
               />
             )}
 
-            {activeCustomTab === 'my' && activeDeletedItem && (
-              <Pressable style={styles.menuOverlay} onPress={closeMenu} />
-            )}
-
             {activeCustomTab === 'my' && (
               <MyColorList
-                activeDeletedItem={activeDeletedItem}
                 color={activeColor}
                 myColorList={convertMyColorList}
+                isActiveDeleteMyColor={isActiveDeleteMyColor}
+                deleteMyColorList={deleteMyColorList}
                 colorButtonStyle={colorButtonStyle}
                 activeColorButtonStyle={activeColorPointStyle}
                 contentContainerStyle={styles.scrollContainer}
                 columnWrapperStyle={styles.scrollColumnWrapper}
-                closeMenu={closeMenu}
                 onItemLongPress={handleItemLongPress}
-                onChange={changeColor}
+                onItemPress={changeMyColor}
               />
-            )}
-
-            {activeCustomTab === 'my' && (
-              <Shadow
-                containerStyle={[styles.makeButtonWrapper, {bottom: safeAreaInsets.bottom + 20}]}
-                stretch={true}
-                startColor={activeTheme.color1}
-                distance={30}>
-                <Pressable style={makeButtonStyle} onPress={() => setShowColorPickerModal(true)}>
-                  <Text style={styles.makeButtonText}>색상 만들기</Text>
-                </Pressable>
-              </Shadow>
             )}
           </View>
         )}
@@ -360,13 +427,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#babfc5'
   },
-  menuOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0
-  },
   colorButton: {
     width: 42,
     height: 42,
@@ -392,22 +452,32 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   makeButtonWrapper: {
-    position: 'absolute',
-    left: 30,
-    right: 30
+    marginHorizontal: 'auto'
   },
-  makeButton: {
-    height: 52,
-    backgroundColor: '#1E90FF',
+  button: {
+    height: 42,
     justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10
+    borderRadius: 50,
+    paddingHorizontal: 25
   },
-  makeButtonText: {
+  buttonText: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 18,
+    fontSize: 14,
     color: '#ffffff'
+  },
+  deleteButtonWrapper: {
+    flexDirection: 'row',
+    gap: 10
+  },
+  cancelDeleteButtonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 14,
+    color: '#6B727E'
   }
 })
+
+const makeButtonStyle = StyleSheet.compose(styles.button, {backgroundColor: '#1E90FF'})
+const deleteButtonStyle = StyleSheet.compose(styles.button, {backgroundColor: '#ff4160'})
+const cancelDeleteButtonStyle = StyleSheet.compose(styles.button, {backgroundColor: '#efefef'})
 
 export default ColorSelectorBottomSheet

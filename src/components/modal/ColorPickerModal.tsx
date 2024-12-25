@@ -6,12 +6,13 @@ import {useRecoilState, useRecoilValue} from 'recoil'
 import {activeThemeState, windowDimensionsState} from '@/store/system'
 import {showColorPickerModalState} from '@/store/modal'
 import {useQueryClient} from '@tanstack/react-query'
-import {useSetColor} from '@/apis/hooks/useColor'
+import {useSetScheduleColor} from '@/apis/hooks/useColor'
+import {GetScheduleColorListResponse} from '@/apis/types/color'
 
 const ColorPickerModal = () => {
   const queryClient = useQueryClient()
 
-  const {mutateAsync: setColorMutateAsync} = useSetColor()
+  const {mutateAsync: setColorMutateAsync} = useSetScheduleColor()
 
   const [selectedColor, setSelectedColor] = useState('#ffffff')
   const [showColorPickerModal, setShowColorPickerModal] = useRecoilState(showColorPickerModalState)
@@ -24,8 +25,16 @@ const ColorPickerModal = () => {
   }, [])
 
   const handleSave = useCallback(async () => {
-    await setColorMutateAsync({color: selectedColor})
-    queryClient.invalidateQueries({queryKey: ['colorList']})
+    const result = await setColorMutateAsync({color: selectedColor})
+
+    queryClient.setQueryData<GetScheduleColorListResponse[]>(['scheduleColorList'], oldData => [
+      ...oldData,
+      {
+        schedule_color_id: result.schedule_color_id,
+        color: selectedColor
+      }
+    ])
+
     setShowColorPickerModal(false)
   }, [selectedColor, queryClient, setColorMutateAsync, setShowColorPickerModal])
 

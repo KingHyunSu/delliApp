@@ -1,4 +1,5 @@
-declare interface Color {
-  color_id: number
-  color: string
+import {GetScheduleColorListResponse} from '@/apis/types/color'
+
+declare global {
+  interface Color extends GetScheduleColorListResponse {}
 }
