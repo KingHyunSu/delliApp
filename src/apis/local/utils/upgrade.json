@@ -1,16 +1,4 @@
 {
-  "version": 3,
-  "list": {
-    "v2": [
-      "ALTER TABLE SCHEDULE RENAME COLUMN disable TO deleted",
-      "ALTER TABLE SCHEDULE RENAME COLUMN disable_date TO deleted_date",
-      "ALTER TABLE SCHEDULE ADD COLUMN disabled text default '0'",
-      "ALTER TABLE SCHEDULE ADD COLUMN disabled_date text"
-    ],
-    "v3": [
-      "ALTER TABLE SCHEDULE ADD COLUMN schedule_category_id INTEGER",
-      "ALTER TABLE SCHEDULE ADD COLUMN font_size INTEGER default 12",
-      "ALTER TABLE SCHEDULE ADD COLUMN sync INTEGER NOT NULL DEFAULT 0"
-    ]
-  }
+  "version": 1,
+  "list": {}
 }

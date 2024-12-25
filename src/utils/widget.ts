@@ -1,9 +1,10 @@
 import {Alert, NativeModules} from 'react-native'
 import RNFS from 'react-native-fs'
 import {format} from 'date-fns'
-import {scheduleRepository} from '@/apis/local'
+import * as scheduleApi from '@/apis/server/schedule'
 import * as widgetApi from '@/apis/widget'
 import {getDayOfWeekKey} from '@/utils/helper'
+import {GetCurrentScheduleListResponse} from '@/apis/types/schedule'
 
 type WidgetSchedule = {
   schedule_id: number | null
@@ -20,7 +21,7 @@ const isWidgetReloadable = async () => {
   return response.data.widget_reloadable
 }
 
-const getWidgetScheduleList = (schedules: Schedule[]) => {
+const getWidgetScheduleList = (schedules: GetCurrentScheduleListResponse[]) => {
   const scheduleList = [...schedules].sort((a, b) => a.end_time - b.end_time)
   const widgetScheduleList: WidgetSchedule[] = []
 
@@ -91,7 +92,9 @@ const getScheduleList = async (date: Date) => {
     params[dayOfWeek] = '1'
   }
 
-  return await scheduleRepository.getCurrentScheduleList(params)
+  const response = await scheduleApi.getCurrentScheduleList(params)
+
+  return response.data
 }
 
 const handleWidgetUpdate = async () => {

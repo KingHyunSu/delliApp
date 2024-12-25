@@ -7,7 +7,6 @@ import Animated, {useSharedValue, useAnimatedStyle, withTiming, runOnJS} from 'r
 import {format} from 'date-fns'
 
 // components
-import Loading from '@/components/Loading'
 import AppBar from '@/components/AppBar'
 import {Timetable} from '@/components/TimeTable'
 import EditMenuBottomSheet from '@/components/bottomSheet/EditMenuBottomSheet'
@@ -17,10 +16,7 @@ import CompleteModal from '@/components/modal/CompleteModal'
 // import ScheduleCompleteModal from '@/components/modal/ScheduleCompleteModal'
 
 // icons
-import SettingIcon from '@/assets/icons/setting.svg'
-import RightArrowIcon from '@/assets/icons/arrow_right.svg'
 import PlusIcon from '@/assets/icons/plus.svg'
-import PauseIcon from '@/assets/icons/pause.svg'
 
 // stores
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
@@ -42,25 +38,21 @@ import {
   scheduleListState,
   disableScheduleListState,
   isInputModeState,
-  focusModeInfoState,
   editScheduleFormState
 } from '@/store/schedule'
 import {showEditMenuBottomSheetState, showDatePickerBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 
-import {getFocusTimeText} from '@/utils/helper'
-
 import * as widgetApi from '@/apis/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
-import {useGetCurrentScheduleList, useSetScheduleFocusTime} from '@/apis/hooks/useSchedule'
+import {useGetCurrentScheduleList} from '@/apis/hooks/useSchedule'
 import HomeFabExtensionModal from '@/components/modal/HomeFabExtensionModal'
 
 const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
 const Home = ({navigation, route}: HomeScreenProps) => {
   const {data: _scheduleList, isError} = useGetCurrentScheduleList()
-  const {mutateAsync: setScheduleFocusTimeMutateAsync} = useSetScheduleFocusTime()
 
   const safeAreaInsets = useSafeAreaInsets()
 
@@ -79,7 +71,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   const activeBackground = useRecoilValue(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
-  const focusModeInfo = useRecoilValue(focusModeInfoState)
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
 
   const setIsLunch = useSetRecoilState(isLunchState)
@@ -89,7 +80,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setToast = useSetRecoilState(toastState)
   const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
-  const setFocusModeInfo = useSetRecoilState(focusModeInfoState)
   const setStatusBarTextStyle = useSetRecoilState(statusBarTextStyleState)
   const setStatusBarColor = useSetRecoilState(statusBarColorState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
@@ -151,35 +141,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
     },
     [setEditScheduleForm, setShowEditMenuBottomSheet]
   )
-
-  const handleStopFocusTime = React.useCallback(async () => {
-    const newScheduleActivityLogId = await setScheduleFocusTimeMutateAsync()
-
-    setEditScheduleForm(prevState => ({
-      ...prevState,
-      schedule_activity_log_id: newScheduleActivityLogId,
-      active_time: focusModeInfo?.seconds || 0
-    }))
-
-    setScheduleList(prevState => {
-      const targetIndex = prevState.findIndex(item => item.schedule_id === focusModeInfo?.schedule_id)
-
-      if (targetIndex !== -1) {
-        const updateList = [...prevState]
-
-        updateList[targetIndex] = {
-          ...updateList[targetIndex],
-          schedule_activity_log_id: newScheduleActivityLogId,
-          active_time: focusModeInfo?.seconds || 0
-        }
-        return updateList
-      }
-
-      return prevState
-    })
-
-    setFocusModeInfo(null)
-  }, [focusModeInfo, setScheduleFocusTimeMutateAsync, setEditScheduleForm, setScheduleList, setFocusModeInfo])
 
   const changeScheduleListBottomSheetAnimate = React.useCallback((fromIndex: number, toIndex: number) => {
     if (toIndex === 1) {
@@ -394,21 +355,11 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         onAnimate={changeScheduleListBottomSheetAnimate}
       />
 
-      {focusModeInfo ? (
-        <Animated.View style={fabContainerStyle}>
-          <Animated.Text style={homeStyles.focusTimeText}>{getFocusTimeText(focusModeInfo.seconds)}</Animated.Text>
-
-          <Pressable style={focusTimeFabStyle} onPress={handleStopFocusTime}>
-            <PauseIcon stroke="#ffffff" />
-          </Pressable>
-        </Animated.View>
-      ) : (
-        <Animated.View style={fabContainerStyle}>
-          <Pressable style={homeStyles.fab} onPress={() => setShowFabExtensionModal(true)}>
-            <PlusIcon stroke="#ffffff" strokeWidth={3} />
-          </Pressable>
-        </Animated.View>
-      )}
+      <Animated.View style={fabContainerStyle}>
+        <Pressable style={homeStyles.fab} onPress={() => setShowFabExtensionModal(true)}>
+          <PlusIcon stroke="#ffffff" strokeWidth={3} />
+        </Pressable>
+      </Animated.View>
 
       <EditMenuBottomSheet moveEditSchedule={moveEditSchedule} />
       <DatePickerBottomSheet value={format(scheduleDate, 'yyyy-MM-dd')} onChange={changeScheduleDate} />
@@ -494,7 +445,5 @@ const homeStyles = StyleSheet.create({
     color: '#424242'
   }
 })
-
-const focusTimeFabStyle = StyleSheet.compose(homeStyles.fab, {backgroundColor: '#FF7043'})
 
 export default Home
