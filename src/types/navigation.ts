@@ -24,7 +24,6 @@ export type StackNavigator = {
     todoId: number | null
   }
   StoreDetail: {type: 'background' | 'outline'; id: number}
-  RoutineDetail: {id: number}
 
   HomeCustom: undefined
 
@@ -33,7 +32,6 @@ export type StackNavigator = {
 }
 export type BottomTabNavigator = {
   Home: {scheduleUpdated: boolean}
-  Routine: undefined
   StoreList: undefined
   Setting: undefined
 }
@@ -50,10 +48,6 @@ export type SettingScreenProps = CompositeScreenProps<
   BottomTabScreenProps<BottomTabNavigator, 'Setting'>,
   StackScreenProps<StackNavigator>
 >
-export type RoutineScreenProps = CompositeScreenProps<
-  BottomTabScreenProps<BottomTabNavigator, 'Routine'>,
-  StackScreenProps<StackNavigator>
->
 
 // auth
 export type IntroScreenProps = StackScreenProps<StackNavigator, 'Intro'>
@@ -65,7 +59,5 @@ export type StoreDetailScreenProps = StackScreenProps<StackNavigator, 'StoreDeta
 
 export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>
 export type EditTodoScreenProps = StackScreenProps<StackNavigator, 'EditTodo'>
-
-export type RoutineDetailScreenProps = StackScreenProps<StackNavigator, 'RoutineDetail'>
 
 export type SearchScheduleScreenProps = StackScreenProps<StackNavigator, 'SearchSchedule'>

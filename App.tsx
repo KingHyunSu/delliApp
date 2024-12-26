@@ -24,12 +24,6 @@ import EditRoutineScreen from '@/views/EditRoutine'
 import EditTodoScreen from '@/views/EditTodo'
 import {StoreListScreen, StoreDetailScreen} from '@/views/store'
 
-import {
-  RoutineList as RoutineListScreen,
-  // EditRoutine as EditRoutineScreen,
-  RoutineDetail as RoutineDetailScreen
-} from '@/views/Routine'
-
 import StatsScreen from '@/views/Stats'
 import SearchScheduleScreen from '@/views/SearchSchedule'
 import SettingScreen from '@/views/Setting'
@@ -46,7 +40,6 @@ import LoginBottomSheet from '@/components/bottomSheet/LoginBottomSheet'
 import HomeIcon from '@/assets/icons/home.svg'
 import MyIcon from '@/assets/icons/my.svg'
 import ChartIcon from '@/assets/icons/chart.svg'
-import RoutineIcon from '@/assets/icons/routine.svg'
 import StoreIcon from '@/assets/icons/store.svg'
 
 // stores
@@ -466,7 +459,6 @@ function App(): JSX.Element {
                     <Stack.Screen name="EditTodo" component={EditTodoScreen} />
 
                     <Stack.Screen name="CategoryStats" component={CategoryStats} />
-                    <Stack.Screen name="RoutineDetail" component={RoutineDetailScreen} />
                     <Stack.Screen name="SearchSchedule" component={SearchScheduleScreen} />
 
                     <Stack.Screen name="Leave" component={LeaveScreen} />
