@@ -1,6 +1,5 @@
 import {atom} from 'recoil'
 import {RANGE_FLAG} from '@/utils/types'
-import type {SearchSchedule} from '@/views/SearchSchedule'
 
 export const scheduleDateState = atom<Date>({
   key: 'scheduleDateState',
@@ -144,11 +143,6 @@ export const isInputModeState = atom<Boolean>({
 export const focusModeInfoState = atom<FocusModeInfo | null>({
   key: 'focusModeInfoState',
   default: null
-})
-
-export const searchScheduleResultListState = atom<SearchSchedule[]>({
-  key: 'searchScheduleResultListState',
-  default: []
 })
 
 export type ColorType = 'background' | 'font' | 'border'

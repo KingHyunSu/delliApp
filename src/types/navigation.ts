@@ -1,7 +1,6 @@
 import type {CompositeScreenProps} from '@react-navigation/native'
 import type {StackScreenProps} from '@react-navigation/stack'
 import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs'
-import type {Options as SearchScheduleOptions} from '@/views/SearchSchedule'
 import {LOGIN_TYPE} from '@/utils/types'
 
 export type StackNavigator = {
@@ -28,7 +27,6 @@ export type StackNavigator = {
   HomeCustom: undefined
 
   CategoryStats: undefined
-  SearchSchedule: {options: SearchScheduleOptions}
 }
 export type BottomTabNavigator = {
   Home: {scheduleUpdated: boolean}
@@ -59,5 +57,3 @@ export type StoreDetailScreenProps = StackScreenProps<StackNavigator, 'StoreDeta
 
 export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>
 export type EditTodoScreenProps = StackScreenProps<StackNavigator, 'EditTodo'>
-
-export type SearchScheduleScreenProps = StackScreenProps<StackNavigator, 'SearchSchedule'>

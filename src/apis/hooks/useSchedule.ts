@@ -82,14 +82,3 @@ export const useUpdateScheduleDeleted = () => {
     }
   })
 }
-
-// --------
-export const useGetSearchScheduleList = () => {
-  return useQuery({
-    queryKey: ['getSearchScheduleList'],
-    queryFn: () => {
-      return scheduleRepository.getSearchScheduleList()
-    },
-    initialData: []
-  })
-}

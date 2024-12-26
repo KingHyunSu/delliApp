@@ -25,7 +25,6 @@ import EditTodoScreen from '@/views/EditTodo'
 import {StoreListScreen, StoreDetailScreen} from '@/views/store'
 
 import StatsScreen from '@/views/Stats'
-import SearchScheduleScreen from '@/views/SearchSchedule'
 import SettingScreen from '@/views/Setting'
 import EditScheduleScreen from '@/views/EditSchedule'
 import CategoryStats from '@/views/CategoryStats'
@@ -459,7 +458,6 @@ function App(): JSX.Element {
                     <Stack.Screen name="EditTodo" component={EditTodoScreen} />
 
                     <Stack.Screen name="CategoryStats" component={CategoryStats} />
-                    <Stack.Screen name="SearchSchedule" component={SearchScheduleScreen} />
 
                     <Stack.Screen name="Leave" component={LeaveScreen} />
                   </>
