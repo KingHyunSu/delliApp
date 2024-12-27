@@ -62,7 +62,9 @@ export const useGetOverlapScheduleList = () => {
 export const useSetSchedule = () => {
   return useMutation({
     mutationFn: async (params: SetScheduleRequest) => {
-      return await scheduleApi.setSchedule(params)
+      const response = await scheduleApi.setSchedule(params)
+
+      return response.data
     }
   })
 }
@@ -70,7 +72,9 @@ export const useSetSchedule = () => {
 export const useUpdateSchedule = () => {
   return useMutation({
     mutationFn: async (params: UpdateScheduleRequest) => {
-      return await scheduleApi.updateSchedule(params)
+      const response = await scheduleApi.updateSchedule(params)
+
+      return response.data
     }
   })
 }

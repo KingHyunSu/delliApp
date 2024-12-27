@@ -88,7 +88,7 @@ export interface SetScheduleRequest {
   disabled_list: number[]
 }
 export interface SetScheduleResponse {
-  result: boolean
+  schedule_id: number
 }
 
 export interface UpdateScheduleRequest {
@@ -97,7 +97,7 @@ export interface UpdateScheduleRequest {
   schedule_id: number
 }
 export interface UpdateScheduleResponse {
-  result: boolean
+  schedule_id: number
 }
 
 export interface DeleteScheduleRequest {

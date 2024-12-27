@@ -33,7 +33,6 @@ import {
 import {useQueryClient} from '@tanstack/react-query'
 import {useGetOverlapScheduleList, useSetSchedule, useUpdateSchedule} from '@/apis/hooks/useSchedule'
 import {useUpdateColorTheme} from '@/apis/hooks/useUser'
-import {colorKit} from 'reanimated-color-picker'
 import {EditScheduleProps} from '@/types/navigation'
 import type {EditScheduleBottomSheetRef} from '@/components/bottomSheet/EditScheduleBottomSheet'
 import type {Ref as ControlBarRef} from './components/ControlBar'
@@ -178,6 +177,40 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     setIsActiveControlMode(false)
   }, [setIsActiveControlMode])
 
+  type NewScheduleItem = Omit<EditScheduleForm, 'schedule_id'> & {schedule_id: number}
+  const getNewScheduleList = React.useCallback(
+    (value: NewScheduleItem, disabledScheduleList: number[]) => {
+      const newScheduleList: Schedule[] = []
+      let isUpdated = false
+
+      scheduleList.forEach(item => {
+        const isDisabled = disabledScheduleList.includes(item.schedule_id)
+
+        if (!isDisabled) {
+          if (value.schedule_id === item.schedule_id) {
+            isUpdated = true
+            // set update item
+            newScheduleList.push({...item, ...value})
+          } else {
+            newScheduleList.push(item)
+          }
+        }
+      })
+
+      if (!isUpdated) {
+        // set insert item
+        newScheduleList.push({
+          ...value,
+          routine_list: [],
+          todo_list: []
+        })
+      }
+
+      return newScheduleList
+    },
+    [scheduleList]
+  )
+
   const doSubmit = React.useCallback(
     async (disabledScheduleList: number[]) => {
       const isCustomColorThemeChanged = editColorThemeDetail.colorThemeItemList.some(
@@ -222,20 +255,28 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
       const {schedule_id, ...form} = editScheduleForm
 
+      let newScheduleId = null
+
       if (schedule_id) {
-        await updateScheduleMutateAsync({
+        const response = await updateScheduleMutateAsync({
           form,
           disabled_list: disabledScheduleList,
           schedule_id
         })
+
+        newScheduleId = response.schedule_id
       } else {
-        await setScheduleMutateAsync({
+        const response = await setScheduleMutateAsync({
           form,
           disabled_list: disabledScheduleList
         })
+
+        newScheduleId = response.schedule_id
       }
 
-      await queryClient.invalidateQueries({queryKey: ['scheduleList', scheduleDate]})
+      const newScheduleList = getNewScheduleList({...form, schedule_id: newScheduleId}, disabledScheduleList)
+
+      queryClient.setQueryData(['scheduleList', scheduleDate], newScheduleList)
 
       navigation.navigate('MainTabs', {
         screen: 'Home',
@@ -251,6 +292,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       editScheduleForm,
       colorThemeDetail,
       scheduleDate,
+      getNewScheduleList,
       setScheduleMutateAsync,
       updateColorThemeMutateAsync,
       updateScheduleMutateAsync,
