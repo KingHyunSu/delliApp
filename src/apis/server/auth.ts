@@ -2,6 +2,8 @@ import http from '@/utils/http'
 import {
   AccessResponse,
   GetJoinTermsListResponse,
+  GetNewTokenRequest,
+  GetNewTokenResponse,
   JoinRequest,
   JoinResponse,
   LeaveRequest,
@@ -34,4 +36,8 @@ export const access = () => {
 
 export const leave = (data: LeaveRequest) => {
   return http.post<any, Response<LeaveResponse>>('auth/leave', data)
+}
+
+export const getNewToken = (data: GetNewTokenRequest) => {
+  return http.post<any, Response<GetNewTokenResponse>>('auth/token/reissue', data)
 }

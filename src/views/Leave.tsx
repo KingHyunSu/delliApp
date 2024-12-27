@@ -62,6 +62,7 @@ const Leave = () => {
       const isSuccess = response.data.result
 
       if (isSuccess) {
+        await AsyncStorage.removeItem('loginType')
         await AsyncStorage.removeItem('token')
         setIsLogin(false)
       }

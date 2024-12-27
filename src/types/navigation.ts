@@ -11,7 +11,6 @@ export type StackNavigator = {
 
   Intro: undefined
   JoinTerms: {type: (typeof LOGIN_TYPE)[keyof typeof LOGIN_TYPE]; token: string}
-  Leave: undefined
 
   EditSchedule: undefined
   EditRoutine: {
@@ -27,6 +26,8 @@ export type StackNavigator = {
   HomeCustom: undefined
 
   CategoryStats: undefined
+
+  Leave: undefined
 }
 export type BottomTabNavigator = {
   Home: {scheduleUpdated: boolean}
@@ -52,8 +53,8 @@ export type IntroScreenProps = StackScreenProps<StackNavigator, 'Intro'>
 export type JoinTermsScreenProps = StackScreenProps<StackNavigator, 'JoinTerms'>
 
 export type HomeCustomProps = StackScreenProps<StackNavigator, 'HomeCustom'>
-export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
 export type StoreDetailScreenProps = StackScreenProps<StackNavigator, 'StoreDetail'>
 
+export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
 export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>
 export type EditTodoScreenProps = StackScreenProps<StackNavigator, 'EditTodo'>

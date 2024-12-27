@@ -1,5 +1,5 @@
 import {Platform} from 'react-native'
-import {atom, selector} from 'recoil'
+import {SetterOrUpdater, atom, selector} from 'recoil'
 
 const bottomTabHeight = 56
 const editScheduleListMinSnapPoint = 50
@@ -84,6 +84,13 @@ export const loginState = atom({
   key: 'loginState',
   default: false
 })
+
+type LoginStateSetter = SetterOrUpdater<boolean> | null
+let loginStateSetter: LoginStateSetter = null
+export const setLoginStateSetter = (setter: LoginStateSetter): void => {
+  loginStateSetter = setter
+}
+export const useLoginStateSetter = () => loginStateSetter
 
 export const isLunchState = atom({
   key: 'isLunchState',

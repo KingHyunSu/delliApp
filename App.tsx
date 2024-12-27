@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, Platform, AppState, StatusBar, StyleSheet, SafeAreaView, View} from 'react-native'
+import {useWindowDimensions, Platform, AppState, StatusBar, StyleSheet, SafeAreaView} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import SystemSplashScreen from 'react-native-splash-screen'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
@@ -17,17 +17,16 @@ import {navigationRef} from '@/utils/navigation'
 // views
 import SplashScreen from '@/views/Splash'
 import {IntroScreen, JoinTermsScreen} from '@/views/join'
-import LeaveScreen from '@/views/Leave'
 import HomeScreen from '@/views/Home'
 import HomeCustomScreen from '@/views/HomeCustom'
+import EditScheduleScreen from '@/views/EditSchedule'
 import EditRoutineScreen from '@/views/EditRoutine'
 import EditTodoScreen from '@/views/EditTodo'
 import {StoreListScreen, StoreDetailScreen} from '@/views/store'
-
-import StatsScreen from '@/views/Stats'
 import SettingScreen from '@/views/Setting'
-import EditScheduleScreen from '@/views/EditSchedule'
+import LeaveScreen from '@/views/Leave'
 import CategoryStats from '@/views/CategoryStats'
+import StatsScreen from '@/views/Stats'
 
 // components
 import Toast from '@/components/Toast'
@@ -52,7 +51,8 @@ import {
   displayModeState,
   activeBackgroundState,
   statusBarColorState,
-  statusBarTextStyleState
+  statusBarTextStyleState,
+  setLoginStateSetter
 } from '@/store/system'
 
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
@@ -288,14 +288,17 @@ function App(): JSX.Element {
     const init = async () => {
       const isInitDatabase = await initDatabase()
 
-      const token = await AsyncStorage.getItem('token')
+      try {
+        const token = await AsyncStorage.getItem('token')
 
-      if (token) {
-        await accessMutateAsync()
-        setIsLogin(true)
+        if (token) {
+          await accessMutateAsync()
+          setIsLogin(true)
+        }
+      } catch (e) {
+      } finally {
+        setIsInit(isInitDatabase)
       }
-
-      setIsInit(isInitDatabase)
     }
 
     init()
@@ -326,6 +329,10 @@ function App(): JSX.Element {
       SystemSplashScreen.hide()
     }
   }, [isInit])
+
+  React.useEffect(() => {
+    setLoginStateSetter(setIsLogin)
+  }, [setLoginStateSetter])
 
   React.useEffect(() => {
     const subscription = AppState.addEventListener('change', state => {
@@ -441,32 +448,36 @@ function App(): JSX.Element {
           <SafeAreaView style={containerStyle}>
             <NavigationContainer ref={navigationRef} linking={linking} onStateChange={changeRoute}>
               <Stack.Navigator screenOptions={screenOptions}>
-                {!isInit ? (
-                  <Stack.Screen name="Splash" component={SplashScreen} />
-                ) : isLogin ? (
-                  <>
-                    <Stack.Screen name="MainTabs">{() => <BottomTabs activeTheme={activeTheme} />}</Stack.Screen>
-                    <Stack.Screen
-                      name="HomeCustom"
-                      component={HomeCustomScreen}
-                      options={{animation: 'fade', animationDuration: 300}}
-                    />
-                    <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animation: 'none'}} />
-                    <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
+                {
+                  //   !isInit ? (
+                  //     <Stack.Screen name="Splash" component={SplashScreen} />
+                  // ) :
 
-                    <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
-                    <Stack.Screen name="EditTodo" component={EditTodoScreen} />
+                  isLogin ? (
+                    <>
+                      <Stack.Screen name="MainTabs">{() => <BottomTabs activeTheme={activeTheme} />}</Stack.Screen>
+                      <Stack.Screen
+                        name="HomeCustom"
+                        component={HomeCustomScreen}
+                        options={{animation: 'fade', animationDuration: 300}}
+                      />
+                      <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animation: 'none'}} />
+                      <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
 
-                    <Stack.Screen name="CategoryStats" component={CategoryStats} />
+                      <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
+                      <Stack.Screen name="EditTodo" component={EditTodoScreen} />
 
-                    <Stack.Screen name="Leave" component={LeaveScreen} />
-                  </>
-                ) : (
-                  <>
-                    <Stack.Screen name="Intro" component={IntroScreen} />
-                    <Stack.Screen name="JoinTerms" component={JoinTermsScreen} />
-                  </>
-                )}
+                      <Stack.Screen name="CategoryStats" component={CategoryStats} />
+
+                      <Stack.Screen name="Leave" component={LeaveScreen} />
+                    </>
+                  ) : (
+                    <>
+                      <Stack.Screen name="Intro" component={IntroScreen} />
+                      <Stack.Screen name="JoinTerms" component={JoinTermsScreen} />
+                    </>
+                  )
+                }
               </Stack.Navigator>
             </NavigationContainer>
           </SafeAreaView>

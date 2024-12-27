@@ -58,7 +58,13 @@ export interface LeaveRequest {
   loginType: number
   code: string | null
 }
-
 export interface LeaveResponse {
   result: boolean
+}
+
+export interface GetNewTokenRequest {
+  token: string
+}
+export interface GetNewTokenResponse {
+  token: string
 }

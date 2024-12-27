@@ -11,6 +11,7 @@ import {
   statusBarTextStyleState
 } from '@/store/system'
 import {loginInfoState} from '@/store/user'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export const useGetJoinTermsList = () => {
   return useQuery({
@@ -62,6 +63,8 @@ export const useAccess = () => {
         login_type: accessInfo.login_type,
         email: accessInfo.email
       })
+
+      await AsyncStorage.setItem('loginType', String(accessInfo.login_type))
     }
   })
 }

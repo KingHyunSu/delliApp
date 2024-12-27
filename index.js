@@ -15,9 +15,19 @@ const RootApp = () => {
   const handleGlobalError = errorCode => {
     console.log('errorCode', errorCode)
 
-    // if (errorCode === 500) {
-    setIsServerError(true)
-    // }
+    let title = '네트워크 연결 실패'
+    let message = '네트워크 연결이 지연되고 있습니다.\n잠시 후 다시 시도해주세요.'
+
+    if (errorCode === '4001') {
+      return
+    }
+
+    Alert.alert(title, message, [
+      {
+        text: '확인',
+        style: 'cancel'
+      }
+    ])
   }
 
   const queryClient = new QueryClient({
