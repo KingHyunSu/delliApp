@@ -15,15 +15,18 @@ import {login as kakaoLogin} from '@react-native-seoul/kakao-login'
 import {appleAuth} from '@invertase/react-native-apple-authentication'
 import {GoogleSignin} from '@react-native-google-signin/google-signin'
 import {getSyncData, updateSyncData} from '@/apis/local/modules/sync'
-import {loginLinkSNS} from '@/apis/server/auth'
+import {loginLinkSNS, loginSyncData} from '@/apis/server/auth'
 import {useAccess} from '@/apis/hooks/useAuth'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {navigate} from '@/utils/navigation'
 import {LOGIN_TYPE} from '@/utils/types'
 import {useQueryClient} from '@tanstack/react-query'
 import {scheduleDateState} from '@/store/schedule'
+import {useAlert} from '@/components/Alert'
+import {LoginSyncDataRequest} from '@/apis/types/auth'
 
 const LoginBottomSheet = () => {
+  const alert = useAlert()
   const queryClient = useQueryClient()
   const {mutateAsync: accessMutateAsync} = useAccess()
 
@@ -52,45 +55,127 @@ const LoginBottomSheet = () => {
     setShowLoginBottomSheet(false)
   }, [setShowLoginBottomSheet])
 
+  const handleSuccess = useCallback(
+    async (token: string) => {
+      closeBottomSheet()
+
+      await AsyncStorage.setItem('token', token)
+      await accessMutateAsync()
+      await queryClient.invalidateQueries({queryKey: ['scheduleList', scheduleDate]})
+
+      navigate('MainTabs', {
+        screen: 'Home',
+        params: {scheduleUpdated: false}
+      })
+    },
+    [closeBottomSheet, scheduleDate, queryClient, accessMutateAsync]
+  )
+
+  const handleLoginSyncData = useCallback(
+    async (params: LoginSyncDataRequest) => {
+      const response = await loginSyncData(params)
+      await handleSuccess(response.data.token)
+    },
+    [handleSuccess]
+  )
+
   const handleLogin = useCallback(
     async (type: 1 | 2 | 3, token: string) => {
       setIsLoading(true)
+
       const syncData = await getSyncData()
 
       const params = {
         login_type: type,
         token,
-        schedule_list: syncData.scheduleList,
-        schedule_todo_list: syncData.scheduleTodoList,
-        schedule_routine_list: syncData.scheduleRoutineList,
-        schedule_routine_complete_list: syncData.scheduleRoutineCompleteList
+        schedule_list: syncData?.scheduleList || [],
+        schedule_todo_list: syncData?.scheduleTodoList || [],
+        schedule_routine_list: syncData?.scheduleRoutineList || [],
+        schedule_routine_complete_list: syncData?.scheduleRoutineCompleteList || []
       }
 
       const response = await loginLinkSNS(params)
 
-      if (response.code === '2000') {
-        await AsyncStorage.setItem('token', response.data.token)
-        const isUpdateSyncSuccess = await updateSyncData()
+      if (response.code === '4002') {
+        // 사용자 존재
+        alert.show({
+          title: '델리 서비스를 이용한 기록이 있어요',
+          message: '일정을 어떻게 처리할지 선택해 주세요.\n일정을 제외한 모든 데이터는 저장된 데이터로 변경됩니다.',
+          direction: 'column',
+          buttons: [
+            {
+              text: '현재 일정으로 사용하기',
+              textColor: '#1E90FF',
+              onPress: async () => {
+                await handleLoginSyncData({
+                  login_type: type,
+                  token,
+                  sync_type: 1
+                })
+                setIsLoading(false)
+              }
+            },
+            {
+              text: '저장된 일정으로 사용하기',
+              textColor: '#1E90FF',
+              onPress: async () => {
+                await handleLoginSyncData({
+                  login_type: type,
+                  token,
+                  sync_type: 2
+                })
+                setIsLoading(false)
+              }
+            },
+            {
+              text: '모든 일정 합치기',
+              textColor: '#1E90FF',
+              onPress: async () => {
+                await handleLoginSyncData({
+                  login_type: type,
+                  token,
+                  sync_type: 3
+                })
+                setIsLoading(false)
+              }
+            },
+            {
+              text: '닫기',
+              onPress: () => {
+                setIsLoading(false)
+              }
+            }
+          ]
+        })
+      } else if (response.code === '2000') {
+        let isUpdateSyncSuccess = true
+
+        if (syncData) {
+          isUpdateSyncSuccess = await updateSyncData()
+        }
 
         if (isUpdateSyncSuccess) {
-          await accessMutateAsync()
-          await queryClient.invalidateQueries({queryKey: ['scheduleList', scheduleDate]})
-
-          setIsLoading(false)
-          setShowLoginBottomSheet(false)
-
-          navigate('MainTabs', {
-            screen: 'Home',
-            params: {scheduleUpdated: false}
-          })
+          await handleSuccess(response.data.token)
         }
-      }
 
-      setIsLoading(false)
-      setShowLoginBottomSheet(false)
+        setIsLoading(false)
+      }
     },
-    [queryClient, scheduleDate, accessMutateAsync, setShowLoginBottomSheet]
+    [alert, handleLoginSyncData, handleSuccess]
   )
+
+  const handleError = useCallback(() => {
+    alert.show({
+      title: '로그인 실패',
+      message: '잠시 후 다시 시도해 주세요',
+      buttons: [
+        {
+          text: '확인',
+          onPress: () => {}
+        }
+      ]
+    })
+  }, [alert])
 
   const signInWithKakao = useCallback(async (): Promise<void> => {
     try {
@@ -98,9 +183,9 @@ const LoginBottomSheet = () => {
 
       await handleLogin(LOGIN_TYPE.KAKAO, accessToken)
     } catch (e) {
-      // console.error(e)
+      handleError()
     }
-  }, [handleLogin])
+  }, [handleLogin, handleError])
 
   const singInWithApple = useCallback(async () => {
     try {
@@ -116,10 +201,10 @@ const LoginBottomSheet = () => {
       }
     } catch (e: any) {
       if (e.code !== appleAuth.Error.CANCELED) {
-        // console.error(e)
+        handleError()
       }
     }
-  }, [handleLogin])
+  }, [handleLogin, handleError])
 
   const signInWithGoogle = useCallback(async () => {
     // [TODO] hasPlayServices 추가하기 (2024-03-14)
@@ -129,8 +214,10 @@ const LoginBottomSheet = () => {
       if (response.idToken) {
         await handleLogin(LOGIN_TYPE.GOOGLE, response.idToken)
       }
-    } catch (e) {}
-  }, [handleLogin])
+    } catch (e) {
+      handleError()
+    }
+  }, [handleLogin, handleError])
 
   useEffect(() => {
     if (showLoginBottomSheet) {

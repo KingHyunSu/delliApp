@@ -45,6 +45,12 @@ export interface LoginLinkSNSResponse {
   token: string
 }
 
+export interface LoginSyncDataRequest {
+  login_type: number
+  token: string
+  sync_type: number // 1: 현재 데이터, 2: 저장된 데이터, 3: 합치기
+}
+
 export interface AccessResponse {
   color_theme_detail: ColorThemeDetail
   active_background: ActiveBackground | null

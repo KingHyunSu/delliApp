@@ -11,7 +11,8 @@ import {
   LoginLinkSNSRequest,
   LoginLinkSNSResponse,
   LoginRequest,
-  LoginResponse
+  LoginResponse,
+  LoginSyncDataRequest
 } from '@/apis/types/auth'
 
 export const getJoinTermsList = () => {
@@ -28,6 +29,10 @@ export const login = (data: LoginRequest) => {
 
 export const loginLinkSNS = (data: LoginLinkSNSRequest) => {
   return http.post<any, Response<LoginLinkSNSResponse>>('auth/login/link', data)
+}
+
+export const loginSyncData = (data: LoginSyncDataRequest) => {
+  return http.post<any, Response<LoginLinkSNSResponse>>('auth/login/link/sync', data)
 }
 
 export const access = () => {
