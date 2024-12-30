@@ -63,24 +63,14 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
   )
 
   const submitButtonStyle = useMemo(() => {
-    let backgroundColor = displayMode === 'light' ? '#f9f9f9' : '#f9f9f9'
-
-    if (isActiveSubmit) {
-      backgroundColor = '#1E90FF'
-    }
-
+    const backgroundColor = isActiveSubmit ? '#1E90FF' : '#f9f9f9'
     return [styles.submitButton, {backgroundColor}]
-  }, [displayMode, isActiveSubmit])
+  }, [isActiveSubmit])
 
   const submitButtonTextStyle = useMemo(() => {
-    let color = displayMode === 'light' ? '#babfc5' : '#424242'
-
-    if (isActiveSubmit) {
-      color = '#ffffff'
-    }
-
+    const color = isActiveSubmit ? '#ffffff' : '#babfc5'
     return [styles.submitButtonText, {color}]
-  }, [displayMode, isActiveSubmit])
+  }, [isActiveSubmit])
 
   const fontSize = useMemo(() => {
     return schedule.font_size || 16

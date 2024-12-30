@@ -126,7 +126,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
     if (!editScheduleForm.schedule_id) {
       setEditScheduleForm(prevState => ({
         ...prevState,
-        // timetable_category_id: activeTimeTableCategory.timetable_category_id,
         start_date: format(scheduleDate, 'yyyy-MM-dd')
       }))
     }
