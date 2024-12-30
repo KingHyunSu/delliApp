@@ -36,9 +36,23 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
   const schedule = useRecoilValue(scheduleState)
   const alert = useSetRecoilState(alertState)
 
+  const isActive = useMemo(() => {
+    return !!editTodoForm.title
+  }, [editTodoForm.title])
+
   const isUpdate = useMemo(() => {
     return !!editTodoForm.schedule_todo_id
   }, [editTodoForm.schedule_todo_id])
+
+  const submitButtonStyle = useMemo(() => {
+    const backgroundColor = isActive ? '#1E90FF' : '#efefef'
+    return [styles.submitButton, {backgroundColor}]
+  }, [isActive])
+
+  const submitButtonTextStyle = useMemo(() => {
+    const color = isActive ? '#ffffff' : '#6B727E'
+    return [styles.submitButtonText, {color}]
+  }, [isActive])
 
   const targetSchedule = useMemo(() => {
     if (editTodoForm.schedule_id) {
@@ -273,8 +287,8 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
         </Pressable>
       </ScrollView>
 
-      <Pressable style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>{isUpdate ? '수정하기' : '추가하기'}</Text>
+      <Pressable style={submitButtonStyle} disabled={!isActive} onPress={handleSubmit}>
+        <Text style={submitButtonTextStyle}>{isUpdate ? '수정하기' : '추가하기'}</Text>
       </Pressable>
     </Pressable>
   )
@@ -361,13 +375,11 @@ const styles = StyleSheet.create({
     right: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1E90FF',
     borderRadius: 10
   },
   submitButtonText: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 18,
-    color: '#fff'
+    fontSize: 18
   }
 })
 

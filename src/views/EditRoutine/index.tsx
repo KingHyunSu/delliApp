@@ -37,9 +37,23 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   const schedule = useRecoilValue(scheduleState)
   const alert = useSetRecoilState(alertState)
 
+  const isActive = useMemo(() => {
+    return !!editRoutineForm.title
+  }, [editRoutineForm.title])
+
   const isUpdate = useMemo(() => {
     return !!editRoutineForm.schedule_routine_id
   }, [editRoutineForm.schedule_routine_id])
+
+  const submitButtonStyle = useMemo(() => {
+    const backgroundColor = isActive ? '#1E90FF' : '#efefef'
+    return [styles.submitButton, {backgroundColor}]
+  }, [isActive])
+
+  const submitButtonTextStyle = useMemo(() => {
+    const color = isActive ? '#ffffff' : '#6B727E'
+    return [styles.submitButtonText, {color}]
+  }, [isActive])
 
   const targetSchedule = useMemo(() => {
     if (editRoutineForm.schedule_id) {
@@ -233,8 +247,8 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
         )}
       </ScrollView>
 
-      <Pressable style={styles.submitButton} onPress={handleSubmit}>
-        <Text style={styles.submitButtonText}>{isUpdate ? '수정하기' : '추가하기'}</Text>
+      <Pressable style={submitButtonStyle} disabled={!isActive} onPress={handleSubmit}>
+        <Text style={submitButtonTextStyle}>{isUpdate ? '수정하기' : '추가하기'}</Text>
       </Pressable>
 
       <YearMonthPickerModal
@@ -293,13 +307,11 @@ const styles = StyleSheet.create({
     right: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#1E90FF',
     borderRadius: 10
   },
   submitButtonText: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 18,
-    color: '#fff'
+    fontSize: 18
   }
 })
 
