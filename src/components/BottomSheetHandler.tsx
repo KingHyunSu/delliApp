@@ -1,11 +1,10 @@
-import React, {useMemo} from 'react'
+import {useMemo} from 'react'
 import {StyleSheet, View} from 'react-native'
 import {BottomSheetHandleProps} from '@gorhom/bottom-sheet'
 import Animated, {Extrapolation, interpolate, useAnimatedStyle, useDerivedValue} from 'react-native-reanimated'
 import {toRad} from 'react-native-redash'
 import {Shadow} from 'react-native-shadow-2'
 import {useRecoilValue} from 'recoil'
-import {activeThemeState} from '@/store/system'
 
 // @ts-ignore
 export const transformOrigin = ({x, y}, ...transformations) => {
@@ -29,12 +28,6 @@ interface Props extends BottomSheetHandleProps {
 
 const inputInterpolate = [-0.6, 0, 1, 2]
 const BottomSheetHandler = ({shadow = true, maxSnapIndex = 3, animatedIndex, backgroundColor}: Props) => {
-  const activeTheme = useRecoilValue(activeThemeState)
-
-  const isShowShadow = useMemo(() => {
-    return !(activeTheme.theme_id === 1 && shadow)
-  }, [activeTheme.theme_id])
-
   const outputIndicatorTransformOriginY = useMemo(() => {
     if (maxSnapIndex === 1) {
       return [0, 1, 1, 1]
@@ -131,35 +124,31 @@ const BottomSheetHandler = ({shadow = true, maxSnapIndex = 3, animatedIndex, bac
   }, [backgroundColor])
 
   return (
-    <Shadow
-      disabled={isShowShadow}
-      startColor="#f0eff586"
-      distance={10}
-      sides={shadowSides}
-      corners={shadowCorners}
-      style={styles.shadowContainer}>
-      <View style={containerStyle} renderToHardwareTextureAndroid={true}>
-        <Animated.View style={[leftIndicatorStyle, leftIndicatorAnimatedStyle]} />
-        <Animated.View style={[rightIndicatorStyle, rightIndicatorAnimatedStyle]} />
-      </View>
-    </Shadow>
+    // <Shadow
+    //   disabled={!shadow}
+    //   startColor="#f0eff586"
+    //   distance={10}
+    //   sides={shadowSides}
+    //   corners={shadowCorners}
+    //   style={styles.shadowContainer}>
+    <View style={containerStyle} renderToHardwareTextureAndroid={true}>
+      <Animated.View style={[leftIndicatorStyle, leftIndicatorAnimatedStyle]} />
+      <Animated.View style={[rightIndicatorStyle, rightIndicatorAnimatedStyle]} />
+    </View>
+    // </Shadow>
   )
 }
 
 const styles = StyleSheet.create({
   shadowContainer: {
-    width: '100%',
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15
+    width: '100%'
   },
   container: {
     alignContent: 'center',
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 30,
-    paddingBottom: 10,
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15
+    paddingBottom: 10
   },
   indicator: {
     position: 'absolute',
