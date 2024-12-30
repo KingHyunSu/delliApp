@@ -34,6 +34,8 @@ import {Alert} from '@/components/messageBox'
 import Loading from '@/components/Loading'
 import LoginBottomSheet from '@/components/bottomSheet/LoginBottomSheet'
 
+import {AlertProvider} from '@/components/Alert'
+
 // icons
 import HomeIcon from '@/assets/icons/home.svg'
 import MyIcon from '@/assets/icons/my.svg'
@@ -436,24 +438,22 @@ function App(): JSX.Element {
       <SafeAreaProvider>
         {/* <RecoilDebugObserver /> */}
         <BottomSheetModalProvider>
-          <StatusBar translucent backgroundColor="transparent" barStyle={statusBarTextStyle} />
+          <AlertProvider>
+            <StatusBar translucent backgroundColor="transparent" barStyle={statusBarTextStyle} />
 
-          <SafeAreaView style={statusBarStyle} />
+            <SafeAreaView style={statusBarStyle} />
 
-          <Toast />
-          <Alert />
-          <Loading />
-          <LoginBottomSheet />
+            <Toast />
+            <Alert />
+            <Loading />
+            <LoginBottomSheet />
 
-          <SafeAreaView style={containerStyle}>
-            <NavigationContainer ref={navigationRef} linking={linking} onStateChange={changeRoute}>
-              <Stack.Navigator screenOptions={screenOptions}>
-                {
-                  //   !isInit ? (
-                  //     <Stack.Screen name="Splash" component={SplashScreen} />
-                  // ) :
-
-                  isLogin ? (
+            <SafeAreaView style={containerStyle}>
+              <NavigationContainer ref={navigationRef} linking={linking} onStateChange={changeRoute}>
+                <Stack.Navigator screenOptions={screenOptions}>
+                  {!isInit ? (
+                    <Stack.Screen name="Splash" component={SplashScreen} />
+                  ) : isLogin ? (
                     <>
                       <Stack.Screen name="MainTabs">{() => <BottomTabs activeTheme={activeTheme} />}</Stack.Screen>
                       <Stack.Screen
@@ -476,11 +476,11 @@ function App(): JSX.Element {
                       <Stack.Screen name="Intro" component={IntroScreen} />
                       <Stack.Screen name="JoinTerms" component={JoinTermsScreen} />
                     </>
-                  )
-                }
-              </Stack.Navigator>
-            </NavigationContainer>
-          </SafeAreaView>
+                  )}
+                </Stack.Navigator>
+              </NavigationContainer>
+            </SafeAreaView>
+          </AlertProvider>
         </BottomSheetModalProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
