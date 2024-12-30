@@ -1,12 +1,12 @@
-import React from 'react'
+import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
 import {StyleSheet, Alert, View, Text, Pressable, Platform} from 'react-native'
 import {BottomSheetModal, BottomSheetBackdropProps, BottomSheetHandleProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
-import {activeThemeState, isEditState} from '@/store/system'
-import {editScheduleFormState, scheduleDateState, scheduleState} from '@/store/schedule'
+import {activeThemeState} from '@/store/system'
+import {editScheduleFormState, scheduleDateState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 
@@ -24,48 +24,46 @@ interface Props {
 }
 const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const queryClient = useQueryClient()
-
   const updateScheduleDeleted = useUpdateScheduleDeleted()
 
-  const editInfoBottomSheetRef = React.useRef<BottomSheetModal>(null)
+  const editInfoBottomSheetRef = useRef<BottomSheetModal>(null)
 
-  const [showEditScheduleBottomSheet, setShowEditScheduleBottomSheet] = React.useState(false)
+  const [isReset, setIsReset] = useState(true)
 
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
-  const [editScheduleForm, setEditScheduleForm] = useRecoilState(editScheduleFormState)
-
-  const isEdit = useRecoilValue(isEditState)
+  const editScheduleForm = useRecoilValue(editScheduleFormState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const activeTheme = useRecoilValue(activeThemeState)
-
-  const resetSchedule = useResetRecoilState(scheduleState)
+  const resetEditScheduleForm = useResetRecoilState(editScheduleFormState)
   const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
 
-  const snapPoints = React.useMemo(() => {
+  const snapPoints = useMemo(() => {
     return [500]
   }, [])
 
-  const handleReset = React.useCallback(() => {
-    if (!isEdit) {
-      resetSchedule()
-    }
-  }, [isEdit, resetSchedule])
-
-  const closeEditMenuBottomSheet = React.useCallback(() => {
+  const closeEditMenuBottomSheet = useCallback(() => {
     setShowEditMenuBottomSheet(false)
   }, [setShowEditMenuBottomSheet])
 
-  const moveEditRoutine = React.useCallback(() => {
+  const moveEditRoutine = useCallback(() => {
+    setIsReset(false)
     closeEditMenuBottomSheet()
     navigate('EditRoutine', {scheduleId: editScheduleForm.schedule_id, routineId: null})
   }, [editScheduleForm.schedule_id, closeEditMenuBottomSheet])
 
-  const moveEditTodo = React.useCallback(() => {
+  const moveEditTodo = useCallback(() => {
+    setIsReset(false)
     closeEditMenuBottomSheet()
     navigate('EditTodo', {scheduleId: editScheduleForm.schedule_id, todoId: null})
   }, [editScheduleForm.schedule_id, closeEditMenuBottomSheet])
 
-  const deleteSchedule = React.useCallback(() => {
+  const handleMoveEditSchedule = useCallback(() => {
+    setIsReset(false)
+    closeEditMenuBottomSheet()
+    moveEditSchedule()
+  }, [moveEditSchedule, closeEditMenuBottomSheet])
+
+  const deleteSchedule = useCallback(() => {
     Alert.alert('일정 삭제하기', `"${editScheduleForm.title}" 일정을 삭제하시겠습니까?`, [
       {
         text: '취소',
@@ -89,7 +87,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
                 setWidgetWithImageUpdated(true)
               }
 
-              resetSchedule()
+              resetEditScheduleForm()
               setShowEditMenuBottomSheet(false)
             } catch (e) {
               console.error(e)
@@ -105,37 +103,29 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
     updateScheduleDeleted,
     queryClient,
     scheduleDate,
+    resetEditScheduleForm,
     setWidgetWithImageUpdated,
-    resetSchedule,
     setShowEditMenuBottomSheet
   ])
 
-  const handleMoveEditSchedule = React.useCallback(() => {
-    setShowEditScheduleBottomSheet(true)
-    setShowEditMenuBottomSheet(false)
-  }, [setShowEditScheduleBottomSheet, setShowEditMenuBottomSheet])
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (showEditMenuBottomSheet) {
       editInfoBottomSheetRef.current?.present()
     } else {
-      if (showEditScheduleBottomSheet) {
-        moveEditSchedule()
-      } else {
-        handleReset()
+      if (isReset) {
+        resetEditScheduleForm()
       }
+
       editInfoBottomSheetRef.current?.dismiss()
     }
-
-    setShowEditScheduleBottomSheet(false)
-  }, [showEditMenuBottomSheet, showEditScheduleBottomSheet, moveEditSchedule, handleReset])
+  }, [showEditMenuBottomSheet, isReset, resetEditScheduleForm])
 
   // components
-  const bottomSheetBackdrop = React.useCallback((props: BottomSheetBackdropProps) => {
+  const bottomSheetBackdrop = useCallback((props: BottomSheetBackdropProps) => {
     return <BottomSheetBackdrop props={props} />
   }, [])
 
-  const bottomSheetHandler = React.useCallback((props: BottomSheetHandleProps) => {
+  const bottomSheetHandler = useCallback((props: BottomSheetHandleProps) => {
     return (
       <BottomSheetHandler
         shadow={false}
