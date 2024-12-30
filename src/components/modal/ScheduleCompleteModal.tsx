@@ -7,7 +7,7 @@ import Animated, {runOnJS, useSharedValue, withTiming, useAnimatedStyle} from 'r
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {showScheduleCompleteModalState} from '@/store/modal'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
-import {scheduleDateState, scheduleState} from '@/store/schedule'
+import {scheduleDateState, editScheduleFormState} from '@/store/schedule'
 
 import {format} from 'date-fns'
 import {getTimeOfMinute} from '@/utils/helper'
@@ -24,7 +24,7 @@ const ScheduleCompleteModal = () => {
   const [showScheduleCompleteModal, setShowScheduleCompleteModal] = useRecoilState(showScheduleCompleteModalState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
   const scheduleDate = useRecoilValue(scheduleDateState)
-  const schedule = useRecoilValue(scheduleState)
+  const schedule = useRecoilValue(editScheduleFormState)
 
   const [flag, setFlag] = React.useState(0)
   const [completeStartTime, setCompleteStartTime] = React.useState(0)

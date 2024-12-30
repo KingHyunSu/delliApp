@@ -16,36 +16,6 @@ export const disableScheduleListState = atom<ExistSchedule[]>({
   default: []
 })
 
-export const existScheduleListState = atom<ExistSchedule[]>({
-  key: 'existScheduleListState',
-  default: []
-})
-
-export const scheduleState = atom<EditScheduleForm>({
-  key: 'scheduleState',
-  default: {
-    schedule_id: null,
-    start_date: '',
-    end_date: '9999-12-31',
-    start_time: 0,
-    end_time: 360,
-    title: '',
-    mon: '1',
-    tue: '1',
-    wed: '1',
-    thu: '1',
-    fri: '1',
-    sat: '1',
-    sun: '1',
-    title_x: 10,
-    title_y: 45,
-    title_rotate: 0,
-    font_size: 16,
-    background_color: '#ffffff',
-    text_color: '#000000'
-  }
-})
-
 export const editScheduleFormState = atom<EditScheduleForm>({
   key: 'editScheduleFormState',
   default: {

@@ -5,7 +5,7 @@ import {BottomSheetBackdropProps} from '@gorhom/bottom-sheet'
 import Animated, {Extrapolation, interpolate, useAnimatedStyle} from 'react-native-reanimated'
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {safeAreaInsetsState} from '@/store/system'
-import {colorToChangeState, scheduleState} from '@/store/schedule'
+import {colorToChangeState, editScheduleFormState} from '@/store/schedule'
 
 interface Props {
   props: BottomSheetBackdropProps
@@ -20,7 +20,7 @@ type ColorType = 'background' | 'font' | 'border'
 const CustomBackdrop = ({props, activeCategoryTab, activeTheme, snapPoints, onChangeCategoryTab, onClose}: Props) => {
   const [colorToChange, setColorToChange] = useRecoilState(colorToChangeState)
 
-  const schedule = useRecoilValue(scheduleState)
+  const editScheduleForm = useRecoilValue(editScheduleFormState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const backgroundAnimatedStyle = useAnimatedStyle(() => ({
@@ -56,12 +56,12 @@ const CustomBackdrop = ({props, activeCategoryTab, activeTheme, snapPoints, onCh
       const borderColor = activeTheme.color6
 
       if (type === colorToChange) {
-        backgroundColor = schedule.background_color
+        backgroundColor = editScheduleForm.background_color
       }
 
       return [styles.colorTypeButton, {backgroundColor, borderColor}]
     },
-    [colorToChange, activeTheme.color2, activeTheme.color6, schedule.background_color]
+    [colorToChange, activeTheme.color2, activeTheme.color6, editScheduleForm.background_color]
   )
 
   const getColorTypeButtonTextStyle = useCallback(
@@ -69,12 +69,12 @@ const CustomBackdrop = ({props, activeCategoryTab, activeTheme, snapPoints, onCh
       let color = activeTheme.color3
 
       if (type === colorToChange) {
-        color = schedule.text_color
+        color = editScheduleForm.text_color
       }
 
       return [styles.colorTypeButtonText, {color}]
     },
-    [colorToChange, activeTheme.color3, schedule.text_color]
+    [colorToChange, activeTheme.color3, editScheduleForm.text_color]
   )
 
   const changeCategoryTab = useCallback(

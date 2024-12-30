@@ -3,7 +3,7 @@ import {StyleSheet, Keyboard, ScrollView, Pressable, Text, TextInput, View} from
 import AppBar from '@/components/AppBar'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
-import {scheduleListState, scheduleState} from '@/store/schedule'
+import {scheduleListState} from '@/store/schedule'
 import {activeThemeState, alertState, keyboardAppearanceState} from '@/store/system'
 import {
   useGetScheduleTodoDetail,
@@ -33,7 +33,6 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
 
   const activeTheme = useRecoilValue(activeThemeState)
   const keyboardAppearance = useRecoilValue(keyboardAppearanceState)
-  const schedule = useRecoilValue(scheduleState)
   const alert = useSetRecoilState(alertState)
 
   const isActive = useMemo(() => {
@@ -55,12 +54,8 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
   }, [isActive])
 
   const targetSchedule = useMemo(() => {
-    if (editTodoForm.schedule_id) {
-      return scheduleList.find(item => item.schedule_id === editTodoForm.schedule_id)
-    }
-
-    return schedule
-  }, [editTodoForm.schedule_id, scheduleList, schedule])
+    return scheduleList.find(item => item.schedule_id === editTodoForm.schedule_id)
+  }, [editTodoForm.schedule_id, scheduleList])
 
   const completeDate = useMemo(() => {
     if (editTodoForm.complete_date) {

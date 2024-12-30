@@ -13,7 +13,7 @@ import BottomSheetHandler from '@/components/BottomSheetHandler'
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {showScheduleCategorySelectorBottomSheetState} from '@/store/bottomSheet'
 import {safeAreaInsetsState} from '@/store/system'
-import {scheduleCategoryListState, scheduleState} from '@/store/schedule'
+import {scheduleCategoryListState, editScheduleFormState} from '@/store/schedule'
 
 const shadowOffset: [number, number] = [0, -1]
 
@@ -27,7 +27,7 @@ const ScheduleCategorySelectorBottomSheet = () => {
   const [showScheduleCategorySelectorBottomSheet, setShowScheduleCategorySelectorBottomSheet] = useRecoilState(
     showScheduleCategorySelectorBottomSheetState
   )
-  const [schedule, setSchedule] = useRecoilState(scheduleState)
+  const [schedule, setSchedule] = useRecoilState(editScheduleFormState)
   const scheduleCategoryList = useRecoilValue(scheduleCategoryListState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 

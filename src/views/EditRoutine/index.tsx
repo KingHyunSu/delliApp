@@ -7,7 +7,7 @@ import DeleteIcon from '@/assets/icons/trash.svg'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {activeThemeState, alertState, keyboardAppearanceState} from '@/store/system'
-import {scheduleListState, scheduleState} from '@/store/schedule'
+import {scheduleListState} from '@/store/schedule'
 import {
   useGetScheduleRoutineDetail,
   useSetScheduleRoutine,
@@ -34,7 +34,6 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
 
   const activeTheme = useRecoilValue(activeThemeState)
   const keyboardAppearance = useRecoilValue(keyboardAppearanceState)
-  const schedule = useRecoilValue(scheduleState)
   const alert = useSetRecoilState(alertState)
 
   const isActive = useMemo(() => {
@@ -56,12 +55,8 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
   }, [isActive])
 
   const targetSchedule = useMemo(() => {
-    if (editRoutineForm.schedule_id) {
-      return scheduleList.find(item => item.schedule_id === editRoutineForm.schedule_id)
-    }
-
-    return schedule
-  }, [editRoutineForm.schedule_id, scheduleList, schedule])
+    return scheduleList.find(item => item.schedule_id === editRoutineForm.schedule_id)
+  }, [editRoutineForm.schedule_id, scheduleList])
 
   const changeTitle = useCallback(
     (value: string) => {
