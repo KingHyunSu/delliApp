@@ -46,42 +46,40 @@ instance.interceptors.response.use(
       return Promise.reject('5000')
     }
 
-    switch (response.data.code) {
-      case '4001': {
-        // 토큰 만료
-        const loginType = await AsyncStorage.getItem('loginType')
+    if (response.data.code === '4001') {
+      // 토큰 만료
+      const loginType = await AsyncStorage.getItem('loginType')
 
-        if (Number(loginType) === LOGIN_TYPE.KAKAO) {
-          await KakaoAuth.logout()
-        } else if (Number(loginType) === LOGIN_TYPE.GOOGLE) {
-          await GoogleSignin.signOut()
-        }
-
-        await AsyncStorage.removeItem('token')
-
-        const setLoginState = useLoginStateSetter()
-        if (setLoginState) {
-          setLoginState(false)
-        }
-
-        return Promise.reject('4001')
+      if (Number(loginType) === LOGIN_TYPE.KAKAO) {
+        await KakaoAuth.logout()
+      } else if (Number(loginType) === LOGIN_TYPE.GOOGLE) {
+        await GoogleSignin.signOut()
       }
-      case '4003': {
-        // 토큰 재발급
-        const token = await AsyncStorage.getItem('token')
 
-        if (token) {
-          const result = await getNewToken({token})
-          const newToken = result.data.token
+      await AsyncStorage.removeItem('token')
 
-          await AsyncStorage.setItem('token', newToken)
-
-          return instance(response.config)
-        }
-
-        break
+      const setLoginState = useLoginStateSetter()
+      if (setLoginState) {
+        setLoginState(false)
       }
+
+      return Promise.reject('4001')
+    } else if (response.data.code === '4003') {
+      // 토큰 재발급
+      const token = await AsyncStorage.getItem('token')
+
+      if (token) {
+        const result = await getNewToken({token})
+        const newToken = result.data.token
+
+        await AsyncStorage.setItem('token', newToken)
+
+        return instance(response.config)
+      }
+
+      return Promise.reject()
     }
+
     return response.data
   },
   async error => {
