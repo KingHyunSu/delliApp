@@ -20,7 +20,8 @@ import {
   editTimetableTranslateYState,
   displayModeState,
   activeBackgroundState,
-  activeColorThemeDetailState
+  activeColorThemeDetailState,
+  activeThemeState
 } from '@/store/system'
 import {
   scheduleDateState,
@@ -69,10 +70,8 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const [editScheduleForm, setEditScheduleForm] = useRecoilState(editScheduleFormState)
 
-  // TODO 글자 중앙 정렬 sudo code
-  // const [isFixedAlignCenter, setIsFixedAlignCenter] = useRecoilState(isFixedAlignCenterState)
-
   const displayMode = useRecoilValue(displayModeState)
+  const activeTheme = useRecoilValue(activeThemeState)
   const activeBackground = useRecoilValue(activeBackgroundState)
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
   const scheduleList = useRecoilValue(scheduleListState)
@@ -161,6 +160,16 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       setEditScheduleForm(prevState => ({
         ...prevState,
         font_size: value
+      }))
+    },
+    [setEditScheduleForm]
+  )
+
+  const changeFontAlign = React.useCallback(
+    (value: FontAlign) => {
+      setEditScheduleForm(prevState => ({
+        ...prevState,
+        font_align: value
       }))
     },
     [setEditScheduleForm]
@@ -388,9 +397,11 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
           displayMode={displayMode === 1 ? 'light' : 'dark'}
           isActiveSubmit={activeSubmit}
           changeFontSize={changeFontSize}
+          changeFontAlign={changeFontAlign}
           onActiveControlMode={handleActiveControlMode}
           onSubmit={handleSubmit}
         />
+        <View style={{height: 10, backgroundColor: activeTheme.color1}} />
       </View>
 
       <EditScheduleBottomSheet
@@ -439,7 +450,7 @@ const styles = StyleSheet.create({
   controlBar: {
     zIndex: 999,
     position: 'absolute',
-    bottom: 10,
+    bottom: 0,
     left: 16,
     right: 16
   },

@@ -173,8 +173,8 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
           <EditSchedulePie
             data={editScheduleForm}
             scheduleList={data}
-            x={timetableWrapperSize}
-            y={timetableWrapperSize}
+            centerX={timetableWrapperSize}
+            centerY={timetableWrapperSize}
             radius={radius}
             color={editSchedulePieColor}
             isInputMode={isInputMode}

@@ -15,8 +15,8 @@ import {editScheduleTimeState} from '@/store/schedule'
 interface Props {
   data: EditScheduleForm
   scheduleList: Schedule[]
-  x: number
-  y: number
+  centerX: number
+  centerY: number
   radius: number
   color: string | null
   isInputMode: Boolean
@@ -29,8 +29,8 @@ const itemSize = 48
 const EditSchedulePie = ({
   data,
   scheduleList,
-  x,
-  y,
+  centerX,
+  centerY,
   radius,
   color,
   isInputMode,
@@ -46,8 +46,8 @@ const EditSchedulePie = ({
     const angleInRadians = ((angle - 90) * Math.PI) / 180.0
 
     return {
-      x: x + radius * Math.cos(angleInRadians) - itemSize / 2,
-      y: y + radius * Math.sin(angleInRadians) - itemSize / 2
+      x: centerX + radius * Math.cos(angleInRadians) - itemSize / 2,
+      y: centerY + radius * Math.sin(angleInRadians) - itemSize / 2
     }
   })
 
@@ -56,8 +56,8 @@ const EditSchedulePie = ({
     const angleInRadians = ((angle - 90) * Math.PI) / 180.0
 
     return {
-      x: x + radius * Math.cos(angleInRadians) - itemSize / 2,
-      y: y + radius * Math.sin(angleInRadians) - itemSize / 2
+      x: centerX + radius * Math.cos(angleInRadians) - itemSize / 2,
+      y: centerY + radius * Math.sin(angleInRadians) - itemSize / 2
     }
   })
 
@@ -111,8 +111,8 @@ const EditSchedulePie = ({
    */
   const startGesture = Gesture.Pan()
     .onUpdate(event => {
-      const moveY = event.absoluteY - (y + homeHeaderHeight)
-      const moveX = event.absoluteX - x
+      const moveY = event.absoluteY - (centerY + homeHeaderHeight)
+      const moveX = event.absoluteX - centerX
 
       let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
       if (angle < 0) angle += 360
@@ -133,8 +133,8 @@ const EditSchedulePie = ({
 
   const endGesture = Gesture.Pan()
     .onUpdate(event => {
-      const moveY = event.absoluteY - (y + homeHeaderHeight)
-      const moveX = event.absoluteX - x
+      const moveY = event.absoluteY - (centerY + homeHeaderHeight)
+      const moveX = event.absoluteX - centerX
 
       let angle = (Math.atan2(moveY, moveX) * 180) / Math.PI + 90
       if (angle < 0) angle += 360
@@ -215,8 +215,8 @@ const EditSchedulePie = ({
       <Svg>
         <SchedulePie
           data={data}
-          x={x}
-          y={y}
+          x={centerX}
+          y={centerY}
           radius={radius}
           startTime={editScheduleTime.start}
           endTime={editScheduleTime.end}

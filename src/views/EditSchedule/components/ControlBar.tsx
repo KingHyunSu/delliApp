@@ -4,9 +4,13 @@ import Slider from '@react-native-community/slider'
 import {Shadow} from 'react-native-shadow-2'
 import {useSetRecoilState} from 'recoil'
 import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
-import AlignCenterIcon from '@/assets/icons/align_center.svg'
 
-type ControlMode = 'fontSize' | 'rotate' | null
+import AlignJustifyIcon from '@/assets/icons/align_justify.svg'
+import AlignLeftIcon from '@/assets/icons/align_left.svg'
+import AlignCenterIcon from '@/assets/icons/align_center.svg'
+import AlignRightIcon from '@/assets/icons/align_right.svg'
+
+type ControlMode = 'fontSize' | 'rotate' | 'textAlign' | null
 
 export interface Ref {
   close: () => void
@@ -16,11 +20,12 @@ interface Props {
   displayMode: 'light' | 'dark'
   isActiveSubmit: boolean
   changeFontSize: (value: number) => void
+  changeFontAlign: (value: FontAlign) => void
   onActiveControlMode: () => void
   onSubmit: () => void
 }
 const ControlBar = forwardRef<Ref, Props>((props, ref) => {
-  const {schedule, displayMode, isActiveSubmit, changeFontSize, onActiveControlMode, onSubmit} = props
+  const {schedule, displayMode, isActiveSubmit, changeFontSize, changeFontAlign, onActiveControlMode, onSubmit} = props
 
   const [activeControlMode, setActiveControlMode] = useState<ControlMode>(null)
 
@@ -40,16 +45,7 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
     return [styles.colorButtonIcon, {borderColor}]
   }, [displayMode])
 
-  const fontSizeButtonIconStyle = useMemo(() => {
-    let color = displayMode === 'light' ? '#babfc5' : '#424242'
-
-    if (activeControlMode === 'fontSize') {
-      color = displayMode === 'light' ? '#424242' : '#babfc5'
-    }
-    return [styles.fontSizeButtonIcon, {color}]
-  }, [displayMode, activeControlMode])
-
-  const getButtonTextStyle = useCallback(
+  const getButtonColor = useCallback(
     (bool: boolean) => {
       let color = displayMode === 'light' ? '#babfc5' : '#424242'
 
@@ -57,9 +53,22 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
         color = displayMode === 'light' ? '#424242' : '#babfc5'
       }
 
-      return [styles.buttonText, {color}]
+      return color
     },
     [displayMode]
+  )
+
+  const fontSizeButtonIconStyle = useMemo(() => {
+    const color = getButtonColor(activeControlMode === 'fontSize')
+    return [styles.fontSizeButtonIcon, {color}]
+  }, [activeControlMode, getButtonColor])
+
+  const getButtonTextStyle = useCallback(
+    (bool: boolean) => {
+      const color = getButtonColor(bool)
+      return [styles.buttonText, {color}]
+    },
+    [getButtonColor]
   )
 
   const submitButtonStyle = useMemo(() => {
@@ -85,7 +94,7 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
         setActiveControlMode(controlMode)
       }
     },
-    [activeControlMode, setActiveControlMode]
+    [activeControlMode, onActiveControlMode, setActiveControlMode]
   )
 
   const showColorSelectorBottomSheet = useCallback(() => {
@@ -93,11 +102,6 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
     setShowColorSelectorBottomSheet(true)
     onActiveControlMode()
   }, [setActiveControlMode, setShowColorSelectorBottomSheet, onActiveControlMode])
-
-  // TODO 글자 중앙 정렬 sudo code
-  // const handleFixedAlignCenter = React.useCallback(() => {
-  //   setIsFixedAlignCenter(!isFixedAlignCenter)
-  // }, [isFixedAlignCenter, setIsFixedAlignCenter])
 
   useImperativeHandle(
     ref,
@@ -111,11 +115,26 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
     [setActiveControlMode]
   )
 
-  return (
-    <View>
-      {activeControlMode === 'fontSize' && (
-        <Shadow containerStyle={controlViewStyles.container} stretch={true} startColor={shadowColor} distance={15}>
-          <View style={[controlViewStyles.wrapper, {backgroundColor: displayMode === 'light' ? '#efefef' : '#0F0F0F'}]}>
+  const activeFontAlignIcon = useMemo(() => {
+    switch (schedule.font_align) {
+      case 1:
+        return <AlignLeftIcon fill={getButtonColor(activeControlMode === 'textAlign')} />
+      case 2:
+        return <AlignCenterIcon fill={getButtonColor(activeControlMode === 'textAlign')} />
+      case 3:
+        return <AlignRightIcon fill={getButtonColor(activeControlMode === 'textAlign')} />
+      default:
+        return <AlignJustifyIcon fill={getButtonColor(activeControlMode === 'textAlign')} />
+    }
+  }, [schedule.font_align, getButtonColor, activeControlMode])
+
+  const activeControlModal = useMemo(() => {
+    const wrapperBackgroundColor = displayMode === 'light' ? '#efefef' : '#0F0F0F'
+
+    if (activeControlMode === 'fontSize') {
+      return (
+        <View style={controlViewStyles.container}>
+          <View style={[controlViewStyles.wrapper, {backgroundColor: wrapperBackgroundColor}]}>
             <Slider
               style={{flex: 1}}
               value={fontSize}
@@ -131,10 +150,37 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
               {fontSize}
             </Text>
           </View>
-        </Shadow>
-      )}
+        </View>
+      )
+    } else if (activeControlMode === 'textAlign') {
+      return (
+        <View style={controlViewStyles.container}>
+          <View style={[controlViewStyles.wrapper, {backgroundColor: wrapperBackgroundColor}]}>
+            <Pressable style={controlViewStyles.button} onPress={() => changeFontAlign(1)}>
+              <AlignLeftIcon fill={getButtonColor(schedule.font_align === 1)} />
+            </Pressable>
+            <Pressable style={controlViewStyles.button} onPress={() => changeFontAlign(2)}>
+              <AlignCenterIcon fill={getButtonColor(schedule.font_align === 2)} />
+            </Pressable>
+            <Pressable style={controlViewStyles.button} onPress={() => changeFontAlign(3)}>
+              <AlignRightIcon fill={getButtonColor(schedule.font_align === 3)} />
+            </Pressable>
+            <Pressable style={controlViewStyles.button} onPress={() => changeFontAlign(0)}>
+              <AlignJustifyIcon fill={getButtonColor(schedule.font_align === 0)} />
+            </Pressable>
+          </View>
+        </View>
+      )
+    }
 
-      <Shadow stretch={true} startColor={shadowColor} distance={30} offset={[0, 20]}>
+    return <></>
+  }, [activeControlMode, displayMode, fontSize, schedule.font_align, getButtonColor, changeFontSize, changeFontAlign])
+
+  return (
+    <View>
+      {activeControlModal}
+
+      <Shadow stretch={true} startColor={shadowColor} distance={30}>
         <View style={containerStyle}>
           <Pressable style={styles.colorButton} onPress={showColorSelectorBottomSheet}>
             <Image source={require('@/assets/icons/color.png')} style={colorButtonIconStyle} />
@@ -149,14 +195,11 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
               <Text style={getButtonTextStyle(activeControlMode === 'fontSize')}>글자 크기</Text>
             </Pressable>
 
-            {/* TODO - 테마 작업 후 추가 예정*/}
-            {/*<Pressable style={styles.controlButton} onPress={handleFixedAlignCenter}>*/}
-            {/*  <View style={styles.controlButtonWrapper}>*/}
-            {/*    <AlignCenterIcon width={24} height={24} stroke={fixedAlignCenterColor} />*/}
-            {/*  </View>*/}
+            <Pressable style={styles.button} onPress={changeActiveControlMode('textAlign')}>
+              <View style={styles.buttonIconWrapper}>{activeFontAlignIcon}</View>
 
-            {/*  <Text style={getControlButtonTextStyle(isFixedAlignCenter)}>중앙 맞춤</Text>*/}
-            {/*</Pressable>*/}
+              <Text style={getButtonTextStyle(activeControlMode === 'textAlign')}>글자 정렬</Text>
+            </Pressable>
 
             {/* TODO - 폰트 작업 후 추가 예정 */}
             {/*<Pressable style={styles.controlButton}>*/}
@@ -251,12 +294,19 @@ const controlViewStyles = StyleSheet.create({
 
     flexDirection: 'row',
     alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginHorizontal: 'auto',
     gap: 20
   },
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#ffffff'
+  },
+  button: {
+    height: 40,
+    paddingHorizontal: 7,
+    justifyContent: 'center'
   }
 })
 

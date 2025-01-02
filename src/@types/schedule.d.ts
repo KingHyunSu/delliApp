@@ -3,6 +3,8 @@ import {GetCurrentScheduleListResponse} from '@/apis/types/schedule'
 export {}
 
 declare global {
+  type FontAlign = 0 | 1 | 2 | 3 // 0: 없음, 1: 왼쪽, 2: 중앙, 3: 오른쪽
+
   interface EditScheduleForm {
     schedule_id?: number | null
     start_date: string
@@ -21,6 +23,7 @@ declare global {
     title_y: number
     title_rotate: number
     font_size: number
+    font_align: FontAlign
     background_color: string
     text_color: string
   }

@@ -32,10 +32,11 @@ export const editScheduleFormState = atom<EditScheduleForm>({
     fri: '1',
     sat: '1',
     sun: '1',
-    title_x: 10,
-    title_y: 45,
+    title_x: 0,
+    title_y: 0,
     title_rotate: 0,
     font_size: 16,
+    font_align: 2,
     background_color: '#ffffff',
     text_color: '#000000'
   }
@@ -119,9 +120,4 @@ export type ColorType = 'background' | 'font' | 'border'
 export const colorToChangeState = atom<ColorType>({
   key: 'colorToChangeState',
   default: 'background'
-})
-
-export const isFixedAlignCenterState = atom({
-  key: 'isFixedAlignCenterState',
-  default: false
 })
