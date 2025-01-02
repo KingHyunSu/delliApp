@@ -19,6 +19,7 @@ import AppleLogoIcon from '@/assets/icons/appleLogo.svg'
 import GoogleLogoIcon from '@/assets/icons/googleLogo.svg'
 
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import {useAlert} from '@/components/Alert'
 
 import {useRecoilValue, useSetRecoilState} from 'recoil'
 import {loginState, windowDimensionsState} from '@/store/system'
@@ -34,6 +35,7 @@ import {LOGIN_TYPE} from '@/utils/types'
 
 type Item = {url: ImageSourcePropType}
 const Intro = ({navigation}: IntroScreenProps) => {
+  const alert = useAlert()
   const {mutateAsync: accessMutateAsync} = useAccess()
 
   const flatListRef = useRef<FlatList>(null)
@@ -72,6 +74,19 @@ const Intro = ({navigation}: IntroScreenProps) => {
     [windowDimensions.width]
   )
 
+  const handleError = useCallback(() => {
+    alert.show({
+      title: '로그인 실패',
+      message: '잠시 후 다시 시도해 주세요',
+      buttons: [
+        {
+          text: '확인',
+          onPress: () => {}
+        }
+      ]
+    })
+  }, [alert])
+
   const handleLogin = useCallback(
     async (type: (typeof LOGIN_TYPE)[keyof typeof LOGIN_TYPE], token: string) => {
       const response = await login({login_type: type, token})
@@ -101,11 +116,11 @@ const Intro = ({navigation}: IntroScreenProps) => {
       const {accessToken} = await kakaoLogin()
       await handleLogin(LOGIN_TYPE.KAKAO, accessToken)
     } catch (e) {
-      console.error('kakao login error', e)
+      handleError()
     } finally {
       setIsLoading(false)
     }
-  }, [handleLogin])
+  }, [handleLogin, handleError])
 
   const singInWithApple = useCallback(async () => {
     try {
@@ -123,12 +138,12 @@ const Intro = ({navigation}: IntroScreenProps) => {
       }
     } catch (e: any) {
       if (e.code !== appleAuth.Error.CANCELED) {
-        // console.error(e)
+        handleError()
       }
     } finally {
       setIsLoading(false)
     }
-  }, [handleLogin])
+  }, [handleLogin, handleError])
 
   const signInWithGoogle = useCallback(async () => {
     try {
@@ -141,11 +156,11 @@ const Intro = ({navigation}: IntroScreenProps) => {
         await handleLogin(LOGIN_TYPE.GOOGLE, response.idToken)
       }
     } catch (e) {
-      console.error('google login error', e)
+      handleError()
     } finally {
       setIsLoading(false)
     }
-  }, [handleLogin])
+  }, [handleLogin, handleError])
 
   const getRenderItem: ListRenderItem<Item> = useCallback(
     ({item}) => {
