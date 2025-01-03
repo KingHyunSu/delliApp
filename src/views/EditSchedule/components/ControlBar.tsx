@@ -49,12 +49,12 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
 
   const labelStyle = useMemo(() => {
     let color = displayMode === 'light' ? '#424242' : '#eeeeee'
-    if (data.font_align === TEXT_ALIGN_TYPE.NONE) {
+    if (data.text_align === TEXT_ALIGN_TYPE.NONE) {
       color = displayMode === 'light' ? '#babfc5' : '#424242'
     }
 
     return [controlViewStyles.label, {color}]
-  }, [displayMode, data.font_align])
+  }, [displayMode, data.text_align])
 
   const getButtonColor = useCallback(
     (bool: boolean) => {
@@ -119,18 +119,18 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
   )
 
   const changeTextAlign = useCallback(
-    (value: FontAlign) => () => {
+    (value: TextAlign) => () => {
       let textDirection = data.text_direction
 
       if (value === TEXT_ALIGN_TYPE.NONE) {
         textDirection = TEXT_DIRECTION_TYPE.NONE
-      } else if (data.font_align === TEXT_ALIGN_TYPE.NONE && value !== TEXT_ALIGN_TYPE.NONE) {
+      } else if (data.text_align === TEXT_ALIGN_TYPE.NONE && value !== TEXT_ALIGN_TYPE.NONE) {
         textDirection = TEXT_DIRECTION_TYPE.RIGHT
       }
 
       onChange({
         ...data,
-        font_align: value,
+        text_align: value,
         text_direction: textDirection
       })
     },
@@ -165,8 +165,8 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
     [setActiveControlMode]
   )
 
-  const activeFontAlignIcon = useMemo(() => {
-    switch (data.font_align) {
+  const activeTextAlignIcon = useMemo(() => {
+    switch (data.text_align) {
       case TEXT_ALIGN_TYPE.LEFT:
         return <AlignLeftIcon fill={getButtonColor(activeControlMode === 'textAlign')} />
       case TEXT_ALIGN_TYPE.CENTER:
@@ -177,7 +177,7 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
       default:
         return <AlignJustifyIcon fill={getButtonColor(activeControlMode === 'textAlign')} />
     }
-  }, [data.font_align, getButtonColor, activeControlMode])
+  }, [data.text_align, getButtonColor, activeControlMode])
 
   const activeControlModal = useMemo(() => {
     const wrapperBackgroundColor = displayMode === 'light' ? '#efefef' : '#0F0F0F'
@@ -209,16 +209,16 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
           <View style={[controlViewStyles.wrapper, {backgroundColor: wrapperBackgroundColor}]}>
             <View style={controlViewStyles.row}>
               <Pressable style={controlViewStyles.button} onPress={changeTextAlign(TEXT_ALIGN_TYPE.LEFT)}>
-                <AlignLeftIcon fill={getButtonColor(data.font_align === TEXT_ALIGN_TYPE.LEFT)} />
+                <AlignLeftIcon fill={getButtonColor(data.text_align === TEXT_ALIGN_TYPE.LEFT)} />
               </Pressable>
               <Pressable style={controlViewStyles.button} onPress={changeTextAlign(TEXT_ALIGN_TYPE.CENTER)}>
-                <AlignCenterIcon fill={getButtonColor(data.font_align === TEXT_ALIGN_TYPE.CENTER)} />
+                <AlignCenterIcon fill={getButtonColor(data.text_align === TEXT_ALIGN_TYPE.CENTER)} />
               </Pressable>
               <Pressable style={controlViewStyles.button} onPress={changeTextAlign(TEXT_ALIGN_TYPE.RIGHT)}>
-                <AlignRightIcon fill={getButtonColor(data.font_align === TEXT_ALIGN_TYPE.RIGHT)} />
+                <AlignRightIcon fill={getButtonColor(data.text_align === TEXT_ALIGN_TYPE.RIGHT)} />
               </Pressable>
               <Pressable style={controlViewStyles.button} onPress={changeTextAlign(TEXT_ALIGN_TYPE.NONE)}>
-                <AlignJustifyIcon fill={getButtonColor(data.font_align === TEXT_ALIGN_TYPE.NONE)} />
+                <AlignJustifyIcon fill={getButtonColor(data.text_align === TEXT_ALIGN_TYPE.NONE)} />
               </Pressable>
             </View>
 
@@ -232,13 +232,13 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
               <View style={controlViewStyles.row}>
                 <Pressable
                   style={[controlViewStyles.button, {transform: [{rotateY: '180deg'}]}]}
-                  disabled={data.font_align === TEXT_ALIGN_TYPE.NONE}
+                  disabled={data.text_align === TEXT_ALIGN_TYPE.NONE}
                   onPress={changeTextDirection(TEXT_DIRECTION_TYPE.LEFT)}>
                   <TextDirectionIcon fill={getButtonColor(data.text_direction === TEXT_DIRECTION_TYPE.LEFT)} />
                 </Pressable>
                 <Pressable
                   style={controlViewStyles.button}
-                  disabled={data.font_align === TEXT_ALIGN_TYPE.NONE}
+                  disabled={data.text_align === TEXT_ALIGN_TYPE.NONE}
                   onPress={changeTextDirection(TEXT_DIRECTION_TYPE.RIGHT)}>
                   <TextDirectionIcon fill={getButtonColor(data.text_direction === TEXT_DIRECTION_TYPE.RIGHT)} />
                 </Pressable>
@@ -255,7 +255,7 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
     displayMode,
     labelStyle,
     fontSize,
-    data.font_align,
+    data.text_align,
     data.text_direction,
     getButtonColor,
     changeFontSize,
@@ -283,7 +283,7 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
             </Pressable>
 
             <Pressable style={styles.button} onPress={changeActiveControlMode('textAlign')}>
-              <View style={styles.buttonIconWrapper}>{activeFontAlignIcon}</View>
+              <View style={styles.buttonIconWrapper}>{activeTextAlignIcon}</View>
 
               <Text style={getButtonTextStyle(activeControlMode === 'textAlign')}>글자 정렬</Text>
             </Pressable>

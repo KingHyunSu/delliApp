@@ -36,7 +36,7 @@ export const editScheduleFormState = atom<EditScheduleForm>({
     title_y: 0,
     title_rotate: 0,
     font_size: 16,
-    font_align: TEXT_ALIGN_TYPE.CENTER,
+    text_align: TEXT_ALIGN_TYPE.CENTER,
     text_direction: TEXT_DIRECTION_TYPE.RIGHT,
     background_color: '#ffffff',
     text_color: '#000000'

@@ -26,7 +26,7 @@ export interface GetCurrentScheduleListResponse {
   title_y: number
   title_rotate: number
   font_size: number
-  font_align: FontAlign
+  text_align: TextAlign
   text_direction: TextDirection
   background_color: string
   text_color: string

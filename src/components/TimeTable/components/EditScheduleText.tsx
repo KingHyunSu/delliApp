@@ -116,13 +116,13 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
   }, [])
 
   const handleFontAngleChanged = React.useCallback(() => {
-    if (data.font_align !== TEXT_ALIGN_TYPE.NONE) {
+    if (data.text_align !== TEXT_ALIGN_TYPE.NONE) {
       onChangeSchedule({
-        font_align: TEXT_ALIGN_TYPE.NONE,
+        text_align: TEXT_ALIGN_TYPE.NONE,
         text_direction: TEXT_DIRECTION_TYPE.NONE
       })
     }
-  }, [data.font_align, onChangeSchedule])
+  }, [data.text_align, onChangeSchedule])
 
   const moveGesture = Gesture.Pan()
     .enabled(isInputMode as boolean)
@@ -166,7 +166,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
   const composeGesture = Gesture.Simultaneous(moveGesture, rotateGesture)
 
   React.useEffect(() => {
-    if (data.font_align !== TEXT_ALIGN_TYPE.NONE) {
+    if (data.text_align !== TEXT_ALIGN_TYPE.NONE) {
       const startAngle = editScheduleTime.start * 0.25
       const endAngle = editScheduleTime.end * 0.25
       let centerAngle = (startAngle + endAngle) / 2
@@ -176,11 +176,11 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
 
       let _radius = 0
 
-      if (data.font_align === TEXT_ALIGN_TYPE.LEFT) {
+      if (data.text_align === TEXT_ALIGN_TYPE.LEFT) {
         _radius = titleLayout.width / 2 + 30
-      } else if (data.font_align === TEXT_ALIGN_TYPE.CENTER) {
+      } else if (data.text_align === TEXT_ALIGN_TYPE.CENTER) {
         _radius = radius / 2
-      } else if (data.font_align === TEXT_ALIGN_TYPE.RIGHT) {
+      } else if (data.text_align === TEXT_ALIGN_TYPE.RIGHT) {
         _radius = radius - titleLayout.width / 2 - 10
       }
 
@@ -215,7 +215,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
     editScheduleTime.end,
     titleLayout.width,
     titleLayout.height,
-    data.font_align,
+    data.text_align,
     data.text_direction,
     centerX,
     centerY,

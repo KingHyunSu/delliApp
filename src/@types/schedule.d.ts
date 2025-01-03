@@ -4,7 +4,7 @@ import {TEXT_ALIGN_TYPE, TEXT_DIRECTION_TYPE} from '@/utils/types'
 export {}
 
 declare global {
-  type FontAlign = (typeof TEXT_ALIGN_TYPE)[keyof typeof TEXT_ALIGN_TYPE]
+  type TextAlign = (typeof TEXT_ALIGN_TYPE)[keyof typeof TEXT_ALIGN_TYPE]
   type TextDirection = (typeof TEXT_DIRECTION_TYPE)[keyof typeof TEXT_DIRECTION_TYPE]
 
   interface EditScheduleForm {
@@ -25,7 +25,7 @@ declare global {
     title_y: number
     title_rotate: number
     font_size: number
-    font_align: FontAlign
+    text_align: TextAlign
     text_direction: TextDirection
     background_color: string
     text_color: string
