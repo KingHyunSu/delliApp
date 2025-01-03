@@ -1,9 +1,11 @@
 import {GetCurrentScheduleListResponse} from '@/apis/types/schedule'
+import {TEXT_ALIGN_TYPE, TEXT_DIRECTION_TYPE} from '@/utils/types'
 
 export {}
 
 declare global {
-  type FontAlign = 0 | 1 | 2 | 3 // 0: 없음, 1: 왼쪽, 2: 중앙, 3: 오른쪽
+  type FontAlign = (typeof TEXT_ALIGN_TYPE)[keyof typeof TEXT_ALIGN_TYPE]
+  type TextDirection = (typeof TEXT_DIRECTION_TYPE)[keyof typeof TEXT_DIRECTION_TYPE]
 
   interface EditScheduleForm {
     schedule_id?: number | null
@@ -24,6 +26,7 @@ declare global {
     title_rotate: number
     font_size: number
     font_align: FontAlign
+    text_direction: TextDirection
     background_color: string
     text_color: string
   }

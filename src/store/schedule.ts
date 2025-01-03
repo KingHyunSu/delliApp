@@ -1,5 +1,5 @@
 import {atom} from 'recoil'
-import {RANGE_FLAG} from '@/utils/types'
+import {RANGE_FLAG, TEXT_ALIGN_TYPE, TEXT_DIRECTION_TYPE} from '@/utils/types'
 
 export const scheduleDateState = atom<Date>({
   key: 'scheduleDateState',
@@ -36,7 +36,8 @@ export const editScheduleFormState = atom<EditScheduleForm>({
     title_y: 0,
     title_rotate: 0,
     font_size: 16,
-    font_align: 2,
+    font_align: TEXT_ALIGN_TYPE.CENTER,
+    text_direction: TEXT_DIRECTION_TYPE.RIGHT,
     background_color: '#ffffff',
     text_color: '#000000'
   }

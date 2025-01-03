@@ -9,23 +9,25 @@ import AlignJustifyIcon from '@/assets/icons/align_justify.svg'
 import AlignLeftIcon from '@/assets/icons/align_left.svg'
 import AlignCenterIcon from '@/assets/icons/align_center.svg'
 import AlignRightIcon from '@/assets/icons/align_right.svg'
+import TextDirectionIcon from '@/assets/icons/text_direction.svg'
 
-type ControlMode = 'fontSize' | 'rotate' | 'textAlign' | null
+import {TEXT_ALIGN_TYPE, TEXT_DIRECTION_TYPE} from '@/utils/types'
+
+type ControlMode = 'fontSize' | 'textAlign' | null
 
 export interface Ref {
   close: () => void
 }
 interface Props {
-  schedule: EditScheduleForm
+  data: EditScheduleForm
   displayMode: 'light' | 'dark'
   isActiveSubmit: boolean
-  changeFontSize: (value: number) => void
-  changeFontAlign: (value: FontAlign) => void
   onActiveControlMode: () => void
+  onChange: (value: EditScheduleForm) => void
   onSubmit: () => void
 }
 const ControlBar = forwardRef<Ref, Props>((props, ref) => {
-  const {schedule, displayMode, isActiveSubmit, changeFontSize, changeFontAlign, onActiveControlMode, onSubmit} = props
+  const {data, displayMode, isActiveSubmit, onActiveControlMode, onChange, onSubmit} = props
 
   const [activeControlMode, setActiveControlMode] = useState<ControlMode>(null)
 
@@ -44,6 +46,15 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
 
     return [styles.colorButtonIcon, {borderColor}]
   }, [displayMode])
+
+  const labelStyle = useMemo(() => {
+    let color = displayMode === 'light' ? '#424242' : '#eeeeee'
+    if (data.font_align === TEXT_ALIGN_TYPE.NONE) {
+      color = displayMode === 'light' ? '#babfc5' : '#424242'
+    }
+
+    return [controlViewStyles.label, {color}]
+  }, [displayMode, data.font_align])
 
   const getButtonColor = useCallback(
     (bool: boolean) => {
@@ -82,8 +93,8 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
   }, [isActiveSubmit])
 
   const fontSize = useMemo(() => {
-    return schedule.font_size || 16
-  }, [schedule.font_size])
+    return data.font_size || 16
+  }, [data.font_size])
 
   const changeActiveControlMode = useCallback(
     (controlMode: ControlMode) => () => {
@@ -95,6 +106,45 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
       }
     },
     [activeControlMode, onActiveControlMode, setActiveControlMode]
+  )
+
+  const changeFontSize = useCallback(
+    (value: number) => {
+      onChange({
+        ...data,
+        font_size: value
+      })
+    },
+    [data, onChange]
+  )
+
+  const changeTextAlign = useCallback(
+    (value: FontAlign) => () => {
+      let textDirection = data.text_direction
+
+      if (value === TEXT_ALIGN_TYPE.NONE) {
+        textDirection = TEXT_DIRECTION_TYPE.NONE
+      } else if (data.font_align === TEXT_ALIGN_TYPE.NONE && value !== TEXT_ALIGN_TYPE.NONE) {
+        textDirection = TEXT_DIRECTION_TYPE.RIGHT
+      }
+
+      onChange({
+        ...data,
+        font_align: value,
+        text_direction: textDirection
+      })
+    },
+    [data, onChange]
+  )
+
+  const changeTextDirection = useCallback(
+    (value: TextDirection) => () => {
+      onChange({
+        ...data,
+        text_direction: value
+      })
+    },
+    [data, onChange]
   )
 
   const showColorSelectorBottomSheet = useCallback(() => {
@@ -116,17 +166,18 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
   )
 
   const activeFontAlignIcon = useMemo(() => {
-    switch (schedule.font_align) {
-      case 1:
+    switch (data.font_align) {
+      case TEXT_ALIGN_TYPE.LEFT:
         return <AlignLeftIcon fill={getButtonColor(activeControlMode === 'textAlign')} />
-      case 2:
+      case TEXT_ALIGN_TYPE.CENTER:
         return <AlignCenterIcon fill={getButtonColor(activeControlMode === 'textAlign')} />
-      case 3:
+      case TEXT_ALIGN_TYPE.RIGHT:
         return <AlignRightIcon fill={getButtonColor(activeControlMode === 'textAlign')} />
+      case TEXT_ALIGN_TYPE.NONE:
       default:
         return <AlignJustifyIcon fill={getButtonColor(activeControlMode === 'textAlign')} />
     }
-  }, [schedule.font_align, getButtonColor, activeControlMode])
+  }, [data.font_align, getButtonColor, activeControlMode])
 
   const activeControlModal = useMemo(() => {
     const wrapperBackgroundColor = displayMode === 'light' ? '#efefef' : '#0F0F0F'
@@ -134,7 +185,7 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
     if (activeControlMode === 'fontSize') {
       return (
         <View style={controlViewStyles.container}>
-          <View style={[controlViewStyles.wrapper, {backgroundColor: wrapperBackgroundColor}]}>
+          <View style={[controlViewStyles.wrapper, controlViewStyles.row, {backgroundColor: wrapperBackgroundColor}]}>
             <Slider
               style={{flex: 1}}
               value={fontSize}
@@ -156,25 +207,61 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
       return (
         <View style={controlViewStyles.container}>
           <View style={[controlViewStyles.wrapper, {backgroundColor: wrapperBackgroundColor}]}>
-            <Pressable style={controlViewStyles.button} onPress={() => changeFontAlign(1)}>
-              <AlignLeftIcon fill={getButtonColor(schedule.font_align === 1)} />
-            </Pressable>
-            <Pressable style={controlViewStyles.button} onPress={() => changeFontAlign(2)}>
-              <AlignCenterIcon fill={getButtonColor(schedule.font_align === 2)} />
-            </Pressable>
-            <Pressable style={controlViewStyles.button} onPress={() => changeFontAlign(3)}>
-              <AlignRightIcon fill={getButtonColor(schedule.font_align === 3)} />
-            </Pressable>
-            <Pressable style={controlViewStyles.button} onPress={() => changeFontAlign(0)}>
-              <AlignJustifyIcon fill={getButtonColor(schedule.font_align === 0)} />
-            </Pressable>
+            <View style={controlViewStyles.row}>
+              <Pressable style={controlViewStyles.button} onPress={changeTextAlign(TEXT_ALIGN_TYPE.LEFT)}>
+                <AlignLeftIcon fill={getButtonColor(data.font_align === TEXT_ALIGN_TYPE.LEFT)} />
+              </Pressable>
+              <Pressable style={controlViewStyles.button} onPress={changeTextAlign(TEXT_ALIGN_TYPE.CENTER)}>
+                <AlignCenterIcon fill={getButtonColor(data.font_align === TEXT_ALIGN_TYPE.CENTER)} />
+              </Pressable>
+              <Pressable style={controlViewStyles.button} onPress={changeTextAlign(TEXT_ALIGN_TYPE.RIGHT)}>
+                <AlignRightIcon fill={getButtonColor(data.font_align === TEXT_ALIGN_TYPE.RIGHT)} />
+              </Pressable>
+              <Pressable style={controlViewStyles.button} onPress={changeTextAlign(TEXT_ALIGN_TYPE.NONE)}>
+                <AlignJustifyIcon fill={getButtonColor(data.font_align === TEXT_ALIGN_TYPE.NONE)} />
+              </Pressable>
+            </View>
+
+            <View
+              style={[
+                controlViewStyles.section,
+                {justifyContent: 'space-between', borderTopColor: displayMode === 'light' ? '#424242' : '#eeeeee'}
+              ]}>
+              <Text style={labelStyle}>글자 방향</Text>
+
+              <View style={controlViewStyles.row}>
+                <Pressable
+                  style={[controlViewStyles.button, {transform: [{rotateY: '180deg'}]}]}
+                  disabled={data.font_align === TEXT_ALIGN_TYPE.NONE}
+                  onPress={changeTextDirection(TEXT_DIRECTION_TYPE.LEFT)}>
+                  <TextDirectionIcon fill={getButtonColor(data.text_direction === TEXT_DIRECTION_TYPE.LEFT)} />
+                </Pressable>
+                <Pressable
+                  style={controlViewStyles.button}
+                  disabled={data.font_align === TEXT_ALIGN_TYPE.NONE}
+                  onPress={changeTextDirection(TEXT_DIRECTION_TYPE.RIGHT)}>
+                  <TextDirectionIcon fill={getButtonColor(data.text_direction === TEXT_DIRECTION_TYPE.RIGHT)} />
+                </Pressable>
+              </View>
+            </View>
           </View>
         </View>
       )
     }
 
     return <></>
-  }, [activeControlMode, displayMode, fontSize, schedule.font_align, getButtonColor, changeFontSize, changeFontAlign])
+  }, [
+    activeControlMode,
+    displayMode,
+    labelStyle,
+    fontSize,
+    data.font_align,
+    data.text_direction,
+    getButtonColor,
+    changeFontSize,
+    changeTextAlign,
+    changeTextDirection
+  ])
 
   return (
     <View>
@@ -212,7 +299,7 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
           </ScrollView>
 
           <Pressable style={submitButtonStyle} disabled={!isActiveSubmit} onPress={onSubmit}>
-            <Text style={submitButtonTextStyle}>{schedule.schedule_id ? '수정' : '등록'}</Text>
+            <Text style={submitButtonTextStyle}>{data.schedule_id ? '수정' : '등록'}</Text>
           </Pressable>
         </View>
       </Shadow>
@@ -288,20 +375,33 @@ const controlViewStyles = StyleSheet.create({
     right: 0
   },
   wrapper: {
+    alignSelf: 'flex-start',
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 10,
-
-    flexDirection: 'row',
+    marginHorizontal: 'auto'
+  },
+  row: {
     alignItems: 'center',
-    alignSelf: 'flex-start',
-    marginHorizontal: 'auto',
+    flexDirection: 'row',
     gap: 20
+  },
+  section: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    borderTopWidth: 1,
+    marginTop: 5,
+    paddingTop: 5
   },
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
     color: '#ffffff'
+  },
+  label: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 12,
+    marginLeft: 10
   },
   button: {
     height: 40,

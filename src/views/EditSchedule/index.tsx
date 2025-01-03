@@ -116,11 +116,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     return [timetableAnimatedStyle, {opacity: isLoading ? 0.6 : 1}]
   }, [isLoading])
 
-  // TODO 글자 중앙 정렬 sudo code
-  // const fixedAlignCenterColor = React.useMemo(() => {
-  //   return isFixedAlignCenter ? '#ffffff' : '#696969'
-  // }, [isFixedAlignCenter])
-
   const colorThemeDetail = React.useMemo<ColorThemeDetail>(() => {
     let colorThemeItemList: ColorThemeItem[] = []
 
@@ -154,26 +149,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       }
     ])
   }, [setIsEdit, navigation])
-
-  const changeFontSize = React.useCallback(
-    (value: number) => {
-      setEditScheduleForm(prevState => ({
-        ...prevState,
-        font_size: value
-      }))
-    },
-    [setEditScheduleForm]
-  )
-
-  const changeFontAlign = React.useCallback(
-    (value: FontAlign) => {
-      setEditScheduleForm(prevState => ({
-        ...prevState,
-        font_align: value
-      }))
-    },
-    [setEditScheduleForm]
-  )
 
   const handleActiveControlMode = React.useCallback(() => {
     setIsActiveControlMode(true)
@@ -393,12 +368,11 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       <View style={styles.controlBar}>
         <ControlBar
           ref={controlBarRef}
-          schedule={editScheduleForm}
+          data={editScheduleForm}
           displayMode={displayMode === 1 ? 'light' : 'dark'}
           isActiveSubmit={activeSubmit}
-          changeFontSize={changeFontSize}
-          changeFontAlign={changeFontAlign}
           onActiveControlMode={handleActiveControlMode}
+          onChange={setEditScheduleForm}
           onSubmit={handleSubmit}
         />
         <View style={{height: 10, backgroundColor: activeTheme.color1}} />

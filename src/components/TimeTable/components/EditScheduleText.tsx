@@ -1,6 +1,5 @@
-import React, {useEffect, useMemo} from 'react'
+import React from 'react'
 import {LayoutChangeEvent, StyleSheet, View} from 'react-native'
-
 import {Gesture, GestureDetector, TextInput} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS, withTiming} from 'react-native-reanimated'
 
@@ -10,10 +9,7 @@ import {editScheduleTimeState, isInputModeState} from '@/store/schedule'
 
 import RotateGuideIcon from '@/assets/icons/rotate_guide.svg'
 import {polarToCartesian} from '@/utils/pieHelper'
-import AlignLeftIcon from '@/assets/icons/align_left.svg'
-import AlignCenterIcon from '@/assets/icons/align_center.svg'
-import AlignRightIcon from '@/assets/icons/align_right.svg'
-import AlignJustifyIcon from '@/assets/icons/align_justify.svg'
+import {TEXT_ALIGN_TYPE, TEXT_DIRECTION_TYPE} from '@/utils/types'
 
 interface Props {
   data: EditScheduleForm
@@ -69,7 +65,10 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
       positionStyle,
       rotateStyle,
       styles.container,
-      {paddingVertical: gestureVerticalSafeArea, paddingHorizontal: gestureHorizontalSafeArea}
+      {
+        paddingVertical: gestureVerticalSafeArea,
+        paddingHorizontal: gestureHorizontalSafeArea
+      }
     ]
   }, [positionStyle, rotateStyle])
 
@@ -79,11 +78,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
   }))
 
   const textStyle = React.useMemo(() => {
-    let color = '#424242'
-
-    if (data.title) {
-      color = data.text_color
-    }
+    const color = data.title ? data.text_color : '#424242'
     return [styles.text, {color, fontSize: data.font_size}]
   }, [data.title, data.text_color, data.font_size])
 
@@ -121,8 +116,11 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
   }, [])
 
   const handleFontAngleChanged = React.useCallback(() => {
-    if (data.font_align !== 0) {
-      onChangeSchedule({font_align: 0})
+    if (data.font_align !== TEXT_ALIGN_TYPE.NONE) {
+      onChangeSchedule({
+        font_align: TEXT_ALIGN_TYPE.NONE,
+        text_direction: TEXT_DIRECTION_TYPE.NONE
+      })
     }
   }, [data.font_align, onChangeSchedule])
 
@@ -167,8 +165,8 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
 
   const composeGesture = Gesture.Simultaneous(moveGesture, rotateGesture)
 
-  useEffect(() => {
-    if (data.font_align !== 0) {
+  React.useEffect(() => {
+    if (data.font_align !== TEXT_ALIGN_TYPE.NONE) {
       const startAngle = editScheduleTime.start * 0.25
       const endAngle = editScheduleTime.end * 0.25
       let centerAngle = (startAngle + endAngle) / 2
@@ -178,11 +176,11 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
 
       let _radius = 0
 
-      if (data.font_align === 1) {
-        _radius = titleLayout.width / 2 + 20
-      } else if (data.font_align === 2) {
+      if (data.font_align === TEXT_ALIGN_TYPE.LEFT) {
+        _radius = titleLayout.width / 2 + 30
+      } else if (data.font_align === TEXT_ALIGN_TYPE.CENTER) {
         _radius = radius / 2
-      } else if (data.font_align === 3) {
+      } else if (data.font_align === TEXT_ALIGN_TYPE.RIGHT) {
         _radius = radius - titleLayout.width / 2 - 10
       }
 
@@ -192,7 +190,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
       const _moveYPercent = Math.round((((cartesian.y - centerY - titleLayout.height / 2) * -1) / radius) * 100)
       const _moveX = Math.round(centerX - gestureHorizontalSafeArea + (radius / 100) * _moveXPercent)
       const _moveY = Math.round(centerY - gestureVerticalSafeArea - (radius / 100) * _moveYPercent)
-      const _rotate = centerAngle - 90
+      const _rotate = data.text_direction === TEXT_DIRECTION_TYPE.RIGHT ? centerAngle - 90 : centerAngle - 90 - 180
 
       movedX.value = _moveX
       movedY.value = _moveY
@@ -218,6 +216,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
     titleLayout.width,
     titleLayout.height,
     data.font_align,
+    data.text_direction,
     centerX,
     centerY,
     radius,
@@ -240,19 +239,6 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
     }
   }, [isRendered, isInputMode])
 
-  const activeFontAlignIcon = useMemo(() => {
-    switch (data.font_align) {
-      case 1:
-        return <AlignLeftIcon width={20} height={20} fill="#ffffff" />
-      case 2:
-        return <AlignCenterIcon width={20} height={20} fill="#ffffff" />
-      case 3:
-        return <AlignRightIcon width={20} height={20} fill="#ffffff" />
-      default:
-        return <AlignJustifyIcon width={20} height={20} fill="#ffffff" />
-    }
-  }, [data.font_align])
-
   return (
     <>
       <GestureDetector gesture={composeGesture}>
@@ -266,10 +252,6 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
             <View style={[styles.overlayItem, styles.overlayItemRight]}>
               <RotateGuideIcon fill="#ffffff" width={24} height={24} style={styles.rotateGuideIcon3} />
               <RotateGuideIcon fill="#ffffff" width={24} height={24} style={styles.rotateGuideIcon4} />
-            </View>
-
-            <View style={{position: 'absolute', top: 50, left: 0, right: 0, alignItems: 'center'}}>
-              {activeFontAlignIcon}
             </View>
           </Animated.View>
 
