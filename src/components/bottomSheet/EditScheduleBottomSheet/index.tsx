@@ -9,7 +9,6 @@ import {isAfter} from 'date-fns'
 
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import CustomBackdrop from './src/CustomBackdrop'
-import ColorPanel from './src/ColorPanel'
 import TimePanel from './src/TimePanel'
 import DatePanel from './src/DatePanel'
 import DayOfWeekPanel from './src/DayOfWeekPanel'
@@ -53,13 +52,11 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(({
   const showScheduleCategorySelectorBottomSheet = useSetRecoilState(showScheduleCategorySelectorBottomSheetState)
   const setEditScheduleListStatus = useSetRecoilState(editScheduleListStatusState)
 
-  const [activeColorPanel, setActiveColorPanel] = useState(false)
   const [activeTimePanel, setActiveTimePanel] = useState(false)
   const [activeDatePanel, setActiveDatePanel] = useState(false)
   const [activeDayOfWeekPanel, setActiveDayOfWeekPanel] = useState(false)
 
   const closeAllPanel = () => {
-    setActiveColorPanel(false)
     setActiveTimePanel(false)
     setActiveDatePanel(false)
     setActiveDayOfWeekPanel(false)
@@ -100,11 +97,6 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(({
     showScheduleCategorySelectorBottomSheet(true)
   }, [])
 
-  const handleColorPanel = useCallback(() => {
-    closeAllPanel()
-    setActiveColorPanel(!activeColorPanel)
-  }, [activeColorPanel])
-
   const handleTimePanel = useCallback(() => {
     closeAllPanel()
     setActiveTimePanel(!activeTimePanel)
@@ -124,20 +116,6 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(({
     bottomSheetRef.current?.collapse()
     setIsInputMode(true)
   }, [setIsInputMode])
-
-  const changeBackgroundColor = useCallback(
-    (color: string) => {
-      onChange({...data, background_color: color})
-    },
-    [data, onChange]
-  )
-
-  const changeTextColor = useCallback(
-    (color: string) => {
-      onChange({...data, text_color: color})
-    },
-    [data, onChange]
-  )
 
   const changeDate = useCallback(
     (date: string, flag: RANGE_FLAG) => {
@@ -269,21 +247,6 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(({
         {/*  headerLabelStyle={styles.panelHeaderLabel}*/}
         {/*  headerTitleStyle={styles.panelHeaderTitle}*/}
         {/*  handleExpansion={handleCategoryPanel}*/}
-        {/*/>*/}
-
-        {/* 색상 */}
-        {/*<ColorPanel*/}
-        {/*  value={activeColorPanel}*/}
-        {/*  isEdit={isEdit}*/}
-        {/*  data={data}*/}
-        {/*  itemPanelHeight={defaultItemPanelHeight}*/}
-        {/*  headerContainerStyle={styles.panelHeaderContainer}*/}
-        {/*  headerLabelStyle={styles.panelHeaderLabel}*/}
-        {/*  itemHeaderContainerStyle={styles.panelItemHeader}*/}
-        {/*  itemHeaderLabelStyle={styles.panelItemLabel}*/}
-        {/*  handleExpansion={handleColorPanel}*/}
-        {/*  changeBackgroundColor={changeBackgroundColor}*/}
-        {/*  changeTextColor={changeTextColor}*/}
         {/*/>*/}
 
         {/* 시간 */}
