@@ -8,6 +8,7 @@ export interface UpdateDisplayModeResponse {
 export interface UpdateCustomRequest {
   active_background_id: number
   active_outline_id: number
+  my_outline_id: number
   outline_background_color: string
   outline_progress_color: string
 }
@@ -31,11 +32,6 @@ export interface GetBackgroundListResponse {
   title: string
 }
 
-export interface GetActiveOutlineResponse {
-  product_outline_id: number
-  background_color: string
-  progress_color: string
-}
 export interface GetOutlineListResponse {
   my_outline_id: number
   product_outline_id: number

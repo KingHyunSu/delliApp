@@ -67,6 +67,7 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
     const response = await updateCustomMutateAsync({
       active_background_id: background.background_id,
       active_outline_id: outline.product_outline_id,
+      my_outline_id: outline.my_outline_id,
       outline_background_color: outline.background_color,
       outline_progress_color: outline.progress_color
     })
