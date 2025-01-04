@@ -19,6 +19,8 @@ import {
 import {editScheduleFormState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
+
+import {getScheduleColorList} from '../util'
 import {updateWidgetWithImage} from '@/utils/widget'
 
 interface Props {
@@ -156,6 +158,10 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
     return [...activeColorThemeDetail.color_theme_item_list].sort((a, b) => a.order - b.order)
   }, [activeColorThemeDetail])
 
+  const scheduleColorList = useMemo(() => {
+    return getScheduleColorList(data, sortedColorThemeItemList)
+  }, [data, sortedColorThemeItemList])
+
   const radius = useMemo(() => {
     return timetableWrapperSize - 40
   }, [timetableWrapperSize])
@@ -170,23 +176,6 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
       setShowEditMenuBottomSheet(true)
     },
     [readonly, setEditScheduleForm, setShowEditMenuBottomSheet]
-  )
-
-  const getSchedulePieColor = useCallback(
-    (item: Schedule) => {
-      if (!sortedColorThemeItemList) {
-        return null
-      }
-
-      if (sortedColorThemeItemList.length === 0) {
-        return '#ffffff'
-      }
-
-      const targetIndex = data.findIndex(sItem => item.schedule_id === sItem.schedule_id)
-
-      return sortedColorThemeItemList[targetIndex % sortedColorThemeItemList.length].color
-    },
-    [sortedColorThemeItemList, data]
   )
 
   useEffect(() => {
@@ -286,7 +275,7 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
                   radius={radius}
                   startTime={item.start_time}
                   endTime={item.end_time}
-                  color={getSchedulePieColor(item)}
+                  color={scheduleColorList[index].backgroundColor}
                   isEdit={false}
                   onClick={openEditMenuBottomSheet}
                 />
@@ -296,7 +285,7 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
             {emptyTextComponent}
           </Svg>
 
-          {data.map((item, index) => {
+          {scheduleList.map((item, index) => {
             return (
               <ScheduleText
                 key={index}
@@ -304,6 +293,7 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
                 centerX={radius}
                 centerY={radius}
                 radius={radius}
+                color={scheduleColorList[index].textColor}
                 onClick={openEditMenuBottomSheet}
               />
             )

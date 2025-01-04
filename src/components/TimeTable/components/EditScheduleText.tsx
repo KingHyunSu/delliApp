@@ -17,9 +17,10 @@ interface Props {
   centerX: number
   centerY: number
   radius: number
+  color: string
   onChangeSchedule: Function
 }
-const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeSchedule}: Props) => {
+const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, onChangeSchedule}: Props) => {
   const gestureHorizontalSafeArea = 70
   const gestureVerticalSafeArea = 100
 
@@ -78,9 +79,8 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, onChangeS
   }))
 
   const textStyle = React.useMemo(() => {
-    const color = data.title ? data.text_color : '#424242'
     return [styles.text, {color, fontSize: data.font_size}]
-  }, [data.title, data.text_color, data.font_size])
+  }, [color, data.font_size])
 
   const handleFocus = React.useCallback(() => {
     setIsInputMode(true)

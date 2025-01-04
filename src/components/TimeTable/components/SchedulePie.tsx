@@ -10,7 +10,7 @@ interface Props {
   radius: number
   startTime: number
   endTime: number
-  color?: string | null
+  color: string
   opacity?: number
   isEdit?: Boolean
   disableScheduleList?: ExistSchedule[]
@@ -41,10 +41,8 @@ const SchedulePie = ({
   }, [isEdit, disableScheduleList, data.schedule_id])
 
   const backgroundColor = React.useMemo(() => {
-    const _color = color ? color : data.background_color
-
-    return isDisabled ? '#faf0f0' : _color
-  }, [isDisabled, color, data.background_color])
+    return isDisabled ? '#faf0f0' : color
+  }, [isDisabled, color])
 
   const startAngle = React.useMemo(() => {
     return startTime * 0.25

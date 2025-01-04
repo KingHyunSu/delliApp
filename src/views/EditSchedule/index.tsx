@@ -190,7 +190,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         })
       }
 
-      return newScheduleList
+      return newScheduleList.sort((a, b) => a.start_time - b.start_time)
     },
     [scheduleList]
   )
