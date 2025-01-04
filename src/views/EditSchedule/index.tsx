@@ -63,7 +63,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       color_theme_item_id: item.color_theme_item_id,
       color: item.color,
       order: item.order,
-      actionType: null
+      actionType: item.color_theme_item_id === -1 ? 'I' : null
     }))
   })
 

@@ -57,7 +57,29 @@ export const useAccess = () => {
 
       setDisplayMode(accessInfo.active_display_mode)
       setActiveOutline(accessInfo.active_outline)
-      setActiveColorThemeDetail(accessInfo.color_theme_detail)
+
+      if (
+        accessInfo.color_theme_detail.is_active_color_theme &&
+        accessInfo.color_theme_detail.color_theme_item_list.length === 0
+      ) {
+        setActiveColorThemeDetail({
+          is_active_color_theme: accessInfo.color_theme_detail.is_active_color_theme,
+          color_theme_item_list: [
+            {
+              color_theme_item_id: -1,
+              color: '#efefef',
+              order: 1
+            },
+            {
+              color_theme_item_id: -1,
+              color: '#ffffff',
+              order: 2
+            }
+          ]
+        })
+      } else {
+        setActiveColorThemeDetail(accessInfo.color_theme_detail)
+      }
 
       setLoginInfo({
         login_type: accessInfo.login_type,
