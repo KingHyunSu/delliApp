@@ -158,11 +158,12 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(({
   const changeStartDate = useCallback(
     (date: string) => {
       if (isAfter(new Date(date), new Date(data.end_date))) {
-        changeDate('9999-12-31', RANGE_FLAG.END)
+        onChange({...data, start_date: date, end_date: '9999-12-31'})
+      } else {
+        changeDate(date, RANGE_FLAG.START)
       }
-      changeDate(date, RANGE_FLAG.START)
     },
-    [data.end_date, changeDate]
+    [changeDate, data, onChange]
   )
 
   const changeEndDate = useCallback(

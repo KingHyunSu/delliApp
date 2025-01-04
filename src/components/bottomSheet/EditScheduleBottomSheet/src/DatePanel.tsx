@@ -51,6 +51,13 @@ const DatePanel = memo(
       return [styles.button, {backgroundColor, borderWidth}]
     }, [displayMode, activeTheme.color5])
 
+    const disabledChangeToday = useMemo(() => {
+      const currentDate = new Date()
+      const today = format(currentDate, 'yyyy-MM-dd')
+
+      return data.start_date > today
+    }, [data.start_date])
+
     const endDate = useMemo(() => {
       return data.end_date !== '9999-12-31' ? data.end_date : '없음'
     }, [data.end_date])
@@ -78,6 +85,11 @@ const DatePanel = memo(
       },
       [activeDatePanelItemIndex, activeTheme.color3]
     )
+
+    const todayButtonTextStyle = useMemo(() => {
+      const color = disabledChangeToday ? '#eeeded' : activeTheme.color3
+      return [styles.buttonText, {color}]
+    }, [disabledChangeToday, activeTheme.color3])
 
     const handleStartDatePanel = useCallback(() => {
       setActiveDatePanelItemIndex(0)
@@ -111,14 +123,10 @@ const DatePanel = memo(
 
     const changeEndDateToStartDate = useCallback(() => {
       const currentDate = new Date()
-      const today = format(currentDate, 'yyyy-MM-dd')
 
-      if (today === data.end_date) {
-        setEndDateKey(currentDate.getTime())
-      } else {
-        changeEndDate(data.start_date)
-      }
-    }, [data.start_date, data.end_date, changeEndDate])
+      setEndDateKey(currentDate.getTime())
+      changeEndDate(data.start_date)
+    }, [data.start_date, changeEndDate])
 
     const changeNoDate = useCallback(() => {
       changeEndDate('9999-12-31')
@@ -197,8 +205,8 @@ const DatePanel = memo(
                   />
 
                   <View style={styles.buttonWrapper}>
-                    <Pressable style={buttonStyle} onPress={changeToday('end')}>
-                      <Text style={[styles.buttonText, {color: activeTheme.color3}]}>오늘</Text>
+                    <Pressable style={buttonStyle} disabled={disabledChangeToday} onPress={changeToday('end')}>
+                      <Text style={todayButtonTextStyle}>오늘</Text>
                     </Pressable>
 
                     <Pressable style={buttonStyle} onPress={changeEndDateToStartDate}>
