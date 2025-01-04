@@ -89,20 +89,15 @@ const OverlapScheduleListBottomSheet = ({visible, data, onSubmit, onDismiss}: Pr
     return <BottomSheetBackdrop props={props} />
   }, [])
 
-  const bottomSheetHandler = useCallback(
-    (props: BottomSheetHandleProps) => {
-      return (
-        <BottomSheetHandler
-          shadow={false}
-          maxSnapIndex={1}
-          backgroundColor={activeTheme.color5}
-          animatedIndex={props.animatedIndex}
-          animatedPosition={props.animatedPosition}
-        />
-      )
-    },
-    [activeTheme.color1]
-  )
+  const bottomSheetHandler = useCallback((props: BottomSheetHandleProps) => {
+    return (
+      <BottomSheetHandler
+        maxSnapIndex={1}
+        animatedIndex={props.animatedIndex}
+        animatedPosition={props.animatedPosition}
+      />
+    )
+  }, [])
 
   const header = useCallback(() => {
     return (
@@ -139,24 +134,25 @@ const OverlapScheduleListBottomSheet = ({visible, data, onSubmit, onDismiss}: Pr
     <BottomSheetModal
       name="editScheduleCheck"
       ref={editScheduleCheckBottomSheet}
-      backgroundStyle={{backgroundColor: activeTheme.color2}}
       backdropComponent={bottomSheetBackdrop}
       handleComponent={bottomSheetHandler}
       index={0}
       snapPoints={snapPoints}
       onDismiss={onDismiss}>
-      <BottomSheetFlatList
-        data={list}
-        bounces={false}
-        keyExtractor={getKeyExtractor}
-        renderItem={renderItem}
-        ListHeaderComponent={header}
-        contentContainerStyle={containerStyle}
-      />
+      <View style={{flex: 1, backgroundColor: activeTheme.color2}}>
+        <BottomSheetFlatList
+          data={list}
+          bounces={false}
+          keyExtractor={getKeyExtractor}
+          renderItem={renderItem}
+          ListHeaderComponent={header}
+          contentContainerStyle={containerStyle}
+        />
 
-      <Pressable style={footerButtonStyle} onPress={handleSubmit}>
-        <Text style={footerStyles.buttonText}>적용하기</Text>
-      </Pressable>
+        <Pressable style={footerButtonStyle} onPress={handleSubmit}>
+          <Text style={footerStyles.buttonText}>적용하기</Text>
+        </Pressable>
+      </View>
     </BottomSheetModal>
   )
 }
