@@ -136,6 +136,7 @@ const OverlapScheduleListBottomSheet = ({visible, data, onSubmit, onDismiss}: Pr
       ref={editScheduleCheckBottomSheet}
       backdropComponent={bottomSheetBackdrop}
       handleComponent={bottomSheetHandler}
+      backgroundStyle={{backgroundColor: activeTheme.color5}}
       index={0}
       snapPoints={snapPoints}
       onDismiss={onDismiss}>
