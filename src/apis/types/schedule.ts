@@ -30,6 +30,7 @@ export interface GetCurrentScheduleListResponse {
   text_direction: TextDirection
   background_color: string
   text_color: string
+  update_date: string
   todo_list: ScheduleTodo[]
   routine_list: ScheduleRoutine[]
 }
