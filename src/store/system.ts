@@ -57,6 +57,7 @@ export const activeBackgroundState = atom<ActiveBackground>({
 export const activeOutlineState = atom<ActiveOutline>({
   key: 'activeOutlineState',
   default: {
+    my_outline_id: -1,
     product_outline_id: 1,
     background_color: '#ffffff',
     progress_color: '#FF6F61'
