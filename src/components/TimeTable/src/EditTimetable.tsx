@@ -65,6 +65,20 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
     return sortedScheduleList.filter(item => item.schedule_id !== editScheduleForm.schedule_id)
   }, [sortedScheduleList, editScheduleForm.schedule_id])
 
+  const editScheduleColor = useMemo(() => {
+    if (colorThemeDetail.is_active_color_theme) {
+      return {
+        backgroundColor: colorThemeDetail.color_theme_item_list[0].background_color,
+        textColor: colorThemeDetail.color_theme_item_list[0].text_color
+      }
+    }
+
+    return {
+      backgroundColor: editScheduleForm.background_color,
+      textColor: editScheduleForm.text_color
+    }
+  }, [colorThemeDetail, editScheduleForm.background_color, editScheduleForm.text_color])
+
   const closeKeyboard = useCallback(() => {
     setIsInputMode(false)
   }, [setIsInputMode])
@@ -149,7 +163,7 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
             centerX={timetableWrapperSize}
             centerY={timetableWrapperSize}
             radius={radius}
-            color={colorThemeDetail.color_theme_item_list[0].background_color}
+            color={editScheduleColor.backgroundColor}
             isInputMode={isInputMode}
             onChangeSchedule={changeSchedule}
             onChangeScheduleDisabled={changeScheduleDisabled}
@@ -161,7 +175,7 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
             centerX={timetableWrapperSize}
             centerY={timetableWrapperSize}
             radius={radius}
-            color={colorThemeDetail.color_theme_item_list[0].text_color}
+            color={editScheduleColor.textColor}
             onChangeSchedule={changeSchedule}
           />
         </View>
