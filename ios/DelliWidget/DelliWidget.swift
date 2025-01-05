@@ -258,10 +258,14 @@ struct DelliWidgetEntryView : View {
       ZStack {
         switch self.widgetFamily {
         case .systemSmall:
-          TimeTable(data: entry.scheduleList, isUpdate: entry.isUpdate)
+          TimeTable(data: entry.scheduleList, 
+                    activeSchedule: entry.activeSchedule,
+                    isUpdate: entry.isUpdate)
         case .systemMedium:
           HStack {
-            TimeTable(data: entry.scheduleList, isUpdate: entry.isUpdate)
+            TimeTable(data: entry.scheduleList, 
+                      activeSchedule: entry.activeSchedule,
+                      isUpdate: entry.isUpdate)
             
             if(entry.scheduleList.count > 0) {
               VStack(alignment: .center) {

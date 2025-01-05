@@ -8,7 +8,8 @@ import {
   activeColorThemeDetailState,
   activeOutlineState,
   displayModeState,
-  statusBarTextStyleState
+  statusBarTextStyleState,
+  widgetReloadableState
 } from '@/store/system'
 import {loginInfoState} from '@/store/user'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -43,6 +44,7 @@ export const useAccess = () => {
   const setActiveOutline = useSetRecoilState(activeOutlineState)
   const setDisplayMode = useSetRecoilState(displayModeState)
   const setLoginInfo = useSetRecoilState(loginInfoState)
+  const setWidgetReloadable = useSetRecoilState(widgetReloadableState)
 
   return useMutation({
     mutationFn: async () => {
@@ -87,6 +89,8 @@ export const useAccess = () => {
         login_type: accessInfo.login_type,
         email: accessInfo.email
       })
+
+      setWidgetReloadable(accessInfo.widget_reloadable)
 
       await AsyncStorage.setItem('loginType', String(accessInfo.login_type))
     }

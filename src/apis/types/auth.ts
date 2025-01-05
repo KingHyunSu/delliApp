@@ -58,6 +58,7 @@ export interface AccessResponse {
   active_display_mode: DisplayMode
   login_type: (typeof LOGIN_TYPE)[keyof typeof LOGIN_TYPE]
   email: string
+  widget_reloadable: boolean
 }
 
 export interface LeaveRequest {

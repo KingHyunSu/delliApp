@@ -39,6 +39,7 @@ import type {EditScheduleBottomSheetRef} from '@/components/bottomSheet/EditSche
 import type {Ref as ControlBarRef} from './components/ControlBar'
 import {GetOverlapScheduleListResponse} from '@/apis/types/schedule'
 import {UpdateColorThemeRequest} from '@/apis/types/user'
+import {format} from 'date-fns'
 
 const EditSchedule = ({navigation}: EditScheduleProps) => {
   const queryClient = useQueryClient()
@@ -264,7 +265,8 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
       const newScheduleList = getNewScheduleList({...form, schedule_id: newScheduleId}, disabledScheduleList)
 
-      queryClient.setQueryData(['scheduleList', scheduleDate], newScheduleList)
+      const formatDate = format(scheduleDate, 'yyyy-MM-dd')
+      queryClient.setQueryData(['scheduleList', formatDate], newScheduleList)
 
       navigation.navigate('MainTabs', {
         screen: 'Home',

@@ -15,9 +15,10 @@ import {
 export const useGetCurrentScheduleList = () => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const setIsLoading = useSetRecoilState(isLoadingState)
+  const formatDate = format(scheduleDate, 'yyyy-MM-dd')
 
   return useQuery({
-    queryKey: ['scheduleList', scheduleDate],
+    queryKey: ['scheduleList', formatDate],
     queryFn: async () => {
       setIsLoading(true)
 

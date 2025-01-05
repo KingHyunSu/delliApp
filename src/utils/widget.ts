@@ -1,9 +1,6 @@
 import {Alert, NativeModules} from 'react-native'
 import RNFS from 'react-native-fs'
 import {format} from 'date-fns'
-import * as scheduleApi from '@/apis/server/schedule'
-import * as widgetApi from '@/apis/widget'
-import {getDayOfWeekKey} from '@/utils/helper'
 import {GetCurrentScheduleListResponse} from '@/apis/types/schedule'
 
 type WidgetSchedule = {
@@ -14,12 +11,6 @@ type WidgetSchedule = {
   todo_list: ScheduleTodo[]
 }
 const {AppGroupModule, WidgetUpdaterModule} = NativeModules
-
-const isWidgetReloadable = async () => {
-  const response = await widgetApi.getWidgetReloadable()
-
-  return response.data.widget_reloadable
-}
 
 const getWidgetScheduleList = (schedules: GetCurrentScheduleListResponse[]) => {
   const scheduleList = [...schedules].sort((a, b) => a.end_time - b.end_time)
@@ -72,50 +63,21 @@ const getWidgetScheduleList = (schedules: GetCurrentScheduleListResponse[]) => {
   return JSON.stringify(widgetScheduleList)
 }
 
-const getScheduleList = async (date: Date) => {
-  const targetDate = format(date, 'yyyy-MM-dd')
-  const dayOfWeek = getDayOfWeekKey(date.getDay())
-
-  const params = {
-    date: targetDate,
-    mon: '',
-    tue: '',
-    wed: '',
-    thu: '',
-    fri: '',
-    sat: '',
-    sun: '',
-    disable: '0'
-  }
-
-  if (dayOfWeek) {
-    params[dayOfWeek] = '1'
-  }
-
-  const response = await scheduleApi.getCurrentScheduleList(params)
-
-  return response.data
-}
-
-const handleWidgetUpdate = async () => {
+const handleWidgetUpdate = async (scheduleList: Schedule[]) => {
   const date = new Date()
-  const newScheduleList = await getScheduleList(date)
-  const widgetScheduleList = getWidgetScheduleList(newScheduleList)
+  const widgetScheduleList = getWidgetScheduleList(scheduleList)
 
   const dateString = format(date, "yyyy-MM-dd'T'HH:mm:ssX")
 
   WidgetUpdaterModule.updateWidget(widgetScheduleList, dateString)
 }
 
+// TODO - 현재 미사용중
 export const updateWidget = async () => {
-  const widgetReloadable = await isWidgetReloadable()
-
-  if (widgetReloadable) {
-    await handleWidgetUpdate()
-  }
+  // await handleWidgetUpdate()
 }
 
-export const updateWidgetWithImage = async (imageUri: string) => {
+export const updateWidgetWithImage = async (scheduleList: Schedule[], imageUri: string) => {
   if (!imageUri || !AppGroupModule) {
     Alert.alert('위젯 업데이트 실패', '잠시 후 다시 시도해 주세요.', [
       {
@@ -125,12 +87,6 @@ export const updateWidgetWithImage = async (imageUri: string) => {
 
     return
   }
-
-  // const widgetReloadable = await isWidgetReloadable()
-  //
-  // if (!widgetReloadable) {
-  //   return
-  // }
 
   // 이미지 이동
   const fileName = 'timetable.png'
@@ -143,5 +99,5 @@ export const updateWidgetWithImage = async (imageUri: string) => {
   }
   await RNFS.moveFile(imageUri, filePath)
 
-  await handleWidgetUpdate()
+  await handleWidgetUpdate(scheduleList)
 }

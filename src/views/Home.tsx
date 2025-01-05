@@ -31,7 +31,8 @@ import {
   activeBackgroundState,
   statusBarColorState,
   bottomSafeAreaColorState,
-  statusBarTextStyleState
+  statusBarTextStyleState,
+  widgetReloadableState
 } from '@/store/system'
 import {
   scheduleDateState,
@@ -68,6 +69,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
+  const [widgetReloadable, setWidgetReloadable] = useRecoilState(widgetReloadableState)
 
   const activeBackground = useRecoilValue(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
@@ -240,10 +242,8 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       setScheduleDate(new Date())
 
       // 광고 로드 완료
-      const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, async () => {
-        const response = await widgetApi.getWidgetReloadable()
-
-        if (!response.data.widget_reloadable) {
+      const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, () => {
+        if (!widgetReloadable) {
           Alert.alert('광고 시청하고\n위젯 새로고침', '', [
             {
               text: '취소',
@@ -264,6 +264,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         await widgetApi.updateWidgetReloadable()
 
         setWidgetWithImageUpdated(true)
+        setWidgetReloadable(true)
       })
 
       // 광고 닫힘
@@ -281,7 +282,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         unsubscribeClosed()
       }
     }
-  }, [route])
+  }, [widgetReloadable, route, setScheduleDate, setToast, setWidgetWithImageUpdated, setWidgetReloadable])
 
   React.useEffect(() => {
     if (isEdit) {

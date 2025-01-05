@@ -72,6 +72,11 @@ export const activeColorThemeDetailState = atom<ColorThemeDetail>({
   }
 })
 
+export const widgetReloadableState = atom({
+  key: 'widgetReloadableState',
+  default: false
+})
+
 export const keyboardAppearanceState = selector({
   key: 'keyboardAppearanceState',
   get: ({get}) => {

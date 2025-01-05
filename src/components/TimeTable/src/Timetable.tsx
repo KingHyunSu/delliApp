@@ -14,7 +14,8 @@ import {
   activeOutlineState,
   activeColorThemeDetailState,
   timetableContainerHeightState,
-  timetableWrapperSizeState
+  timetableWrapperSizeState,
+  widgetReloadableState
 } from '@/store/system'
 import {editScheduleFormState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
@@ -39,6 +40,7 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
   const timetableWrapperSize = useRecoilValue(timetableWrapperSizeState)
   const activeColorThemeDetail = useRecoilValue(activeColorThemeDetailState)
   const activeOutline = useRecoilValue(activeOutlineState)
+  const widgetReloadable = useRecoilValue(widgetReloadableState)
 
   const setEditScheduleForm = useSetRecoilState(editScheduleFormState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
@@ -170,18 +172,18 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
     const updateWidget = async () => {
       try {
         const imageUri = await captureRef(refs)
-        await updateWidgetWithImage(imageUri)
+        await updateWidgetWithImage(data, imageUri)
       } catch (e) {
         console.error('eee', e)
       }
     }
 
-    if (isRendered && widgetWithImageUpdated) {
+    if (isRendered && widgetReloadable && widgetWithImageUpdated) {
       updateWidget()
 
       setWidgetWithImageUpdated(false)
     }
-  }, [isRendered, widgetWithImageUpdated, setWidgetWithImageUpdated])
+  }, [data, isRendered, widgetReloadable, widgetWithImageUpdated, setWidgetWithImageUpdated])
 
   useEffect(() => {
     const timer = setInterval(() => {

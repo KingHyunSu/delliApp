@@ -134,11 +134,15 @@ const BottomTabs = React.memo(({activeTheme}: BottomTabsProps) => {
   )
 })
 
-const linking: LinkingOptions<BottomTabNavigator> = {
+const linking: LinkingOptions<StackNavigator> = {
   prefixes: ['delli://'],
   config: {
     screens: {
-      Home: 'widget/reload'
+      MainTabs: {
+        screens: {
+          Home: 'widget/reload'
+        }
+      }
     }
   }
 }
@@ -352,73 +356,75 @@ function App(): JSX.Element {
     }
   }, [])
 
+  // TODO - 타이머 코드 임시 비활성화
   // handle focus timer
-  React.useEffect(() => {
-    if (focusModeInfo) {
-      focusModeIntervalRef.current = setInterval(() => {
-        setFocusModeInfo(prevState => {
-          if (prevState) {
-            return {
-              schedule_activity_log_id: prevState.schedule_activity_log_id,
-              schedule_id: prevState.schedule_id,
-              seconds: prevState.seconds + 1
-            }
-          }
-          return prevState
-        })
-      }, 1000)
-    } else {
-      if (focusModeIntervalRef.current) {
-        setFocusModeInfo(null)
-        clearInterval(focusModeIntervalRef.current)
-      }
-    }
+  // React.useEffect(() => {
+  //   if (focusModeInfo) {
+  //     focusModeIntervalRef.current = setInterval(() => {
+  //       setFocusModeInfo(prevState => {
+  //         if (prevState) {
+  //           return {
+  //             schedule_activity_log_id: prevState.schedule_activity_log_id,
+  //             schedule_id: prevState.schedule_id,
+  //             seconds: prevState.seconds + 1
+  //           }
+  //         }
+  //         return prevState
+  //       })
+  //     }, 1000)
+  //   } else {
+  //     if (focusModeIntervalRef.current) {
+  //       setFocusModeInfo(null)
+  //       clearInterval(focusModeIntervalRef.current)
+  //     }
+  //   }
+  //
+  //   return () => {
+  //     if (focusModeIntervalRef.current) {
+  //       clearInterval(focusModeIntervalRef.current)
+  //     }
+  //   }
+  // }, [focusModeInfo])
 
-    return () => {
-      if (focusModeIntervalRef.current) {
-        clearInterval(focusModeIntervalRef.current)
-      }
-    }
-  }, [focusModeInfo])
-
-  React.useEffect(() => {
-    if (isActiveApp) {
-      const handleFocusMode = async () => {
-        const jsonValue = await AsyncStorage.getItem('focusModeInfo')
-
-        if (jsonValue) {
-          const value = JSON.parse(jsonValue)
-          const now = Date.now()
-          const timePassed = Math.floor((now - value.saveDate) / 1000)
-
-          setFocusModeInfo({
-            schedule_activity_log_id: value.schedule_activity_log_id,
-            schedule_id: value.schedule_id,
-            seconds: value.seconds + timePassed
-          })
-
-          await AsyncStorage.removeItem('focusModeInfo')
-        }
-      }
-
-      handleFocusMode()
-    } else {
-      if (focusModeInfo) {
-        const saveFocusMode = async () => {
-          const value = {
-            schedule_id: focusModeInfo.schedule_id,
-            seconds: focusModeInfo.seconds,
-            saveDate: Date.now()
-          }
-          const jsonValue = JSON.stringify(value)
-
-          await AsyncStorage.setItem('focusModeInfo', jsonValue)
-        }
-
-        saveFocusMode()
-      }
-    }
-  }, [isActiveApp])
+  // TODO - 타이머 코드 임시 비활성화
+  // React.useEffect(() => {
+  //   if (isActiveApp) {
+  //     const handleFocusMode = async () => {
+  //       const jsonValue = await AsyncStorage.getItem('focusModeInfo')
+  //
+  //       if (jsonValue) {
+  //         const value = JSON.parse(jsonValue)
+  //         const now = Date.now()
+  //         const timePassed = Math.floor((now - value.saveDate) / 1000)
+  //
+  //         setFocusModeInfo({
+  //           schedule_activity_log_id: value.schedule_activity_log_id,
+  //           schedule_id: value.schedule_id,
+  //           seconds: value.seconds + timePassed
+  //         })
+  //
+  //         await AsyncStorage.removeItem('focusModeInfo')
+  //       }
+  //     }
+  //
+  //     handleFocusMode()
+  //   } else {
+  //     if (focusModeInfo) {
+  //       const saveFocusMode = async () => {
+  //         const value = {
+  //           schedule_id: focusModeInfo.schedule_id,
+  //           seconds: focusModeInfo.seconds,
+  //           saveDate: Date.now()
+  //         }
+  //         const jsonValue = JSON.stringify(value)
+  //
+  //         await AsyncStorage.setItem('focusModeInfo', jsonValue)
+  //       }
+  //
+  //       saveFocusMode()
+  //     }
+  //   }
+  // }, [isActiveApp])
 
   // recoil debug
   // function RecoilDebugObserver(): React.ReactNode {
