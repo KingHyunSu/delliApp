@@ -22,7 +22,6 @@ import PlusIcon from '@/assets/icons/plus.svg'
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
 import {
   safeAreaInsetsState,
-  isLunchState,
   isEditState,
   isLoadingState,
   toastState,
@@ -75,7 +74,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const activeTheme = useRecoilValue(activeThemeState)
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
 
-  const setIsLunch = useSetRecoilState(isLunchState)
   const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
   const resetEditScheduleForm = useResetRecoilState(editScheduleFormState)
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
@@ -88,12 +86,11 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   React.useEffect(() => {
     setScheduleList(_scheduleList)
-    setIsLunch(true)
 
     setTimeout(() => {
       setIsLoading(false)
     }, 300)
-  }, [_scheduleList, setScheduleList, setIsLunch, setIsLoading])
+  }, [_scheduleList, setScheduleList, setIsLoading])
 
   const background = React.useMemo(() => {
     if (!activeBackground || activeBackground.background_id === 1) {

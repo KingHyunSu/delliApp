@@ -98,11 +98,6 @@ export const setLoginStateSetter = (setter: LoginStateSetter): void => {
 }
 export const useLoginStateSetter = () => loginStateSetter
 
-export const isLunchState = atom({
-  key: 'isLunchState',
-  default: false
-})
-
 export const isEditState = atom({
   key: 'isEdit',
   default: false

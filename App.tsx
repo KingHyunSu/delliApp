@@ -46,7 +46,6 @@ import StoreIcon from '@/assets/icons/store.svg'
 import {useRecoilState, useRecoilValue, useSetRecoilState, useRecoilSnapshot} from 'recoil'
 import {
   loginState,
-  isLunchState,
   windowDimensionsState,
   bottomSafeAreaColorState,
   activeThemeState,
@@ -103,15 +102,6 @@ const BottomTabs = React.memo(({activeTheme}: BottomTabsProps) => {
           }
         }}
       />
-      {/*<Tab.Screen*/}
-      {/*  name="Routine"*/}
-      {/*  component={RoutineListScreen}*/}
-      {/*  options={{*/}
-      {/*    tabBarIcon: ({focused}) => {*/}
-      {/*      return <RoutineIcon width={30} height={30} fill={focused ? '#424242' : '#babfc5'} />*/}
-      {/*    }*/}
-      {/*  }}*/}
-      {/*/>*/}
       <Tab.Screen
         name="StoreList"
         component={StoreListScreen}
@@ -161,7 +151,6 @@ function App(): JSX.Element {
 
   const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
   const [isLogin, setIsLogin] = useRecoilState(loginState)
-  const [isLunch, setIsLunch] = useRecoilState(isLunchState)
 
   const displayMode = useRecoilValue(displayModeState)
   const activeBackground = useRecoilValue(activeBackgroundState)
@@ -246,38 +235,6 @@ function App(): JSX.Element {
     setBottomSafeAreaColor
   ])
 
-  // 2024-05-18 서버 제거로인해 비활성화
-  // React.useEffect(() => {
-  //   if (isLogin) {
-  //     load()
-  //   }
-  // }, [isLogin, load])
-
-  // React.useEffect(() => {
-  //   const setToken = async () => {
-  //     const token = await AsyncStorage.getItem('token')
-
-  //     if (token) {
-  //       setIsLogin(true)
-  //       setIsActiveApp(true)
-  //     } else {
-  //       setIsLunch(true)
-  //     }
-  //   }
-
-  //   setToken()
-  //   if (isLogin && isLoaded) {
-  //     show()
-  //   }
-  // }, [isLogin, isLoaded, show, setIsLunch, setIsLogin])
-
-  // React.useEffect(() => {
-  //   if (isLunch) {
-  //     SystemSplashScreen.hide()
-  //     // crashlytics().crash()
-  //   }
-  // }, [isLunch])
-
   React.useEffect(() => {
     GoogleSignin.configure({
       scopes: ['openid', 'https://www.googleapis.com/auth/userinfo.email'],
@@ -298,6 +255,9 @@ function App(): JSX.Element {
         const token = await AsyncStorage.getItem('token')
 
         if (token) {
+          if (isLoaded) {
+            show()
+          }
           await accessMutateAsync()
           setIsLogin(true)
         }
@@ -308,31 +268,17 @@ function App(): JSX.Element {
     }
 
     init()
-  }, [setIsLogin, accessMutateAsync])
+  }, [isLoaded, show, setIsLogin, accessMutateAsync])
 
-  /**
-   * 테스트용 광고 start
-   */
-  // TODO android v1.0.0 배포에서 제외 2024-07-21
-  // React.useEffect(() => {
-  //   // 광고 load
-  //   load()
-  // }, [load])
-  //
-  // // TODO android v1.0.0 배포에서 제외 2024-07-21
-  // React.useEffect(() => {
-  //   if (isLoaded) {
-  //     // 광고 show
-  //     show()
-  //   }
-  // }, [isLoaded])
-  /**
-   * 테스트용 광고 end
-   */
+  React.useEffect(() => {
+    // 광고 load
+    load()
+  }, [load])
 
   React.useEffect(() => {
     if (isInit) {
       SystemSplashScreen.hide()
+      // crashlytics().crash()
     }
   }, [isInit])
 
