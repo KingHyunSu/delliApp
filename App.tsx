@@ -418,7 +418,11 @@ function App(): JSX.Element {
                         component={HomeCustomScreen}
                         options={{animation: 'fade', animationDuration: 300}}
                       />
-                      <Stack.Screen name="EditSchedule" component={EditScheduleScreen} options={{animation: 'none'}} />
+                      <Stack.Screen
+                        name="EditSchedule"
+                        component={EditScheduleScreen}
+                        options={{animation: 'none', gestureEnabled: false}}
+                      />
                       <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
 
                       <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
