@@ -5,8 +5,7 @@ import {
   UpdateCustomRequest,
   UpdateCustomResponse,
   SetBackgroundRequest,
-  UpdateColorThemeRequest,
-  UpdateColorThemeResponse
+  UpdateColorThemeRequest
 } from '@/apis/types/user'
 
 export const useUpdateDisplayMode = () => {
@@ -68,7 +67,7 @@ export const useUpdateColorTheme = () => {
     mutationFn: async (params: UpdateColorThemeRequest) => {
       const response = await userApi.updateColorTheme(params)
 
-      return response.data as UpdateColorThemeResponse
+      return response.data as ColorThemeItem[]
     }
   })
 }

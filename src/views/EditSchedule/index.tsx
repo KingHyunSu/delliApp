@@ -235,9 +235,10 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
         const response = await updateColorThemeMutateAsync(params)
 
-        if (response.result) {
-          setActiveColorThemeDetail(colorThemeDetail)
-        }
+        setActiveColorThemeDetail(prevState => ({
+          ...prevState,
+          color_theme_item_list: response
+        }))
       }
 
       const {schedule_id, ...form} = editScheduleForm
@@ -277,7 +278,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       activeColorThemeDetail.is_active_color_theme,
       editColorThemeDetail,
       editScheduleForm,
-      colorThemeDetail,
       scheduleDate,
       getNewScheduleList,
       setScheduleMutateAsync,

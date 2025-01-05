@@ -8,8 +8,7 @@ import {
   SetBackgroundResponse,
   GetBackgroundListResponse,
   GetOutlineListResponse,
-  UpdateColorThemeRequest,
-  UpdateColorThemeResponse
+  UpdateColorThemeRequest
 } from '@/apis/types/user'
 
 export const updateDisplayMode = (data: UpdateDisplayModeRequest) => {
@@ -33,5 +32,5 @@ export const getOutlineList = () => {
 }
 
 export const updateColorTheme = (data: UpdateColorThemeRequest) => {
-  return http.post<any, Response<UpdateColorThemeResponse>>('user/color-theme', data)
+  return http.post<any, Response<ColorThemeItem[]>>('user/color-theme', data)
 }

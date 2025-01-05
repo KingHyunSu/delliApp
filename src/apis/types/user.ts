@@ -45,6 +45,3 @@ export interface UpdateColorThemeRequest {
   update_color_theme_item_list: ColorThemeItem[]
   delete_color_theme_item_list: ColorThemeItem[]
 }
-export interface UpdateColorThemeResponse {
-  result: boolean
-}
