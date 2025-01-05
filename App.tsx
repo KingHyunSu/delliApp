@@ -255,9 +255,6 @@ function App(): JSX.Element {
         const token = await AsyncStorage.getItem('token')
 
         if (token) {
-          if (isLoaded) {
-            show()
-          }
           await accessMutateAsync()
           setIsLogin(true)
         }
@@ -268,12 +265,20 @@ function App(): JSX.Element {
     }
 
     init()
-  }, [isLoaded, show, setIsLogin, accessMutateAsync])
+  }, [setIsLogin, accessMutateAsync])
 
   React.useEffect(() => {
     // 광고 load
-    load()
-  }, [load])
+    if (isLogin) {
+      load()
+    }
+  }, [isLogin, load])
+
+  React.useEffect(() => {
+    if (isLoaded) {
+      show()
+    }
+  }, [isLoaded, show])
 
   React.useEffect(() => {
     if (isInit) {
