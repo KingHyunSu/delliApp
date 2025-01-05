@@ -256,7 +256,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
           </Animated.View>
 
           <TextInput
-            // key={titleKey}
+            key={titleKey}
             ref={textInputRef}
             value={data.title}
             style={textStyle}
