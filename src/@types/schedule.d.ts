@@ -71,7 +71,8 @@ declare global {
   // color theme
   interface ColorThemeItem {
     color_theme_item_id: number
-    color: string
+    background_color: string
+    text_color: string
     order: number
   }
   interface ColorThemeDetail {
@@ -80,7 +81,8 @@ declare global {
   }
   interface EditColorThemeItem {
     color_theme_item_id: number
-    color: string
+    background_color: string
+    text_color: string
     order: number
     actionType: 'I' | 'U' | 'D' | null
   }

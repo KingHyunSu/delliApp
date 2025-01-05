@@ -191,13 +191,15 @@ const ColorSelectorBottomSheet = ({
         if (editColorThemeItemList.length === 0) {
           const initColorThemeItem1: EditColorThemeItem = {
             color_theme_item_id: -1,
-            color: '#efefef',
+            background_color: '#efefef',
+            text_color: '#000000',
             order: 1,
             actionType: 'I'
           }
           const initColorThemeItem2: EditColorThemeItem = {
             color_theme_item_id: -1,
-            color: '#ffffff',
+            background_color: '#ffffff',
+            text_color: '#000000',
             order: 2,
             actionType: 'I'
           }

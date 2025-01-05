@@ -20,7 +20,7 @@ import {editScheduleFormState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 
-import {getScheduleColorList} from '../util'
+import {getScheduleBackgroundColor, getScheduleTextColor} from '../util'
 import {updateWidgetWithImage} from '@/utils/widget'
 
 interface Props {
@@ -150,18 +150,6 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
     })
   }, [data])
 
-  const sortedColorThemeItemList = useMemo(() => {
-    if (!activeColorThemeDetail.is_active_color_theme) {
-      return null
-    }
-
-    return [...activeColorThemeDetail.color_theme_item_list].sort((a, b) => a.order - b.order)
-  }, [activeColorThemeDetail])
-
-  const scheduleColorList = useMemo(() => {
-    return getScheduleColorList(data, sortedColorThemeItemList)
-  }, [data, sortedColorThemeItemList])
-
   const radius = useMemo(() => {
     return timetableWrapperSize - 40
   }, [timetableWrapperSize])
@@ -275,7 +263,7 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
                   radius={radius}
                   startTime={item.start_time}
                   endTime={item.end_time}
-                  color={scheduleColorList[index].backgroundColor}
+                  color={getScheduleBackgroundColor(item, data, activeColorThemeDetail)}
                   isEdit={false}
                   onClick={openEditMenuBottomSheet}
                 />
@@ -293,7 +281,7 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
                 centerX={radius}
                 centerY={radius}
                 radius={radius}
-                color={scheduleColorList[index].textColor}
+                color={getScheduleTextColor(item, data, activeColorThemeDetail)}
                 onClick={openEditMenuBottomSheet}
               />
             )

@@ -61,7 +61,8 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     isActiveColorTheme: activeColorThemeDetail.is_active_color_theme,
     colorThemeItemList: activeColorThemeDetail.color_theme_item_list.map(item => ({
       color_theme_item_id: item.color_theme_item_id,
-      color: item.color,
+      background_color: item.background_color,
+      text_color: item.text_color,
       order: item.order,
       actionType: item.color_theme_item_id === -1 ? 'I' : null
     }))
@@ -124,7 +125,8 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         .filter(item => item.actionType !== 'D')
         .map(item => ({
           color_theme_item_id: item.color_theme_item_id,
-          color: item.color,
+          background_color: item.background_color,
+          text_color: item.text_color,
           order: item.order
         }))
     }
@@ -216,7 +218,8 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
           editColorThemeDetail.colorThemeItemList.forEach(item => {
             const param: ColorThemeItem = {
               color_theme_item_id: item.color_theme_item_id,
-              color: item.color,
+              background_color: item.background_color,
+              text_color: item.text_color,
               order: item.order
             }
 

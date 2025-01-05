@@ -1,7 +1,6 @@
 import {useMemo, useCallback} from 'react'
 import {StyleSheet, View, Pressable} from 'react-native'
 import {Svg} from 'react-native-svg'
-import {colorKit} from 'reanimated-color-picker'
 
 import Outline from '../components/Outline'
 import Background from '../components/Background'
@@ -14,7 +13,7 @@ import {useRecoilState, useRecoilValue} from 'recoil'
 import {activeOutlineState, timetableContainerHeightState, timetableWrapperSizeState} from '@/store/system'
 import {disableScheduleListState, isInputModeState, editScheduleFormState} from '@/store/schedule'
 
-import {getScheduleColorList} from '../util'
+import {getScheduleBackgroundColor, getScheduleTextColor} from '../util'
 
 interface Props {
   data: Schedule[]
@@ -65,34 +64,6 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
   const scheduleList = useMemo(() => {
     return sortedScheduleList.filter(item => item.schedule_id !== editScheduleForm.schedule_id)
   }, [sortedScheduleList, editScheduleForm.schedule_id])
-
-  const colorThemeItemList = useMemo(() => {
-    if (colorThemeDetail.is_active_color_theme) {
-      return colorThemeDetail.color_theme_item_list.sort((a, b) => a.order - b.order)
-    }
-    return null
-  }, [colorThemeDetail])
-
-  const scheduleColorList = useMemo(() => {
-    return getScheduleColorList(data, colorThemeItemList)
-  }, [data, colorThemeItemList])
-
-  const editScheduleColor = useMemo(() => {
-    if (colorThemeDetail.is_active_color_theme) {
-      const backgroundColor = colorThemeDetail.color_theme_item_list[0].color
-      const textColor = colorKit.isDark(backgroundColor) ? '#ffffff' : '#000000'
-
-      return {
-        backgroundColor,
-        textColor
-      }
-    }
-
-    return {
-      backgroundColor: '#ffffff',
-      textColor: '#000000'
-    }
-  }, [colorThemeDetail])
 
   const closeKeyboard = useCallback(() => {
     setIsInputMode(false)
@@ -149,7 +120,7 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
                   radius={radius}
                   startTime={item.start_time}
                   endTime={item.end_time}
-                  color={scheduleColorList[index].backgroundColor}
+                  color={getScheduleBackgroundColor(item, data, colorThemeDetail)}
                   isEdit={true}
                   disableScheduleList={disableScheduleList}
                 />
@@ -165,7 +136,7 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
                 centerX={radius}
                 centerY={radius}
                 radius={radius}
-                color={scheduleColorList[index].textColor}
+                color={getScheduleTextColor(item, data, colorThemeDetail)}
               />
             )
           })}
@@ -178,7 +149,7 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
             centerX={timetableWrapperSize}
             centerY={timetableWrapperSize}
             radius={radius}
-            color={editScheduleColor.backgroundColor}
+            color={colorThemeDetail.color_theme_item_list[0].background_color}
             isInputMode={isInputMode}
             onChangeSchedule={changeSchedule}
             onChangeScheduleDisabled={changeScheduleDisabled}
@@ -190,7 +161,7 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
             centerX={timetableWrapperSize}
             centerY={timetableWrapperSize}
             radius={radius}
-            color={editScheduleColor.textColor}
+            color={colorThemeDetail.color_theme_item_list[0].text_color}
             onChangeSchedule={changeSchedule}
           />
         </View>

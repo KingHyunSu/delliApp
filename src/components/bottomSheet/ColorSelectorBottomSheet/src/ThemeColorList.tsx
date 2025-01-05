@@ -97,7 +97,8 @@ const ThemeColorList = ({value, onChange}: Props) => {
   const insertColorThemeItem = useCallback(() => {
     const newColorThemeItem: EditColorThemeItem = {
       color_theme_item_id: -1,
-      color: '#ffffff',
+      background_color: '#ffffff',
+      text_color: '#000000',
       order: value.colorThemeItemList.length + 1,
       actionType: 'I'
     }
@@ -129,13 +130,15 @@ const ThemeColorList = ({value, onChange}: Props) => {
   const warningTextComponent = useMemo(() => {
     const initColorThemeItem1: EditColorThemeItem = {
       color_theme_item_id: -1,
-      color: '#efefef',
+      background_color: '#efefef',
+      text_color: '#000000',
       order: 1,
       actionType: 'I'
     }
     const initColorThemeItem2: EditColorThemeItem = {
       color_theme_item_id: -1,
-      color: '#ffffff',
+      background_color: '#ffffff',
+      text_color: '#000000',
       order: 2,
       actionType: 'I'
     }
@@ -159,7 +162,7 @@ const ThemeColorList = ({value, onChange}: Props) => {
     ({item, getIndex, drag, isActive}: RenderItemParams<EditColorThemeItem>) => {
       const index = getIndex() || 0
       const borderTopWidth = index === 0 ? 1 : 0
-      const color = colorKit.darken(item.color, 30).hex()
+      const color = colorKit.darken(item.background_color, 30).hex()
 
       return (
         <View
@@ -168,7 +171,7 @@ const ThemeColorList = ({value, onChange}: Props) => {
             {
               borderTopWidth,
               borderColor: activeTheme.color2,
-              backgroundColor: item.color
+              backgroundColor: item.background_color
             }
           ]}>
           <View style={itemStyles.wrapper}>
@@ -177,7 +180,7 @@ const ThemeColorList = ({value, onChange}: Props) => {
             </Pressable>
 
             <Pressable style={itemStyles.changeColorButton} onPress={handleShowColoPickerModal(item)}>
-              <Text style={[itemStyles.buttonText, {color}]}>색상 변경하기</Text>
+              <Text style={[itemStyles.buttonText, {color: item.text_color}]}>색상 변경하기</Text>
             </Pressable>
 
             {index === 0 || isActive ? (
@@ -219,7 +222,6 @@ const ThemeColorList = ({value, onChange}: Props) => {
       <ColorThemeColorPickerModal
         visible={showColoPickerModal}
         value={changeTargetItem}
-        colorThemeList={value.colorThemeItemList}
         onChange={changeColor}
         onClose={handleCloseColorPickerModal}
       />

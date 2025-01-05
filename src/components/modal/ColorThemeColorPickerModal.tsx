@@ -1,82 +1,94 @@
 import {useMemo, useCallback, useState, useEffect} from 'react'
 import {StyleSheet, Modal, View, Pressable, Text} from 'react-native'
 import ColorPicker, {HueSlider, LuminanceSlider, Panel1, type returnedResults} from 'reanimated-color-picker'
-import {Path, Svg} from 'react-native-svg'
 
 import {useRecoilValue} from 'recoil'
-import {activeBackgroundState, activeThemeState, windowDimensionsState} from '@/store/system'
-import {describeArc} from '@/utils/pieHelper'
+import {activeThemeState, windowDimensionsState} from '@/store/system'
 
+type ActiveTab = 'background' | 'text'
 interface Props {
   visible: boolean
   value: EditColorThemeItem | null
-  colorThemeList: EditColorThemeItem[]
   onChange: (value: EditColorThemeItem) => void
   onClose: () => void
 }
-const ColorThemeColorPickerModal = ({visible, value, colorThemeList, onChange, onClose}: Props) => {
-  const [selectedColor, setSelectedColor] = useState('#ffffff')
+const ColorThemeColorPickerModal = ({visible, value, onChange, onClose}: Props) => {
+  const [activeTab, setActiveTab] = useState<ActiveTab>('background')
+  const [_value, _setValue] = useState(value)
 
   const windowDimensions = useRecoilValue(windowDimensionsState)
   const activeTheme = useRecoilValue(activeThemeState)
-  const activeBackground = useRecoilValue(activeBackgroundState)
 
-  const changeColor = useCallback((color: returnedResults) => {
-    setSelectedColor(color.hex)
-  }, [])
+  const selectedColor = useMemo(() => {
+    if (!_value) return '#ffffff'
 
-  const handleSave = useCallback(async () => {
-    if (!value || !selectedColor) return
-
-    const newValue: EditColorThemeItem = {
-      ...value,
-      color: selectedColor,
-      actionType: value.actionType === 'I' ? 'I' : 'U'
+    if (activeTab === 'background') {
+      return _value.background_color
+    } else if (activeTab === 'text') {
+      return _value.text_color
     }
 
-    onChange(newValue)
+    return '#ffffff'
+  }, [_value, activeTab])
+
+  const getTabButtonStyle = useCallback(
+    (tab: ActiveTab) => {
+      const backgroundColor = activeTab === tab ? activeTheme.color7 : activeTheme.color2
+
+      return [styles.tabButton, {backgroundColor}]
+    },
+    [activeTab, activeTheme.color2, activeTheme.color7]
+  )
+
+  const getTabButtonTextStyle = useCallback(
+    (tab: ActiveTab) => {
+      const color = activeTab === tab ? activeTheme.color2 : activeTheme.color3
+
+      return [styles.tabButtonText, {color}]
+    },
+    [activeTab, activeTheme.color2, activeTheme.color3]
+  )
+
+  const changeColor = useCallback(
+    (color: returnedResults) => {
+      if (activeTab === 'background') {
+        _setValue(prevState =>
+          prevState
+            ? {
+                ...prevState,
+                background_color: color.hex
+              }
+            : _value
+        )
+      } else if (activeTab === 'text') {
+        _setValue(prevState =>
+          prevState
+            ? {
+                ...prevState,
+                text_color: color.hex
+              }
+            : _value
+        )
+      }
+    },
+    [_value, activeTab]
+  )
+
+  const handleSave = useCallback(async () => {
+    if (!_value) return
+
+    onChange({
+      ..._value,
+      actionType: _value.actionType === 'I' ? 'I' : 'U'
+    })
     onClose()
-  }, [selectedColor, value, onChange, onClose])
+  }, [_value, onChange, onClose])
 
   useEffect(() => {
     if (value) {
-      setSelectedColor(value.color)
+      _setValue(value)
     }
   }, [value])
-  const previewComponent = useMemo(() => {
-    const _colorThemeList = colorThemeList.map(item => {
-      if (item.order === value?.order) {
-        return {
-          ...item,
-          color: selectedColor
-        }
-      }
-
-      return item
-    })
-
-    const list = [..._colorThemeList, ..._colorThemeList]
-    const angle = 360 / list.length
-    const radius = 15
-
-    return (
-      <View style={[styles.preview, {backgroundColor: activeBackground.background_color}]}>
-        <Svg width={radius * 2} height={radius * 2}>
-          {list.map((sItem, index) => {
-            const {path} = describeArc({
-              x: radius,
-              y: radius,
-              radius,
-              startAngle: angle * index,
-              endAngle: angle * index + angle
-            })
-
-            return <Path key={index} d={path} fill={sItem.color} />
-          })}
-        </Svg>
-      </View>
-    )
-  }, [selectedColor, activeBackground.background_color, value?.order, colorThemeList])
 
   return (
     <Modal visible={visible} transparent={true}>
@@ -84,6 +96,15 @@ const ColorThemeColorPickerModal = ({visible, value, colorThemeList, onChange, o
 
       <View style={styles.container}>
         <View style={[styles.wrapper, {backgroundColor: activeTheme.color5}]}>
+          <View style={[styles.tabWrapper, {backgroundColor: activeTheme.color2}]}>
+            <Pressable style={getTabButtonStyle('background')} onPress={() => setActiveTab('background')}>
+              <Text style={getTabButtonTextStyle('background')}>배경</Text>
+            </Pressable>
+            <Pressable style={getTabButtonStyle('text')} onPress={() => setActiveTab('text')}>
+              <Text style={getTabButtonTextStyle('text')}>글자</Text>
+            </Pressable>
+          </View>
+
           <ColorPicker
             value={selectedColor}
             sliderThickness={22}
@@ -96,8 +117,11 @@ const ColorThemeColorPickerModal = ({visible, value, colorThemeList, onChange, o
 
             <View style={styles.controlBarContainer}>
               <View style={styles.previewContainer}>
-                {previewComponent}
-                <Text style={[styles.previewText, {color: activeTheme.color3}]}>미리보기</Text>
+                <View style={[styles.preview, {backgroundColor: _value ? _value.background_color : '#ffffff'}]}>
+                  <Text style={[styles.previewText, {color: _value ? _value.text_color : '#000000'}]}>가</Text>
+                </View>
+
+                <Text style={[styles.previewLabel, {color: activeTheme.color3}]}>미리보기</Text>
               </View>
 
               <View style={styles.controlBarWrapper}>
@@ -142,6 +166,25 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: '#ffffff'
   },
+  tabWrapper: {
+    flexDirection: 'row',
+    marginBottom: 10,
+    borderRadius: 50,
+    padding: 5
+  },
+  tabButton: {
+    flex: 1,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#efefef',
+    borderRadius: 50
+  },
+  tabButtonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16
+  },
+
   thumbInner: {
     borderWidth: 2,
     borderColor: '#fff'
@@ -170,6 +213,10 @@ const styles = StyleSheet.create({
     height: 42
   },
   previewText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 18
+  },
+  previewLabel: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 12,
     color: '#424242'

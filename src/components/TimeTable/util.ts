@@ -1,29 +1,29 @@
-import {colorKit} from 'reanimated-color-picker'
-
-export const getScheduleColorList = (
+export const getScheduleBackgroundColor = (
+  schedule: EditScheduleForm | Schedule,
   scheduleList: Schedule[],
-  colorThemeItemList: ColorThemeItem[] | null
-): {backgroundColor: string; textColor: string}[] => {
-  if (!colorThemeItemList) {
-    return scheduleList.map(item => {
-      return {backgroundColor: item.background_color, textColor: item.text_color}
-    })
-  }
-  if (colorThemeItemList.length === 0) {
-    return scheduleList.map(_ => {
-      return {backgroundColor: '#ffffff', textColor: '#000000'}
-    })
-  }
+  colorThemeDetail: ColorThemeDetail
+) => {
+  const targetIndex = scheduleList.findIndex(item => item.schedule_id === schedule.schedule_id)
+  const colorThemeItemList = colorThemeDetail.color_theme_item_list
+  const isActiveColorTheme = colorThemeDetail.is_active_color_theme
 
-  return [...scheduleList]
-    .sort((a, b) => a.start_time - b.start_time)
-    .map((item, index) => {
-      const backgroundColor = colorThemeItemList[index % colorThemeItemList.length].color
-      const textColor = colorKit.isDark(backgroundColor) ? '#ffffff' : '#000000'
+  if (isActiveColorTheme) {
+    return colorThemeItemList[targetIndex % colorThemeItemList.length].background_color
+  }
+  return schedule.background_color
+}
 
-      return {
-        backgroundColor,
-        textColor
-      }
-    })
+export const getScheduleTextColor = (
+  schedule: EditScheduleForm,
+  scheduleList: Schedule[],
+  colorThemeDetail: ColorThemeDetail
+) => {
+  const targetIndex = scheduleList.findIndex(item => item.schedule_id === schedule.schedule_id)
+  const colorThemeItemList = colorThemeDetail.color_theme_item_list
+  const isActiveColorTheme = colorThemeDetail.is_active_color_theme
+
+  if (isActiveColorTheme) {
+    return colorThemeItemList[targetIndex % colorThemeItemList.length].text_color
+  }
+  return schedule.text_color
 }
