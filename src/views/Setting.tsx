@@ -67,7 +67,7 @@ const Setting = ({navigation}: SettingScreenProps) => {
 
   const version = useMemo(() => {
     if (Platform.OS === 'ios') {
-      return '2.0.0'
+      return '2.0.1'
     } else if (Platform.OS === 'android') {
       return '1.0.0'
     }
