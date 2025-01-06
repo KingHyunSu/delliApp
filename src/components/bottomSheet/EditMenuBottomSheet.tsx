@@ -18,6 +18,7 @@ import TodoIcon from '@/assets/icons/priority.svg'
 import {useQueryClient} from '@tanstack/react-query'
 import {useUpdateScheduleDeleted} from '@/apis/hooks/useSchedule'
 import {navigate} from '@/utils/navigation'
+import {format} from 'date-fns'
 
 interface Props {
   moveEditSchedule: Function
@@ -81,7 +82,8 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
                 schedule_id: editScheduleForm.schedule_id
               })
 
-              await queryClient.invalidateQueries({queryKey: ['scheduleList', scheduleDate]})
+              const formatDate = format(scheduleDate, 'yyyy-MM-dd')
+              await queryClient.invalidateQueries({queryKey: ['scheduleList', formatDate]})
 
               if (Platform.OS === 'ios') {
                 setWidgetWithImageUpdated(true)
