@@ -269,16 +269,14 @@ function App(): JSX.Element {
 
   React.useEffect(() => {
     // 광고 load
-    if (isLogin) {
-      load()
-    }
-  }, [isLogin, load])
+    load()
+  }, [load])
 
   React.useEffect(() => {
-    if (isLoaded) {
+    if (isLogin && isLoaded) {
       show()
     }
-  }, [isLoaded, show])
+  }, [isLogin, isLoaded, show])
 
   React.useEffect(() => {
     if (isInit) {
@@ -291,21 +289,22 @@ function App(): JSX.Element {
     setLoginStateSetter(setIsLogin)
   }, [setLoginStateSetter])
 
-  React.useEffect(() => {
-    const subscription = AppState.addEventListener('change', state => {
-      if (appState.current.match(/inactive|background/) && state === 'active') {
-        setIsActiveApp(true)
-      } else {
-        setIsActiveApp(false)
-      }
-
-      appState.current = state
-    })
-
-    return () => {
-      subscription.remove()
-    }
-  }, [])
+  // TODO - 타이머 코드 임시 비활성화
+  // React.useEffect(() => {
+  //   const subscription = AppState.addEventListener('change', state => {
+  //     if (appState.current.match(/inactive|background/) && state === 'active') {
+  //       setIsActiveApp(true)
+  //     } else {
+  //       setIsActiveApp(false)
+  //     }
+  //
+  //     appState.current = state
+  //   })
+  //
+  //   return () => {
+  //     subscription.remove()
+  //   }
+  // }, [])
 
   // TODO - 타이머 코드 임시 비활성화
   // handle focus timer
