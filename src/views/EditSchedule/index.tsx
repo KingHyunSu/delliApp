@@ -169,6 +169,9 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
     (value: NewScheduleItem, disabledScheduleList: number[]) => {
       const newScheduleList: Schedule[] = []
       let isUpdated = false
+      const weekdays = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat']
+      const currentWeekDay = scheduleDate.getDay()
+      const targetWeekDay = weekdays[currentWeekDay]
 
       scheduleList.forEach(item => {
         const isDisabled = disabledScheduleList.includes(item.schedule_id)
@@ -177,7 +180,9 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
           if (value.schedule_id === item.schedule_id) {
             isUpdated = true
             // set update item
-            newScheduleList.push({...item, ...value})
+            if (value[targetWeekDay] === '1') {
+              newScheduleList.push({...item, ...value})
+            }
           } else {
             newScheduleList.push(item)
           }
@@ -185,9 +190,11 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       })
 
       if (!isUpdated) {
+        const updateDate = format(new Date(), 'yyyy-MM-dd HH:mm:ss')
         // set insert item
         newScheduleList.push({
           ...value,
+          update_date: updateDate,
           routine_list: [],
           todo_list: []
         })
@@ -195,7 +202,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
       return newScheduleList.sort((a, b) => a.start_time - b.start_time)
     },
-    [scheduleList]
+    [scheduleDate, scheduleList]
   )
 
   const doSubmit = React.useCallback(
