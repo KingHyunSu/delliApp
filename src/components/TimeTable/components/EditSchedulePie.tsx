@@ -7,10 +7,10 @@ import {trigger} from 'react-native-haptic-feedback'
 
 import SchedulePie from './SchedulePie'
 
-import {useRecoilState, useRecoilValue} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {homeHeaderHeight} from '@/store/system'
 import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
-import {editScheduleTimeState} from '@/store/schedule'
+import {editScheduleTimeState, shouldUpdateTitlePositionState} from '@/store/schedule'
 
 interface Props {
   data: EditScheduleForm
@@ -38,8 +38,8 @@ const EditSchedulePie = ({
   onChangeScheduleDisabled
 }: Props) => {
   const [editScheduleTime, setEditScheduleTime] = useRecoilState(editScheduleTimeState)
-
   const showColorSelectorBottomSheet = useRecoilValue(showColorSelectorBottomSheetState)
+  const setShouldUpdateTitlePosition = useSetRecoilState(shouldUpdateTitlePositionState)
 
   const startAnchorPosition = useDerivedValue(() => {
     const angle = editScheduleTime.start * 0.25
@@ -128,6 +128,7 @@ const EditSchedulePie = ({
     })
     .onEnd(() => {
       onChangeSchedule({start_time: editScheduleTime.start})
+      setShouldUpdateTitlePosition(true)
     })
     .runOnJS(true)
 
@@ -150,6 +151,7 @@ const EditSchedulePie = ({
     })
     .onEnd(() => {
       onChangeSchedule({end_time: editScheduleTime.end})
+      setShouldUpdateTitlePosition(true)
     })
     .runOnJS(true)
   /**

@@ -5,7 +5,7 @@ import Animated, {useSharedValue, useAnimatedStyle, runOnJS, withTiming} from 'r
 
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {keyboardAppearanceState} from '@/store/system'
-import {editScheduleTimeState, isInputModeState} from '@/store/schedule'
+import {editScheduleTimeState, isInputModeState, shouldUpdateTitlePositionState} from '@/store/schedule'
 
 import RotateGuideIcon from '@/assets/icons/rotate_guide.svg'
 import {polarToCartesian} from '@/utils/pieHelper'
@@ -25,12 +25,18 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
   const gestureVerticalSafeArea = 100
 
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
+  const [shouldUpdateTitlePosition, setShouldUpdateTitlePosition] = useRecoilState(shouldUpdateTitlePositionState)
 
   const keyboardAppearance = useRecoilValue(keyboardAppearanceState)
   const editScheduleTime = useRecoilValue(editScheduleTimeState)
 
   const textInputRef = React.useRef<TextInput>(null)
 
+  const [position, setPosition] = React.useState({
+    title_x: data.title_x,
+    title_y: data.title_y,
+    title_rotate: data.title_rotate
+  })
   const [titleLayout, setTitleLayout] = React.useState<{width: number; height: number}>({
     width: 0,
     height: 0
@@ -79,7 +85,8 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
   }))
 
   const textStyle = React.useMemo(() => {
-    return [styles.text, {color, fontSize: data.font_size}]
+    const height = data.font_size * 1.2
+    return [styles.text, {height, color, fontSize: data.font_size}]
   }, [color, data.font_size])
 
   const handleFocus = React.useCallback(() => {
@@ -200,7 +207,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
       setSavedY(_moveY)
       containerSavedRotate.value = _rotate
 
-      onChangeSchedule({
+      setPosition({
         title_x: _moveXPercent,
         title_y: _moveYPercent,
         title_rotate: _rotate
@@ -219,9 +226,15 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
     data.text_direction,
     centerX,
     centerY,
-    radius,
-    onChangeSchedule
+    radius
   ])
+
+  React.useEffect(() => {
+    if (shouldUpdateTitlePosition) {
+      onChangeSchedule(position)
+      setShouldUpdateTitlePosition(false)
+    }
+  }, [shouldUpdateTitlePosition, setShouldUpdateTitlePosition, position, onChangeSchedule])
 
   React.useEffect(() => {
     if (isInputMode) {
@@ -265,7 +278,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
             scrollEnabled={false}
             onChangeText={changeTitle}
             onFocus={handleFocus}
-            placeholder="일정명을 입력해주세요"
+            placeholder={data.title ? '' : '일정명을 입력해주세요'}
             placeholderTextColor="#c3c5cc"
             keyboardAppearance={keyboardAppearance}
             onLayout={changeTitleBoundingBox}
@@ -315,9 +328,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    // minWidth: 150,
-    // minHeight: 28,
-    paddingTop: 0
+    padding: 0
   }
 })
 

@@ -22,7 +22,8 @@ const ScheduleText = ({data, centerX, centerY, radius, color, onClick}: Props) =
   }, [top, left, data.title_rotate])
 
   const textStyle = React.useMemo(() => {
-    return [styles.text, {color, fontSize: data.font_size}]
+    const height = data.font_size * 1.2
+    return [styles.text, {height, color, fontSize: data.font_size}]
   }, [color, data.font_size])
 
   const handleClick = React.useCallback(() => {
@@ -45,9 +46,7 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    // minWidth: 150,
-    // minHeight: 28,
-    paddingTop: 0
+    padding: 0
   }
 })
 

@@ -102,14 +102,19 @@ export const scheduleCategoryListState = atom<ScheduleCategory[]>({
   ]
 })
 
-export const activeTimeFlagState = atom<RANGE_FLAG | null>({
-  key: 'activeTimeFlagState',
-  default: null
-})
-
 export const isInputModeState = atom<Boolean>({
   key: 'isInputModeState',
   default: true
+})
+
+export const shouldUpdateTitlePositionState = atom({
+  key: 'shouldUpdateTitlePositionState',
+  default: false
+})
+
+export const activeTimeFlagState = atom<RANGE_FLAG | null>({
+  key: 'activeTimeFlagState',
+  default: null
 })
 
 export const focusModeInfoState = atom<FocusModeInfo | null>({
