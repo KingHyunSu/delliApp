@@ -1,4 +1,4 @@
-import {useRef, useState, useCallback, useEffect} from 'react'
+import {useRef, useState, useCallback, useEffect, useMemo} from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
 import {BottomSheetBackdropProps, BottomSheetHandleProps, BottomSheetModal} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
@@ -7,7 +7,7 @@ import DatePicker from '@/components/DatePicker'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {showDatePickerBottomSheetState} from '@/store/bottomSheet'
-import {activeThemeState} from '@/store/system'
+import {activeThemeState, safeAreaInsetsState} from '@/store/system'
 import {format} from 'date-fns'
 
 interface Props {
@@ -21,7 +21,12 @@ const DatePickerBottomSheet = ({value, onChange}: Props) => {
   const [selectDate, changeDate] = useState(value)
 
   const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
+  const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
   const activeTheme = useRecoilValue(activeThemeState)
+
+  const snapPoint = useMemo(() => {
+    return [460 + safeAreaInsets.bottom]
+  }, [safeAreaInsets.bottom])
 
   const onDismiss = useCallback(() => {
     setShowDatePickerBottomSheet(false)
@@ -83,7 +88,7 @@ const DatePickerBottomSheet = ({value, onChange}: Props) => {
       backdropComponent={bottomSheetBackdrop}
       handleComponent={bottomSheetHandler}
       index={0}
-      snapPoints={[500]}
+      snapPoints={snapPoint}
       onDismiss={onDismiss}>
       <View style={styles.container}>
         <DatePicker key={datePickerKey} value={selectDate} onChange={onChangeDate} />
