@@ -1,5 +1,6 @@
 import {useMemo, useCallback, useEffect} from 'react'
-import {Platform, Linking, StyleSheet, ScrollView, Pressable, View, Text, Alert, Image} from 'react-native'
+import {StyleSheet, BackHandler, Platform, Linking, ScrollView, Pressable, View, Text, Alert, Image} from 'react-native'
+import {useFocusEffect} from '@react-navigation/native'
 import ArrowRightIcon from '@/assets/icons/arrow_right.svg'
 import KakaoLogoIcon from '@/assets/icons/kakaoLogo.svg'
 import GoogleLogoIcon from '@/assets/icons/googleLogo.svg'
@@ -32,6 +33,7 @@ const Setting = ({navigation}: SettingScreenProps) => {
   const {mutateAsync: updateDisplayMutateAsync} = useUpdateDisplayMode()
 
   const [displayMode, setDisplayMode] = useRecoilState(displayModeState)
+  const [showLoginBottomSheet, setShowLoginBottomSheet] = useRecoilState(showLoginBottomSheetState)
 
   const loginInfo = useRecoilValue(loginInfoState)
   const activeTheme = useRecoilValue(activeThemeState)
@@ -39,7 +41,6 @@ const Setting = ({navigation}: SettingScreenProps) => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const scheduleList = useRecoilValue(scheduleListState)
 
-  const setShowLoginBottomSheet = useSetRecoilState(showLoginBottomSheetState)
   const setStatusBarColor = useSetRecoilState(statusBarColorState)
   const setStatusBarTextStyle = useSetRecoilState(statusBarTextStyleState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
@@ -170,6 +171,27 @@ const Setting = ({navigation}: SettingScreenProps) => {
     setStatusBarColor,
     setBottomSafeAreaColor
   ])
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (showLoginBottomSheet) {
+          setShowLoginBottomSheet(false)
+        } else {
+          navigation.navigate('MainTabs', {
+            screen: 'Home',
+            params: {scheduleUpdated: false}
+          })
+        }
+
+        return true
+      }
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress)
+
+      return () => subscription.remove()
+    }, [showLoginBottomSheet, setShowLoginBottomSheet, navigation])
+  )
 
   const loginIcon = useMemo(() => {
     if (loginInfo) {

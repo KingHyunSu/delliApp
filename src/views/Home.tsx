@@ -172,7 +172,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
     return [homeStyles.fabContainer, fabAnimatedStyle]
   }, [])
 
-  // android 뒤로가기 제어
   useFocusEffect(
     React.useCallback(() => {
       setStatusBarTextStyle(activeBackground.display_mode === 1 ? 'dark-content' : 'light-content')
@@ -180,10 +179,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       setBottomSafeAreaColor(activeTheme.color5)
 
       const onBackPress = () => {
-        if (isEdit) {
-          // edit bottom sheet
-        } else if (showEditMenuBottomSheet) {
-          // edit menu bottom sheet
+        if (showEditMenuBottomSheet) {
           setShowEditMenuBottomSheet(false)
         } else if (showDatePickerBottomSheet) {
           setShowDatePickerBottomSheet(false)
@@ -211,7 +207,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       activeBackground.display_mode,
       activeBackground.background_color,
       activeTheme.color5,
-      isEdit,
       showEditMenuBottomSheet,
       showDatePickerBottomSheet,
       backPressCount,

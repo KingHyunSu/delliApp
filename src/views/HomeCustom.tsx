@@ -1,5 +1,6 @@
 import {useState, useMemo, useCallback} from 'react'
-import {StyleSheet, ActivityIndicator, View, Text, Image, Pressable} from 'react-native'
+import {StyleSheet, BackHandler, ActivityIndicator, View, Text, Image, Pressable} from 'react-native'
+import {useFocusEffect} from '@react-navigation/native'
 import AppBar from '@/components/AppBar'
 import {Timetable} from '@/components/TimeTable'
 import HomeCustomBottomSheet from '@/components/bottomSheet/HomeCustomBottomSheet'
@@ -84,6 +85,27 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
 
     setIsLoading(false)
   }, [background, outline, updateCustomMutateAsync, setIsLoading, setActiveBackground, setActiveOutline, navigation])
+
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        if (activeMenu) {
+          setActiveMenu(null)
+        } else {
+          navigation.navigate('MainTabs', {
+            screen: 'Home',
+            params: {scheduleUpdated: false}
+          })
+        }
+
+        return true
+      }
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress)
+
+      return () => subscription.remove()
+    }, [activeMenu, navigation])
+  )
 
   const loadBackground = useCallback(() => {
     setStatusBarColor(background.background_color)

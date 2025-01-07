@@ -1,6 +1,7 @@
 import React, {useRef, useState} from 'react'
-import {StyleSheet, View, Pressable, Alert, Image} from 'react-native'
+import {StyleSheet, BackHandler, View, Pressable, Alert, Image} from 'react-native'
 import Animated, {runOnJS, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
+import {useFocusEffect} from '@react-navigation/native'
 
 import AppBar from '@/components/AppBar'
 import EditTimetable from '@/components/TimeTable/src/EditTimetable'
@@ -40,6 +41,7 @@ import type {Ref as ControlBarRef} from './components/ControlBar'
 import {GetOverlapScheduleListResponse} from '@/apis/types/schedule'
 import {UpdateColorThemeRequest} from '@/apis/types/user'
 import {format} from 'date-fns'
+import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
 
 const EditSchedule = ({navigation}: EditScheduleProps) => {
   const queryClient = useQueryClient()
@@ -57,6 +59,9 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const [overlapScheduleList, setOverlapScheduleList] = React.useState<GetOverlapScheduleListResponse[]>([])
   const [showOverlapScheduleListBottomSheet, setShowOverlapScheduleListBottomSheet] = React.useState(false)
 
+  const [showColorSelectorBottomSheet, setShowColorSelectorBottomSheet] = useRecoilState(
+    showColorSelectorBottomSheetState
+  )
   const [activeColorThemeDetail, setActiveColorThemeDetail] = useRecoilState(activeColorThemeDetailState)
   const [editColorThemeDetail, setEditColorThemeDetail] = useState<EditColorThemeDetail>({
     isActiveColorTheme: activeColorThemeDetail.is_active_color_theme,
@@ -349,6 +354,31 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       end: editScheduleForm.end_time
     })
   }, [editScheduleForm.start_time, editScheduleForm.end_time, setEditScheduleTime])
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        if (showColorSelectorBottomSheet) {
+          setShowColorSelectorBottomSheet(false)
+        } else if (showOverlapScheduleListBottomSheet) {
+          setShowOverlapScheduleListBottomSheet(false)
+        } else {
+          closeEditScheduleBottomSheet()
+        }
+        return true
+      }
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress)
+
+      return () => subscription.remove()
+    }, [
+      closeEditScheduleBottomSheet,
+      showColorSelectorBottomSheet,
+      showOverlapScheduleListBottomSheet,
+      setShowColorSelectorBottomSheet,
+      setShowOverlapScheduleListBottomSheet
+    ])
+  )
 
   const background = React.useMemo(() => {
     if (!activeBackground || activeBackground.background_id === 1) {
