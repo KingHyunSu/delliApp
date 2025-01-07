@@ -1,4 +1,4 @@
-package com.delli;
+package com.delli.app;
 
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
