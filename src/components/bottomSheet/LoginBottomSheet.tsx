@@ -1,5 +1,5 @@
 import {useRef, useCallback, useEffect, useMemo, useState} from 'react'
-import {StyleSheet, ActivityIndicator, Pressable, Text, View} from 'react-native'
+import {StyleSheet, Platform, ActivityIndicator, Pressable, Text, View} from 'react-native'
 import {BottomSheetModal, BottomSheetBackdropProps, BottomSheetHandleProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
@@ -275,11 +275,13 @@ const LoginBottomSheet = () => {
             <Text style={kakaoLoginButtonText}>카카오 로그인</Text>
           </Pressable>
 
-          <Pressable style={appleLoginButton} onPress={singInWithApple}>
-            <AppleLogoIcon />
+          {Platform.OS === 'ios' && (
+            <Pressable style={appleLoginButton} onPress={singInWithApple}>
+              <AppleLogoIcon />
 
-            <Text style={appleLoginButtonText}>Apple 로그인</Text>
-          </Pressable>
+              <Text style={appleLoginButtonText}>Apple 로그인</Text>
+            </Pressable>
+          )}
 
           <Pressable style={googleLoginButton} onPress={signInWithGoogle}>
             <View style={styles.googleLogoWrapper}>

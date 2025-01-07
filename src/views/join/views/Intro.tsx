@@ -5,6 +5,7 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
   StyleSheet,
+  Platform,
   ActivityIndicator,
   SafeAreaView,
   FlatList,
@@ -236,9 +237,11 @@ const Intro = ({navigation}: IntroScreenProps) => {
             <KakaoLogoIcon width={26} height={26} />
           </Pressable>
 
-          <Pressable onPress={singInWithApple}>
-            <Image source={require('@/assets/icons/appleLogo.png')} style={{width: 52, height: 52}} />
-          </Pressable>
+          {Platform.OS === 'ios' && (
+            <Pressable onPress={singInWithApple}>
+              <Image source={require('@/assets/icons/appleLogo.png')} style={{width: 52, height: 52}} />
+            </Pressable>
+          )}
 
           <Pressable style={googleLoginButton} onPress={signInWithGoogle}>
             <GoogleLogoIcon width={26} height={26} />
