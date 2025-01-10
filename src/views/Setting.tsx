@@ -68,7 +68,7 @@ const Setting = ({navigation}: SettingScreenProps) => {
 
   const version = useMemo(() => {
     if (Platform.OS === 'ios') {
-      return '2.0.1'
+      return '2.0.2'
     } else if (Platform.OS === 'android') {
       return '1.0.0'
     }
@@ -94,6 +94,22 @@ const Setting = ({navigation}: SettingScreenProps) => {
   const movePrivacyPage = useCallback(async () => {
     const url = 'https://coherent-warbler-b91.notion.site/a49ff95ec433493b86124571c6677261?pvs=4'
     await Linking.openURL(url)
+  }, [])
+
+  const moveStore = useCallback(async () => {
+    let url = null
+
+    if (Platform.OS === 'ios') {
+      url = 'https://apps.apple.com/app/id6447664372'
+    }
+
+    if (url) {
+      const canOpen = await Linking.canOpenURL(url)
+
+      if (canOpen) {
+        await Linking.openURL(url)
+      }
+    }
   }, [])
 
   const doLogout = useCallback(async () => {
@@ -313,10 +329,16 @@ const Setting = ({navigation}: SettingScreenProps) => {
           </>
         )}
 
-        <View style={[styles.item, {borderBottomWidth: 1, borderBottomColor: activeTheme.color2}]}>
+        <Pressable
+          style={[styles.item, {borderBottomWidth: 1, borderBottomColor: activeTheme.color2}]}
+          onPress={moveStore}>
           <Text style={[styles.contentText, {color: activeTheme.color3}]}>버전</Text>
-          <Text style={[styles.contentText, {color: activeTheme.color3}]}>{version}</Text>
-        </View>
+
+          <View style={styles.itemRightWrapper}>
+            <Text style={[styles.contentText, {color: activeTheme.color3}]}>{version}</Text>
+            <ArrowRightIcon width={18} height={18} stroke={activeTheme.color3} strokeWidth={3} />
+          </View>
+        </Pressable>
 
         {!isGuest && (
           <Pressable
@@ -351,6 +373,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 20
+  },
+  itemRightWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7
   },
   contentText: {
     fontFamily: 'Pretendard-Medium',
