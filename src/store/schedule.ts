@@ -43,6 +43,20 @@ export const editScheduleFormState = atom<EditScheduleForm>({
   }
 })
 
+interface SchedulePosition {
+  title_x: number
+  title_y: number
+  title_rotate: number
+}
+export const editSchedulePositionState = atom<SchedulePosition>({
+  key: 'editSchedulePositionState',
+  default: {
+    title_x: 0,
+    title_y: 0,
+    title_rotate: 0
+  }
+})
+
 export const editScheduleTimeState = atom({
   key: 'editScheduleTimeState',
   default: {
@@ -105,11 +119,6 @@ export const scheduleCategoryListState = atom<ScheduleCategory[]>({
 export const isInputModeState = atom<Boolean>({
   key: 'isInputModeState',
   default: true
-})
-
-export const shouldUpdateTitlePositionState = atom({
-  key: 'shouldUpdateTitlePositionState',
-  default: false
 })
 
 export const activeTimeFlagState = atom<RANGE_FLAG | null>({

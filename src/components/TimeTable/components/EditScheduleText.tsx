@@ -3,9 +3,9 @@ import {LayoutChangeEvent, StyleSheet, View} from 'react-native'
 import {Gesture, GestureDetector, TextInput} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS, withTiming} from 'react-native-reanimated'
 
-import {useRecoilState, useRecoilValue} from 'recoil'
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {keyboardAppearanceState} from '@/store/system'
-import {editScheduleTimeState, isInputModeState, shouldUpdateTitlePositionState} from '@/store/schedule'
+import {editSchedulePositionState, editScheduleTimeState, isInputModeState} from '@/store/schedule'
 
 import RotateGuideIcon from '@/assets/icons/rotate_guide.svg'
 import {polarToCartesian} from '@/utils/pieHelper'
@@ -25,18 +25,13 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
   const gestureVerticalSafeArea = 100
 
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
-  const [shouldUpdateTitlePosition, setShouldUpdateTitlePosition] = useRecoilState(shouldUpdateTitlePositionState)
 
   const keyboardAppearance = useRecoilValue(keyboardAppearanceState)
   const editScheduleTime = useRecoilValue(editScheduleTimeState)
+  const setEditSchedulePosition = useSetRecoilState(editSchedulePositionState)
 
   const textInputRef = React.useRef<TextInput>(null)
 
-  const [position, setPosition] = React.useState({
-    title_x: data.title_x,
-    title_y: data.title_y,
-    title_rotate: data.title_rotate
-  })
   const [titleLayout, setTitleLayout] = React.useState<{width: number; height: number}>({
     width: 0,
     height: 0
@@ -207,7 +202,7 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
       setSavedY(_moveY)
       containerSavedRotate.value = _rotate
 
-      setPosition({
+      setEditSchedulePosition({
         title_x: _moveXPercent,
         title_y: _moveYPercent,
         title_rotate: _rotate
@@ -226,15 +221,9 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
     data.text_direction,
     centerX,
     centerY,
-    radius
+    radius,
+    setEditSchedulePosition
   ])
-
-  React.useEffect(() => {
-    if (shouldUpdateTitlePosition) {
-      onChangeSchedule(position)
-      setShouldUpdateTitlePosition(false)
-    }
-  }, [shouldUpdateTitlePosition, setShouldUpdateTitlePosition, position, onChangeSchedule])
 
   React.useEffect(() => {
     if (isInputMode) {

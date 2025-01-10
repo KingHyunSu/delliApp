@@ -29,7 +29,8 @@ import {
   scheduleListState,
   isInputModeState,
   editScheduleFormState,
-  editScheduleTimeState
+  editScheduleTimeState,
+  editSchedulePositionState
 } from '@/store/schedule'
 
 import {useQueryClient} from '@tanstack/react-query'
@@ -84,6 +85,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const scheduleList = useRecoilValue(scheduleListState)
   const editScheduleListStatus = useRecoilValue(editScheduleListStatusState)
   const scheduleDate = useRecoilValue(scheduleDateState)
+  const editSchedulePosition = useRecoilValue(editSchedulePositionState)
 
   const setIsEdit = useSetRecoilState(isEditState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
@@ -255,12 +257,13 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       }
 
       const {schedule_id, ...form} = editScheduleForm
+      const newEditScheduleForm = {...form, ...editSchedulePosition}
 
       let newScheduleId = null
 
       if (schedule_id) {
         const response = await updateScheduleMutateAsync({
-          form,
+          form: newEditScheduleForm,
           disabled_list: disabledScheduleList,
           schedule_id
         })
@@ -268,14 +271,17 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
         newScheduleId = response.schedule_id
       } else {
         const response = await setScheduleMutateAsync({
-          form,
+          form: newEditScheduleForm,
           disabled_list: disabledScheduleList
         })
 
         newScheduleId = response.schedule_id
       }
 
-      const newScheduleList = getNewScheduleList({...form, schedule_id: newScheduleId}, disabledScheduleList)
+      const newScheduleList = getNewScheduleList(
+        {...newEditScheduleForm, schedule_id: newScheduleId},
+        disabledScheduleList
+      )
 
       const formatDate = format(scheduleDate, 'yyyy-MM-dd')
       queryClient.setQueryData(['scheduleList', formatDate], newScheduleList)
@@ -292,6 +298,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       activeColorThemeDetail.is_active_color_theme,
       editColorThemeDetail,
       editScheduleForm,
+      editSchedulePosition,
       scheduleDate,
       getNewScheduleList,
       setScheduleMutateAsync,
