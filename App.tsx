@@ -142,6 +142,7 @@ function App(): JSX.Element {
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
   const setScheduleList = useSetRecoilState(scheduleListState)
   const setIsLoading = useSetRecoilState(isLoadingState)
+  const setIsInit = useSetRecoilState(isInitState)
 
   const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [statusBarColor, setStatusBarColor] = useRecoilState(statusBarColorState)
@@ -242,23 +243,6 @@ function App(): JSX.Element {
   React.useEffect(() => {
     setWindowDimensions(windowDimensions)
   }, [setWindowDimensions, windowDimensions])
-
-  React.useEffect(() => {
-    const init = async () => {
-      const isInitDatabase = await initDatabase()
-
-      try {
-        const token = await AsyncStorage.getItem('token')
-
-        if (token) {
-          await accessMutateAsync()
-          setIsLogin(true)
-        }
-      } catch (e) {}
-    }
-
-    init()
-  }, [setIsLogin, accessMutateAsync])
 
   React.useEffect(() => {
     setLoginStateSetter(setIsLogin)
@@ -392,7 +376,8 @@ function App(): JSX.Element {
                         screens: {
                           Home: 'home'
                         }
-                      }
+                      },
+                      Intro: 'intro'
                     }
                   },
                   async getInitialURL() {
@@ -400,6 +385,24 @@ function App(): JSX.Element {
 
                     if (url === 'delli://widget') {
                       return isInit ? 'delli://home' : 'delli://splash'
+                    }
+
+                    // TODO - 강제 업데이트 후 제거하기
+                    const isInitDatabase = await initDatabase()
+
+                    try {
+                      const token = await AsyncStorage.getItem('token')
+
+                      if (token) {
+                        await accessMutateAsync()
+                        setIsLogin(true)
+                        return 'delli://splash'
+                      }
+
+                      setIsInit(true)
+                      return 'delli://intro'
+                    } catch (e) {
+                      // return error page
                     }
 
                     return url

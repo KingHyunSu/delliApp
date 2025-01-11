@@ -33,6 +33,7 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin'
 
 import {IntroScreenProps} from '@/types/navigation'
 import {LOGIN_TYPE} from '@/utils/types'
+import SystemSplashScreen from 'react-native-splash-screen'
 
 type Item = {url: ImageSourcePropType}
 const Intro = ({navigation}: IntroScreenProps) => {
@@ -201,6 +202,10 @@ const Intro = ({navigation}: IntroScreenProps) => {
       })
     }
   }, [activeIndex])
+
+  useEffect(() => {
+    SystemSplashScreen.hide()
+  }, [])
 
   return (
     <SafeAreaView style={styles.container}>

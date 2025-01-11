@@ -1,7 +1,7 @@
 import {format} from 'date-fns'
 import {useRecoilValue, useSetRecoilState} from 'recoil'
 import {scheduleDateState} from '@/store/schedule'
-import {isLoadingState} from '@/store/system'
+import {isLoadingState, loginState} from '@/store/system'
 import {useMutation, useQuery} from '@tanstack/react-query'
 import * as scheduleApi from '@/apis/server/schedule'
 import {getDayOfWeekKey} from '@/utils/helper'
@@ -13,6 +13,7 @@ import {
 } from '@/apis/types/schedule'
 
 export const useGetCurrentScheduleList = () => {
+  const isLogin = useRecoilValue(loginState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const setIsLoading = useSetRecoilState(isLoadingState)
   const formatDate = format(scheduleDate, 'yyyy-MM-dd')
@@ -46,6 +47,7 @@ export const useGetCurrentScheduleList = () => {
 
       return response.data
     },
+    enabled: isLogin,
     initialData: []
   })
 }
