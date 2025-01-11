@@ -3,7 +3,7 @@ import {LayoutChangeEvent, StyleSheet, View} from 'react-native'
 import {Gesture, GestureDetector, TextInput} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS, withTiming} from 'react-native-reanimated'
 
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
+import {useRecoilState, useRecoilValue} from 'recoil'
 import {keyboardAppearanceState} from '@/store/system'
 import {editSchedulePositionState, editScheduleTimeState, isInputModeState} from '@/store/schedule'
 
@@ -25,10 +25,10 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
   const gestureVerticalSafeArea = 100
 
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
+  const [editSchedulePosition, setEditSchedulePosition] = useRecoilState(editSchedulePositionState)
 
   const keyboardAppearance = useRecoilValue(keyboardAppearanceState)
   const editScheduleTime = useRecoilValue(editScheduleTimeState)
-  const setEditSchedulePosition = useSetRecoilState(editSchedulePositionState)
 
   const textInputRef = React.useRef<TextInput>(null)
 
@@ -95,23 +95,6 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
     [onChangeSchedule]
   )
 
-  const setTitlePosition = React.useCallback(
-    (x: number, y: number) => {
-      const xPercentage = Math.round(((x + gestureHorizontalSafeArea - centerX) / radius) * 100)
-      const yPercentage = Math.round((((y + gestureVerticalSafeArea - centerY) * -1) / radius) * 100)
-
-      onChangeSchedule({title_x: xPercentage, title_y: yPercentage})
-    },
-    [centerX, centerY, radius, onChangeSchedule]
-  )
-
-  const setTitleRotate = React.useCallback(
-    (rotate: number) => {
-      onChangeSchedule({title_rotate: rotate})
-    },
-    [onChangeSchedule]
-  )
-
   const changeTitleBoundingBox = React.useCallback((e: LayoutChangeEvent) => {
     const {width, height} = e.nativeEvent.layout
     setTitleLayout({width, height})
@@ -149,8 +132,14 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
       runOnJS(setSavedX)(_movedX)
       runOnJS(setSavedY)(_moveY)
 
-      runOnJS(setTitlePosition)(_movedX, _moveY)
-      runOnJS(handleFontAngleChanged)()
+      const _moveXPercent = Math.round(((_movedX + gestureHorizontalSafeArea - centerX) / radius) * 100)
+      const _moveYPercent = Math.round((((_moveY + gestureVerticalSafeArea - centerY) * -1) / radius) * 100)
+
+      runOnJS(setEditSchedulePosition)({
+        ...editSchedulePosition,
+        title_x: _moveXPercent,
+        title_y: _moveYPercent
+      })
     })
 
   const rotateGesture = Gesture.Rotation()
@@ -162,7 +151,11 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
       const rotate = containerSavedRotate.value + (e.rotation / Math.PI) * 180
 
       containerSavedRotate.value = rotate
-      runOnJS(setTitleRotate)(rotate)
+
+      runOnJS(setEditSchedulePosition)({
+        ...editSchedulePosition,
+        title_rotate: rotate
+      })
     })
 
   const composeGesture = Gesture.Simultaneous(moveGesture, rotateGesture)
