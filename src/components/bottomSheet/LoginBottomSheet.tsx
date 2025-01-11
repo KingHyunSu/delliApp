@@ -24,6 +24,7 @@ import {useQueryClient} from '@tanstack/react-query'
 import {scheduleDateState} from '@/store/schedule'
 import {useAlert} from '@/components/Alert'
 import {LoginSyncDataRequest} from '@/apis/types/auth'
+import {format} from 'date-fns'
 
 const LoginBottomSheet = () => {
   const alert = useAlert()
@@ -61,7 +62,9 @@ const LoginBottomSheet = () => {
 
       await AsyncStorage.setItem('token', token)
       await accessMutateAsync()
-      await queryClient.invalidateQueries({queryKey: ['scheduleList', scheduleDate]})
+
+      const formatDate = format(scheduleDate, 'yyyy-MM-dd')
+      await queryClient.invalidateQueries({queryKey: ['scheduleList', formatDate]})
 
       navigate('MainTabs', {
         screen: 'Home',
