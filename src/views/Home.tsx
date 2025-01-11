@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, BackHandler, ToastAndroid, Alert, Pressable, View, Text, Image} from 'react-native'
+import {StyleSheet, BackHandler, ToastAndroid, Pressable, View, Text, Image} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import Animated, {useSharedValue, useAnimatedStyle, withTiming, runOnJS} from 'react-native-reanimated'
@@ -22,7 +22,6 @@ import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} 
 import {
   safeAreaInsetsState,
   isEditState,
-  isLoadingState,
   editTimetableTranslateYState,
   activeThemeState,
   activeBackgroundState,
@@ -41,12 +40,9 @@ import {showEditMenuBottomSheetState, showDatePickerBottomSheetState} from '@/st
 import {widgetWithImageUpdatedState} from '@/store/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
-import {useGetCurrentScheduleList} from '@/apis/hooks/useSchedule'
 import HomeFabExtensionModal from '@/components/modal/HomeFabExtensionModal'
 
 const Home = ({navigation, route}: HomeScreenProps) => {
-  const {data: _scheduleList, isError} = useGetCurrentScheduleList()
-
   const safeAreaInsets = useSafeAreaInsets()
 
   const [isRendered, setIsRendered] = React.useState(false)
@@ -54,14 +50,13 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const [showFabExtensionModal, setShowFabExtensionModal] = React.useState(false)
 
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
-  const [isLoading, setIsLoading] = useRecoilState(isLoadingState)
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
   const [editScheduleForm, setEditScheduleForm] = useRecoilState(editScheduleFormState)
 
-  const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
 
+  const scheduleList = useRecoilValue(scheduleListState)
   const activeBackground = useRecoilValue(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
@@ -74,14 +69,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const setStatusBarTextStyle = useSetRecoilState(statusBarTextStyleState)
   const setStatusBarColor = useSetRecoilState(statusBarColorState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
-
-  React.useEffect(() => {
-    setScheduleList(_scheduleList)
-
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 300)
-  }, [_scheduleList, setScheduleList, setIsLoading])
 
   const background = React.useMemo(() => {
     if (!activeBackground || activeBackground.background_id === 1) {
@@ -237,12 +224,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       resetEditScheduleForm()
     }
   }, [isEdit, editTimetableTranslateY, resetEditScheduleForm, resetDisableScheduleList, setIsInputMode])
-
-  React.useEffect(() => {
-    if (isError) {
-      setIsLoading(false)
-    }
-  }, [isError, setIsLoading])
 
   return (
     <View style={homeStyles.container}>

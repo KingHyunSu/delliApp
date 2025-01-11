@@ -183,7 +183,7 @@ struct Provider: TimelineProvider {
       let entry = SimpleEntry(
         date: currentDate,
         activeDate: nil,
-        isUpdate: false,
+        isUpdate: true,
         style: style,
         scheduleList: [],
         activeSchedule: ActiveScheduleModel(

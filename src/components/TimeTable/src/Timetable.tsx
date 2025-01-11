@@ -183,7 +183,7 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
       updateWidget()
       setWidgetWithImageUpdated(false)
     }
-  }, [widgetReloadable, widgetWithImageUpdated, data, isRendered, setWidgetWithImageUpdated])
+  }, [widgetReloadable, widgetWithImageUpdated, updateWidgetWithImage, data, isRendered, setWidgetWithImageUpdated])
 
   useEffect(() => {
     const timer = setInterval(() => {

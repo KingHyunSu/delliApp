@@ -1,5 +1,5 @@
 import React from 'react'
-import {useWindowDimensions, Platform, AppState, StatusBar, StyleSheet, SafeAreaView} from 'react-native'
+import {useWindowDimensions, Linking, Platform, AppState, StatusBar, StyleSheet, SafeAreaView} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -14,7 +14,6 @@ import {navigationRef} from '@/utils/navigation'
 
 // views
 import SplashScreen from '@/views/Splash'
-import WidgetReloadScreen from '@/views/WidgetReload'
 import {IntroScreen, JoinTermsScreen} from '@/views/join'
 import HomeScreen from '@/views/Home'
 import HomeCustomScreen from '@/views/HomeCustom'
@@ -24,6 +23,7 @@ import EditTodoScreen from '@/views/EditTodo'
 import {StoreListScreen, StoreDetailScreen} from '@/views/store'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
+import WidgetReloadScreen from '@/views/WidgetReload'
 import CategoryStats from '@/views/CategoryStats'
 import StatsScreen from '@/views/Stats'
 
@@ -45,6 +45,7 @@ import StoreIcon from '@/assets/icons/store.svg'
 import {useRecoilState, useRecoilValue, useSetRecoilState, useRecoilSnapshot} from 'recoil'
 import {
   isInitState,
+  isLoadingState,
   loginState,
   windowDimensionsState,
   bottomSafeAreaColorState,
@@ -59,9 +60,10 @@ import {
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
 
 import initDatabase from '@/apis/local/utils/init'
-import {focusModeInfoState} from '@/store/schedule'
+import {focusModeInfoState, scheduleListState} from '@/store/schedule'
 
 import {useAccess} from '@/apis/hooks/useAuth'
+import {useGetCurrentScheduleList} from '@/apis/hooks/useSchedule'
 import {SafeAreaProvider} from 'react-native-safe-area-context'
 import {GoogleSignin} from '@react-native-google-signin/google-signin'
 
@@ -122,18 +124,9 @@ const BottomTabs = React.memo(({activeTheme}: BottomTabsProps) => {
   )
 })
 
-const linking: LinkingOptions<StackNavigator> = {
-  prefixes: ['delli://'],
-  config: {
-    screens: {
-      WidgetReload: 'widget/reload/:id',
-      Splash: 'widget'
-    }
-  }
-}
-
 function App(): JSX.Element {
   const {mutateAsync: accessMutateAsync} = useAccess()
+  const {data: _scheduleList, isError: isGetScheduleListError} = useGetCurrentScheduleList()
   const windowDimensions = useWindowDimensions()
 
   const appState = React.useRef(AppState.currentState)
@@ -141,15 +134,16 @@ function App(): JSX.Element {
   const [isActiveApp, setIsActiveApp] = React.useState(false)
   const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
 
-  const [isLogin, setIsLogin] = useRecoilState(loginState)
-
   const isInit = useRecoilValue(isInitState)
   const displayMode = useRecoilValue(displayModeState)
   const activeBackground = useRecoilValue(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
 
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
+  const setScheduleList = useSetRecoilState(scheduleListState)
+  const setIsLoading = useSetRecoilState(isLoadingState)
 
+  const [isLogin, setIsLogin] = useRecoilState(loginState)
   const [statusBarColor, setStatusBarColor] = useRecoilState(statusBarColorState)
   const [statusBarTextStyle, setStatusBarTextStyle] = useRecoilState(statusBarTextStyleState)
   const [bottomSafeAreaColor, setBottomSafeAreaColor] = useRecoilState(bottomSafeAreaColorState)
@@ -226,6 +220,16 @@ function App(): JSX.Element {
     setStatusBarColor,
     setBottomSafeAreaColor
   ])
+
+  React.useEffect(() => {
+    setScheduleList(_scheduleList)
+  }, [_scheduleList, setScheduleList])
+
+  React.useEffect(() => {
+    if (isGetScheduleListError) {
+      setIsLoading(false)
+    }
+  }, [isGetScheduleListError, setIsLoading])
 
   React.useEffect(() => {
     GoogleSignin.configure({
@@ -376,7 +380,32 @@ function App(): JSX.Element {
             <LoginBottomSheet />
 
             <SafeAreaView style={containerStyle}>
-              <NavigationContainer ref={navigationRef} linking={linking} onStateChange={changeRoute}>
+              <NavigationContainer
+                ref={navigationRef}
+                linking={{
+                  prefixes: ['delli://'],
+                  config: {
+                    screens: {
+                      WidgetReload: 'widget/reload/:id',
+                      Splash: 'splash',
+                      MainTabs: {
+                        screens: {
+                          Home: 'home'
+                        }
+                      }
+                    }
+                  },
+                  async getInitialURL() {
+                    const url = await Linking.getInitialURL()
+
+                    if (url === 'delli://widget') {
+                      return isInit ? 'delli://home' : 'delli://splash'
+                    }
+
+                    return url
+                  }
+                }}
+                onStateChange={changeRoute}>
                 <Stack.Navigator screenOptions={screenOptions}>
                   {!isInit ? (
                     <Stack.Screen name="Splash" component={SplashScreen} />
@@ -410,7 +439,6 @@ function App(): JSX.Element {
                       <Stack.Screen name="JoinTerms" component={JoinTermsScreen} />
                     </>
                   )}
-
                   <Stack.Screen name="WidgetReload" component={WidgetReloadScreen} />
                 </Stack.Navigator>
               </NavigationContainer>

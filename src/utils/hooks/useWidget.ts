@@ -4,7 +4,6 @@ import {format} from 'date-fns'
 import {GetCurrentScheduleListResponse} from '@/apis/types/schedule'
 import {useRecoilValue} from 'recoil'
 import {activeBackgroundState, activeOutlineState, widgetReloadableState} from '@/store/system'
-import {widgetWithImageUpdatedState} from '@/store/widget'
 import {scheduleListState} from '@/store/schedule'
 
 interface WidgetSchedule {
@@ -54,7 +53,7 @@ const getWidgetScheduleList = (schedules: GetCurrentScheduleListResponse[]) => {
         title: currentSchedule.title,
         start_time: currentSchedule.start_time,
         end_time: currentSchedule.end_time,
-        todo_list: currentSchedule.todo_list,
+        todo_list: [],
         widget_update_date: getWidgetUpdateDate(currentSchedule.start_time)
       }
 
@@ -79,7 +78,7 @@ const getWidgetScheduleList = (schedules: GetCurrentScheduleListResponse[]) => {
           title: prevWidgetSchedule.title,
           start_time: prevWidgetSchedule.start_time,
           end_time: prevWidgetSchedule.end_time,
-          todo_list: prevWidgetSchedule.todo_list,
+          todo_list: [],
           widget_update_date: getWidgetUpdateDate(currentSchedule.end_time)
         }
       }
@@ -109,7 +108,7 @@ const getWidgetScheduleList = (schedules: GetCurrentScheduleListResponse[]) => {
         title: lastSchedule.title,
         start_time: lastSchedule.start_time,
         end_time: lastSchedule.end_time,
-        todo_list: lastSchedule.todo_list,
+        todo_list: [],
         widget_update_date: getWidgetUpdateDate(lastSchedule.start_time)
       })
     }

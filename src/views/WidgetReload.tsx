@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react'
+import {useEffect} from 'react'
 import {StyleSheet, ActivityIndicator, Alert, Text, View} from 'react-native'
 import {TestIds, useRewardedAd} from 'react-native-google-mobile-ads'
 import SystemSplashScreen from 'react-native-splash-screen'
@@ -19,8 +19,6 @@ const WidgetReload = ({navigation, route}: WidgetReloadScreenProps) => {
     show: rewardAdShow
   } = useRewardedAd(rewardAdUnitId)
 
-  const [wait, setWait] = useState(3000)
-
   const setWidgetReloadable = useSetRecoilState(widgetReloadableState)
   const setIsInit = useSetRecoilState(isInitState)
   const setScheduleDate = useSetRecoilState(scheduleDateState)
@@ -33,7 +31,6 @@ const WidgetReload = ({navigation, route}: WidgetReloadScreenProps) => {
 
   useEffect(() => {
     if (!isRewardAdLoaded) {
-      setWait(1000)
       rewardAdLoad()
     }
   }, [isRewardAdLoaded, rewardAdLoad])
@@ -61,14 +58,13 @@ const WidgetReload = ({navigation, route}: WidgetReloadScreenProps) => {
             }
           }
         ])
-      }, wait)
+      }, 1000)
 
       return () => {
         clearTimeout(timer)
-        setWait(3000)
       }
     }
-  }, [isRewardAdLoaded, wait, navigation, route.params, setScheduleDate, rewardAdShow])
+  }, [isRewardAdLoaded, navigation, route.params, setScheduleDate, rewardAdShow])
 
   useEffect(() => {
     if (isEarnedReward) {
@@ -79,7 +75,7 @@ const WidgetReload = ({navigation, route}: WidgetReloadScreenProps) => {
 
         setToast({visible: true, message: '위젯 새로고침 완료'})
         // 위젯 업데이트
-        navigation.navigate('MainTabs', {
+        navigation.replace('MainTabs', {
           screen: 'Home',
           params: {scheduleUpdated: true}
         })
