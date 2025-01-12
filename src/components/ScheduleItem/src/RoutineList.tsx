@@ -66,7 +66,10 @@ const ScheduleRoutineList = ({data, activeTheme}: Props) => {
       } else {
         const completeDate = format(new Date(scheduleDate), 'yyyy-MM-dd')
 
-        const completeId = await completeScheduleRoutineMutateAsync({schedule_routine_id: value.schedule_routine_id})
+        const completeId = await completeScheduleRoutineMutateAsync({
+          schedule_routine_id: value.schedule_routine_id,
+          complete_date: completeDate
+        })
 
         newRoutine = {
           ...newRoutine,

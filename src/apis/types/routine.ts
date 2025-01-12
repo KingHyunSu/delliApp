@@ -50,6 +50,7 @@ export interface GetScheduleRoutineCompleteListResponse {
 
 export interface CompleteScheduleRoutineRequest {
   schedule_routine_id: number
+  complete_date: string
 }
 export interface CompleteScheduleRoutineResponse {
   schedule_routine_complete_id: number

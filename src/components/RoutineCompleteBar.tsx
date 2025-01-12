@@ -1,6 +1,8 @@
 import {useMemo} from 'react'
 import {StyleSheet, Text, View} from 'react-native'
 import {eachDayOfInterval, format, subDays} from 'date-fns'
+import {useRecoilValue} from 'recoil'
+import {scheduleDateState} from '@/store/schedule'
 
 interface Props {
   completeDateList: string[]
@@ -9,11 +11,11 @@ interface Props {
   activeTheme: ActiveTheme
 }
 const RoutineCompleteBar = ({completeDateList, itemSize = 24, gap = 3, activeTheme}: Props) => {
+  const scheduleDate = useRecoilValue(scheduleDateState)
+
   const completeListComponent = useMemo(() => {
-    const today = new Date()
-    // const startDate = subDays(today, 6)
-    const startDate = subDays(today, 4)
-    const dateList = eachDayOfInterval({start: startDate, end: today}).reverse()
+    const startDate = subDays(scheduleDate, 4)
+    const dateList = eachDayOfInterval({start: startDate, end: scheduleDate}).reverse()
 
     return dateList.map((date, index) => {
       const formatDate = format(date, 'yyyy-MM-dd')
@@ -28,7 +30,7 @@ const RoutineCompleteBar = ({completeDateList, itemSize = 24, gap = 3, activeThe
         </View>
       )
     })
-  }, [activeTheme?.color6, completeDateList, itemSize])
+  }, [scheduleDate, activeTheme?.color6, completeDateList, itemSize])
 
   return <View style={[styles.container, {gap: gap}]}>{completeListComponent}</View>
 }
