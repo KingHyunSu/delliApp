@@ -1,5 +1,5 @@
 import React from 'react'
-import {StyleSheet, BackHandler, ToastAndroid, Pressable, View, Text, Image} from 'react-native'
+import {StyleSheet, BackHandler, ToastAndroid, Pressable, View, Text, Image, Alert, Linking} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import Animated, {useSharedValue, useAnimatedStyle, withTiming, runOnJS} from 'react-native-reanimated'
@@ -41,6 +41,7 @@ import {widgetWithImageUpdatedState} from '@/store/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
 import HomeFabExtensionModal from '@/components/modal/HomeFabExtensionModal'
+import DeviceInfo from 'react-native-device-info'
 
 const Home = ({navigation, route}: HomeScreenProps) => {
   const safeAreaInsets = useSafeAreaInsets()
@@ -224,6 +225,28 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       resetEditScheduleForm()
     }
   }, [isEdit, editTimetableTranslateY, resetEditScheduleForm, resetDisableScheduleList, setIsInputMode])
+
+  React.useEffect(() => {
+    const version = DeviceInfo.getVersion()
+
+    if (version !== '2.0.2') {
+      Alert.alert('업데이트 안내', '최신 버전으로 업데이트 후\n 이용가능합니다.', [
+        {
+          text: '업데이트',
+          onPress: async () => {
+            const storeUrl = 'https://apps.apple.com/app/id6447664372'
+            // const storeUrl =
+            //   'https://apps.apple.com/us/app/%EB%8D%B8%EB%A6%AC-%EB%8D%B0%EC%9D%BC%EB%A6%AC-%EC%9D%BC%EC%A0%95-%EA%B4%80%EB%A6%AC/id6447664372'
+            const canOpen = await Linking.canOpenURL(storeUrl)
+
+            if (canOpen) {
+              await Linking.openURL(storeUrl)
+            }
+          }
+        }
+      ])
+    }
+  }, [])
 
   return (
     <View style={homeStyles.container}>
