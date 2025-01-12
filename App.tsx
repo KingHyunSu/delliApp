@@ -14,6 +14,8 @@ import {navigationRef} from '@/utils/navigation'
 
 // views
 import SplashScreen from '@/views/Splash'
+import MaintenanceScreen from '@/views/Maintenance'
+
 import {IntroScreen, JoinTermsScreen} from '@/views/join'
 import HomeScreen from '@/views/Home'
 import HomeCustomScreen from '@/views/HomeCustom'
@@ -54,7 +56,8 @@ import {
   activeBackgroundState,
   statusBarColorState,
   statusBarTextStyleState,
-  setLoginStateSetter
+  setLoginStateSetter,
+  systemInfoState
 } from '@/store/system'
 
 import {StackNavigator, BottomTabNavigator} from '@/types/navigation'
@@ -64,6 +67,7 @@ import {focusModeInfoState, scheduleListState} from '@/store/schedule'
 
 import {useAccess} from '@/apis/hooks/useAuth'
 import {useGetCurrentScheduleList} from '@/apis/hooks/useSchedule'
+import * as systemApi from '@/apis/server/system'
 import {SafeAreaProvider} from 'react-native-safe-area-context'
 import {GoogleSignin} from '@react-native-google-signin/google-signin'
 
@@ -139,6 +143,7 @@ function App(): JSX.Element {
   const activeBackground = useRecoilValue(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
 
+  const setSystemInfo = useSetRecoilState(systemInfoState)
   const setWindowDimensions = useSetRecoilState(windowDimensionsState)
   const setScheduleList = useSetRecoilState(scheduleListState)
   const setIsLoading = useSetRecoilState(isLoadingState)
@@ -371,6 +376,7 @@ function App(): JSX.Element {
                   config: {
                     screens: {
                       WidgetReload: 'widget/reload/:id',
+                      Maintenance: 'maintenance',
                       Splash: 'splash',
                       MainTabs: {
                         screens: {
@@ -382,6 +388,18 @@ function App(): JSX.Element {
                   },
                   async getInitialURL() {
                     const url = await Linking.getInitialURL()
+
+                    const systemInfoResponse = await systemApi.getSystemInfo()
+                    const systemInfo = systemInfoResponse.data
+
+                    if (systemInfo.server_maintenance) {
+                      return 'delli://maintenance'
+                    }
+
+                    setSystemInfo({
+                      ios_update_required: systemInfo.ios_update_required,
+                      android_update_required: systemInfo.android_update_required
+                    })
 
                     // TODO - 강제 업데이트 후 제거하기
                     const isInitDatabase = await initDatabase()
@@ -414,7 +432,10 @@ function App(): JSX.Element {
                 onStateChange={changeRoute}>
                 <Stack.Navigator screenOptions={screenOptions}>
                   {!isInit ? (
-                    <Stack.Screen name="Splash" component={SplashScreen} />
+                    <>
+                      <Stack.Screen name="Splash" component={SplashScreen} />
+                      <Stack.Screen name="Maintenance" component={MaintenanceScreen} />
+                    </>
                   ) : isLogin ? (
                     <>
                       <Stack.Screen name="MainTabs" options={{animation: 'fade'}}>

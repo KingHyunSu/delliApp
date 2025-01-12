@@ -5,6 +5,14 @@ const bottomTabHeight = 56
 const editScheduleListMinSnapPoint = 50
 export const homeHeaderHeight = 84
 
+export const systemInfoState = atom({
+  key: 'systemInfoState',
+  default: {
+    ios_update_required: false,
+    android_update_required: false
+  }
+})
+
 export const isInitState = atom({
   key: 'isInitState',
   default: false

@@ -5,6 +5,7 @@ import {LOGIN_TYPE} from '@/utils/types'
 
 export type StackNavigator = {
   Splash: undefined
+  Maintenance: undefined
 
   MainTabs: {
     screen: keyof BottomTabNavigator

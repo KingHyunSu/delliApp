@@ -53,6 +53,7 @@
 	<array>
 		<string>kakaolink</string>
 		<string>kakaokompassauth</string>
+        <string>items-apps</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>

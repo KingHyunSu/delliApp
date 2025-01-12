@@ -1,5 +1,16 @@
 import React from 'react'
-import {StyleSheet, BackHandler, ToastAndroid, Pressable, View, Text, Image, Alert, Linking} from 'react-native'
+import {
+  StyleSheet,
+  Platform,
+  BackHandler,
+  ToastAndroid,
+  Pressable,
+  View,
+  Text,
+  Image,
+  Alert,
+  Linking
+} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
 import Animated, {useSharedValue, useAnimatedStyle, withTiming, runOnJS} from 'react-native-reanimated'
@@ -27,7 +38,8 @@ import {
   activeBackgroundState,
   statusBarColorState,
   bottomSafeAreaColorState,
-  statusBarTextStyleState
+  statusBarTextStyleState,
+  systemInfoState
 } from '@/store/system'
 import {
   scheduleDateState,
@@ -41,7 +53,6 @@ import {widgetWithImageUpdatedState} from '@/store/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
 import HomeFabExtensionModal from '@/components/modal/HomeFabExtensionModal'
-import DeviceInfo from 'react-native-device-info'
 
 const Home = ({navigation, route}: HomeScreenProps) => {
   const safeAreaInsets = useSafeAreaInsets()
@@ -57,6 +68,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
 
+  const systemInfo = useRecoilValue(systemInfoState)
   const scheduleList = useRecoilValue(scheduleListState)
   const activeBackground = useRecoilValue(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
@@ -227,26 +239,29 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   }, [isEdit, editTimetableTranslateY, resetEditScheduleForm, resetDisableScheduleList, setIsInputMode])
 
   React.useEffect(() => {
-    const version = DeviceInfo.getVersion()
+    if (Platform.OS === 'ios') {
+      if (systemInfo.ios_update_required) {
+        Alert.alert('업데이트 안내', '최신 버전으로 업데이트 후\n 이용가능합니다.', [
+          {
+            text: '업데이트',
+            onPress: async () => {
+              const storeUrl = 'https://apps.apple.com/app/id6447664372'
+              //   'https://apps.apple.com/us/app/%EB%8D%B8%EB%A6%AC-%EB%8D%B0%EC%9D%BC%EB%A6%AC-%EC%9D%BC%EC%A0%95-%EA%B4%80%EB%A6%AC/id6447664372'
+              const canOpen = await Linking.canOpenURL(storeUrl)
 
-    if (version !== '2.0.2') {
-      Alert.alert('업데이트 안내', '최신 버전으로 업데이트 후\n 이용가능합니다.', [
-        {
-          text: '업데이트',
-          onPress: async () => {
-            const storeUrl = 'https://apps.apple.com/app/id6447664372'
-            // const storeUrl =
-            //   'https://apps.apple.com/us/app/%EB%8D%B8%EB%A6%AC-%EB%8D%B0%EC%9D%BC%EB%A6%AC-%EC%9D%BC%EC%A0%95-%EA%B4%80%EB%A6%AC/id6447664372'
-            const canOpen = await Linking.canOpenURL(storeUrl)
-
-            if (canOpen) {
-              await Linking.openURL(storeUrl)
+              if (canOpen) {
+                await Linking.openURL(storeUrl)
+              }
             }
           }
-        }
-      ])
+        ])
+      }
+    } else if (Platform.OS === 'android') {
+      if (systemInfo.android_update_required) {
+        // google play store 이동
+      }
     }
-  }, [])
+  }, [systemInfo.ios_update_required, systemInfo.android_update_required])
 
   return (
     <View style={homeStyles.container}>
