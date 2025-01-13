@@ -7,8 +7,6 @@ import {scheduleDateState, scheduleListState} from '@/store/schedule'
 
 import {useCompleteScheduleTodo} from '@/apis/hooks/useTodo'
 
-import {updateWidget} from '@/utils/widget'
-
 import {format} from 'date-fns'
 import {navigate} from '@/utils/navigation'
 

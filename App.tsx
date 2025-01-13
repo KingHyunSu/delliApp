@@ -130,7 +130,7 @@ const linking: LinkingOptions<StackNavigator> = {
     screens: {
       MainTabs: {
         screens: {
-          Home: 'widget/reload'
+          Home: 'widget/reload/:id'
         }
       }
     }

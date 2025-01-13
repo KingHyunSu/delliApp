@@ -228,7 +228,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
     if (params?.scheduleUpdated) {
       setWidgetWithImageUpdated(true)
-    } else if (path === 'widget/reload') {
+    } else if (path?.includes('widget/reload')) {
       const rewardedAd = RewardedAd.createForAdRequest(adUnitId)
 
       setScheduleDate(new Date())
@@ -274,7 +274,15 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         unsubscribeClosed()
       }
     }
-  }, [widgetReloadable, route, setScheduleDate, setToast, setWidgetWithImageUpdated, setWidgetReloadable])
+  }, [
+    widgetReloadable,
+    route.path,
+    route.params,
+    setScheduleDate,
+    setToast,
+    setWidgetWithImageUpdated,
+    setWidgetReloadable
+  ])
 
   React.useEffect(() => {
     if (isEdit) {

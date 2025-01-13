@@ -26,6 +26,26 @@ extension View {
   }
 }
 
+extension UIColor {
+  convenience init(hexCode: String) {
+    var hexFormatted: String = hexCode.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines).uppercased()
+    
+    if hexFormatted.hasPrefix("#") {
+      hexFormatted = String(hexFormatted.dropFirst())
+    }
+    
+    assert(hexFormatted.count == 6, "Invalid hex code used.")
+    
+    var rgbValue: UInt64 = 0
+    Scanner(string: hexFormatted).scanHexInt64(&rgbValue)
+    
+    self.init(red: CGFloat((rgbValue & 0xFF0000) >> 16) / 255.0,
+              green: CGFloat((rgbValue & 0x00FF00) >> 8) / 255.0,
+              blue: CGFloat(rgbValue & 0x0000FF) / 255.0,
+              alpha: 1.0)
+  }
+}
+
 public struct TodoModel:Codable {
   let todo_id: Int
   let complete_id: Int?
@@ -38,14 +58,31 @@ public struct ScheduleModel:Codable {
   let start_time: CGFloat
   let end_time: CGFloat
   let todo_list: [TodoModel]
+  let widget_update_date: String
+}
+
+public struct ActiveScheduleModel:Codable {
+  let schedule_id: Int?
+  let title: String
+  let start_time: CGFloat
+  let end_time: CGFloat
+  let todo_list: [TodoModel]
+}
+
+public struct StyleModel:Codable {
+  let outline_background_color: String
+  let outline_progress_color: String
+  let background_color: String
+  let text_color: String
 }
 
 struct SimpleEntry: TimelineEntry {
   let date: Date
   let activeDate: String?
   let isUpdate: Bool
+  let style: StyleModel
   let scheduleList: [ScheduleModel]
-  let activeSchedule: ScheduleModel
+  let activeSchedule: ActiveScheduleModel
 }
 
 struct Provider: TimelineProvider {
@@ -54,8 +91,14 @@ struct Provider: TimelineProvider {
       date: Date(),
       activeDate: nil,
       isUpdate: false,
+      style: StyleModel(
+        outline_background_color: "#FFFFFF",
+        outline_progress_color: "#FF6F61",
+        background_color: "#F8F4EC",
+        text_color: "#424242"
+      ),
       scheduleList: [],
-      activeSchedule: ScheduleModel(
+      activeSchedule: ActiveScheduleModel(
         schedule_id: nil,
         title: "",
         start_time: 0,
@@ -70,8 +113,14 @@ struct Provider: TimelineProvider {
       date: Date(),
       activeDate: nil,
       isUpdate: false,
+      style: StyleModel(
+        outline_background_color: "#FFFFFF",
+        outline_progress_color: "#FF6F61",
+        background_color: "#F8F4EC",
+        text_color: "#424242"
+      ),
       scheduleList: [],
-      activeSchedule: ScheduleModel(
+      activeSchedule: ActiveScheduleModel(
         schedule_id: nil,
         title: "",
         start_time: 0,
@@ -88,15 +137,27 @@ struct Provider: TimelineProvider {
     let sharedUserDefaults = UserDefaults(suiteName: appGroupID)
     
     let scheduleListJsonString = sharedUserDefaults?.string(forKey: "scheduleList")
+    let styleJsonString = sharedUserDefaults?.string(forKey: "style")
     
     var scheduleList: [ScheduleModel] = []
+    var style = StyleModel(
+      outline_background_color: "#FFFFFF",
+      outline_progress_color: "#FF6F61",
+      background_color: "#F8F4EC",
+      text_color: "#424242"
+    )
     var isUpdate = false
     var activeDateString: String? = nil
     
     do {
-      if let jsonString = scheduleListJsonString {
-        let decodedScheduleList = Data(jsonString.utf8)
+      if let _scheduleListJsonString = scheduleListJsonString {
+        let decodedScheduleList = Data(_scheduleListJsonString.utf8)
         scheduleList = try JSONDecoder().decode([ScheduleModel].self, from: decodedScheduleList)
+      }
+      if let _styleJsonString = styleJsonString {
+        let decodedStyle = Data(_styleJsonString.utf8)
+        style = try JSONDecoder().decode(StyleModel.self, from: decodedStyle)
+        
       }
     } catch {
       print(error)
@@ -105,7 +166,6 @@ struct Provider: TimelineProvider {
     let currentDate = Date()
     let calendar = Calendar.current
     let startOfDay = calendar.startOfDay(for: currentDate)
-    let currentTime = calendar.dateComponents([.minute], from: startOfDay, to: currentDate).minute ?? 0
     
     if let activeDate = sharedUserDefaults?.object(forKey: "activeDate") as? Date {
       let activeStartOfDay = calendar.startOfDay(for: activeDate)
@@ -124,8 +184,9 @@ struct Provider: TimelineProvider {
         date: currentDate,
         activeDate: nil,
         isUpdate: false,
+        style: style,
         scheduleList: [],
-        activeSchedule: ScheduleModel(
+        activeSchedule: ActiveScheduleModel(
           schedule_id: nil,
           title: "",
           start_time: 0,
@@ -136,27 +197,23 @@ struct Provider: TimelineProvider {
       
       entries.append(entry)
     } else {
+      let iosFormatter = ISO8601DateFormatter()
+      
       for schedule in scheduleList {
-        let hour = Int(floor(Double(schedule.start_time) / 60.0))
-        let minute = Int(schedule.start_time) % 60
-        
-        var entry = SimpleEntry(
-          date: calendar.date(bySettingHour: hour, minute: minute, second: 0, of: currentDate)!,
-          activeDate: activeDateString,
-          isUpdate: isUpdate,
-          scheduleList: scheduleList,
-          activeSchedule: schedule
-        )
-        
-        entries.append(entry)
-        
-        if schedule.schedule_id != nil && schedule.start_time > schedule.end_time && currentTime < Int(schedule.end_time) {
-          entry = SimpleEntry(
-            date: currentDate,
+        if let entryDate = iosFormatter.date(from: schedule.widget_update_date) {
+          let entry = SimpleEntry(
+            date: entryDate,
             activeDate: activeDateString,
             isUpdate: isUpdate,
+            style: style,
             scheduleList: scheduleList,
-            activeSchedule: schedule
+            activeSchedule: ActiveScheduleModel(
+              schedule_id: schedule.schedule_id,
+              title: schedule.title,
+              start_time: schedule.start_time,
+              end_time: schedule.end_time,
+              todo_list: schedule.todo_list
+            )
           )
           
           entries.append(entry)
@@ -170,8 +227,9 @@ struct Provider: TimelineProvider {
         date: midnight,
         activeDate: activeDateString,
         isUpdate: true,
+        style: style,
         scheduleList: scheduleList,
-        activeSchedule: ScheduleModel(
+        activeSchedule: ActiveScheduleModel(
           schedule_id: nil,
           title: "",
           start_time: 0,
@@ -189,7 +247,19 @@ struct Provider: TimelineProvider {
 
 struct DelliWidgetEntryView : View {
   var entry: Provider.Entry
-  var backgroundColor: Color = Color(red: 254 / 255, green: 229 / 255, blue: 225 / 255)
+  
+  private var backgroundColor: Color {
+    Color(UIColor(hexCode: entry.style.background_color))
+  }
+  private var textColor: Color {
+    Color(UIColor(hexCode: entry.style.text_color))
+  }
+  private var outlineBackgroundColor: Color {
+    Color(UIColor(hexCode: entry.style.outline_background_color))
+  }
+  private var outlineProgressColor: Color {
+    Color(UIColor(hexCode: entry.style.outline_progress_color))
+  }
   
   @Environment(\.widgetFamily) var widgetFamily: WidgetFamily
   
@@ -258,20 +328,22 @@ struct DelliWidgetEntryView : View {
       ZStack {
         switch self.widgetFamily {
         case .systemSmall:
-          TimeTable(data: entry.scheduleList, 
+          TimeTable(data: entry.scheduleList,
                     activeSchedule: entry.activeSchedule,
+                    style: entry.style,
                     isUpdate: entry.isUpdate)
         case .systemMedium:
           HStack {
-            TimeTable(data: entry.scheduleList, 
+            TimeTable(data: entry.scheduleList,
                       activeSchedule: entry.activeSchedule,
+                      style: entry.style,
                       isUpdate: entry.isUpdate)
             
             if(entry.scheduleList.count > 0) {
               VStack(alignment: .center) {
                 Text("진행중인 일정")
                   .font(.custom("Pretendard-Bold", size: 10))
-                  .foregroundColor(Color(red: 255 / 255, green: 161 / 255, blue: 147 / 255))
+                  .foregroundColor(textColor)
                   .lineLimit(1)
                 
                 Spacer().frame(height: 7)
@@ -279,18 +351,18 @@ struct DelliWidgetEntryView : View {
                 if(entry.activeSchedule.schedule_id != nil && !entry.isUpdate) {
                   Text(entry.activeSchedule.title)
                     .font(.custom("Pretendard-Bold", size: 16))
-                    .foregroundColor(Color(red: 51 / 255, green: 51 / 255, blue: 51 / 255))
+                    .foregroundColor(textColor)
                     .lineLimit(1)
                   
                   Spacer().frame(height: 5)
                   
                   Text(timeRangeText(startTime: entry.activeSchedule.start_time, endTime: entry.activeSchedule.end_time))
                     .font(.custom("Pretendard-Medium", size: 12))
-                    .foregroundColor(Color(red: 51 / 255, green: 51 / 255, blue: 51 / 255))
+                    .foregroundColor(textColor)
                   
                   Text("남은 시간")
                     .font(.custom("Pretendard-Bold", size: 12))
-                    .foregroundColor(Color(red: 51 / 255, green: 51 / 255, blue: 51 / 255))
+                    .foregroundColor(textColor)
                     .lineLimit(1)
                     .padding(.top, 10)
                   
@@ -298,12 +370,12 @@ struct DelliWidgetEntryView : View {
                   
                   Text(timer(), style: .timer)
                     .font(.custom("Pretendard-Bold", size: 12))
-                    .foregroundColor(Color(red: 51 / 255, green: 51 / 255, blue: 51 / 255))
+                    .foregroundColor(textColor)
                     .multilineTextAlignment(.center)
                 } else {
                   Text("진행중인 일정이 없어요")
                     .font(.custom("Pretendard-Bold", size: 14))
-                    .foregroundColor(Color(red: 51 / 255, green: 51 / 255, blue: 51 / 255))
+                    .foregroundColor(textColor)
                     .padding(.top, 20)
                   
                 }
@@ -320,10 +392,10 @@ struct DelliWidgetEntryView : View {
               VStack(alignment: .center) {
                 Text("나만의 생활계획표를")
                   .font(.custom("Pretendard-Bold", size: 16))
-                  .foregroundColor(Color(red: 51 / 255, green: 51 / 255, blue: 51 / 255))
+                  .foregroundColor(textColor)
                 Text("만들어보세요")
                   .font(.custom("Pretendard-Bold", size: 16))
-                  .foregroundColor(Color(red: 51 / 255, green: 51 / 255, blue: 51 / 255))
+                  .foregroundColor(textColor)
               }
               .frame(
                 minWidth: 0,
@@ -384,8 +456,10 @@ struct DelliWidget: Widget {
   
   var body: some WidgetConfiguration {
     StaticConfiguration(kind: kind, provider: Provider()) { entry in
+      let timestamp = Int(Date().timeIntervalSince1970 * 1000)
+      
       DelliWidgetEntryView(entry: entry)
-        .widgetURL(URL(string: "delli://widget/reload"))
+        .widgetURL(URL(string: "delli://widget/reload/\(timestamp)"))
     }
     .configurationDisplayName("생활계획표")
     .description("생활계획표로 일정을 간편하게 확인해 보세요")

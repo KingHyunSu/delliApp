@@ -14,12 +14,13 @@ class WidgetUpdaterModule: NSObject {
   @objc 
   static func requiresMainQueueSetup() -> Bool { return true }
 
-  @objc(updateWidget:dateString:)
-  public func updateWidget(data: String, dateString: String) -> Void {
+  @objc(updateWidget:style:dateString:)
+  public func updateWidget(data: String, style: String, dateString: String) -> Void {
     let appGroupID = "group.delli.widget"
     let sharedUserDefaults = UserDefaults(suiteName: appGroupID)
     
     sharedUserDefaults?.set(data, forKey: "scheduleList")
+    sharedUserDefaults?.set(style, forKey: "style")
     
     if let date = ISO8601DateFormatter().date(from: dateString) {
       sharedUserDefaults?.set(date, forKey: "activeDate")

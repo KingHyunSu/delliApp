@@ -18,9 +18,13 @@ import {scheduleListState} from '@/store/schedule'
 import {HomeCustomProps} from '@/types/navigation'
 import {useUpdateCustom} from '@/apis/hooks/useUser'
 
+import {useUpdateWidgetStyle} from '@/utils/hooks/useWidget'
+
 type ActiveMenu = 'background' | 'outline' | null
 const HomeCustom = ({navigation}: HomeCustomProps) => {
   const {mutateAsync: updateCustomMutateAsync} = useUpdateCustom()
+
+  const updateWidgetStyle = useUpdateWidgetStyle()
 
   const [isLoading, setIsLoading] = useState(false)
   const [activeMenu, setActiveMenu] = useState<ActiveMenu>(null)
@@ -74,6 +78,13 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
     })
 
     if (response.result) {
+      await updateWidgetStyle({
+        outline_background_color: outline.background_color,
+        outline_progress_color: outline.progress_color,
+        background_color: background.background_color,
+        text_color: background.accent_color
+      })
+
       setActiveBackground(background)
       setActiveOutline(outline)
 

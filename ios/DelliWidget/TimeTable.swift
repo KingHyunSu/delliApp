@@ -16,7 +16,8 @@ func getImage() -> UIImage? {
 
 struct TimeTable: View {
   var data: [ScheduleModel]
-  var activeSchedule: ScheduleModel
+  var activeSchedule: ActiveScheduleModel
+  var style: StyleModel
   var isUpdate: Bool
   
   var fromTirm: CGFloat {
@@ -38,13 +39,15 @@ struct TimeTable: View {
           ZStack {
             Circle()
               .stroke(lineWidth: 6)
-              .foregroundColor(Color(red: 249 / 255, green: 249 / 255, blue: 249 / 255))
+              .foregroundColor(Color(UIColor(hexCode: style.outline_background_color)))
             
-            Circle()
-              .trim(from: fromTirm, to: endTirm)
-              .stroke(style: StrokeStyle(lineWidth: 7, lineCap: .round))
-              .foregroundColor(Color(red: 255 / 255, green: 161 / 255, blue: 147 / 255))
-              .rotationEffect(.degrees(-90))
+            if(activeSchedule.schedule_id != nil) {
+              Circle()
+                .trim(from: fromTirm, to: endTirm)
+                .stroke(style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                .foregroundColor(Color(UIColor(hexCode: style.outline_progress_color)))
+                .rotationEffect(.degrees(-90))
+            }
           }.padding(7)
         }
         
@@ -53,7 +56,7 @@ struct TimeTable: View {
         //          .resizable()
         //          .aspectRatio(contentMode: .fit)
         //          .padding(10)
-        //        
+        //
         //        ProgressView(value: isUpdate ? 1 : progress())
         //          .progressViewStyle(TimeProgressViewStyle())
         //          .padding(6.5)

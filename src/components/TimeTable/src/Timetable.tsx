@@ -22,7 +22,7 @@ import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 
 import {getScheduleBackgroundColor, getScheduleTextColor} from '../util'
-import {updateWidgetWithImage} from '@/utils/widget'
+import {useUpdateWidgetWithImage} from '@/utils/hooks/useWidget'
 
 interface Props {
   data: Schedule[]
@@ -31,6 +31,7 @@ interface Props {
   outline?: ActiveOutline
 }
 const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
+  const updateWidgetWithImage = useUpdateWidgetWithImage()
   const refs = useRef<View>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
 
@@ -180,10 +181,9 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
 
     if (isRendered && widgetReloadable && widgetWithImageUpdated) {
       updateWidget()
-
       setWidgetWithImageUpdated(false)
     }
-  }, [data, isRendered, widgetReloadable, widgetWithImageUpdated, setWidgetWithImageUpdated])
+  }, [widgetReloadable, widgetWithImageUpdated, data, isRendered, setWidgetWithImageUpdated])
 
   useEffect(() => {
     const timer = setInterval(() => {
