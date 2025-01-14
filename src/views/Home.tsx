@@ -23,7 +23,6 @@ import EditMenuBottomSheet from '@/components/bottomSheet/EditMenuBottomSheet'
 import ScheduleListBottomSheet from '@/components/bottomSheet/ScheduleListBottomSheet'
 import DatePickerBottomSheet from '@/components/bottomSheet/DatePickerBottomSheet'
 import CompleteModal from '@/components/modal/CompleteModal'
-// import ScheduleCompleteModal from '@/components/modal/ScheduleCompleteModal'
 
 // icons
 import PlusIcon from '@/assets/icons/plus.svg'
@@ -328,7 +327,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         onClose={() => setShowFabExtensionModal(false)}
       />
       {/*<TimetableCategoryBottomSheet />*/}
-      {/* <ScheduleCompleteModal /> */}
     </View>
   )
 }

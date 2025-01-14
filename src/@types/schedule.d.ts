@@ -33,14 +33,6 @@ declare global {
 
   interface Schedule extends GetCurrentScheduleListResponse {}
 
-  interface ScheduleComplete {
-    schedule_id: number
-    schedule_complete_id?: number
-    complete_date: string
-    complete_start_time: number
-    complete_end_time: number
-  }
-
   interface ExistSchedule {
     schedule_id: number
     title: string
@@ -56,10 +48,6 @@ declare global {
     sat: string
     sun: string
     schedule_category_title: string
-  }
-
-  interface UsedColor {
-    color: string
   }
 
   interface FocusModeInfo {
