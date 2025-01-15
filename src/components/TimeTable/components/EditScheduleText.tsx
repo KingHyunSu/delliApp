@@ -234,6 +234,14 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
     }
   }, [isRendered, isInputMode])
 
+  React.useEffect(() => {
+    setEditSchedulePosition({
+      title_x: data.title_x,
+      title_y: data.title_y,
+      title_rotate: data.title_rotate
+    })
+  }, [data.title_x, data.title_y, data.title_rotate, setEditSchedulePosition])
+
   return (
     <>
       <GestureDetector gesture={composeGesture}>
