@@ -71,7 +71,8 @@ const getWidgetScheduleList = (schedules: GetCurrentScheduleListResponse[]) => {
       if (
         prevWidgetSchedule &&
         prevWidgetSchedule.start_time <= currentSchedule.start_time &&
-        prevWidgetSchedule.end_time >= currentSchedule.end_time
+        prevWidgetSchedule.end_time >= currentSchedule.end_time &&
+        currentSchedule.start_time < currentSchedule.end_time
       ) {
         overlaySchedule = {
           schedule_id: prevWidgetSchedule.schedule_id,
@@ -109,7 +110,7 @@ const getWidgetScheduleList = (schedules: GetCurrentScheduleListResponse[]) => {
         start_time: lastSchedule.start_time,
         end_time: lastSchedule.end_time,
         todo_list: [],
-        widget_update_date: getWidgetUpdateDate(lastSchedule.start_time)
+        widget_update_date: getWidgetUpdateDate(0)
       })
     }
 
