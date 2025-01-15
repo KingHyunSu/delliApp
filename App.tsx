@@ -383,10 +383,6 @@ function App(): JSX.Element {
                   async getInitialURL() {
                     const url = await Linking.getInitialURL()
 
-                    if (url === 'delli://widget') {
-                      return isInit ? 'delli://home' : 'delli://splash'
-                    }
-
                     // TODO - 강제 업데이트 후 제거하기
                     const isInitDatabase = await initDatabase()
 
@@ -396,6 +392,13 @@ function App(): JSX.Element {
                       if (token) {
                         await accessMutateAsync()
                         setIsLogin(true)
+
+                        if (url === 'delli://widget') {
+                          return isInit ? 'delli://home' : 'delli://splash'
+                        } else if (url?.includes('widget/reload')) {
+                          return url
+                        }
+
                         return 'delli://splash'
                       }
 
