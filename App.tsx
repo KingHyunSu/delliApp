@@ -1,5 +1,14 @@
 import React from 'react'
-import {useWindowDimensions, Linking, Platform, AppState, StatusBar, StyleSheet, SafeAreaView} from 'react-native'
+import {
+  LogBox,
+  useWindowDimensions,
+  Linking,
+  Platform,
+  AppState,
+  StatusBar,
+  StyleSheet,
+  SafeAreaView
+} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -22,6 +31,7 @@ import HomeCustomScreen from '@/views/HomeCustom'
 import EditScheduleScreen from '@/views/EditSchedule'
 import EditRoutineScreen from '@/views/EditRoutine'
 import EditTodoScreen from '@/views/EditTodo'
+import {ScheduleCompleteScreen, EditScheduleCompleteScreen} from '@/views/scheduleComplete'
 import {StoreListScreen, StoreDetailScreen} from '@/views/store'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
@@ -199,6 +209,8 @@ function App(): JSX.Element {
       case 'Leave':
         _bottomSafeAreaColor = activeTheme.color1
         break
+      case 'EditScheduleComplete':
+        _bottomSafeAreaColor = '#1E90FF'
       // case 'EditSchedule':
       // case 'EditGoal':
       // case 'EditRoutine':
@@ -252,6 +264,11 @@ function App(): JSX.Element {
   React.useEffect(() => {
     setLoginStateSetter(setIsLogin)
   }, [setLoginStateSetter])
+
+  React.useEffect(() => {
+    // Reanimated 에러 때문에 임시 비활성화
+    LogBox.ignoreAllLogs()
+  }, [])
 
   // TODO - 타이머 코드 임시 비활성화
   // React.useEffect(() => {
@@ -451,10 +468,16 @@ function App(): JSX.Element {
                         component={EditScheduleScreen}
                         options={{animation: 'none', gestureEnabled: false}}
                       />
-                      <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
-
                       <Stack.Screen name="EditRoutine" component={EditRoutineScreen} />
                       <Stack.Screen name="EditTodo" component={EditTodoScreen} />
+                      <Stack.Screen
+                        name="ScheduleComplete"
+                        component={ScheduleCompleteScreen}
+                        options={{animation: 'none', gestureEnabled: false}}
+                      />
+                      <Stack.Screen name="EditScheduleComplete" component={EditScheduleCompleteScreen} />
+
+                      <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
 
                       <Stack.Screen name="CategoryStats" component={CategoryStats} />
 

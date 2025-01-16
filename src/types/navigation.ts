@@ -21,6 +21,8 @@ export type StackNavigator = {
     scheduleId: number
     todoId: number | null
   }
+  ScheduleComplete: undefined
+  EditScheduleComplete: undefined
   StoreDetail: {type: 'background' | 'outline'; id: number}
   Leave: undefined
 
@@ -61,4 +63,6 @@ export type HomeCustomProps = StackScreenProps<StackNavigator, 'HomeCustom'>
 export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
 export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>
 export type EditTodoScreenProps = StackScreenProps<StackNavigator, 'EditTodo'>
+export type ScheduleCompleteScreenProps = StackScreenProps<StackNavigator, 'ScheduleComplete'>
+export type EditScheduleCompleteScreenProps = StackScreenProps<StackNavigator, 'EditScheduleComplete'>
 export type StoreDetailScreenProps = StackScreenProps<StackNavigator, 'StoreDetail'>

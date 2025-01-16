@@ -74,13 +74,14 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
 
   const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
-  const resetEditScheduleForm = useResetRecoilState(editScheduleFormState)
-  const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
-  const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
   const setStatusBarTextStyle = useSetRecoilState(statusBarTextStyleState)
   const setStatusBarColor = useSetRecoilState(statusBarColorState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
+  const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
+
+  const resetEditScheduleForm = useResetRecoilState(editScheduleFormState)
+  const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
 
   const background = React.useMemo(() => {
     if (!activeBackground || activeBackground.background_id === 1) {
@@ -121,6 +122,13 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
     navigation.navigate('EditSchedule')
   }, [editScheduleForm.schedule_id, scheduleDate, setEditScheduleForm, setIsEdit, navigation])
+
+  const completeSchedule = React.useCallback(() => {
+    setShowEditMenuBottomSheet(false)
+    resetEditScheduleForm()
+
+    navigation.navigate('ScheduleComplete')
+  }, [setShowEditMenuBottomSheet, resetEditScheduleForm, navigation])
 
   const openEditMenuBottomSheet = React.useCallback(
     (value: Schedule) => {
@@ -226,13 +234,15 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       setIsInputMode(true)
       headerTranslateY.value = withTiming(-200)
     } else {
-      timeTableTranslateY.value = editTimetableTranslateY * -1
-      resetDisableScheduleList()
       setIsInputMode(false)
+
+      timeTableTranslateY.value = editTimetableTranslateY * -1
       headerTranslateY.value = withTiming(0)
       timeTableTranslateY.value = withTiming(0, {duration: 300}, () => {
         runOnJS(setIsRendered)(true)
       })
+
+      resetDisableScheduleList()
       resetEditScheduleForm()
     }
   }, [isEdit, editTimetableTranslateY, resetEditScheduleForm, resetDisableScheduleList, setIsInputMode])
@@ -316,7 +326,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         </Pressable>
       </Animated.View>
 
-      <EditMenuBottomSheet moveEditSchedule={moveEditSchedule} />
+      <EditMenuBottomSheet moveEditSchedule={moveEditSchedule} onCompleteSchedule={completeSchedule} />
       <DatePickerBottomSheet value={format(scheduleDate, 'yyyy-MM-dd')} onChange={changeScheduleDate} />
       <CompleteModal />
       <HomeFabExtensionModal
