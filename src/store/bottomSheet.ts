@@ -15,11 +15,6 @@ export const showTimeTableCategoryBottomSheetState = atom({
   default: false
 })
 
-export const showTimePickerBototmSheetState = atom({
-  key: 'showTimePickerBototmSheetState',
-  default: false
-})
-
 export const showDatePickerBottomSheetState = atom({
   key: 'showDatePickerBottomSheetState',
   default: false
