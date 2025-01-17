@@ -11,12 +11,12 @@ import {useRecoilValue} from 'recoil'
 
 interface Props {
   visible: boolean
-  translateY: number
+  fabIndex: number
   moveHomeCustom: () => void
   moveEditSchedule: () => void
   onClose: () => void
 }
-const HomeFabExtensionModal = ({visible, translateY, moveHomeCustom, moveEditSchedule, onClose}: Props) => {
+const HomeFabExtensionModal = ({visible, fabIndex, moveHomeCustom, moveEditSchedule, onClose}: Props) => {
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const rotate = useSharedValue(0)
@@ -29,8 +29,8 @@ const HomeFabExtensionModal = ({visible, translateY, moveHomeCustom, moveEditSch
   const bottom = useMemo(() => {
     const bottomTabHeight = 56
 
-    return 70 + bottomTabHeight + safeAreaInsets.bottom + translateY * -1
-  }, [translateY, safeAreaInsets.bottom])
+    return 70 + bottomTabHeight + safeAreaInsets.bottom + fabIndex * -50
+  }, [safeAreaInsets.bottom, fabIndex])
 
   const animatedStyle1 = useAnimatedStyle(() => ({
     transform: [{rotate: `${rotate.value}deg`}]

@@ -1,14 +1,5 @@
 import React from 'react'
-import {
-  LogBox,
-  useWindowDimensions,
-  Linking,
-  Platform,
-  AppState,
-  StatusBar,
-  StyleSheet,
-  SafeAreaView
-} from 'react-native'
+import {useWindowDimensions, Linking, Platform, AppState, StatusBar, StyleSheet, SafeAreaView} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -264,11 +255,6 @@ function App(): JSX.Element {
   React.useEffect(() => {
     setLoginStateSetter(setIsLogin)
   }, [setLoginStateSetter])
-
-  React.useEffect(() => {
-    // Reanimated 에러 때문에 임시 비활성화
-    LogBox.ignoreAllLogs()
-  }, [])
 
   // TODO - 타이머 코드 임시 비활성화
   // React.useEffect(() => {

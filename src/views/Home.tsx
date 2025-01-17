@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState} from 'react'
 import {
   StyleSheet,
   Platform,
@@ -58,6 +58,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   const [isRendered, setIsRendered] = React.useState(false)
   const [backPressCount, setBackPressCount] = React.useState(0)
+  const [fabIndex, setFabIndex] = useState(0)
   const [showFabExtensionModal, setShowFabExtensionModal] = React.useState(false)
 
   const [isEdit, setIsEdit] = useRecoilState(isEditState)
@@ -133,8 +134,10 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   const changeScheduleListBottomSheetAnimate = React.useCallback((fromIndex: number, toIndex: number) => {
     if (toIndex === 1) {
+      setFabIndex(1)
       fabTranslateY.value = withTiming(50)
     } else {
+      setFabIndex(0)
       fabTranslateY.value = withTiming(0)
     }
   }, [])
@@ -324,7 +327,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       <CompleteModal />
       <HomeFabExtensionModal
         visible={showFabExtensionModal}
-        translateY={fabTranslateY.value}
+        fabIndex={fabIndex}
         moveHomeCustom={moveHomeCustom}
         moveEditSchedule={moveEditSchedule}
         onClose={() => setShowFabExtensionModal(false)}
