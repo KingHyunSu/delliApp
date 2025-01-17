@@ -1,11 +1,9 @@
 import React from 'react'
 import {useWindowDimensions, Platform, AppState, StatusBar, StyleSheet, SafeAreaView} from 'react-native'
 import {GestureHandlerRootView} from 'react-native-gesture-handler'
-import SystemSplashScreen from 'react-native-splash-screen'
 import {BottomSheetModalProvider} from '@gorhom/bottom-sheet'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
-import {useAppOpenAd, TestIds} from 'react-native-google-mobile-ads'
 // import crashlytics from '@react-native-firebase/crashlytics'
 
 // navigations
@@ -16,6 +14,7 @@ import {navigationRef} from '@/utils/navigation'
 
 // views
 import SplashScreen from '@/views/Splash'
+import WidgetReloadScreen from '@/views/WidgetReload'
 import {IntroScreen, JoinTermsScreen} from '@/views/join'
 import HomeScreen from '@/views/Home'
 import HomeCustomScreen from '@/views/HomeCustom'
@@ -45,6 +44,7 @@ import StoreIcon from '@/assets/icons/store.svg'
 // stores
 import {useRecoilState, useRecoilValue, useSetRecoilState, useRecoilSnapshot} from 'recoil'
 import {
+  isInitState,
   loginState,
   windowDimensionsState,
   bottomSafeAreaColorState,
@@ -64,8 +64,6 @@ import {focusModeInfoState} from '@/store/schedule'
 import {useAccess} from '@/apis/hooks/useAuth'
 import {SafeAreaProvider} from 'react-native-safe-area-context'
 import {GoogleSignin} from '@react-native-google-signin/google-signin'
-
-const adUnitId = __DEV__ ? TestIds.APP_OPEN : 'ca-app-pub-3765315237132279/9003768148'
 
 const Tab = createBottomTabNavigator<BottomTabNavigator>()
 const Stack = createNativeStackNavigator<StackNavigator>()
@@ -128,11 +126,8 @@ const linking: LinkingOptions<StackNavigator> = {
   prefixes: ['delli://'],
   config: {
     screens: {
-      MainTabs: {
-        screens: {
-          Home: 'widget/reload/:id'
-        }
-      }
+      WidgetReload: 'widget/reload/:id',
+      Splash: 'widget'
     }
   }
 }
@@ -141,17 +136,14 @@ function App(): JSX.Element {
   const {mutateAsync: accessMutateAsync} = useAccess()
   const windowDimensions = useWindowDimensions()
 
-  const {isLoaded, load, show} = useAppOpenAd(adUnitId)
-
   const appState = React.useRef(AppState.currentState)
   const focusModeIntervalRef = React.useRef<NodeJS.Timeout | null>(null)
-
   const [isActiveApp, setIsActiveApp] = React.useState(false)
-  const [isInit, setIsInit] = React.useState(false)
-
   const [focusModeInfo, setFocusModeInfo] = useRecoilState(focusModeInfoState)
+
   const [isLogin, setIsLogin] = useRecoilState(loginState)
 
+  const isInit = useRecoilValue(isInitState)
   const displayMode = useRecoilValue(displayModeState)
   const activeBackground = useRecoilValue(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
@@ -258,32 +250,11 @@ function App(): JSX.Element {
           await accessMutateAsync()
           setIsLogin(true)
         }
-      } catch (e) {
-      } finally {
-        setIsInit(isInitDatabase)
-      }
+      } catch (e) {}
     }
 
     init()
   }, [setIsLogin, accessMutateAsync])
-
-  React.useEffect(() => {
-    // 광고 load
-    load()
-  }, [load])
-
-  React.useEffect(() => {
-    if (isLogin && isLoaded) {
-      show()
-    }
-  }, [isLogin, isLoaded, show])
-
-  React.useEffect(() => {
-    if (isInit) {
-      SystemSplashScreen.hide()
-      // crashlytics().crash()
-    }
-  }, [isInit])
 
   React.useEffect(() => {
     setLoginStateSetter(setIsLogin)
@@ -411,7 +382,9 @@ function App(): JSX.Element {
                     <Stack.Screen name="Splash" component={SplashScreen} />
                   ) : isLogin ? (
                     <>
-                      <Stack.Screen name="MainTabs">{() => <BottomTabs activeTheme={activeTheme} />}</Stack.Screen>
+                      <Stack.Screen name="MainTabs" options={{animation: 'fade'}}>
+                        {() => <BottomTabs activeTheme={activeTheme} />}
+                      </Stack.Screen>
                       <Stack.Screen
                         name="HomeCustom"
                         component={HomeCustomScreen}
@@ -437,6 +410,8 @@ function App(): JSX.Element {
                       <Stack.Screen name="JoinTerms" component={JoinTermsScreen} />
                     </>
                   )}
+
+                  <Stack.Screen name="WidgetReload" component={WidgetReloadScreen} />
                 </Stack.Navigator>
               </NavigationContainer>
             </SafeAreaView>

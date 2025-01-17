@@ -458,8 +458,13 @@ struct DelliWidget: Widget {
     StaticConfiguration(kind: kind, provider: Provider()) { entry in
       let timestamp = Int(Date().timeIntervalSince1970 * 1000)
       
-      DelliWidgetEntryView(entry: entry)
-        .widgetURL(URL(string: "delli://widget/reload/\(timestamp)"))
+      if entry.isUpdate {
+           DelliWidgetEntryView(entry: entry)
+               .widgetURL(URL(string: "delli://widget/reload/\(timestamp)"))
+       } else {
+           DelliWidgetEntryView(entry: entry)
+               .widgetURL(URL(string: "delli://widget"))
+       }
     }
     .configurationDisplayName("생활계획표")
     .description("생활계획표로 일정을 간편하게 확인해 보세요")

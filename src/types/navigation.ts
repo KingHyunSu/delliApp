@@ -4,14 +4,13 @@ import type {BottomTabScreenProps} from '@react-navigation/bottom-tabs'
 import {LOGIN_TYPE} from '@/utils/types'
 
 export type StackNavigator = {
+  Splash: undefined
+
   MainTabs: {
     screen: keyof BottomTabNavigator
     params?: BottomTabNavigator[keyof BottomTabNavigator]
   }
-
-  Intro: undefined
-  JoinTerms: {type: (typeof LOGIN_TYPE)[keyof typeof LOGIN_TYPE]; token: string}
-
+  HomeCustom: undefined
   EditSchedule: undefined
   EditRoutine: {
     scheduleId: number
@@ -22,12 +21,13 @@ export type StackNavigator = {
     todoId: number | null
   }
   StoreDetail: {type: 'background' | 'outline'; id: number}
-
-  HomeCustom: undefined
-
-  CategoryStats: undefined
-
   Leave: undefined
+
+  Intro: undefined
+  JoinTerms: {type: (typeof LOGIN_TYPE)[keyof typeof LOGIN_TYPE]; token: string}
+
+  WidgetReload: undefined
+  CategoryStats: undefined
 }
 export type BottomTabNavigator = {
   Home: {scheduleUpdated: boolean}
@@ -48,13 +48,16 @@ export type SettingScreenProps = CompositeScreenProps<
   StackScreenProps<StackNavigator>
 >
 
+// widget reload
+export type WidgetReloadScreenProps = StackScreenProps<StackNavigator, 'WidgetReload'>
+
 // auth
 export type IntroScreenProps = StackScreenProps<StackNavigator, 'Intro'>
 export type JoinTermsScreenProps = StackScreenProps<StackNavigator, 'JoinTerms'>
 
+// app
 export type HomeCustomProps = StackScreenProps<StackNavigator, 'HomeCustom'>
-export type StoreDetailScreenProps = StackScreenProps<StackNavigator, 'StoreDetail'>
-
 export type EditScheduleProps = StackScreenProps<StackNavigator, 'EditSchedule'>
 export type EditRoutineScreenProps = StackScreenProps<StackNavigator, 'EditRoutine'>
 export type EditTodoScreenProps = StackScreenProps<StackNavigator, 'EditTodo'>
+export type StoreDetailScreenProps = StackScreenProps<StackNavigator, 'StoreDetail'>

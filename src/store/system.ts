@@ -5,6 +5,11 @@ const bottomTabHeight = 56
 const editScheduleListMinSnapPoint = 50
 export const homeHeaderHeight = 84
 
+export const isInitState = atom({
+  key: 'isInitState',
+  default: false
+})
+
 export const displayModeState = atom<DisplayMode>({
   key: 'displayModeState',
   default: 1

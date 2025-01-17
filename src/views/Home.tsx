@@ -1,8 +1,7 @@
 import React from 'react'
-import {Platform, StyleSheet, BackHandler, ToastAndroid, Alert, Pressable, View, Text, Image} from 'react-native'
+import {StyleSheet, BackHandler, ToastAndroid, Alert, Pressable, View, Text, Image} from 'react-native'
 import {useSafeAreaInsets} from 'react-native-safe-area-context'
 import {useFocusEffect} from '@react-navigation/native'
-import {AdEventType, RewardedAd, RewardedAdEventType, TestIds} from 'react-native-google-mobile-ads'
 import Animated, {useSharedValue, useAnimatedStyle, withTiming, runOnJS} from 'react-native-reanimated'
 import {format} from 'date-fns'
 
@@ -24,14 +23,12 @@ import {
   safeAreaInsetsState,
   isEditState,
   isLoadingState,
-  toastState,
   editTimetableTranslateYState,
   activeThemeState,
   activeBackgroundState,
   statusBarColorState,
   bottomSafeAreaColorState,
-  statusBarTextStyleState,
-  widgetReloadableState
+  statusBarTextStyleState
 } from '@/store/system'
 import {
   scheduleDateState,
@@ -43,13 +40,9 @@ import {
 import {showEditMenuBottomSheetState, showDatePickerBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 
-import * as widgetApi from '@/apis/widget'
-
 import {HomeScreenProps} from '@/types/navigation'
 import {useGetCurrentScheduleList} from '@/apis/hooks/useSchedule'
 import HomeFabExtensionModal from '@/components/modal/HomeFabExtensionModal'
-
-const adUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
 const Home = ({navigation, route}: HomeScreenProps) => {
   const {data: _scheduleList, isError} = useGetCurrentScheduleList()
@@ -68,7 +61,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
 
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
-  const [widgetReloadable, setWidgetReloadable] = useRecoilState(widgetReloadableState)
 
   const activeBackground = useRecoilValue(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
@@ -78,7 +70,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const resetEditScheduleForm = useResetRecoilState(editScheduleFormState)
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
-  const setToast = useSetRecoilState(toastState)
   const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
   const setStatusBarTextStyle = useSetRecoilState(statusBarTextStyleState)
   const setStatusBarColor = useSetRecoilState(statusBarColorState)
@@ -223,66 +214,12 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   }, [safeAreaInsets, setSafeAreaInsets])
 
   React.useEffect(() => {
-    const path = route.path
     const params = route.params
 
     if (params?.scheduleUpdated) {
       setWidgetWithImageUpdated(true)
-    } else if (path?.includes('widget/reload')) {
-      const rewardedAd = RewardedAd.createForAdRequest(adUnitId)
-
-      setScheduleDate(new Date())
-
-      // 광고 로드 완료
-      const unsubscribeLoaded = rewardedAd.addAdEventListener(RewardedAdEventType.LOADED, () => {
-        if (!widgetReloadable) {
-          Alert.alert('광고 시청하고\n위젯 새로고침', '', [
-            {
-              text: '취소',
-              style: 'cancel'
-            },
-            {
-              text: '새로고침',
-              onPress: () => {
-                rewardedAd.show()
-              }
-            }
-          ])
-        }
-      })
-
-      // 광고 시청 완료
-      const unsubscribeEarned = rewardedAd.addAdEventListener(RewardedAdEventType.EARNED_REWARD, async reward => {
-        await widgetApi.updateWidgetReloadable()
-
-        setWidgetWithImageUpdated(true)
-        setWidgetReloadable(true)
-      })
-
-      // 광고 닫힘
-      const unsubscribeClosed = rewardedAd.addAdEventListener(AdEventType.CLOSED, () => {
-        setToast({visible: true, message: '위젯 새로고침 완료'})
-      })
-
-      // Start loading the rewarded ad straight away
-      rewardedAd.load()
-
-      // Unsubscribe from events on unmount
-      return () => {
-        unsubscribeLoaded()
-        unsubscribeEarned()
-        unsubscribeClosed()
-      }
     }
-  }, [
-    widgetReloadable,
-    route.path,
-    route.params,
-    setScheduleDate,
-    setToast,
-    setWidgetWithImageUpdated,
-    setWidgetReloadable
-  ])
+  }, [route.params, setWidgetWithImageUpdated])
 
   React.useEffect(() => {
     if (isEdit) {
