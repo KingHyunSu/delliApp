@@ -121,6 +121,7 @@ const EditScheduleComplete = ({navigation}: EditScheduleCompleteScreenProps) => 
       ref={bottomSheetRef}
       index={0}
       snapPoints={snapPoints}
+      enableDynamicSizing={false}
       enableOverDrag={false}
       keyboardBehavior="extend"
       keyboardBlurBehavior="restore"

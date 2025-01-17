@@ -251,6 +251,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
       backgroundStyle={{backgroundColor: activeTheme.color5}}
       index={0}
       snapPoints={snapPoints}
+      enableDynamicSizing={false}
       onDismiss={closeEditMenuBottomSheet}>
       <View style={[styles.container, {backgroundColor: activeTheme.color2}]}>
         <Pressable

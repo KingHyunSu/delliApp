@@ -139,6 +139,7 @@ const OverlapScheduleListBottomSheet = ({visible, data, onSubmit, onDismiss}: Pr
       backgroundStyle={{backgroundColor: activeTheme.color5}}
       index={0}
       snapPoints={snapPoints}
+      enableDynamicSizing={false}
       onDismiss={onDismiss}>
       <View style={{flex: 1, backgroundColor: activeTheme.color2}}>
         <BottomSheetFlatList

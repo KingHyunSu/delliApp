@@ -131,6 +131,7 @@ const ScheduleListBottomSheet = ({data, onClick, onAnimate}: Props) => {
       ref={bottomSheetRef}
       backgroundStyle={{backgroundColor: activeTheme.color5, borderTopLeftRadius: 40, borderTopRightRadius: 40}}
       index={0}
+      enableDynamicSizing={false}
       snapPoints={scheduleListSnapPoint}
       handleComponent={bottomSheetHandler}
       onAnimate={onAnimate}>

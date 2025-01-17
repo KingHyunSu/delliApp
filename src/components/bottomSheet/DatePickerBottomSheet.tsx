@@ -89,6 +89,7 @@ const DatePickerBottomSheet = ({value, onChange}: Props) => {
       handleComponent={bottomSheetHandler}
       index={0}
       snapPoints={snapPoint}
+      enableDynamicSizing={false}
       onDismiss={onDismiss}>
       <View style={styles.container}>
         <DatePicker key={datePickerKey} value={selectDate} onChange={onChangeDate} />

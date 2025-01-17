@@ -1,9 +1,9 @@
 import {useRef, useState, useCallback, useEffect, forwardRef, useImperativeHandle, useMemo} from 'react'
 import {TextStyle, Keyboard, StyleSheet, ScrollView, TextInput} from 'react-native'
 import BottomSheet, {
+  BottomSheetScrollView,
   BottomSheetBackdropProps,
-  BottomSheetHandleProps,
-  BottomSheetScrollView
+  BottomSheetHandleProps
 } from '@gorhom/bottom-sheet'
 import {isAfter} from 'date-fns'
 
@@ -203,12 +203,6 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(({
     }
   }, [bottomSheetRef, isEdit, setEditScheduleListStatus])
 
-  useEffect(() => {
-    if (isInputMode) {
-      bottomSheetRef.current?.collapse()
-    }
-  }, [isInputMode])
-
   useImperativeHandle(
     ref,
     () => {
@@ -246,6 +240,7 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(({
       ref={bottomSheetRef}
       index={0}
       snapPoints={editScheduleListSnapPoint}
+      enableDynamicSizing={false}
       backgroundStyle={{backgroundColor: activeTheme.color5, borderTopLeftRadius: 40, borderTopRightRadius: 40}}
       handleComponent={bottomSheetHandler}
       backdropComponent={getBackdropComponent}

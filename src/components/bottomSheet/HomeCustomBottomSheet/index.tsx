@@ -88,6 +88,7 @@ const HomeCustomBottomSheet = ({
       name="customBackground"
       ref={customBackgroundBottomSheetRef}
       snapPoints={['50%', '90%']}
+      enableDynamicSizing={false}
       bottomInset={bottomInset}
       backdropComponent={getBackdropComponent}
       footerComponent={getFooterComponent}

@@ -52,6 +52,10 @@ const LoginBottomSheet = () => {
     return [styles.titleLine, {backgroundColor}]
   }, [displayMode])
 
+  const snapPoints = useMemo(() => {
+    return [350]
+  }, [])
+
   const closeBottomSheet = useCallback(() => {
     setShowLoginBottomSheet(false)
   }, [setShowLoginBottomSheet])
@@ -257,7 +261,8 @@ const LoginBottomSheet = () => {
       handleComponent={getBottomSheetHandler}
       backgroundStyle={{backgroundColor: activeTheme.color5}}
       index={0}
-      snapPoints={[350]}
+      snapPoints={snapPoints}
+      enableDynamicSizing={false}
       enableContentPanningGesture={!isLoading}
       enableHandlePanningGesture={!isLoading}
       onDismiss={closeBottomSheet}>

@@ -340,6 +340,7 @@ const ColorSelectorBottomSheet = ({
     <BottomSheetModal
       name="CategoryStatsDetail"
       ref={bottomSheetRef}
+      enableDynamicSizing={false}
       enablePanDownToClose={false}
       enableOverDrag={false}
       backgroundStyle={{backgroundColor: activeTheme.color5}}
