@@ -168,9 +168,6 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
 
   useEffect(() => {
     if (showEditMenuBottomSheet) {
-      setIsResetEditScheduleForm(true)
-      setIsResetEditScheduleCompleteForm(true)
-
       editInfoBottomSheetRef.current?.present()
     } else {
       if (isResetEditScheduleForm) {
@@ -189,6 +186,13 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
     resetEditScheduleForm,
     resetEditScheduleCompleteForm
   ])
+
+  useEffect(() => {
+    if (showEditMenuBottomSheet) {
+      setIsResetEditScheduleForm(true)
+      setIsResetEditScheduleCompleteForm(true)
+    }
+  }, [showEditMenuBottomSheet])
 
   useEffect(() => {
     const fetchScheduleCompleteDetail = async () => {
