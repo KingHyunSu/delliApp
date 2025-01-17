@@ -26,9 +26,8 @@ import {useGetScheduleCompleteDetail} from '@/apis/hooks/useScheduleComplete'
 
 interface Props {
   moveEditSchedule: Function
-  onCompleteSchedule: () => void
 }
-const EditMenuBottomSheet = ({moveEditSchedule, onCompleteSchedule}: Props) => {
+const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const queryClient = useQueryClient()
 
   const updateScheduleDeleted = useUpdateScheduleDeleted()
@@ -80,15 +79,17 @@ const EditMenuBottomSheet = ({moveEditSchedule, onCompleteSchedule}: Props) => {
     setEditScheduleCompleteForm(response)
     setIsResetEditScheduleCompleteForm(false)
 
-    onCompleteSchedule()
+    closeEditMenuBottomSheet()
+
+    navigate('ScheduleComplete')
   }, [
     editScheduleForm.schedule_id,
     editScheduleForm.start_time,
     editScheduleForm.end_time,
     scheduleDate,
+    closeEditMenuBottomSheet,
     setScheduleCompleteMutateAsync,
-    setEditScheduleCompleteForm,
-    onCompleteSchedule
+    setEditScheduleCompleteForm
   ])
 
   const moveScheduleCompleteRecord = useCallback(() => {

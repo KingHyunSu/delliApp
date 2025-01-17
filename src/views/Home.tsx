@@ -123,13 +123,6 @@ const Home = ({navigation, route}: HomeScreenProps) => {
     navigation.navigate('EditSchedule')
   }, [editScheduleForm.schedule_id, scheduleDate, setEditScheduleForm, setIsEdit, navigation])
 
-  const completeSchedule = React.useCallback(() => {
-    setShowEditMenuBottomSheet(false)
-    resetEditScheduleForm()
-
-    navigation.navigate('ScheduleComplete')
-  }, [setShowEditMenuBottomSheet, resetEditScheduleForm, navigation])
-
   const openEditMenuBottomSheet = React.useCallback(
     (value: Schedule) => {
       setEditScheduleForm(value)
@@ -326,7 +319,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
         </Pressable>
       </Animated.View>
 
-      <EditMenuBottomSheet moveEditSchedule={moveEditSchedule} onCompleteSchedule={completeSchedule} />
+      <EditMenuBottomSheet moveEditSchedule={moveEditSchedule} />
       <DatePickerBottomSheet value={format(scheduleDate, 'yyyy-MM-dd')} onChange={changeScheduleDate} />
       <CompleteModal />
       <HomeFabExtensionModal
