@@ -77,6 +77,7 @@ public struct StyleModel:Codable {
 }
 
 struct SimpleEntry: TimelineEntry {
+  let index: Int
   let date: Date
   let activeDate: String?
   let isUpdate: Bool
@@ -88,6 +89,7 @@ struct SimpleEntry: TimelineEntry {
 struct Provider: TimelineProvider {
   func placeholder(in context: Context) -> SimpleEntry {
     SimpleEntry(
+      index: 0,
       date: Date(),
       activeDate: nil,
       isUpdate: false,
@@ -110,6 +112,7 @@ struct Provider: TimelineProvider {
   
   func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
     let entry = SimpleEntry(
+      index: 0,
       date: Date(),
       activeDate: nil,
       isUpdate: false,
@@ -181,6 +184,7 @@ struct Provider: TimelineProvider {
     
     if scheduleList.isEmpty {
       let entry = SimpleEntry(
+        index: 0,
         date: currentDate,
         activeDate: nil,
         isUpdate: true,
@@ -199,9 +203,10 @@ struct Provider: TimelineProvider {
     } else {
       let iosFormatter = ISO8601DateFormatter()
       
-      for schedule in scheduleList {
+      for (index, schedule) in scheduleList.enumerated() {
         if let entryDate = iosFormatter.date(from: schedule.widget_update_date) {
           let entry = SimpleEntry(
+            index: index,
             date: entryDate,
             activeDate: activeDateString,
             isUpdate: isUpdate,
@@ -224,6 +229,7 @@ struct Provider: TimelineProvider {
     // 자정 새로고침 업데이트 추가
     if let midnight = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: calendar.date(byAdding: .day, value: 1, to: startOfDay)!) {
       let entry = SimpleEntry(
+        index: scheduleList.count,
         date: midnight,
         activeDate: activeDateString,
         isUpdate: true,
@@ -263,12 +269,12 @@ struct DelliWidgetEntryView : View {
   
   @Environment(\.widgetFamily) var widgetFamily: WidgetFamily
   
-  func timer() -> Date {
+  func timer(startTime: CGFloat, endTime: CGFloat, isFirst: Bool) -> Date {
     let currentDate = Date()
-    
+
     // 시작 시간과 종료 시간을 분 단위로 가져옴
-    let startTimeInMinutes = Int(entry.activeSchedule.start_time)
-    let endTimeInMinutes = Int(entry.activeSchedule.end_time)
+    let startTimeInMinutes = Int(startTime)
+    let endTimeInMinutes = Int(endTime)
     
     // 종료 시간을 시간과 분으로 변환
     let endHour = endTimeInMinutes / 60
@@ -277,16 +283,14 @@ struct DelliWidgetEntryView : View {
     // 현재 날짜의 종료 시간으로 Date 객체 생성
     var eventDate = Calendar.current.date(bySettingHour: endHour, minute: endMinute, second: 0, of: currentDate)!
     
-    // 현재 시간을 분 단위로 변환
-    let currentHour = Calendar.current.component(.hour, from: currentDate)
-    let currentMinute = Calendar.current.component(.minute, from: currentDate)
-    let currentTimeInMinutes = currentHour * 60 + currentMinute
-    
-    if startTimeInMinutes > endTimeInMinutes {
+    if (!isFirst && startTimeInMinutes > endTimeInMinutes) {
       // 자정 이전인 경우 종료 시간을 다음날로 설정
-      if currentTimeInMinutes > startTimeInMinutes && currentTimeInMinutes < 1440 {
-        eventDate = Calendar.current.date(bySettingHour: endHour, minute: endMinute, second: 0, of: Calendar.current.date(byAdding: .day, value: 1, to: currentDate)!)!
-      }
+      eventDate = Calendar.current.date(
+        bySettingHour: endHour,
+        minute: endMinute,
+        second: 0,
+        of: Calendar.current.date(byAdding: .day, value: 1, to: currentDate)!
+      )!
     }
     
     let remainingTime = eventDate.timeIntervalSince(currentDate)
@@ -356,9 +360,14 @@ struct DelliWidgetEntryView : View {
                   
                   Spacer().frame(height: 5)
                   
-                  Text(timeRangeText(startTime: entry.activeSchedule.start_time, endTime: entry.activeSchedule.end_time))
-                    .font(.custom("Pretendard-Medium", size: 12))
-                    .foregroundColor(textColor)
+                  Text(
+                    timeRangeText(
+                      startTime: entry.activeSchedule.start_time,
+                      endTime: entry.activeSchedule.end_time
+                    )
+                  )
+                  .font(.custom("Pretendard-Medium", size: 12))
+                  .foregroundColor(textColor)
                   
                   Text("남은 시간")
                     .font(.custom("Pretendard-Bold", size: 12))
@@ -368,10 +377,17 @@ struct DelliWidgetEntryView : View {
                   
                   Spacer().frame(height: 5)
                   
-                  Text(timer(), style: .timer)
-                    .font(.custom("Pretendard-Bold", size: 12))
-                    .foregroundColor(textColor)
-                    .multilineTextAlignment(.center)
+                  Text(
+                    timer(
+                      startTime: entry.activeSchedule.start_time,
+                      endTime: entry.activeSchedule.end_time,
+                      isFirst: entry.index == 0
+                    ),
+                    style: .timer
+                  )
+                  .font(.custom("Pretendard-Bold", size: 12))
+                  .foregroundColor(textColor)
+                  .multilineTextAlignment(.center)
                 } else {
                   Text("진행중인 일정이 없어요")
                     .font(.custom("Pretendard-Bold", size: 14))
@@ -459,12 +475,12 @@ struct DelliWidget: Widget {
       let timestamp = Int(Date().timeIntervalSince1970 * 1000)
       
       if entry.isUpdate {
-           DelliWidgetEntryView(entry: entry)
-               .widgetURL(URL(string: "delli://widget/reload/\(timestamp)"))
-       } else {
-           DelliWidgetEntryView(entry: entry)
-               .widgetURL(URL(string: "delli://widget"))
-       }
+        DelliWidgetEntryView(entry: entry)
+          .widgetURL(URL(string: "delli://widget/reload/\(timestamp)"))
+      } else {
+        DelliWidgetEntryView(entry: entry)
+          .widgetURL(URL(string: "delli://widget"))
+      }
     }
     .configurationDisplayName("생활계획표")
     .description("생활계획표로 일정을 간편하게 확인해 보세요")

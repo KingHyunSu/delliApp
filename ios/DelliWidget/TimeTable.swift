@@ -42,11 +42,26 @@ struct TimeTable: View {
               .foregroundColor(Color(UIColor(hexCode: style.outline_background_color)))
             
             if(activeSchedule.schedule_id != nil) {
-              Circle()
-                .trim(from: fromTirm, to: endTirm)
-                .stroke(style: StrokeStyle(lineWidth: 7, lineCap: .round))
-                .foregroundColor(Color(UIColor(hexCode: style.outline_progress_color)))
-                .rotationEffect(.degrees(-90))
+              if(fromTirm < endTirm) {
+                Circle()
+                  .trim(from: fromTirm, to: endTirm)
+                  .stroke(style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                  .foregroundColor(Color(UIColor(hexCode: style.outline_progress_color)))
+                  .rotationEffect(.degrees(-90))
+              } else {
+                ZStack {
+                  Circle()
+                    .trim(from: fromTirm, to: 1.0)
+                    .stroke(style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                    .foregroundColor(Color(UIColor(hexCode: style.outline_progress_color)))
+                    .rotationEffect(.degrees(-90))
+                  Circle()
+                    .trim(from: 0.0, to: endTirm)
+                    .stroke(style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                    .foregroundColor(Color(UIColor(hexCode: style.outline_progress_color)))
+                    .rotationEffect(.degrees(-90))
+                }
+              }
             }
           }.padding(7)
         }
