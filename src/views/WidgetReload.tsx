@@ -75,9 +75,16 @@ const WidgetReload = ({navigation, route}: WidgetReloadScreenProps) => {
 
         setToast({visible: true, message: '위젯 새로고침 완료'})
         // 위젯 업데이트
-        navigation.replace('MainTabs', {
-          screen: 'Home',
-          params: {scheduleUpdated: true}
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'MainTabs',
+              state: {
+                routes: [{name: 'Home', params: {scheduleUpdated: true}}]
+              }
+            }
+          ]
         })
       }
 
