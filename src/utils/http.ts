@@ -7,9 +7,8 @@ import {GoogleSignin} from '@react-native-google-signin/google-signin'
 import {useLoginStateSetter} from '@/store/system'
 
 const instance = Axios.create({
-  baseURL: 'http://192.168.35.27:80', // ios local
+  baseURL: __DEV__ ? 'http://192.168.35.27:8080' : 'https://api.delli.info',
   // baseURL: 'http://10.0.2.2:8080', // android local
-  // baseURL: 'https://api.delli.info',
   headers: {
     // 'Content-Type:': 'application/json;charset=UTF-8'
     // 'content-type:': 'application/json;charset=UTF-8'
