@@ -22,11 +22,7 @@ import HomeCustomScreen from '@/views/HomeCustom'
 import EditScheduleScreen from '@/views/EditSchedule'
 import EditRoutineScreen from '@/views/EditRoutine'
 import EditTodoScreen from '@/views/EditTodo'
-import {
-  ScheduleCompleteScreen,
-  EditScheduleCompleteCardScreen,
-  EditScheduleCompleteScreen
-} from '@/views/scheduleComplete'
+import {ScheduleCompleteScreen, EditScheduleCompleteCardScreen} from '@/views/scheduleComplete'
 import {StoreListScreen, StoreDetailScreen} from '@/views/store'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
@@ -204,8 +200,6 @@ function App(): JSX.Element {
       case 'Leave':
         _bottomSafeAreaColor = activeTheme.color1
         break
-      case 'EditScheduleComplete':
-        _bottomSafeAreaColor = '#1E90FF'
       // case 'EditSchedule':
       // case 'EditGoal':
       // case 'EditRoutine':
@@ -466,7 +460,6 @@ function App(): JSX.Element {
                         options={{animation: 'none', gestureEnabled: false}}
                       />
                       <Stack.Screen name="EditScheduleCompleteCard" component={EditScheduleCompleteCardScreen} />
-                      <Stack.Screen name="EditScheduleComplete" component={EditScheduleCompleteScreen} />
 
                       <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
 
