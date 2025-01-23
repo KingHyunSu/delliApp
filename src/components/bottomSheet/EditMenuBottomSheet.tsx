@@ -1,8 +1,9 @@
 import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
-import {StyleSheet, Alert, View, Text, Pressable, Platform} from 'react-native'
+import {StyleSheet, Platform, Alert, View, Text, Pressable, Image} from 'react-native'
 import {BottomSheetModal, BottomSheetBackdropProps, BottomSheetHandleProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
+import {Shadow} from 'react-native-shadow-2'
 
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
 import {activeThemeState} from '@/store/system'
@@ -11,7 +12,7 @@ import {editScheduleCompleteCacheListState, editScheduleCompleteFormState} from 
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
 import {widgetWithImageUpdatedState} from '@/store/widget'
 
-import CheckCircleIcon from '@/assets/icons/check_circle.svg'
+import PlusIcon from '@/assets/icons/plus.svg'
 import EditIcon from '@/assets/icons/edit3.svg'
 import DeleteIcon from '@/assets/icons/trash.svg'
 import RoutineIcon from '@/assets/icons/routine.svg'
@@ -54,7 +55,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
 
   const snapPoints = useMemo(() => {
-    return [500]
+    return [400]
   }, [])
 
   const closeEditMenuBottomSheet = useCallback(() => {
@@ -76,8 +77,18 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
       schedule_id: editScheduleForm.schedule_id
     })
 
-    setEditScheduleCompleteForm(response)
     setIsResetEditScheduleCompleteForm(false)
+    setEditScheduleCompleteForm({
+      schedule_complete_id: response.schedule_complete_id,
+      complete_date: completeDate,
+      start_time: editScheduleForm.start_time,
+      end_time: editScheduleForm.end_time,
+      memo: '',
+      main_image_url: null,
+      thumb_image_url: null,
+      complete_count: response.complete_count,
+      schedule_id: editScheduleForm.schedule_id
+    })
 
     closeEditMenuBottomSheet()
 
@@ -92,11 +103,11 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
     setEditScheduleCompleteForm
   ])
 
-  const moveScheduleCompleteRecord = useCallback(() => {
+  const moveEditScheduleComplete = useCallback(() => {
     setIsResetEditScheduleCompleteForm(false)
 
     closeEditMenuBottomSheet()
-    navigate('EditScheduleComplete')
+    navigate('EditScheduleCompleteCard')
   }, [closeEditMenuBottomSheet])
 
   const moveEditRoutine = useCallback(() => {
@@ -108,12 +119,6 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
     closeEditMenuBottomSheet()
     navigate('EditTodo', {scheduleId: editScheduleForm.schedule_id, todoId: null})
   }, [editScheduleForm.schedule_id, closeEditMenuBottomSheet])
-
-  const handleMoveScheduleCompleteRecord = useCallback(() => {
-    if (editScheduleCompleteForm && (editScheduleCompleteForm.memo || editScheduleCompleteForm.image_url)) {
-      moveScheduleCompleteRecord()
-    }
-  }, [editScheduleCompleteForm, moveScheduleCompleteRecord])
 
   const handleMoveEditSchedule = useCallback(() => {
     setIsResetEditScheduleForm(false)
@@ -212,7 +217,6 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
           if (response) {
             setEditScheduleCompleteCacheList(prevState => [...prevState, response])
           }
-          setEditScheduleCompleteForm(response)
         }
       }
     }
@@ -258,44 +262,51 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
       enableDynamicSizing={false}
       onDismiss={closeEditMenuBottomSheet}>
       <View style={[styles.container, {backgroundColor: activeTheme.color2}]}>
-        <Pressable
-          style={[styles.header, {backgroundColor: activeTheme.color5}]}
-          onPress={handleMoveScheduleCompleteRecord}>
+        <View style={[styles.header, {backgroundColor: activeTheme.color5}]}>
+          <View style={styles.titleWrapper}>
+            <Text style={[styles.title, {color: activeTheme.color3}]}>{editScheduleForm.title}</Text>
+
+            {editScheduleCompleteForm ? (
+              <View style={styles.completeTextWrapper}>
+                <Text style={styles.completeText}>완료했어요</Text>
+              </View>
+            ) : (
+              <Pressable style={styles.completeButton} onPress={handleScheduleComplete}>
+                <Text style={styles.completeButtonText}>일정 완료하기</Text>
+              </Pressable>
+            )}
+          </View>
+
           {editScheduleCompleteForm && (
-            <View style={styles.completeCountWrapper}>
-              <CheckCircleIcon width={20} height={20} fill="#76d672" />
-              <Text style={[styles.completeCount, {color: activeTheme.color3}]}>
-                {editScheduleCompleteForm.complete_count}번 완료
-              </Text>
-            </View>
-          )}
-
-          <Text style={[styles.titleText, {color: activeTheme.color3}]}>{editScheduleForm.title}</Text>
-
-          {editScheduleCompleteForm ? (
             <View>
-              {editScheduleCompleteForm.memo || editScheduleCompleteForm.image_url ? (
-                <View style={styles.completeContentsWrapper}>
-                  <Text numberOfLines={3} style={[styles.completeContents, {color: activeTheme.color3}]}>
-                    {editScheduleCompleteForm.memo?.replace(/\n/g, '')}
-                  </Text>
-
-                  {editScheduleCompleteForm.image_url && (
-                    <View style={{width: 70, height: 70, borderRadius: 10, backgroundColor: '#efefef'}} />
+              {editScheduleCompleteForm.thumb_image_url ? (
+                <Pressable>
+                  {editScheduleCompleteForm.memo && (
+                    <View style={styles.completeCardBack}>
+                      <Shadow startColor="#f0eff586" distance={7}>
+                        <View style={{width: '100%', height: '100%'}} />
+                      </Shadow>
+                    </View>
                   )}
-                </View>
+
+                  <View
+                    style={[
+                      styles.completeCardFront,
+                      editScheduleCompleteForm.memo ? {transform: [{rotate: '3deg'}]} : {}
+                    ]}>
+                    <Shadow startColor="#f0eff586" distance={3}>
+                      <Image source={{uri: editScheduleCompleteForm.thumb_image_url}} style={{width: 50, height: 60}} />
+                    </Shadow>
+                  </View>
+                </Pressable>
               ) : (
-                <Pressable style={recordButton} onPress={moveScheduleCompleteRecord}>
-                  <Text style={styles.buttonText}>기록 남기기</Text>
+                <Pressable style={styles.emptyCompleteCard} onPress={moveEditScheduleComplete}>
+                  <PlusIcon width={24} height={24} stroke="#1E90FF" />
                 </Pressable>
               )}
             </View>
-          ) : (
-            <Pressable style={completeButton} onPress={handleScheduleComplete}>
-              <Text style={styles.buttonText}>일정 완료하기</Text>
-            </Pressable>
           )}
-        </Pressable>
+        </View>
 
         <View style={[styles.menuContainer, {backgroundColor: activeTheme.color5}]}>
           <Pressable style={styles.menuWrapper} onPress={moveEditTodo}>
@@ -340,55 +351,77 @@ const styles = StyleSheet.create({
     flex: 1
   },
   header: {
-    paddingHorizontal: 16,
-    paddingBottom: 10,
-    marginBottom: 5,
-    gap: 5
-  },
-  completeCountWrapper: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 5
+    paddingHorizontal: 20,
+    paddingBottom: 15,
+    marginBottom: 5,
+    gap: 20
   },
-  completeCount: {
-    fontFamily: 'Pretendard-Bold',
-    fontSize: 16
+  titleWrapper: {
+    flex: 1,
+    gap: 10
   },
-  titleText: {
+  title: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 22,
     color: '#000',
     marginTop: 5
   },
-  button: {
+  emptyCompleteCard: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 50,
+    height: 60,
+    borderWidth: 1,
+    borderStyle: 'dashed'
+  },
+  completeButton: {
     marginTop: 10,
     marginBottom: 5,
     justifyContent: 'center',
     alignItems: 'center',
     height: 56,
-    borderRadius: 10
+    borderRadius: 10,
+    backgroundColor: '#45a9f9'
   },
-  buttonText: {
+  completeButtonText: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 16,
     color: '#ffffff'
   },
-  completeContentsWrapper: {
-    minHeight: 30,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 20
+  completeTextWrapper: {
+    backgroundColor: '#45a9f9',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 5,
+    alignSelf: 'flex-start'
   },
-  completeContents: {
-    // marginTop: 5,
-    flex: 1,
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 14
+  completeText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 12,
+    color: '#ffffff'
+  },
+  completeCardBack: {
+    borderWidth: 1,
+    borderColor: '#efefef',
+    backgroundColor: '#ffffff',
+    width: 50,
+    height: 62,
+    position: 'absolute',
+    top: 0,
+    left: -2,
+    transform: [{rotate: '-5deg'}]
+  },
+  completeCardFront: {
+    borderWidth: 1,
+    borderColor: '#efefef'
   },
 
   menuContainer: {
     flex: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     paddingTop: 10
   },
   menuWrapper: {
@@ -409,9 +442,6 @@ const styles = StyleSheet.create({
     fontSize: 16
   }
 })
-
-const completeButton = StyleSheet.compose(styles.button, {backgroundColor: '#45a9f9'})
-const recordButton = StyleSheet.compose(styles.button, {backgroundColor: '#ffb86c'})
 
 const routineButton = StyleSheet.compose(styles.iconWrapper, {backgroundColor: '#FFD54F'})
 const todoButton = StyleSheet.compose(styles.iconWrapper, {backgroundColor: '#76cc72'})

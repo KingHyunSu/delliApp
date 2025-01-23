@@ -7,9 +7,9 @@ declare global {
     start_time: number
     end_time: number
     memo: string | null
-    image_url: string | null
+    main_image_url: string | null
+    thumb_image_url: string | null
     complete_count: number
     schedule_id: number
-    schedule_title: string
   }
 }

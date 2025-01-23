@@ -29,6 +29,10 @@ declare global {
     text_direction: TextDirection
     background_color: string
     text_color: string
+
+    schedule_complete_id?: number
+    schedule_complete_memo?: string
+    schedule_complete_thumb_image_url?: string
   }
 
   interface Schedule extends GetCurrentScheduleListResponse {}

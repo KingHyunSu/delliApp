@@ -22,7 +22,11 @@ import HomeCustomScreen from '@/views/HomeCustom'
 import EditScheduleScreen from '@/views/EditSchedule'
 import EditRoutineScreen from '@/views/EditRoutine'
 import EditTodoScreen from '@/views/EditTodo'
-import {ScheduleCompleteScreen, EditScheduleCompleteScreen} from '@/views/scheduleComplete'
+import {
+  ScheduleCompleteScreen,
+  EditScheduleCompleteCardScreen,
+  EditScheduleCompleteScreen
+} from '@/views/scheduleComplete'
 import {StoreListScreen, StoreDetailScreen} from '@/views/store'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
@@ -461,6 +465,7 @@ function App(): JSX.Element {
                         component={ScheduleCompleteScreen}
                         options={{animation: 'none', gestureEnabled: false}}
                       />
+                      <Stack.Screen name="EditScheduleCompleteCard" component={EditScheduleCompleteCardScreen} />
                       <Stack.Screen name="EditScheduleComplete" component={EditScheduleCompleteScreen} />
 
                       <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />

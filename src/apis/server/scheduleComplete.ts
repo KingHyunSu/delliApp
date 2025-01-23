@@ -2,6 +2,7 @@ import {
   GetScheduleCompleteDetailRequest,
   GetScheduleCompleteDetailResponse,
   SetScheduleCompleteRequest,
+  SetScheduleCompleteResponse,
   UpdateScheduleCompleteRequest,
   UpdateScheduleCompleteResponse
 } from '@/apis/types/scheduleComplete'
@@ -12,7 +13,7 @@ export const getScheduleCompleteDetail = (params: GetScheduleCompleteDetailReque
 }
 
 export const setScheduleComplete = (data: SetScheduleCompleteRequest) => {
-  return http.post<any, Response<GetScheduleCompleteDetailResponse>>('schedule/complete', data)
+  return http.post<any, Response<SetScheduleCompleteResponse>>('schedule/complete', data)
 }
 
 export const updateScheduleComplete = (data: UpdateScheduleCompleteRequest) => {

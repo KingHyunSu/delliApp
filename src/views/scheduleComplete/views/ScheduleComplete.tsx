@@ -32,7 +32,7 @@ const ScheduleComplete = ({navigation}: ScheduleCompleteScreenProps) => {
   }, [resetEditScheduleCompleteForm, navigation])
 
   const moveRecord = useCallback(() => {
-    navigation.replace('EditScheduleComplete')
+    navigation.replace('EditScheduleCompleteCard')
   }, [navigation])
 
   return (

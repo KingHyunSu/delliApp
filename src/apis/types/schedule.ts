@@ -31,6 +31,9 @@ export interface GetCurrentScheduleListResponse {
   background_color: string
   text_color: string
   update_date: string
+  schedule_complete_id?: number
+  schedule_complete_memo?: string
+  schedule_complete_thumb_image_url?: string
   todo_list: ScheduleTodo[]
   routine_list: ScheduleRoutine[]
 }
