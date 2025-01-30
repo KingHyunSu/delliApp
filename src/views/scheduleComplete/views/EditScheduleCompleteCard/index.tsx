@@ -1,6 +1,5 @@
 import {useState, useMemo, useCallback, useEffect, useRef} from 'react'
-import {PixelRatio, Platform, StyleSheet, View, Pressable, Image, Text, ActivityIndicator} from 'react-native'
-import AppBar from '@/components/AppBar'
+import {Platform, StyleSheet, ScrollView, View, Pressable, Image, Text, ActivityIndicator} from 'react-native'
 import {Shadow} from 'react-native-shadow-2'
 import EditMenuBottomSheet, {SelectType} from './components/EditMenuBottomSheet'
 import ImageCropModal from './components/ImageCropModal'
@@ -22,6 +21,7 @@ import {scheduleListState} from '@/store/schedule'
 import {useGetScheduleCompleteS3PresignedUrl, useUploadImage} from '@/apis/hooks/useAws'
 import {useUpdateScheduleComplete} from '@/apis/hooks/useScheduleComplete'
 import {EditScheduleCompleteCardScreenProps} from '@/types/navigation'
+import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 
 const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenProps) => {
   const {mutateAsync: getS3PresignedUrlMutateAsync} = useGetScheduleCompleteS3PresignedUrl()
@@ -55,12 +55,20 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
   }))
 
   const cardWidth = useMemo(() => {
-    return windowDimensions.width * 0.8
+    return windowDimensions.width * 0.77
   }, [windowDimensions.width])
 
   const cardHeight = useMemo(() => {
-    return cardWidth * 1.2
+    return cardWidth * 1.25
   }, [cardWidth])
+
+  const targetSchedule = useMemo(() => {
+    if (!editScheduleCompleteForm) {
+      return null
+    }
+
+    return scheduleList.find(item => item.schedule_id === editScheduleCompleteForm.schedule_id)
+  }, [editScheduleCompleteForm, scheduleList])
 
   const handleCamera = useCallback(async () => {
     let permission = null
@@ -133,9 +141,6 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
           return
         case 'photo':
           await handlePhoto()
-          return
-        case 'note':
-          setIsShowEditNoteModal(true)
           return
         default:
           return
@@ -263,9 +268,43 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
 
   return (
     <View style={styles.container}>
-      <AppBar backPress title="완료 카드 만들기" />
+      {/*<AppBar backPress title="완료 카드 만들기" />*/}
 
-      <View style={styles.wrapper}>
+      {/*{targetSchedule?.title && (*/}
+      {/*  <View style={styles.header}>*/}
+      {/*    <Text numberOfLines={1} style={styles.title}>*/}
+      {/*      {targetSchedule.title}*/}
+      {/*    </Text>*/}
+
+      {/*    <View style={styles.countTextWrapper}>*/}
+      {/*      <Text style={styles.countText}>{editScheduleCompleteForm?.complete_count}번째 완료</Text>*/}
+      {/*    </View>*/}
+      {/*  </View>*/}
+      {/*)}*/}
+      <View
+        style={{
+          height: 52,
+          flexDirection: 'row',
+          alignItems: 'center',
+          // backgroundColor: '#fff',
+          paddingHorizontal: 16
+        }}>
+        <Pressable style={{height: 42, justifyContent: 'center', alignItems: 'center'}} onPress={navigation.goBack}>
+          <ArrowLeftIcon stroke="#424242" strokeWidth={3} />
+        </Pressable>
+
+        {/*<View>*/}
+        <Text numberOfLines={1} style={[styles.title, {textAlign: 'center', paddingHorizontal: 10}]}>
+          {targetSchedule?.title}
+        </Text>
+        {/*</View>*/}
+
+        <View style={styles.countTextWrapper}>
+          <Text style={styles.countText}>{editScheduleCompleteForm?.complete_count}번째 완료</Text>
+        </View>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.wrapper} bounces={false}>
         {/* back card */}
         <Animated.View style={[wrapperAnimatedStyle2, cardStyles.container2, {width: cardWidth, height: cardHeight}]}>
           <Shadow startColor="#f0eff586">
@@ -275,7 +314,7 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
 
         {/* front card */}
         <Animated.View style={[wrapperAnimatedStyle, cardStyles.container, {width: cardWidth, height: cardHeight}]}>
-          <Shadow startColor="#f0eff586">
+          <Shadow startColor="#f0eff586" distance={0}>
             <Pressable style={cardStyles.wrapper} onPress={() => setIsShowEditMenuBottomSheet(true)}>
               <View style={cardStyles.imageWrapper}>
                 {isLoading ? (
@@ -313,7 +352,7 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
             </Pressable>
           </Shadow>
         </Animated.View>
-      </View>
+      </ScrollView>
 
       {/* capture card */}
       <View
@@ -334,7 +373,7 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
       </View>
 
       <View style={styles.footer}>
-        {editScheduleCompleteForm?.memo && (
+        {!editScheduleCompleteForm?.memo && (
           <View style={styles.memoInfoWrapper}>
             <View style={styles.memoInfoTail} />
             <Text style={styles.memoInfoText}>기록 남기기</Text>
@@ -375,12 +414,39 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#efefef'
+    backgroundColor: '#00000050'
+    // backgroundColor: '#efefef'
+  },
+  header: {
+    backgroundColor: '#fff',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 3,
+    paddingTop: 5,
+    paddingBottom: 15,
+    paddingHorizontal: 20
+  },
+  title: {
+    flex: 1,
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 16
+  },
+  countTextWrapper: {
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 30,
+    backgroundColor: '#76cc72'
+  },
+  countText: {
+    fontFamily: 'Pretendard-Medium',
+    fontSize: 12,
+    color: '#ffffff'
   },
   wrapper: {
     flex: 1,
     alignItems: 'center',
-    marginTop: 50
+    justifyContent: 'center'
   },
   footer: {
     flexDirection: 'row',

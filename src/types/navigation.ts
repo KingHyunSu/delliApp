@@ -23,6 +23,7 @@ export type StackNavigator = {
   }
   ScheduleComplete: undefined
   EditScheduleCompleteCard: undefined
+  ScheduleCompleteCardDetailList: undefined
   StoreDetail: {type: 'background' | 'outline'; id: number}
   Leave: undefined
 

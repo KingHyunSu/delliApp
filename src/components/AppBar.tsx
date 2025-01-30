@@ -29,7 +29,11 @@ const AppBar = ({title, color, backPress = false, backPressIconColor = '#424242'
         </Pressable>
       )}
 
-      {title && <Text style={styles.title}>{title}</Text>}
+      {title && (
+        <Text numberOfLines={1} style={styles.title}>
+          {title}
+        </Text>
+      )}
 
       {children && children}
     </View>

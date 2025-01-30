@@ -15,6 +15,7 @@ interface Props {
 const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
   const textInputRef = useRef<TextInput>(null)
 
+  const [_value, _setIsValue] = useState(value)
   const [isScrolling, setIsScrolling] = useState(false)
   const [isInputMode, setIsInputMode] = useState(false)
 
@@ -44,19 +45,29 @@ const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
     }
   }, [isScrolling])
 
+  const handleClose = useCallback(() => {
+    _setIsValue(value)
+    setIsInputMode(false)
+  }, [value])
+
+  const handleSave = useCallback(() => {
+    onChange(_value)
+    setIsInputMode(false)
+  }, [_value, onChange])
+
   useEffect(() => {
     if (isInputMode) {
       textInputRef.current?.focus()
 
       width.value = withTiming(windowDimensions.width)
       height.value = withTiming(windowDimensions.height)
-      paddingTop.value = withTiming(safeAreaInsets.top + 30)
+      paddingTop.value = withTiming(safeAreaInsets.top)
     } else {
       Keyboard.dismiss()
 
       width.value = withTiming(windowDimensions.width - 32)
       height.value = withTiming(windowDimensions.height * 0.5)
-      paddingTop.value = withTiming(30)
+      paddingTop.value = withTiming(20)
     }
   }, [isInputMode, windowDimensions.width, windowDimensions.height, safeAreaInsets.top])
 
@@ -64,9 +75,24 @@ const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
     <Modal visible={visible} transparent>
       <View style={styles.overlay} />
 
-      <Pressable style={styles.container} onPress={() => setIsInputMode(false)}>
+      <View style={styles.container}>
         <Animated.View style={[styles.wrapper, wrapperAnimatedStyle]}>
-          <Text style={styles.title}>기록</Text>
+          {/* app bar */}
+          {isInputMode && (
+            <Pressable style={styles.appBarWrapper} onPress={Keyboard.dismiss}>
+              <Pressable onPress={handleClose}>
+                <CancelIcon stroke="#424242" strokeWidth={3} />
+              </Pressable>
+
+              <Pressable style={styles.saveButton} onPress={handleSave}>
+                <Text style={styles.saveButtonText}>저장</Text>
+              </Pressable>
+            </Pressable>
+          )}
+
+          <Pressable style={styles.titleWrapper} onPress={Keyboard.dismiss}>
+            <Text style={styles.title}>기록</Text>
+          </Pressable>
 
           <KeyboardAwareScrollView
             style={styles.textInputWrapper}
@@ -75,7 +101,7 @@ const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
             onScrollBeginDrag={() => setIsScrolling(true)}
             onScrollEndDrag={() => setIsScrolling(false)}>
             <TextInput
-              value={value}
+              value={_value}
               ref={textInputRef}
               style={styles.textInput}
               multiline
@@ -83,7 +109,7 @@ const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
               scrollEnabled={false}
               placeholder="일정명을 입력해주세요"
               placeholderTextColor="#c3c5cc"
-              onChangeText={onChange}
+              onChangeText={_setIsValue}
               onPress={pressTextInput}
             />
           </KeyboardAwareScrollView>
@@ -94,7 +120,7 @@ const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
             </Pressable>
           </View>
         </Animated.View>
-      </Pressable>
+      </View>
     </Modal>
   )
 }
@@ -118,10 +144,19 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '50%',
     backgroundColor: '#ffffff',
-    // borderRadius: 20,
     paddingTop: 30,
-    paddingBottom: 20,
-    gap: 20
+    paddingBottom: 20
+    // gap: 20
+  },
+  appBarWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    height: 52
+  },
+  titleWrapper: {
+    paddingBottom: 20
   },
   title: {
     fontFamily: 'Pretendard-SemiBold',
@@ -136,6 +171,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingVertical: 0,
     paddingHorizontal: 20
+  },
+  saveButton: {
+    paddingLeft: 30,
+    height: '100%',
+    justifyContent: 'center'
+  },
+  saveButtonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    color: '#1E90FF'
   },
   cancelButtonWrapper: {
     width: '100%',

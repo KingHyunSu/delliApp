@@ -110,6 +110,12 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
     navigate('EditScheduleCompleteCard')
   }, [closeEditMenuBottomSheet])
 
+  const moveScheduleCompleteCardDetail = useCallback(() => {
+    setIsResetEditScheduleCompleteForm(false)
+    closeEditMenuBottomSheet()
+    navigate('ScheduleCompleteCardDetailList')
+  }, [closeEditMenuBottomSheet])
+
   const moveEditRoutine = useCallback(() => {
     closeEditMenuBottomSheet()
     navigate('EditRoutine', {scheduleId: editScheduleForm.schedule_id, routineId: null})
@@ -268,7 +274,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
 
             {editScheduleCompleteForm ? (
               <View style={styles.completeTextWrapper}>
-                <Text style={styles.completeText}>완료했어요</Text>
+                <Text style={styles.completeText}>{editScheduleCompleteForm.complete_count}번 완료했어요</Text>
               </View>
             ) : (
               <Pressable style={styles.completeButton} onPress={handleScheduleComplete}>
@@ -280,7 +286,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
           {editScheduleCompleteForm && (
             <View>
               {editScheduleCompleteForm.thumb_image_url ? (
-                <Pressable>
+                <Pressable onPress={moveScheduleCompleteCardDetail}>
                   {editScheduleCompleteForm.memo && (
                     <View style={styles.completeCardBack}>
                       <Shadow startColor="#f0eff586" distance={7}>
