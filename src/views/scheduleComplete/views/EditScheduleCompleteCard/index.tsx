@@ -1,10 +1,10 @@
 import {useState, useMemo, useCallback, useEffect, useRef} from 'react'
-import {Platform, StyleSheet, ScrollView, View, Pressable, Image, Text, ActivityIndicator} from 'react-native'
+import {Platform, StyleSheet, View, Pressable, Image, Text, ActivityIndicator} from 'react-native'
 import {Shadow} from 'react-native-shadow-2'
+import AppBar from '../../components/AppBar'
 import EditMenuBottomSheet, {SelectType} from './components/EditMenuBottomSheet'
 import ImageCropModal from './components/ImageCropModal'
 import EditNoteModal from './components/EditNoteModal'
-import Animated, {useSharedValue, useAnimatedStyle} from 'react-native-reanimated'
 import {check, request, PermissionStatus, PERMISSIONS, RESULTS} from 'react-native-permissions'
 import {launchCamera, launchImageLibrary, Asset} from 'react-native-image-picker'
 import {captureRef} from 'react-native-view-shot'
@@ -15,18 +15,23 @@ import DeleteIcon from '@/assets/icons/delete.svg'
 import NoteStackIcon from '@/assets/icons/note_stack.svg'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
-import {editScheduleCompleteCacheListState, editScheduleCompleteFormState} from '@/store/scheduleComplete'
+import {editScheduleCompleteCacheListState} from '@/store/scheduleComplete'
 import {windowDimensionsState} from '@/store/system'
-import {scheduleListState} from '@/store/schedule'
-import {useGetScheduleCompleteS3PresignedUrl, useUploadImage} from '@/apis/hooks/useAws'
-import {useUpdateScheduleComplete} from '@/apis/hooks/useScheduleComplete'
+import {scheduleDateState, scheduleListState} from '@/store/schedule'
+import {useUploadImage} from '@/apis/hooks/useAws'
+import {
+  useDeleteScheduleCompleteCard,
+  useGetScheduleCompleteCardUploadUrl,
+  useUpdateScheduleComplete
+} from '@/apis/hooks/useScheduleComplete'
 import {EditScheduleCompleteCardScreenProps} from '@/types/navigation'
-import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
+import {UpdateScheduleCompleteResponse} from '@/apis/types/scheduleComplete'
 
-const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenProps) => {
-  const {mutateAsync: getS3PresignedUrlMutateAsync} = useGetScheduleCompleteS3PresignedUrl()
+const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardScreenProps) => {
+  const {mutateAsync: getScheduleCompleteCardUploadUrlMutateAsync} = useGetScheduleCompleteCardUploadUrl()
   const {mutateAsync: uploadImageMutateAsync} = useUploadImage()
   const {mutateAsync: updateScheduleCompleteMutateAsync} = useUpdateScheduleComplete()
+  const {mutateAsync: deleteScheduleCompleteCardMutateAsync} = useDeleteScheduleCompleteCard()
 
   const captureCardRef = useRef<View>(null)
 
@@ -36,23 +41,14 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
   const [isLoading, setIsLoading] = useState(false)
   const [tempImageUrl, setTempImageUrl] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [memo, setMemo] = useState(route.params.memo)
 
-  const [editScheduleCompleteForm, setEditScheduleCompleteForm] = useRecoilState(editScheduleCompleteFormState)
   const [editScheduleCompleteCacheList, setEditScheduleCompleteCacheList] = useRecoilState(
     editScheduleCompleteCacheListState
   )
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const windowDimensions = useRecoilValue(windowDimensionsState)
-
-  const frontCardRotate = useSharedValue(0)
-  const backCardOpacity = useSharedValue(0)
-
-  const wrapperAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{rotate: `${frontCardRotate.value}deg`}]
-  }))
-  const wrapperAnimatedStyle2 = useAnimatedStyle(() => ({
-    opacity: backCardOpacity.value
-  }))
+  const scheduleDate = useRecoilValue(scheduleDateState)
 
   const cardWidth = useMemo(() => {
     return windowDimensions.width * 0.77
@@ -62,13 +58,23 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
     return cardWidth * 1.25
   }, [cardWidth])
 
-  const targetSchedule = useMemo(() => {
-    if (!editScheduleCompleteForm) {
-      return null
-    }
+  const frontCardContainerStyle = useMemo(() => {
+    const left = memo ? 12 : 0
 
-    return scheduleList.find(item => item.schedule_id === editScheduleCompleteForm.schedule_id)
-  }, [editScheduleCompleteForm, scheduleList])
+    return {width: cardWidth, height: cardHeight, left}
+  }, [memo, cardWidth, cardHeight])
+
+  const dateString = useMemo(() => {
+    const year = scheduleDate.getFullYear()
+    const month = scheduleDate.getMonth() + 1
+    const date = scheduleDate.getDate()
+
+    return `${year}년 ${month}월 ${date}일`
+  }, [scheduleDate])
+
+  const targetSchedule = useMemo(() => {
+    return scheduleList.find(item => item.schedule_id === route.params.schedule_id)
+  }, [scheduleList, route.params])
 
   const handleCamera = useCallback(async () => {
     let permission = null
@@ -149,92 +155,95 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
     [handleCamera, handlePhoto]
   )
 
-  const changeMemo = useCallback(
-    (value: string) => {
-      setEditScheduleCompleteForm(prevState => (prevState ? {...prevState, memo: value} : prevState))
-    },
-    [setEditScheduleCompleteForm]
-  )
-
   const getNewEditScheduleCompleteCacheList = useCallback(
-    (newScheduleComplete: EditScheduleCompleteForm) => {
+    (newScheduleComplete: UpdateScheduleCompleteResponse) => {
       return editScheduleCompleteCacheList.map(item => {
-        if (newScheduleComplete.schedule_complete_id === item.schedule_complete_id) {
-          return newScheduleComplete
+        if (route.params.schedule_complete_id === item.schedule_complete_id) {
+          return {
+            ...route.params,
+            main_path: newScheduleComplete.main_path,
+            thumb_path: newScheduleComplete.thumb_path,
+            memo: newScheduleComplete.memo
+          }
         }
         return item
       })
     },
-    [editScheduleCompleteCacheList]
+    [route.params, editScheduleCompleteCacheList]
   )
 
+  const getResizedImage = async (uri: string, width: number, height: number) => {
+    return await ImageResizer.createResizedImage(uri, width, height, 'JPEG', 1)
+  }
+
   const getNewScheduleList = useCallback(
-    (newScheduleComplete: EditScheduleCompleteForm) => {
+    (newScheduleComplete: UpdateScheduleCompleteResponse) => {
       return scheduleList.map(item => {
-        if (newScheduleComplete.schedule_id === item.schedule_id) {
+        if (route.params.schedule_id === item.schedule_id) {
           return {
             ...item,
-            schedule_complete_id: newScheduleComplete.schedule_complete_id,
-            schedule_complete_memo: newScheduleComplete.memo,
-            schedule_complete_thumb_image_url: newScheduleComplete.thumb_image_url
+            schedule_complete_id: route.params.schedule_complete_id,
+            schedule_complete_path: newScheduleComplete.timetable_path,
+            schedule_complete_memo: newScheduleComplete.memo
           } as Schedule
         }
         return item
       })
     },
-    [scheduleList]
+    [route.params, scheduleList]
   )
 
   const handleSubmit = useCallback(async () => {
-    if (!editScheduleCompleteForm) {
-      return
-    }
-
     let imageName = null
 
     if (imageUrl) {
       const contentType = 'image/jpeg'
-      imageName = editScheduleCompleteForm.schedule_id.toString() + '.jpeg'
+      imageName = new Date().getTime() + '_' + route.params.schedule_id.toString() + '.jpeg'
 
       const captureUri = await captureRef(captureCardRef)
 
-      const {main_url, thumb_url} = await getS3PresignedUrlMutateAsync({
-        date: editScheduleCompleteForm.complete_date,
+      const {main_url, thumb_url, timetable_url} = await getScheduleCompleteCardUploadUrlMutateAsync({
         name: imageName
       })
 
-      const mainImageWidth = 600
+      const mainImageWidth = 1000
       const mainImageHeight = mainImageWidth * 1.2
-      const thumbImageWidth = 100
+      const thumbImageWidth = 400 // TODO - 400? 300?
       const thumbImageHeight = thumbImageWidth * 1.2
+      const timetableImageWidth = 100
+      const timetableImageHeight = timetableImageWidth * 1.2
 
-      const mainImage = await ImageResizer.createResizedImage(captureUri, mainImageWidth, mainImageHeight, 'JPEG', 1)
-      const thumbImage = await ImageResizer.createResizedImage(captureUri, thumbImageWidth, thumbImageHeight, 'JPEG', 1)
+      const mainImage = await getResizedImage(captureUri, mainImageWidth, mainImageHeight)
+      const thumbImage = await getResizedImage(captureUri, thumbImageWidth, thumbImageHeight)
+      const timetableImage = await getResizedImage(captureUri, timetableImageWidth, timetableImageHeight)
 
       const mainImageData = await fetch(mainImage.uri)
       const thumbImageData = await fetch(thumbImage.uri)
+      const timetableImageData = await fetch(timetableImage.uri)
 
       const mainImageBlob = await mainImageData.blob()
       const thumbImageBlob = await thumbImageData.blob()
+      const timetableImageBlob = await timetableImageData.blob()
 
       await uploadImageMutateAsync({url: main_url, data: mainImageBlob, contentType})
       await uploadImageMutateAsync({url: thumb_url, data: thumbImageBlob, contentType})
+      await uploadImageMutateAsync({url: timetable_url, data: timetableImageBlob, contentType})
+
+      // 이미지 변경시 기존 이미지 제거
+      if (route.params.main_path) {
+        await deleteScheduleCompleteCardMutateAsync({schedule_complete_id: route.params.schedule_complete_id})
+      }
     }
 
     const response = await updateScheduleCompleteMutateAsync({
-      schedule_complete_id: editScheduleCompleteForm.schedule_complete_id,
-      complete_date: editScheduleCompleteForm.complete_date,
-      memo: editScheduleCompleteForm.memo || '',
-      image_name: imageName
+      schedule_complete_id: route.params.schedule_complete_id,
+      complete_date: route.params.complete_date,
+      memo: memo || '',
+      file_name: imageName
     })
 
-    const newScheduleComplete = {
-      ...editScheduleCompleteForm,
-      main_image_url: response.main_image_url,
-      thumb_image_url: response.thumb_image_url
-    }
-    const newEditScheduleCompleteCacheList = getNewEditScheduleCompleteCacheList(newScheduleComplete)
-    const newScheduleList = getNewScheduleList(newScheduleComplete)
+    const newEditScheduleCompleteCacheList = getNewEditScheduleCompleteCacheList(response)
+    const newScheduleList = getNewScheduleList(response)
 
     setEditScheduleCompleteCacheList(newEditScheduleCompleteCacheList)
     setScheduleList(newScheduleList)
@@ -244,121 +253,81 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
       params: {scheduleUpdated: false}
     })
   }, [
-    editScheduleCompleteForm,
+    route.params,
+    memo,
     imageUrl,
     getNewEditScheduleCompleteCacheList,
     getNewScheduleList,
-    getS3PresignedUrlMutateAsync,
     uploadImageMutateAsync,
+    deleteScheduleCompleteCardMutateAsync,
     updateScheduleCompleteMutateAsync,
+    getScheduleCompleteCardUploadUrlMutateAsync,
     setEditScheduleCompleteCacheList,
     setScheduleList,
     navigation
   ])
 
-  useEffect(() => {
-    if (editScheduleCompleteForm?.memo) {
-      frontCardRotate.value = 3
-      backCardOpacity.value = 1
-    } else {
-      frontCardRotate.value = 0
-      backCardOpacity.value = 0
-    }
-  }, [editScheduleCompleteForm?.memo])
-
   return (
     <View style={styles.container}>
-      {/*<AppBar backPress title="완료 카드 만들기" />*/}
+      <AppBar title={targetSchedule?.title || ''} completeCount={route.params.complete_count || 0} />
 
-      {/*{targetSchedule?.title && (*/}
-      {/*  <View style={styles.header}>*/}
-      {/*    <Text numberOfLines={1} style={styles.title}>*/}
-      {/*      {targetSchedule.title}*/}
-      {/*    </Text>*/}
+      <View style={styles.wrapper}>
+        <View>
+          {/* back card */}
+          {memo && (
+            <View style={[cardStyles.backCardContainer, {width: cardWidth, height: cardHeight}]}>
+              <Shadow startColor="#f0eff586" distance={0}>
+                <View style={cardStyles.backCardWrapper} />
+              </Shadow>
+            </View>
+          )}
 
-      {/*    <View style={styles.countTextWrapper}>*/}
-      {/*      <Text style={styles.countText}>{editScheduleCompleteForm?.complete_count}번째 완료</Text>*/}
-      {/*    </View>*/}
-      {/*  </View>*/}
-      {/*)}*/}
-      <View
-        style={{
-          height: 52,
-          flexDirection: 'row',
-          alignItems: 'center',
-          // backgroundColor: '#fff',
-          paddingHorizontal: 16
-        }}>
-        <Pressable style={{height: 42, justifyContent: 'center', alignItems: 'center'}} onPress={navigation.goBack}>
-          <ArrowLeftIcon stroke="#424242" strokeWidth={3} />
-        </Pressable>
+          {/* front card */}
+          <View style={frontCardContainerStyle}>
+            <Shadow startColor="#e0e0e0" offset={[7, 7]} distance={15}>
+              <Pressable style={cardStyles.frontCardWrapper} onPress={() => setIsShowEditMenuBottomSheet(true)}>
+                <View style={cardStyles.imageWrapper}>
+                  {isLoading ? (
+                    <View style={cardStyles.imageLoading}>
+                      <ActivityIndicator size="large" />
+                    </View>
+                  ) : (
+                    <Image
+                      source={imageUrl ? {uri: imageUrl} : require('@/assets/images/empty.png')}
+                      style={cardStyles.image}
+                    />
+                  )}
 
-        {/*<View>*/}
-        <Text numberOfLines={1} style={[styles.title, {textAlign: 'center', paddingHorizontal: 10}]}>
-          {targetSchedule?.title}
-        </Text>
-        {/*</View>*/}
+                  {imageUrl && (
+                    <Shadow containerStyle={cardStyles.deleteButtonWrapper} distance={5}>
+                      <Pressable style={cardStyles.deleteButton} onPress={deleteImage}>
+                        <DeleteIcon fill="#424242" />
+                      </Pressable>
+                    </Shadow>
+                  )}
 
-        <View style={styles.countTextWrapper}>
-          <Text style={styles.countText}>{editScheduleCompleteForm?.complete_count}번째 완료</Text>
+                  {imageUrl && (
+                    <Shadow containerStyle={cardStyles.cropButtonWrapper} distance={5}>
+                      <Pressable style={cardStyles.cropButton} onPress={() => setIsShowImageCropModal(true)}>
+                        <CropIcon fill="#424242" />
+                      </Pressable>
+                    </Shadow>
+                  )}
+                </View>
+
+                {/* TODO - 손글씨 폰트로 변경하기 */}
+                <View style={cardStyles.footer}>
+                  <Text style={cardStyles.date}>{dateString}</Text>
+                </View>
+              </Pressable>
+            </Shadow>
+          </View>
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.wrapper} bounces={false}>
-        {/* back card */}
-        <Animated.View style={[wrapperAnimatedStyle2, cardStyles.container2, {width: cardWidth, height: cardHeight}]}>
-          <Shadow startColor="#f0eff586">
-            <View style={cardStyles.wrapper2} />
-          </Shadow>
-        </Animated.View>
-
-        {/* front card */}
-        <Animated.View style={[wrapperAnimatedStyle, cardStyles.container, {width: cardWidth, height: cardHeight}]}>
-          <Shadow startColor="#f0eff586" distance={0}>
-            <Pressable style={cardStyles.wrapper} onPress={() => setIsShowEditMenuBottomSheet(true)}>
-              <View style={cardStyles.imageWrapper}>
-                {isLoading ? (
-                  <View style={cardStyles.imageLoading}>
-                    <ActivityIndicator size="large" />
-                  </View>
-                ) : (
-                  <Image
-                    source={imageUrl ? {uri: imageUrl} : require('@/assets/images/empty.png')}
-                    style={cardStyles.image}
-                  />
-                )}
-
-                {imageUrl && (
-                  <Shadow containerStyle={cardStyles.deleteButtonWrapper} distance={5}>
-                    <Pressable style={cardStyles.deleteButton} onPress={deleteImage}>
-                      <DeleteIcon fill="#424242" />
-                    </Pressable>
-                  </Shadow>
-                )}
-
-                {imageUrl && (
-                  <Shadow containerStyle={cardStyles.cropButtonWrapper} distance={5}>
-                    <Pressable style={cardStyles.cropButton} onPress={() => setIsShowImageCropModal(true)}>
-                      <CropIcon fill="#424242" />
-                    </Pressable>
-                  </Shadow>
-                )}
-              </View>
-
-              {/* TODO - 손글씨 폰트로 변경하기 */}
-              <View style={cardStyles.footer}>
-                <Text style={cardStyles.date}>2025년 1월 20일</Text>
-              </View>
-            </Pressable>
-          </Shadow>
-        </Animated.View>
-      </ScrollView>
-
       {/* capture card */}
-      <View
-        ref={captureCardRef}
-        style={[cardStyles.container, cardStyles.captureContainer, {width: cardWidth, height: cardHeight}]}>
-        <View style={cardStyles.wrapper}>
+      <View ref={captureCardRef} style={[cardStyles.captureContainer, {width: cardWidth, height: cardHeight}]}>
+        <View style={cardStyles.frontCardWrapper}>
           <View style={cardStyles.imageWrapper}>
             <Image
               source={imageUrl ? {uri: imageUrl} : require('@/assets/images/empty.png')}
@@ -367,13 +336,13 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
           </View>
 
           <View style={cardStyles.footer}>
-            <Text style={cardStyles.date}>2025년 1월 20일</Text>
+            <Text style={cardStyles.date}>{dateString}</Text>
           </View>
         </View>
       </View>
 
       <View style={styles.footer}>
-        {!editScheduleCompleteForm?.memo && (
+        {!route.params.memo && (
           <View style={styles.memoInfoWrapper}>
             <View style={styles.memoInfoTail} />
             <Text style={styles.memoInfoText}>기록 남기기</Text>
@@ -403,8 +372,8 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
       />
       <EditNoteModal
         visible={isShowEditNoteModal}
-        value={editScheduleCompleteForm?.memo || ''}
-        onChange={changeMemo}
+        value={route.params.memo || ''}
+        onChange={setMemo}
         onClose={() => setIsShowEditNoteModal(false)}
       />
     </View>
@@ -414,34 +383,8 @@ const EditScheduleCompleteCard = ({navigation}: EditScheduleCompleteCardScreenPr
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#00000050'
-    // backgroundColor: '#efefef'
-  },
-  header: {
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 3,
-    paddingTop: 5,
-    paddingBottom: 15,
-    paddingHorizontal: 20
-  },
-  title: {
-    flex: 1,
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 16
-  },
-  countTextWrapper: {
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 30,
-    backgroundColor: '#76cc72'
-  },
-  countText: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
-    color: '#ffffff'
+    backgroundColor: '#e0e0e0'
+    // backgroundColor: '#000000b2'
   },
   wrapper: {
     flex: 1,
@@ -508,23 +451,21 @@ const styles = StyleSheet.create({
 })
 
 const cardStyles = StyleSheet.create({
-  container: {
-    backgroundColor: '#ffffff'
-  },
-  wrapper: {
+  frontCardWrapper: {
+    backgroundColor: '#ffffff',
     width: '100%',
     height: '100%',
     paddingTop: 15,
     paddingHorizontal: 15
   },
-  container2: {
+  backCardContainer: {
     position: 'absolute',
-    top: 0,
-    left: 40,
+    top: -20,
+    left: -8,
     backgroundColor: '#ffffff',
     transform: [{rotate: '-2deg'}]
   },
-  wrapper2: {
+  backCardWrapper: {
     width: '100%',
     height: '100%'
   },

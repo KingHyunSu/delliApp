@@ -1,5 +1,5 @@
 import ScheduleCompleteScreen from './views/ScheduleComplete'
 import EditScheduleCompleteCardScreen from './views/EditScheduleCompleteCard'
-import ScheduleCompleteCardDetailListScreen from './views/ScheduleCompleteCardDetailList'
+import ScheduleCompleteCardDetailScreen from './views/ScheduleCompleteCardDetail'
 
-export {ScheduleCompleteScreen, EditScheduleCompleteCardScreen, ScheduleCompleteCardDetailListScreen}
+export {ScheduleCompleteScreen, EditScheduleCompleteCardScreen, ScheduleCompleteCardDetailScreen}

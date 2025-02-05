@@ -3,7 +3,7 @@ import {StyleSheet, Platform, Alert, View, Text, Pressable, Image} from 'react-n
 import {BottomSheetModal, BottomSheetBackdropProps, BottomSheetHandleProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
-import {Shadow} from 'react-native-shadow-2'
+import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
 
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
 import {activeThemeState} from '@/store/system'
@@ -24,6 +24,7 @@ import {useSetScheduleComplete} from '@/apis/hooks/useScheduleComplete'
 import {navigate} from '@/utils/navigation'
 import {format} from 'date-fns'
 import {useGetScheduleCompleteDetail} from '@/apis/hooks/useScheduleComplete'
+import ScheduleCompleteCardMenuModal from '@/components/modal/ScheduleCompleteCardMenuModal'
 
 interface Props {
   moveEditSchedule: Function
@@ -38,7 +39,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const editInfoBottomSheetRef = useRef<BottomSheetModal>(null)
 
   const [isResetEditScheduleForm, setIsResetEditScheduleForm] = useState(true)
-  const [isResetEditScheduleCompleteForm, setIsResetEditScheduleCompleteForm] = useState(true)
+  const [isShowScheduleCompleteCardMenu, setIsShowScheduleCompleteCardMenu] = useState(false)
 
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const [editScheduleCompleteForm, setEditScheduleCompleteForm] = useRecoilState(editScheduleCompleteFormState)
@@ -57,6 +58,14 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const snapPoints = useMemo(() => {
     return [400]
   }, [])
+
+  const imageUrl = useMemo(() => {
+    if (editScheduleCompleteForm?.thumb_path) {
+      const domain = process.env.CDN_URL
+      return domain + '/' + editScheduleCompleteForm.thumb_path
+    }
+    return null
+  }, [editScheduleCompleteForm])
 
   const closeEditMenuBottomSheet = useCallback(() => {
     setShowEditMenuBottomSheet(false)
@@ -77,44 +86,48 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
       schedule_id: editScheduleForm.schedule_id
     })
 
-    setIsResetEditScheduleCompleteForm(false)
-    setEditScheduleCompleteForm({
+    closeEditMenuBottomSheet()
+
+    navigate('ScheduleComplete', {
       schedule_complete_id: response.schedule_complete_id,
       complete_date: completeDate,
       start_time: editScheduleForm.start_time,
       end_time: editScheduleForm.end_time,
+      file_name: null,
       memo: '',
-      main_image_url: null,
-      thumb_image_url: null,
       complete_count: response.complete_count,
-      schedule_id: editScheduleForm.schedule_id
+      schedule_id: editScheduleForm.schedule_id,
+      main_path: null,
+      thumb_path: null
     })
-
-    closeEditMenuBottomSheet()
-
-    navigate('ScheduleComplete')
   }, [
     editScheduleForm.schedule_id,
     editScheduleForm.start_time,
     editScheduleForm.end_time,
     scheduleDate,
     closeEditMenuBottomSheet,
-    setScheduleCompleteMutateAsync,
-    setEditScheduleCompleteForm
+    setScheduleCompleteMutateAsync
   ])
 
-  const moveEditScheduleComplete = useCallback(() => {
-    setIsResetEditScheduleCompleteForm(false)
+  const showScheduleCompleteCardMenu = useCallback(() => {
+    setIsShowScheduleCompleteCardMenu(true)
+  }, [])
 
-    closeEditMenuBottomSheet()
-    navigate('EditScheduleCompleteCard')
-  }, [closeEditMenuBottomSheet])
+  const moveEditScheduleComplete = useCallback(() => {
+    if (editScheduleCompleteForm) {
+      closeEditMenuBottomSheet()
+      navigate('EditScheduleCompleteCard', editScheduleCompleteForm)
+    }
+  }, [closeEditMenuBottomSheet, editScheduleCompleteForm])
 
   const moveScheduleCompleteCardDetail = useCallback(() => {
-    setIsResetEditScheduleCompleteForm(false)
-    closeEditMenuBottomSheet()
-    navigate('ScheduleCompleteCardDetailList')
-  }, [closeEditMenuBottomSheet])
+    if (editScheduleCompleteForm) {
+      setIsShowScheduleCompleteCardMenu(false)
+
+      closeEditMenuBottomSheet()
+      navigate('ScheduleCompleteCardDetail', editScheduleCompleteForm)
+    }
+  }, [closeEditMenuBottomSheet, editScheduleCompleteForm])
 
   const moveEditRoutine = useCallback(() => {
     closeEditMenuBottomSheet()
@@ -184,24 +197,15 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
       if (isResetEditScheduleForm) {
         resetEditScheduleForm()
       }
-      if (isResetEditScheduleCompleteForm) {
-        resetEditScheduleCompleteForm()
-      }
+      resetEditScheduleCompleteForm()
 
       editInfoBottomSheetRef.current?.dismiss()
     }
-  }, [
-    showEditMenuBottomSheet,
-    isResetEditScheduleForm,
-    isResetEditScheduleCompleteForm,
-    resetEditScheduleForm,
-    resetEditScheduleCompleteForm
-  ])
+  }, [showEditMenuBottomSheet, isResetEditScheduleForm, resetEditScheduleForm, resetEditScheduleCompleteForm])
 
   useEffect(() => {
     if (showEditMenuBottomSheet) {
       setIsResetEditScheduleForm(true)
-      setIsResetEditScheduleCompleteForm(true)
     }
   }, [showEditMenuBottomSheet])
 
@@ -284,26 +288,16 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
           </View>
 
           {editScheduleCompleteForm && (
-            <View>
-              {editScheduleCompleteForm.thumb_image_url ? (
-                <Pressable onPress={moveScheduleCompleteCardDetail}>
-                  {editScheduleCompleteForm.memo && (
-                    <View style={styles.completeCardBack}>
-                      <Shadow startColor="#f0eff586" distance={7}>
-                        <View style={{width: '100%', height: '100%'}} />
-                      </Shadow>
-                    </View>
-                  )}
-
-                  <View
-                    style={[
-                      styles.completeCardFront,
-                      editScheduleCompleteForm.memo ? {transform: [{rotate: '3deg'}]} : {}
-                    ]}>
-                    <Shadow startColor="#f0eff586" distance={3}>
-                      <Image source={{uri: editScheduleCompleteForm.thumb_image_url}} style={{width: 50, height: 60}} />
-                    </Shadow>
-                  </View>
+            <View style={styles.completeCardWrapper}>
+              {imageUrl ? (
+                <Pressable onPress={showScheduleCompleteCardMenu}>
+                  <ScheduleCompleteCard
+                    type="timetable"
+                    imageUrl={imageUrl}
+                    memo={editScheduleCompleteForm.memo}
+                    shadowColor="#f5f5f5"
+                    shadowDistance={5}
+                  />
                 </Pressable>
               ) : (
                 <Pressable style={styles.emptyCompleteCard} onPress={moveEditScheduleComplete}>
@@ -348,6 +342,12 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
           </Pressable>
         </View>
       </View>
+
+      <ScheduleCompleteCardMenuModal
+        visible={isShowScheduleCompleteCardMenu}
+        moveScheduleCompleteCardDetail={moveScheduleCompleteCardDetail}
+        onClose={() => setIsShowScheduleCompleteCardMenu(false)}
+      />
     </BottomSheetModal>
   )
 }
@@ -375,11 +375,15 @@ const styles = StyleSheet.create({
     color: '#000',
     marginTop: 5
   },
+  completeCardWrapper: {
+    height: 55,
+    aspectRatio: 0.8
+  },
   emptyCompleteCard: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: 50,
-    height: 60,
+    width: '100%',
+    height: '100%',
     borderWidth: 1,
     borderStyle: 'dashed'
   },
@@ -408,21 +412,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 12,
     color: '#ffffff'
-  },
-  completeCardBack: {
-    borderWidth: 1,
-    borderColor: '#efefef',
-    backgroundColor: '#ffffff',
-    width: 50,
-    height: 62,
-    position: 'absolute',
-    top: 0,
-    left: -2,
-    transform: [{rotate: '-5deg'}]
-  },
-  completeCardFront: {
-    borderWidth: 1,
-    borderColor: '#efefef'
   },
 
   menuContainer: {

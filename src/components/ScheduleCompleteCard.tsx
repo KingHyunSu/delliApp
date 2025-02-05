@@ -1,0 +1,152 @@
+import {StyleSheet, View, Image, Text} from 'react-native'
+import {useMemo} from 'react'
+import {Shadow} from 'react-native-shadow-2'
+import {Defs, LinearGradient, Rect, Stop, Svg} from 'react-native-svg'
+
+interface Props {
+  type: 'main' | 'thumb' | 'timetable'
+  imageUrl: string | null
+  memo: string | null
+  completeCount?: number
+  shadowColor: string
+  shadowDistance: number
+  shadowOffset?: [x: string | number, y: string | number] | undefined
+}
+const ScheduleCompleteCard = ({
+  imageUrl,
+  memo,
+  type,
+  completeCount,
+  shadowColor,
+  shadowDistance,
+  shadowOffset = [0, 0]
+}: Props) => {
+  const backCardStyle = useMemo(() => {
+    const rotate = imageUrl ? -2 : 0
+    let top = -20
+    let left = -8
+
+    if (type === 'thumb') {
+      top = -7
+      left = -3
+    } else if (type === 'timetable') {
+      top = -5
+      left = -2
+    }
+
+    return [styles.backCard, {transform: [{rotate: `${rotate}deg`}], top, left}]
+  }, [imageUrl, type])
+
+  const frontCardStyle = useMemo(() => {
+    let left = 0
+
+    if (memo) {
+      left = 12
+      if (type === 'thumb') {
+        left = 3
+      } else if (type === 'timetable') {
+        left = 2
+      }
+    }
+
+    return [styles.frontCard, {left}]
+  }, [memo, type])
+
+  const memoStyle = useMemo(() => {
+    let fontSize = 14
+    let padding = 15
+
+    if (type === 'thumb') {
+      fontSize = 10
+      padding = 1
+    } else if (type === 'timetable') {
+      fontSize = 5
+      padding = 1
+    }
+
+    return [styles.memo, {fontSize, padding}]
+  }, [type])
+
+  return (
+    <View style={styles.container}>
+      {/* back card */}
+      {memo && (
+        <View style={backCardStyle}>
+          <Shadow startColor={shadowColor} distance={shadowDistance}>
+            <View style={{width: '100%', height: '100%'}}>
+              <Text style={memoStyle}>{memo}</Text>
+            </View>
+          </Shadow>
+        </View>
+      )}
+
+      {/* front card */}
+      {imageUrl && (
+        <View style={frontCardStyle}>
+          <Shadow stretch startColor={shadowColor} offset={shadowOffset} distance={shadowDistance}>
+            <Image source={{uri: imageUrl}} style={styles.image} />
+
+            {completeCount && (
+              <>
+                <View style={{position: 'absolute', top: 0, width: '100%', height: '100%'}}>
+                  <Svg width="100%" height="100%">
+                    <Defs>
+                      <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                        <Stop offset="0" stopColor="#333" stopOpacity="0.5" />
+                        <Stop offset="0.25" stopColor="#333" stopOpacity="0.25" />
+                        <Stop offset="0.5" stopColor="#333" stopOpacity="0" />
+                      </LinearGradient>
+                    </Defs>
+
+                    <Rect width="100%" height="100%" fill="url(#grad)" />
+                  </Svg>
+                </View>
+
+                <Text style={styles.cardCountText}>{completeCount}번째 완료</Text>
+              </>
+            )}
+          </Shadow>
+        </View>
+      )}
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    aspectRatio: 0.8
+  },
+  backCard: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#ffffff',
+    position: 'absolute'
+  },
+  frontCard: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: '#ffffff',
+    position: 'absolute',
+    top: 0
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover'
+  },
+  memo: {
+    fontFamily: 'Pretendard-Medium',
+    color: '#000000'
+  },
+  cardCountText: {
+    position: 'absolute',
+    top: 7,
+    left: 7,
+    color: '#ffffff',
+    fontFamily: 'Pretendard-Bold',
+    fontSize: 12
+  }
+})
+
+export default ScheduleCompleteCard

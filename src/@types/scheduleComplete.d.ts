@@ -6,10 +6,11 @@ declare global {
     complete_date: string
     start_time: number
     end_time: number
+    file_name: string | null
     memo: string | null
-    main_image_url: string | null
-    thumb_image_url: string | null
     complete_count: number
     schedule_id: number
+    main_path: string | null
+    thumb_path: string | null
   }
 }

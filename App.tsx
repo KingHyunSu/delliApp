@@ -25,7 +25,7 @@ import EditTodoScreen from '@/views/EditTodo'
 import {
   ScheduleCompleteScreen,
   EditScheduleCompleteCardScreen,
-  ScheduleCompleteCardDetailListScreen
+  ScheduleCompleteCardDetailScreen
 } from '@/views/scheduleComplete'
 import {StoreListScreen, StoreDetailScreen} from '@/views/store'
 import SettingScreen from '@/views/Setting'
@@ -38,9 +38,8 @@ import StatsScreen from '@/views/Stats'
 import Toast from '@/components/Toast'
 import {Alert} from '@/components/messageBox'
 import Loading from '@/components/Loading'
-import LoginBottomSheet from '@/components/bottomSheet/LoginBottomSheet'
-
 import {AlertProvider} from '@/components/Alert'
+import LoginBottomSheet from '@/components/bottomSheet/LoginBottomSheet'
 
 // icons
 import HomeIcon from '@/assets/icons/home.svg'
@@ -203,9 +202,6 @@ function App(): JSX.Element {
       case 'EditTodo':
       case 'Leave':
         _bottomSafeAreaColor = activeTheme.color1
-        break
-      case 'EditScheduleCompleteCard':
-        _statusBarColor = '#00000050'
         break
       // case 'EditSchedule':
       // case 'EditGoal':
@@ -468,10 +464,7 @@ function App(): JSX.Element {
                         options={{animation: 'none', gestureEnabled: false}}
                       />
                       <Stack.Screen name="EditScheduleCompleteCard" component={EditScheduleCompleteCardScreen} />
-                      <Stack.Screen
-                        name="ScheduleCompleteCardDetailList"
-                        component={ScheduleCompleteCardDetailListScreen}
-                      />
+                      <Stack.Screen name="ScheduleCompleteCardDetail" component={ScheduleCompleteCardDetailScreen} />
 
                       <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
 

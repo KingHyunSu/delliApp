@@ -1,23 +1,18 @@
 import {useMemo, useCallback} from 'react'
 import {StyleSheet, View, Text, Pressable} from 'react-native'
 import LottieView from 'lottie-react-native'
-import {useRecoilValue, useResetRecoilState} from 'recoil'
+import {useRecoilValue} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
-import {editScheduleCompleteFormState} from '@/store/scheduleComplete'
 import {ScheduleCompleteScreenProps} from '@/types/navigation'
 
-const ScheduleComplete = ({navigation}: ScheduleCompleteScreenProps) => {
+const ScheduleComplete = ({navigation, route}: ScheduleCompleteScreenProps) => {
   const windowDimensions = useRecoilValue(windowDimensionsState)
-  const editScheduleCompleteForm = useRecoilValue(editScheduleCompleteFormState)
-  const resetEditScheduleCompleteForm = useResetRecoilState(editScheduleCompleteFormState)
 
   const fontSize = useMemo(() => {
     return windowDimensions.width * 0.1
   }, [windowDimensions.width])
 
   const moveHome = useCallback(() => {
-    resetEditScheduleCompleteForm()
-
     navigation.reset({
       index: 0,
       routes: [
@@ -29,17 +24,17 @@ const ScheduleComplete = ({navigation}: ScheduleCompleteScreenProps) => {
         }
       ]
     })
-  }, [resetEditScheduleCompleteForm, navigation])
+  }, [navigation])
 
   const moveRecord = useCallback(() => {
-    navigation.replace('EditScheduleCompleteCard')
-  }, [navigation])
+    navigation.replace('EditScheduleCompleteCard', route.params)
+  }, [navigation, route.params])
 
   return (
     <View style={styles.container}>
       <View style={styles.wrapper}>
         <LottieView source={require('@/assets/lottie/congrats.json')} style={styles.lottie} autoPlay loop={false} />
-        <Text style={[styles.text, {fontSize}]}>{editScheduleCompleteForm?.complete_count}번 완료했어요!</Text>
+        <Text style={[styles.text, {fontSize}]}>{route.params.complete_count}번 완료했어요!</Text>
       </View>
 
       <View style={styles.buttonWrapper}>
