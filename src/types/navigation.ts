@@ -22,8 +22,9 @@ export type StackNavigator = {
     todoId: number | null
   }
   ScheduleComplete: EditScheduleCompleteForm
-  EditScheduleCompleteCard: EditScheduleCompleteForm
   ScheduleCompleteCardDetail: EditScheduleCompleteForm
+  EditScheduleCompleteCard: EditScheduleCompleteForm
+  AttachScheduleCompleteCard: undefined
   StoreDetail: {type: 'background' | 'outline'; id: number}
   Leave: undefined
 

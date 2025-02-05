@@ -24,8 +24,9 @@ import EditRoutineScreen from '@/views/EditRoutine'
 import EditTodoScreen from '@/views/EditTodo'
 import {
   ScheduleCompleteScreen,
+  ScheduleCompleteCardDetailScreen,
   EditScheduleCompleteCardScreen,
-  ScheduleCompleteCardDetailScreen
+  AttachScheduleCompleteCardScreen
 } from '@/views/scheduleComplete'
 import {StoreListScreen, StoreDetailScreen} from '@/views/store'
 import SettingScreen from '@/views/Setting'
@@ -463,8 +464,9 @@ function App(): JSX.Element {
                         component={ScheduleCompleteScreen}
                         options={{animation: 'none', gestureEnabled: false}}
                       />
-                      <Stack.Screen name="EditScheduleCompleteCard" component={EditScheduleCompleteCardScreen} />
                       <Stack.Screen name="ScheduleCompleteCardDetail" component={ScheduleCompleteCardDetailScreen} />
+                      <Stack.Screen name="EditScheduleCompleteCard" component={EditScheduleCompleteCardScreen} />
+                      <Stack.Screen name="AttachScheduleCompleteCard" component={AttachScheduleCompleteCardScreen} />
 
                       <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
 

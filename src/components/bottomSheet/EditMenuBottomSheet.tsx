@@ -120,6 +120,13 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
     }
   }, [closeEditMenuBottomSheet, editScheduleCompleteForm])
 
+  const moveAttachScheduleCompleteCard = useCallback(() => {
+    setIsShowScheduleCompleteCardMenu(false)
+
+    closeEditMenuBottomSheet()
+    navigate('AttachScheduleCompleteCard')
+  }, [])
+
   const moveScheduleCompleteCardDetail = useCallback(() => {
     if (editScheduleCompleteForm) {
       setIsShowScheduleCompleteCardMenu(false)
@@ -345,6 +352,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
 
       <ScheduleCompleteCardMenuModal
         visible={isShowScheduleCompleteCardMenu}
+        moveAttachScheduleCompleteCard={moveAttachScheduleCompleteCard}
         moveScheduleCompleteCardDetail={moveScheduleCompleteCardDetail}
         onClose={() => setIsShowScheduleCompleteCardMenu(false)}
       />

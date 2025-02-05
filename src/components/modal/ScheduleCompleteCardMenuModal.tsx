@@ -2,16 +2,22 @@ import {StyleSheet, Modal, View, Pressable, Text} from 'react-native'
 
 interface Props {
   visible: boolean
+  moveAttachScheduleCompleteCard: () => void
   moveScheduleCompleteCardDetail: () => void
   onClose: () => void
 }
-const ScheduleCompleteCardMenuModal = ({visible, moveScheduleCompleteCardDetail, onClose}: Props) => {
+const ScheduleCompleteCardMenuModal = ({
+  visible,
+  moveAttachScheduleCompleteCard,
+  moveScheduleCompleteCardDetail,
+  onClose
+}: Props) => {
   return (
     <Modal visible={visible} transparent animationType="none">
       <Pressable style={styles.container} onPress={onClose} />
 
       <View style={styles.wrapper}>
-        <Pressable style={styles.button}>
+        <Pressable style={styles.button} onPress={moveAttachScheduleCompleteCard}>
           <Text style={styles.buttonText}>완료 카드 붙히기</Text>
         </Pressable>
 
