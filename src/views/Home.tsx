@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useRef, useState} from 'react'
 import {
   StyleSheet,
   Platform,
@@ -38,7 +38,8 @@ import {
   statusBarColorState,
   bottomSafeAreaColorState,
   statusBarTextStyleState,
-  systemInfoState
+  systemInfoState,
+  widgetReloadableState
 } from '@/store/system'
 import {
   scheduleDateState,
@@ -48,15 +49,19 @@ import {
   editScheduleFormState
 } from '@/store/schedule'
 import {showEditMenuBottomSheetState, showDatePickerBottomSheetState} from '@/store/bottomSheet'
-import {widgetWithImageUpdatedState} from '@/store/widget'
+import {reloadWidgetWithImageState} from '@/store/widget'
 
 import {HomeScreenProps} from '@/types/navigation'
 import HomeFabExtensionModal from '@/components/modal/HomeFabExtensionModal'
+import {useUpdateWidgetWithImage} from '@/utils/hooks/useWidget'
 
-const Home = ({navigation, route}: HomeScreenProps) => {
+const Home = ({navigation}: HomeScreenProps) => {
+  const updateWidgetWithImage = useUpdateWidgetWithImage()
   const safeAreaInsets = useSafeAreaInsets()
 
-  const [isRendered, setIsRendered] = React.useState(false)
+  const timetableRef = useRef<Timetable>(null)
+
+  const [isReady, setIsReady] = useState(false)
   const [backPressCount, setBackPressCount] = React.useState(0)
   const [fabIndex, setFabIndex] = useState(0)
   const [showFabExtensionModal, setShowFabExtensionModal] = React.useState(false)
@@ -65,21 +70,21 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const [showDatePickerBottomSheet, setShowDatePickerBottomSheet] = useRecoilState(showDatePickerBottomSheetState)
   const [editScheduleForm, setEditScheduleForm] = useRecoilState(editScheduleFormState)
-
   const [scheduleDate, setScheduleDate] = useRecoilState(scheduleDateState)
+  const [reloadWidgetWithImage, setReloadWidgetWithImage] = useRecoilState(reloadWidgetWithImageState)
 
   const systemInfo = useRecoilValue(systemInfoState)
   const scheduleList = useRecoilValue(scheduleListState)
   const activeBackground = useRecoilValue(activeBackgroundState)
   const activeTheme = useRecoilValue(activeThemeState)
   const editTimetableTranslateY = useRecoilValue(editTimetableTranslateYState)
+  const widgetReloadable = useRecoilValue(widgetReloadableState)
 
   const setSafeAreaInsets = useSetRecoilState(safeAreaInsetsState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setStatusBarTextStyle = useSetRecoilState(statusBarTextStyleState)
   const setStatusBarColor = useSetRecoilState(statusBarColorState)
   const setBottomSafeAreaColor = useSetRecoilState(bottomSafeAreaColorState)
-  const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
 
   const resetEditScheduleForm = useResetRecoilState(editScheduleFormState)
   const resetDisableScheduleList = useResetRecoilState(disableScheduleListState)
@@ -217,16 +222,8 @@ const Home = ({navigation, route}: HomeScreenProps) => {
   }, [safeAreaInsets, setSafeAreaInsets])
 
   React.useEffect(() => {
-    const params = route.params
-
-    if (params?.scheduleUpdated) {
-      setWidgetWithImageUpdated(true)
-    }
-  }, [route.params, setWidgetWithImageUpdated])
-
-  React.useEffect(() => {
     if (isEdit) {
-      setIsRendered(false)
+      setIsReady(false)
       setIsInputMode(true)
       headerTranslateY.value = withTiming(-200)
     } else {
@@ -235,7 +232,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       timeTableTranslateY.value = editTimetableTranslateY * -1
       headerTranslateY.value = withTiming(0)
       timeTableTranslateY.value = withTiming(0, {duration: 300}, () => {
-        runOnJS(setIsRendered)(true)
+        runOnJS(setIsReady)(true)
       })
 
       resetDisableScheduleList()
@@ -267,6 +264,21 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       }
     }
   }, [systemInfo.ios_update_required, systemInfo.android_update_required])
+
+  React.useEffect(() => {
+    const updateWidget = async () => {
+      const imageUri = await timetableRef.current?.capture()
+
+      if (imageUri) {
+        await updateWidgetWithImage(scheduleList, imageUri)
+      }
+    }
+
+    if (isReady && widgetReloadable && reloadWidgetWithImage) {
+      updateWidget()
+      setReloadWidgetWithImage(false)
+    }
+  }, [isReady, widgetReloadable, reloadWidgetWithImage, scheduleList, updateWidgetWithImage, setReloadWidgetWithImage])
 
   return (
     <View style={homeStyles.container}>
@@ -307,7 +319,7 @@ const Home = ({navigation, route}: HomeScreenProps) => {
       </Animated.View>
 
       <Animated.View style={timetableStyle}>
-        <Timetable data={scheduleList} isRendered={isRendered} />
+        <Timetable ref={timetableRef} data={scheduleList} />
       </Animated.View>
 
       <ScheduleListBottomSheet

@@ -8,6 +8,7 @@ import {useSetRecoilState} from 'recoil'
 import {isInitState, toastState, widgetReloadableState} from '@/store/system'
 import {scheduleDateState} from '@/store/schedule'
 import {WidgetReloadScreenProps} from '@/types/navigation'
+import {reloadWidgetWithImageState} from '@/store/widget'
 
 const rewardAdUnitId = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-3765315237132279/5689289144'
 
@@ -20,6 +21,7 @@ const WidgetReload = ({navigation, route}: WidgetReloadScreenProps) => {
   } = useRewardedAd(rewardAdUnitId)
 
   const setWidgetReloadable = useSetRecoilState(widgetReloadableState)
+  const setReloadWidgetWithImage = useSetRecoilState(reloadWidgetWithImageState)
   const setIsInit = useSetRecoilState(isInitState)
   const setScheduleDate = useSetRecoilState(scheduleDateState)
   const setToast = useSetRecoilState(toastState)
@@ -46,14 +48,13 @@ const WidgetReload = ({navigation, route}: WidgetReloadScreenProps) => {
             style: 'cancel',
             onPress: () => {
               navigation.navigate('MainTabs', {
-                screen: 'Home',
-                params: {scheduleUpdated: false}
+                screen: 'Home'
               })
             }
           },
           {
             text: '새로고침',
-            onPress: async () => {
+            onPress: () => {
               rewardAdShow()
             }
           }
@@ -72,6 +73,7 @@ const WidgetReload = ({navigation, route}: WidgetReloadScreenProps) => {
         // 상태 업데이트
         await widgetApi.updateWidgetReloadable()
         setWidgetReloadable(true)
+        setReloadWidgetWithImage(true)
 
         setToast({visible: true, message: '위젯 새로고침 완료'})
         // 위젯 업데이트
@@ -81,7 +83,7 @@ const WidgetReload = ({navigation, route}: WidgetReloadScreenProps) => {
             {
               name: 'MainTabs',
               state: {
-                routes: [{name: 'Home', params: {scheduleUpdated: true}}]
+                routes: [{name: 'Home'}]
               }
             }
           ]
@@ -90,7 +92,7 @@ const WidgetReload = ({navigation, route}: WidgetReloadScreenProps) => {
 
       run()
     }
-  }, [isEarnedReward, setWidgetReloadable, setToast, navigation])
+  }, [isEarnedReward, setWidgetReloadable, setReloadWidgetWithImage, setToast, navigation])
 
   return (
     <View style={styles.container}>

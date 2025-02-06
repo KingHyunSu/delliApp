@@ -18,9 +18,8 @@ import {getScheduleBackgroundColor, getScheduleTextColor} from '../util'
 interface Props {
   data: Schedule[]
   colorThemeDetail: ColorThemeDetail
-  isRendered: boolean
 }
-const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
+const EditTimetable = ({data, colorThemeDetail}: Props) => {
   const [editScheduleForm, setEditScheduleForm] = useRecoilState(editScheduleFormState)
   const [disableScheduleList, setDisableScheduleList] = useRecoilState(disableScheduleListState)
   const [isInputMode, setIsInputMode] = useRecoilState(isInputModeState)
@@ -171,7 +170,6 @@ const EditTimetable = ({data, colorThemeDetail, isRendered}: Props) => {
 
           <EditScheduleText
             data={editScheduleForm}
-            isRendered={isRendered}
             centerX={timetableWrapperSize}
             centerY={timetableWrapperSize}
             radius={radius}

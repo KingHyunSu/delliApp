@@ -13,14 +13,13 @@ import {TEXT_ALIGN_TYPE, TEXT_DIRECTION_TYPE} from '@/utils/types'
 
 interface Props {
   data: EditScheduleForm
-  isRendered: boolean
   centerX: number
   centerY: number
   radius: number
   color: string
   onChangeSchedule: Function
 }
-const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, onChangeSchedule}: Props) => {
+const EditScheduleText = ({data, centerX, centerY, radius, color, onChangeSchedule}: Props) => {
   const gestureHorizontalSafeArea = 70
   const gestureVerticalSafeArea = 100
 
@@ -227,12 +226,12 @@ const EditScheduleText = ({data, isRendered, centerX, centerY, radius, color, on
   }, [isInputMode, textInputRef])
 
   React.useEffect(() => {
-    if (isRendered && isInputMode) {
+    if (isInputMode) {
       opacity.value = withTiming(1)
     } else {
       opacity.value = withTiming(0)
     }
-  }, [isRendered, isInputMode])
+  }, [isInputMode])
 
   React.useEffect(() => {
     setEditSchedulePosition({

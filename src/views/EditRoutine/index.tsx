@@ -134,8 +134,7 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
     setScheduleList(newScheduleList)
 
     navigation.navigate('MainTabs', {
-      screen: 'Home',
-      params: {scheduleUpdated: false}
+      screen: 'Home'
     })
   }, [
     targetSchedule,
@@ -177,8 +176,7 @@ const EditRoutine = ({navigation, route}: EditRoutineScreenProps) => {
       setScheduleList(newScheduleList)
 
       navigation.navigate('MainTabs', {
-        screen: 'Home',
-        params: {scheduleUpdated: false}
+        screen: 'Home'
       })
     }
   }, [isSuccessDeleteRoutine, editRoutineForm.schedule_routine_id, setScheduleList, navigation])

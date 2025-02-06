@@ -43,6 +43,7 @@ import {GetOverlapScheduleListResponse} from '@/apis/types/schedule'
 import {UpdateColorThemeRequest} from '@/apis/types/user'
 import {format} from 'date-fns'
 import {showColorSelectorBottomSheetState} from '@/store/bottomSheet'
+import {reloadWidgetWithImageState} from '@/store/widget'
 
 const EditSchedule = ({navigation}: EditScheduleProps) => {
   const queryClient = useQueryClient()
@@ -55,7 +56,6 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const editScheduleBottomSheetRef = useRef<EditScheduleBottomSheetRef>(null)
   const controlBarRef = useRef<ControlBarRef>(null)
 
-  const [isRendered, setIsRendered] = React.useState(false)
   const [isActiveControlMode, setIsActiveControlMode] = React.useState(false)
   const [overlapScheduleList, setOverlapScheduleList] = React.useState<GetOverlapScheduleListResponse[]>([])
   const [showOverlapScheduleListBottomSheet, setShowOverlapScheduleListBottomSheet] = React.useState(false)
@@ -90,6 +90,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   const setIsEdit = useSetRecoilState(isEditState)
   const setIsInputMode = useSetRecoilState(isInputModeState)
   const setEditScheduleTime = useSetRecoilState(editScheduleTimeState)
+  const setReloadWidgetWithImage = useSetRecoilState(reloadWidgetWithImageState)
 
   const timeTableTranslateY = useSharedValue(0)
   const timeInfoTranslateX = useSharedValue(-250)
@@ -286,9 +287,10 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       const formatDate = format(scheduleDate, 'yyyy-MM-dd')
       queryClient.setQueryData(['scheduleList', formatDate], newScheduleList)
 
+      setReloadWidgetWithImage(true)
+
       navigation.navigate('MainTabs', {
-        screen: 'Home',
-        params: {scheduleUpdated: true}
+        screen: 'Home'
       })
 
       setIsEdit(false)
@@ -306,6 +308,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       updateScheduleMutateAsync,
       navigation,
       setActiveColorThemeDetail,
+      setReloadWidgetWithImage,
       setIsEdit
     ]
   )
@@ -345,15 +348,12 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
   }, [editScheduleListStatus])
 
   React.useEffect(() => {
-    timeTableTranslateY.value = withTiming(-editTimetableTranslateY, {duration: 300}, () => {
-      runOnJS(setIsRendered)(true)
-    })
+    timeTableTranslateY.value = withTiming(-editTimetableTranslateY)
 
     return () => {
       timeTableTranslateY.value = 0
-      setIsRendered(false)
     }
-  }, [editTimetableTranslateY, setIsRendered])
+  }, [editTimetableTranslateY])
 
   React.useLayoutEffect(() => {
     setEditScheduleTime({
@@ -408,7 +408,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
       <Animated.View style={timetableStyle}>
         {background}
 
-        <EditTimetable data={scheduleList} colorThemeDetail={colorThemeDetail} isRendered={isRendered} />
+        <EditTimetable data={scheduleList} colorThemeDetail={colorThemeDetail} />
       </Animated.View>
 
       {/* control mode 닫기 overlay */}

@@ -145,8 +145,7 @@ const Setting = ({navigation}: SettingScreenProps) => {
           text: '확인',
           onPress: () => {
             navigation.navigate('MainTabs', {
-              screen: 'Home',
-              params: {scheduleUpdated: false}
+              screen: 'Home'
             })
           }
         }
@@ -195,8 +194,7 @@ const Setting = ({navigation}: SettingScreenProps) => {
           setShowLoginBottomSheet(false)
         } else {
           navigation.navigate('MainTabs', {
-            screen: 'Home',
-            params: {scheduleUpdated: false}
+            screen: 'Home'
           })
         }
 

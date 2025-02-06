@@ -50,8 +50,7 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
 
   const moveHome = useCallback(() => {
     navigation.navigate('MainTabs', {
-      screen: 'Home',
-      params: {scheduleUpdated: false}
+      screen: 'Home'
     })
   }, [navigation])
 
@@ -89,8 +88,7 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
       setActiveOutline(outline)
 
       navigation.navigate('MainTabs', {
-        screen: 'Home',
-        params: {scheduleUpdated: false}
+        screen: 'Home'
       })
     }
 
@@ -104,8 +102,7 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
           setActiveMenu(null)
         } else {
           navigation.navigate('MainTabs', {
-            screen: 'Home',
-            params: {scheduleUpdated: false}
+            screen: 'Home'
           })
         }
 
@@ -153,7 +150,7 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
       </AppBar>
 
       <View style={styles.timetableWrapper}>
-        <Timetable data={scheduleList} readonly isRendered={true} outline={outline} />
+        <Timetable data={scheduleList} readonly outline={outline} />
 
         <View style={styles.loadingWrapper}>
           <ActivityIndicator size="large" animating={isLoading} />

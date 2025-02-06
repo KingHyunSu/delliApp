@@ -10,7 +10,7 @@ import {activeThemeState} from '@/store/system'
 import {editScheduleFormState, scheduleDateState} from '@/store/schedule'
 import {editScheduleCompleteCacheListState, editScheduleCompleteFormState} from '@/store/scheduleComplete'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
-import {widgetWithImageUpdatedState} from '@/store/widget'
+import {reloadWidgetWithImageState} from '@/store/widget'
 
 import PlusIcon from '@/assets/icons/plus.svg'
 import EditIcon from '@/assets/icons/edit3.svg'
@@ -53,7 +53,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
 
   const resetEditScheduleForm = useResetRecoilState(editScheduleFormState)
   const resetEditScheduleCompleteForm = useResetRecoilState(editScheduleCompleteFormState)
-  const setWidgetWithImageUpdated = useSetRecoilState(widgetWithImageUpdatedState)
+  const setReloadWidgetWithImage = useSetRecoilState(reloadWidgetWithImageState)
 
   const snapPoints = useMemo(() => {
     return [400]
@@ -175,7 +175,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
               await queryClient.invalidateQueries({queryKey: ['scheduleList', formatDate]})
 
               if (Platform.OS === 'ios') {
-                setWidgetWithImageUpdated(true)
+                setReloadWidgetWithImage(true)
               }
 
               closeEditMenuBottomSheet()
@@ -194,7 +194,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
     queryClient,
     scheduleDate,
     closeEditMenuBottomSheet,
-    setWidgetWithImageUpdated
+    setReloadWidgetWithImage
   ])
 
   useEffect(() => {

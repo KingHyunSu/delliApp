@@ -71,8 +71,7 @@ const LoginBottomSheet = () => {
       await queryClient.invalidateQueries({queryKey: ['scheduleList', formatDate]})
 
       navigate('MainTabs', {
-        screen: 'Home',
-        params: {scheduleUpdated: false}
+        screen: 'Home'
       })
     },
     [closeBottomSheet, scheduleDate, queryClient, accessMutateAsync]

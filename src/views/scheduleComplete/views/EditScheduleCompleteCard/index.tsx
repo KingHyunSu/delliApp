@@ -249,8 +249,7 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
     setScheduleList(newScheduleList)
 
     navigation.navigate('MainTabs', {
-      screen: 'Home',
-      params: {scheduleUpdated: false}
+      screen: 'Home'
     })
   }, [
     route.params,

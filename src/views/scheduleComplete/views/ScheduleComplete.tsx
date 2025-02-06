@@ -19,7 +19,7 @@ const ScheduleComplete = ({navigation, route}: ScheduleCompleteScreenProps) => {
         {
           name: 'MainTabs',
           state: {
-            routes: [{name: 'Home', params: {scheduleUpdated: false}}]
+            routes: [{name: 'Home'}]
           }
         }
       ]

@@ -158,8 +158,7 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
     setScheduleList(newScheduleList)
 
     navigation.navigate('MainTabs', {
-      screen: 'Home',
-      params: {scheduleUpdated: false}
+      screen: 'Home'
     })
   }, [
     targetSchedule,
@@ -206,8 +205,7 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
       setScheduleList(newScheduleList)
 
       navigation.navigate('MainTabs', {
-        screen: 'Home',
-        params: {scheduleUpdated: false}
+        screen: 'Home'
       })
     }
   }, [isSuccessDeleteTodo, editTodoForm.schedule_todo_id, setScheduleList, navigation])

@@ -1,4 +1,4 @@
-import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
+import {ForwardedRef, forwardRef, useImperativeHandle, useRef, useState, useMemo, useCallback, useEffect} from 'react'
 import {StyleSheet, View} from 'react-native'
 import Svg, {Text} from 'react-native-svg'
 import {captureRef} from 'react-native-view-shot'
@@ -9,39 +9,36 @@ import SchedulePie from '../components/SchedulePie'
 import ScheduleText from '../components/ScheduleText'
 // import DefaultTimeAnchor from '@/assets/icons/default_time_anchor.svg'
 
-import {useSetRecoilState, useRecoilValue, useRecoilState} from 'recoil'
+import {useSetRecoilState, useRecoilValue} from 'recoil'
 import {
   activeOutlineState,
   activeColorThemeDetailState,
   timetableContainerHeightState,
-  timetableWrapperSizeState,
-  widgetReloadableState
+  timetableWrapperSizeState
 } from '@/store/system'
 import {editScheduleFormState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
-import {widgetWithImageUpdatedState} from '@/store/widget'
 
 import {getScheduleBackgroundColor, getScheduleTextColor} from '../util'
-import {useUpdateWidgetWithImage} from '@/utils/hooks/useWidget'
 
+type Timetable = {
+  capture: () => Promise<string>
+}
 interface Props {
   data: Schedule[]
   readonly?: boolean
-  isRendered: boolean
   outline?: ActiveOutline
 }
-const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
-  const updateWidgetWithImage = useUpdateWidgetWithImage()
-  const refs = useRef<View>(null)
-  const [currentTime, setCurrentTime] = useState(new Date())
+const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
+  const {data, readonly = false, outline} = props
 
-  const [widgetWithImageUpdated, setWidgetWithImageUpdated] = useRecoilState(widgetWithImageUpdatedState)
+  const timetableRef = useRef<View>(null)
+  const [currentTime, setCurrentTime] = useState(new Date())
 
   const timetableContainerHeight = useRecoilValue(timetableContainerHeightState)
   const timetableWrapperSize = useRecoilValue(timetableWrapperSizeState)
   const activeColorThemeDetail = useRecoilValue(activeColorThemeDetailState)
   const activeOutline = useRecoilValue(activeOutlineState)
-  const widgetReloadable = useRecoilValue(widgetReloadableState)
 
   const setEditScheduleForm = useSetRecoilState(editScheduleFormState)
   const setShowEditMenuBottomSheet = useSetRecoilState(showEditMenuBottomSheetState)
@@ -170,22 +167,6 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
   )
 
   useEffect(() => {
-    const updateWidget = async () => {
-      try {
-        const imageUri = await captureRef(refs)
-        await updateWidgetWithImage(data, imageUri)
-      } catch (e) {
-        console.error('eee', e)
-      }
-    }
-
-    if (isRendered && widgetReloadable && widgetWithImageUpdated) {
-      updateWidget()
-      setWidgetWithImageUpdated(false)
-    }
-  }, [widgetReloadable, widgetWithImageUpdated, updateWidgetWithImage, data, isRendered, setWidgetWithImageUpdated])
-
-  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date())
     }, 1000 * 60)
@@ -203,6 +184,13 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
     return (currentMinutes / totalMinutes) * 100
   }, [currentTime])
 
+  useImperativeHandle(ref, () => {
+    return {
+      async capture() {
+        return await captureRef(timetableRef)
+      }
+    }
+  })
   // const arcLengthForOneDegree = useMemo(() => {
   //   return (2 * Math.PI * radius) / 360
   // }, [radius])
@@ -251,7 +239,7 @@ const Timetable = ({data, readonly = false, isRendered, outline}: Props) => {
       <View style={wrapperStyle}>
         {outlineComponent}
 
-        <View ref={refs}>
+        <View ref={timetableRef}>
           <Svg width={radius * 2} height={radius * 2}>
             <Background x={radius} y={radius} radius={radius} />
 
@@ -313,5 +301,7 @@ const styles = StyleSheet.create({
     position: 'absolute'
   }
 })
+
+const Timetable = forwardRef(TimetableComponent)
 
 export default Timetable

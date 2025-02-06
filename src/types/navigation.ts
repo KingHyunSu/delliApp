@@ -35,7 +35,7 @@ export type StackNavigator = {
   CategoryStats: undefined
 }
 export type BottomTabNavigator = {
-  Home: {scheduleUpdated: boolean}
+  Home: undefined
   StoreList: undefined
   Setting: undefined
 }
