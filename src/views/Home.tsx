@@ -286,7 +286,7 @@ const Home = ({navigation}: HomeScreenProps) => {
 
       {/* home header */}
       <Animated.View style={headerStyle}>
-        <AppBar color="transparent">
+        <AppBar>
           {/* [TODO] 2023-10-28 카테고리 기능 보완하여 오픈 */}
           {/* {activeTimeTableCategory.timetable_category_id ? (
             <Pressable

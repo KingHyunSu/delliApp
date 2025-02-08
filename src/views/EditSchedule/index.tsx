@@ -397,7 +397,7 @@ const EditSchedule = ({navigation}: EditScheduleProps) => {
 
   return (
     <View style={[styles.container, {backgroundColor: activeBackground.background_color}]}>
-      <AppBar color="transparent">
+      <AppBar>
         <Pressable style={styles.appBarRightButton} onPress={closeEditScheduleBottomSheet}>
           <CancelIcon stroke={activeBackground.accent_color} strokeWidth={3} />
         </Pressable>

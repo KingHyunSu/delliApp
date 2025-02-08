@@ -1,4 +1,4 @@
-import {ReactNode, useMemo, useCallback} from 'react'
+import {ReactNode, useCallback} from 'react'
 import {Pressable, StyleSheet, Text, View} from 'react-native'
 import {navigationRef} from '@/utils/navigation'
 import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
@@ -6,31 +6,25 @@ import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 interface Props {
   title?: string
   backPress?: boolean
+  backgroundColor?: string
   color?: string
-  backPressIconColor?: string
   children?: ReactNode
 }
-const AppBar = ({title, color, backPress = false, backPressIconColor = '#424242', children}: Props) => {
-  const containerStyle = useMemo(() => {
-    const backgroundColor = color ? color : '#ffffff'
-
-    return [styles.container, {backgroundColor}]
-  }, [color])
-
+const AppBar = ({title, backgroundColor = 'transparent', color = '#424242', backPress = false, children}: Props) => {
   const goBack = useCallback(() => {
     navigationRef.current?.goBack()
   }, [])
 
   return (
-    <View style={containerStyle}>
+    <View style={[styles.container, {backgroundColor}]}>
       {backPress && (
         <Pressable style={styles.backButton} onPress={goBack}>
-          <ArrowLeftIcon width={28} height={28} stroke={backPressIconColor} strokeWidth={3} />
+          <ArrowLeftIcon width={28} height={28} stroke={color} strokeWidth={3} />
         </Pressable>
       )}
 
       {title && (
-        <Text numberOfLines={1} style={styles.title}>
+        <Text numberOfLines={1} style={[styles.title, {color}]}>
           {title}
         </Text>
       )}

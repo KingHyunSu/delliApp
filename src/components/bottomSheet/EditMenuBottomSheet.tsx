@@ -124,8 +124,21 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
     setIsShowScheduleCompleteCardMenu(false)
 
     closeEditMenuBottomSheet()
-    navigate('AttachScheduleCompleteCard')
-  }, [])
+    navigate('AttachScheduleCompleteCard', {
+      schedule_complete_id: editScheduleForm.schedule_complete_id,
+      schedule_complete_card_x: editScheduleForm.schedule_complete_card_x,
+      schedule_complete_card_y: editScheduleForm.schedule_complete_card_y,
+      schedule_complete_card_path: editScheduleForm.schedule_complete_card_path,
+      schedule_id: editScheduleForm.schedule_id
+    })
+  }, [
+    closeEditMenuBottomSheet,
+    editScheduleForm.schedule_complete_id,
+    editScheduleForm.schedule_complete_card_x,
+    editScheduleForm.schedule_complete_card_y,
+    editScheduleForm.schedule_complete_card_path,
+    editScheduleForm.schedule_id
+  ])
 
   const moveScheduleCompleteCardDetail = useCallback(() => {
     if (editScheduleCompleteForm) {

@@ -183,8 +183,8 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
           return {
             ...item,
             schedule_complete_id: route.params.schedule_complete_id,
-            schedule_complete_path: newScheduleComplete.timetable_path,
-            schedule_complete_memo: newScheduleComplete.memo
+            schedule_complete_memo: newScheduleComplete.memo,
+            schedule_complete_card_path: newScheduleComplete.timetable_path
           } as Schedule
         }
         return item

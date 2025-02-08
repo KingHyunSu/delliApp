@@ -11,7 +11,7 @@ interface Props {
   startTime: number
   endTime: number
   color: string
-  opacity?: number
+  borderColor?: string
   isEdit?: Boolean
   disableScheduleList?: ExistSchedule[]
   onClick?: (value: Schedule) => void
@@ -27,7 +27,7 @@ const SchedulePie = ({
   startTime = -1,
   endTime = -1,
   color,
-  opacity,
+  borderColor = '#f5f6f8',
   isEdit = false,
   disableScheduleList,
   onClick
@@ -73,7 +73,14 @@ const SchedulePie = ({
   }
 
   return (
-    <Path d={path} fill={backgroundColor} fillOpacity={1} strokeWidth={0.5} stroke={'#f5f6f8'} onPress={handleClick} />
+    <Path
+      d={path}
+      fill={backgroundColor}
+      fillOpacity={1}
+      strokeWidth={0.5}
+      stroke={borderColor}
+      onPress={handleClick}
+    />
   )
 }
 

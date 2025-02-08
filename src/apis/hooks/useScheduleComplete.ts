@@ -5,7 +5,8 @@ import {
   GetScheduleCompleteDetailRequest,
   GetScheduleCompleteCardListRequest,
   SetScheduleCompleteRequest,
-  UpdateScheduleCompleteRequest
+  UpdateScheduleCompleteRequest,
+  UpdateAttachScheduleCompleteCardRequest
 } from '@/apis/types/scheduleComplete'
 import * as scheduleCompleteApi from '@/apis/server/scheduleComplete'
 
@@ -58,6 +59,16 @@ export const useUpdateScheduleComplete = () => {
   return useMutation({
     mutationFn: async (params: UpdateScheduleCompleteRequest) => {
       const response = await scheduleCompleteApi.updateScheduleComplete(params)
+
+      return response.data
+    }
+  })
+}
+
+export const useUpdateAttachScheduleCompleteCard = () => {
+  return useMutation({
+    mutationFn: async (params: UpdateAttachScheduleCompleteCardRequest) => {
+      const response = await scheduleCompleteApi.updateAttachScheduleCompleteCard(params)
 
       return response.data
     }

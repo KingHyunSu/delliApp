@@ -75,7 +75,7 @@ const Leave = () => {
 
   return (
     <View style={[styles.container, {backgroundColor: activeTheme.color1}]}>
-      <AppBar backPress color="transparent" backPressIconColor={activeTheme.color3} />
+      <AppBar backPress color={activeTheme.color3} />
 
       {isLoading && (
         <View style={styles.loadingWrapper}>

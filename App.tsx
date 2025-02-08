@@ -204,6 +204,11 @@ function App(): JSX.Element {
       case 'Leave':
         _bottomSafeAreaColor = activeTheme.color1
         break
+      case 'AttachScheduleCompleteCard':
+        _statusBarTextStyle = activeBackground.display_mode === 1 ? 'dark-content' : 'light-content'
+        _statusBarColor = null
+        _bottomSafeAreaColor = activeBackground.background_color
+        break
       // case 'EditSchedule':
       // case 'EditGoal':
       // case 'EditRoutine':
@@ -466,7 +471,11 @@ function App(): JSX.Element {
                       />
                       <Stack.Screen name="ScheduleCompleteCardDetail" component={ScheduleCompleteCardDetailScreen} />
                       <Stack.Screen name="EditScheduleCompleteCard" component={EditScheduleCompleteCardScreen} />
-                      <Stack.Screen name="AttachScheduleCompleteCard" component={AttachScheduleCompleteCardScreen} />
+                      <Stack.Screen
+                        name="AttachScheduleCompleteCard"
+                        component={AttachScheduleCompleteCardScreen}
+                        options={{animation: 'none', gestureEnabled: false}}
+                      />
 
                       <Stack.Screen name="StoreDetail" component={StoreDetailScreen} />
 

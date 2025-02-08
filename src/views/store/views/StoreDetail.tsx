@@ -21,7 +21,7 @@ const StoreDetail = ({route}: StoreDetailScreenProps) => {
 
   return (
     <View style={[styles.container]}>
-      <AppBar backPress color={activeTheme.color1} backPressIconColor={activeTheme.color3} />
+      <AppBar backPress backgroundColor={activeTheme.color1} color={activeTheme.color3} />
 
       {contentsComponent}
 

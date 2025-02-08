@@ -1,5 +1,5 @@
 import {ForwardedRef, forwardRef, useImperativeHandle, useRef, useState, useMemo, useCallback, useEffect} from 'react'
-import {StyleSheet, View} from 'react-native'
+import {Image, StyleSheet, View} from 'react-native'
 import Svg, {Text} from 'react-native-svg'
 import {captureRef} from 'react-native-view-shot'
 
@@ -28,9 +28,11 @@ interface Props {
   data: Schedule[]
   readonly?: boolean
   outline?: ActiveOutline
+  editScheduleCompleteCardId?: number
+  activeSchedule?: Schedule
 }
 const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
-  const {data, readonly = false, outline} = props
+  const {data, readonly = false, outline, editScheduleCompleteCardId, activeSchedule} = props
 
   const timetableRef = useRef<View>(null)
   const [currentTime, setCurrentTime] = useState(new Date())
@@ -57,85 +59,6 @@ const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
       }
     ]
   }, [timetableWrapperSize])
-
-  // TODO - 겹치는 일정만 뽑아내는 코드 (활용할 수 있을거 같아서 임시 주석)
-  // const overlapScheduleList =  useMemo(() => {
-  //   const _scheduleList = [...data] // update date로 정렬 필요
-  //   const result: Schedule[] = []
-  //
-  //   const getExistOverlapSchedule = (item: Schedule) => result.some(sItem => item.schedule_id === sItem.schedule_id)
-  //
-  //   const setOverlapSchedule = (item: Schedule) => {
-  //     const existOverlapSchedule = getExistOverlapSchedule(item)
-  //
-  //     if (!existOverlapSchedule) {
-  //       const targetSubIndex = _scheduleList.findIndex(sItem => item.schedule_id === sItem.schedule_id)
-  //
-  //       _scheduleList.splice(targetSubIndex, 1)
-  //       result.push(item)
-  //     }
-  //   }
-  //
-  //   for (let i = 0; i < data.length; i++) {
-  //     const item = data[i]
-  //
-  //     const startTime = item.start_time
-  //     const endTime = item.end_time
-  //
-  //     for (let j = 0; j < _scheduleList.length; j++) {
-  //       const sItem = _scheduleList[j]
-  //
-  //       if (item.schedule_id === sItem.schedule_id) {
-  //         continue
-  //       }
-  //
-  //       const sStartTime = sItem.start_time
-  //       const sEndTime = sItem.end_time
-  //
-  //       if (startTime > endTime) {
-  //         if (sStartTime <= startTime && sEndTime <= endTime) {
-  //           setOverlapSchedule(sItem)
-  //           continue
-  //         }
-  //       }
-  //
-  //       if (sStartTime > sEndTime) {
-  //         if (sStartTime < startTime || sEndTime > startTime || sStartTime < endTime || sEndTime > endTime) {
-  //           setOverlapSchedule(sItem)
-  //           continue
-  //         }
-  //
-  //         if (startTime > endTime) {
-  //           if (sStartTime >= startTime && sEndTime <= endTime) {
-  //             setOverlapSchedule(sItem)
-  //             continue
-  //           }
-  //         }
-  //       }
-  //
-  //       if (sStartTime < sEndTime) {
-  //         if (
-  //           (sStartTime < startTime && sEndTime > startTime) ||
-  //           (sStartTime < endTime && sEndTime > endTime) ||
-  //           (sStartTime >= startTime && sEndTime <= endTime)
-  //         ) {
-  //           setOverlapSchedule(sItem)
-  //         }
-  //       }
-  //     }
-  //
-  //     const targetIndex = _scheduleList.findIndex(sItem => item.schedule_id === sItem.schedule_id)
-  //     _scheduleList.splice(targetIndex, 1)
-  //   }
-  //
-  //   return result.reverse()
-  // }, [data])
-  //
-  // const scheduleList =  useMemo(() => {
-  //   return data.filter(item => {
-  //     return !overlapScheduleList.some(sItem => item.schedule_id === sItem.schedule_id)
-  //   })
-  // }, [data, overlapScheduleList])
 
   const scheduleList = useMemo(() => {
     return [...data].sort((a, b) => {
@@ -191,6 +114,7 @@ const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
       }
     }
   })
+
   // const arcLengthForOneDegree = useMemo(() => {
   //   return (2 * Math.PI * radius) / 360
   // }, [radius])
@@ -222,6 +146,36 @@ const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
     )
   }, [outline, activeOutline, radius, currentTimePercent])
 
+  const scheduleCompleteCardComponent = useMemo(() => {
+    const cardWidth = 35
+    const cardHeight = 35 * 1.25
+    const domain = process.env.CDN_URL
+
+    return data.map((item, index) => {
+      if (
+        editScheduleCompleteCardId === item.schedule_complete_id ||
+        !item.schedule_complete_card_path ||
+        item.schedule_complete_card_x === null ||
+        item.schedule_complete_card_x === undefined ||
+        item.schedule_complete_card_y === null ||
+        item.schedule_complete_card_y === undefined
+      ) {
+        return null
+      }
+
+      const imageUrl = domain + '/' + item.schedule_complete_card_path
+      const left = Math.round(radius + (radius / 100) * item.schedule_complete_card_x)
+      const top = Math.round(radius - (radius / 100) * item.schedule_complete_card_y)
+
+      return (
+        <View key={index} style={{position: 'absolute', left, top}}>
+          <Image source={{uri: imageUrl}} style={{width: cardWidth, height: cardHeight}} />
+          <Image source={require('@/assets/images/tape.png')} style={styles.tape} />
+        </View>
+      )
+    })
+  }, [editScheduleCompleteCardId, data, radius])
+
   const emptyTextComponent = useMemo(() => {
     if (data.length > 0) {
       return <></>
@@ -240,6 +194,7 @@ const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
         {outlineComponent}
 
         <View ref={timetableRef}>
+          {/* background */}
           <Svg width={radius * 2} height={radius * 2}>
             <Background x={radius} y={radius} radius={radius} />
 
@@ -263,6 +218,37 @@ const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
             {emptyTextComponent}
           </Svg>
 
+          {activeSchedule && (
+            <View style={{position: 'absolute'}}>
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  width: radius * 2,
+                  height: radius * 2,
+                  borderRadius: radius,
+                  backgroundColor: '#000000',
+                  opacity: 0.5
+                }}
+              />
+
+              <Svg width={radius * 2} height={radius * 2}>
+                <SchedulePie
+                  data={activeSchedule}
+                  x={radius}
+                  y={radius}
+                  radius={radius}
+                  startTime={activeSchedule.start_time}
+                  endTime={activeSchedule.end_time}
+                  color={getScheduleBackgroundColor(activeSchedule, data, activeColorThemeDetail)}
+                  borderColor={getScheduleBackgroundColor(activeSchedule, data, activeColorThemeDetail)}
+                  isEdit={false}
+                />
+              </Svg>
+            </View>
+          )}
+
+          {/* text */}
           {scheduleList.map((item, index) => {
             return (
               <ScheduleText
@@ -276,6 +262,8 @@ const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
               />
             )
           })}
+
+          {scheduleCompleteCardComponent}
         </View>
 
         {/*<Svg width={timetableWrapperSize * 2} height={timetableWrapperSize * 2} style={styles.currentTimeAnchorIcon}>*/}
@@ -299,6 +287,13 @@ const styles = StyleSheet.create({
   },
   currentTimeAnchorIcon: {
     position: 'absolute'
+  },
+  tape: {
+    width: 15,
+    height: 15,
+    position: 'absolute',
+    top: -8,
+    left: 10
   }
 })
 

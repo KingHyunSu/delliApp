@@ -139,7 +139,7 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
     <View style={styles.container}>
       {backgroundComponent}
 
-      <AppBar color="transparent">
+      <AppBar>
         <Pressable style={styles.headerButton} onPress={moveHome}>
           <Text style={[styles.headerButtonText, {color: background.accent_color}]}>취소</Text>
         </Pressable>

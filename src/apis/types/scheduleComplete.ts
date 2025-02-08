@@ -63,6 +63,15 @@ export interface UpdateScheduleCompleteResponse {
   memo: string
 }
 
+export interface UpdateAttachScheduleCompleteCardRequest {
+  schedule_complete_id: number
+  x: number
+  y: number
+}
+export interface UpdateAttachScheduleCompleteCardResponse {
+  result: boolean
+}
+
 export interface DeleteScheduleCompleteCardRequest {
   schedule_complete_id: number
 }

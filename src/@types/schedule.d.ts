@@ -31,7 +31,9 @@ declare global {
     text_color: string
 
     schedule_complete_id?: number
-    schedule_complete_path?: string
+    schedule_complete_card_x?: number
+    schedule_complete_card_y?: number
+    schedule_complete_card_path?: string
     schedule_complete_memo?: string
   }
 

@@ -229,7 +229,7 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
 
   return (
     <Pressable style={[styles.container, {backgroundColor: activeTheme.color1}]} onPress={closeKeyboard}>
-      <AppBar backPress color="transparent" backPressIconColor={activeTheme.color7}>
+      <AppBar backPress color={activeTheme.color7}>
         {isUpdate && (
           <Pressable style={styles.deleteButton} onPress={handleDelete}>
             <DeleteIcon width={24} height={24} fill={activeTheme.color7} />
