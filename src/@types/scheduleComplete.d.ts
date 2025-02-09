@@ -7,10 +7,11 @@ declare global {
     start_time: number
     end_time: number
     file_name: string | null
-    memo: string | null
+    record: string | null
     complete_count: number
     schedule_id: number
     main_path: string | null
     thumb_path: string | null
+    total: number
   }
 }

@@ -1,32 +1,39 @@
 import {useRef, useCallback, useMemo} from 'react'
-import {ListRenderItem, StyleSheet, FlatList, View, Text, Pressable} from 'react-native'
-import BottomSheet, {BottomSheetHandleProps} from '@gorhom/bottom-sheet'
+import {ListRenderItem, StyleSheet, View, Text, Pressable} from 'react-native'
+import BottomSheet, {BottomSheetFlatList, BottomSheetHandleProps} from '@gorhom/bottom-sheet'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
 import {useRecoilValue} from 'recoil'
-import {activeThemeState, windowDimensionsState} from '@/store/system'
-import {GetScheduleCompleteCardListItem, GetScheduleCompleteCardListResponse} from '@/apis/types/scheduleComplete'
+import {activeThemeState, displayModeState, windowDimensionsState} from '@/store/system'
+import {GetScheduleCompleteCardListResponse} from '@/apis/types/scheduleComplete'
 
 interface Props {
-  value: GetScheduleCompleteCardListResponse
-  onPress: (id: number, completeCount: number) => void
+  value: GetScheduleCompleteCardListResponse[]
+  total: number
+  onPress: (item: GetScheduleCompleteCardListResponse, completeCount: number) => void
   onPaging: () => void
 }
-const ScheduleCardListBottomSheet = ({value, onPress, onPaging}: Props) => {
+const ScheduleCardListBottomSheet = ({value, total, onPress, onPaging}: Props) => {
   const domain = process.env.CDN_URL
 
   const bottomSheetRef = useRef<BottomSheet>(null)
 
   const windowDimensions = useRecoilValue(windowDimensionsState)
   const activeTheme = useRecoilValue(activeThemeState)
+  const displayMode = useRecoilValue(displayModeState)
+
+  const wrapperStyle = useMemo(() => {
+    const backgroundColor = displayMode === 1 ? '#e0e0e0' : '#494949'
+    return [styles.wrapper, {backgroundColor}]
+  }, [displayMode])
 
   const itemWidth = useMemo(() => {
     return (windowDimensions.width - 20) / 3
   }, [windowDimensions.width])
 
   const handlePress = useCallback(
-    (item: GetScheduleCompleteCardListItem, index: number) => {
-      onPress(item.schedule_complete_id, index)
+    (item: GetScheduleCompleteCardListResponse, index: number) => {
+      onPress(item, index)
       bottomSheetRef.current?.collapse()
     },
     [onPress]
@@ -43,9 +50,9 @@ const ScheduleCardListBottomSheet = ({value, onPress, onPaging}: Props) => {
     )
   }, [])
 
-  const getRenderItem: ListRenderItem<GetScheduleCompleteCardListItem> = useCallback(
+  const getRenderItem: ListRenderItem<GetScheduleCompleteCardListResponse> = useCallback(
     ({item, index}) => {
-      const url = domain + '/' + item.path
+      const url = domain + '/' + item.thumb_path
       const completeCount = index + 1
 
       return (
@@ -54,7 +61,7 @@ const ScheduleCardListBottomSheet = ({value, onPress, onPaging}: Props) => {
             <ScheduleCompleteCard
               type="thumb"
               imageUrl={url}
-              memo={item.memo}
+              record={item.record}
               completeCount={completeCount}
               shadowColor="#efefef"
               shadowDistance={5}
@@ -76,18 +83,23 @@ const ScheduleCardListBottomSheet = ({value, onPress, onPaging}: Props) => {
       handleComponent={getBottomSheetHandler}>
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.title}>완료 카드</Text>
-          <Text style={styles.countText}>총 {value.total}개</Text>
+          <Text style={[styles.title, {color: activeTheme.color3}]}>완료 카드</Text>
+          <Text style={[styles.countText, {color: activeTheme.color3}]}>총 {total}개</Text>
         </View>
 
-        <FlatList
-          data={value.schedule_complete_list}
-          renderItem={getRenderItem}
-          numColumns={3}
-          bounces={false}
-          columnWrapperStyle={{width: itemWidth}}
-          contentContainerStyle={styles.listContainer}
-        />
+        <View style={wrapperStyle}>
+          <BottomSheetFlatList
+            data={value}
+            renderItem={getRenderItem}
+            numColumns={3}
+            bounces={false}
+            showsVerticalScrollIndicator={false}
+            columnWrapperStyle={{width: itemWidth}}
+            contentContainerStyle={styles.listContainer}
+            onEndReached={onPaging}
+            onEndReachedThreshold={0.5}
+          />
+        </View>
       </View>
     </BottomSheet>
   )
@@ -95,6 +107,9 @@ const ScheduleCardListBottomSheet = ({value, onPress, onPaging}: Props) => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1
+  },
+  wrapper: {
     flex: 1
   },
   header: {
@@ -115,8 +130,6 @@ const styles = StyleSheet.create({
     color: '#555'
   },
   listContainer: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
     paddingVertical: 20,
     paddingHorizontal: 10
   },

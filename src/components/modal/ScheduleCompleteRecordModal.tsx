@@ -1,10 +1,10 @@
 import {useRef, useState, useMemo, useEffect, useCallback} from 'react'
 import {Keyboard, StyleSheet, Modal, View, Pressable, Text, TextInput} from 'react-native'
-import Animated, {useSharedValue, useAnimatedStyle, withTiming} from 'react-native-reanimated'
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
+import Animated, {useSharedValue, useAnimatedStyle, withTiming} from 'react-native-reanimated'
 import CancelIcon from '@/assets/icons/cancle.svg'
 import {useRecoilValue} from 'recoil'
-import {safeAreaInsetsState, windowDimensionsState} from '@/store/system'
+import {activeThemeState, safeAreaInsetsState, windowDimensionsState} from '@/store/system'
 
 interface Props {
   visible: boolean
@@ -21,15 +21,14 @@ const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
 
   const windowDimensions = useRecoilValue(windowDimensionsState)
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
+  const activeTheme = useRecoilValue(activeThemeState)
 
   const width = useSharedValue(0)
   const height = useSharedValue(0)
-  const paddingTop = useSharedValue(30)
 
   const wrapperAnimatedStyle = useAnimatedStyle(() => ({
     width: width.value,
-    height: height.value,
-    paddingTop: paddingTop.value
+    height: height.value
   }))
 
   const isEditable = useMemo(() => {
@@ -61,33 +60,33 @@ const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
 
       width.value = withTiming(windowDimensions.width)
       height.value = withTiming(windowDimensions.height)
-      paddingTop.value = withTiming(safeAreaInsets.top)
     } else {
       Keyboard.dismiss()
 
       width.value = withTiming(windowDimensions.width - 32)
       height.value = withTiming(windowDimensions.height * 0.5)
-      paddingTop.value = withTiming(20)
     }
-  }, [isInputMode, windowDimensions.width, windowDimensions.height, safeAreaInsets.top])
+  }, [isInputMode, windowDimensions.width, windowDimensions.height])
 
   return (
     <Modal visible={visible} transparent>
       <View style={styles.overlay} />
 
       <View style={styles.container}>
-        <Animated.View style={[styles.wrapper, wrapperAnimatedStyle]}>
+        <Animated.View style={[styles.wrapper, wrapperAnimatedStyle, {backgroundColor: activeTheme.color1}]}>
           {/* app bar */}
           {isInputMode && (
-            <Pressable style={styles.appBarWrapper} onPress={Keyboard.dismiss}>
-              <Pressable onPress={handleClose}>
-                <CancelIcon stroke="#424242" strokeWidth={3} />
-              </Pressable>
+            <Animated.View style={{paddingTop: safeAreaInsets.top}}>
+              <Pressable style={styles.appBarWrapper} onPress={Keyboard.dismiss}>
+                <Pressable style={styles.closeButton} onPress={handleClose}>
+                  <CancelIcon stroke={activeTheme.color3} strokeWidth={3} />
+                </Pressable>
 
-              <Pressable style={styles.saveButton} onPress={handleSave}>
-                <Text style={styles.saveButtonText}>저장</Text>
+                <Pressable style={styles.saveButton} onPress={handleSave}>
+                  <Text style={styles.saveButtonText}>저장</Text>
+                </Pressable>
               </Pressable>
-            </Pressable>
+            </Animated.View>
           )}
 
           <Pressable style={styles.titleWrapper} onPress={Keyboard.dismiss}>
@@ -107,7 +106,7 @@ const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
               multiline
               editable={isEditable}
               scrollEnabled={false}
-              placeholder="일정명을 입력해주세요"
+              placeholder="기록을 입력해 주세요"
               placeholderTextColor="#c3c5cc"
               onChangeText={_setIsValue}
               onPress={pressTextInput}
@@ -143,20 +142,24 @@ const styles = StyleSheet.create({
   wrapper: {
     width: '100%',
     height: '50%',
-    backgroundColor: '#ffffff',
-    paddingTop: 30,
-    paddingBottom: 20
-    // gap: 20
+    backgroundColor: '#ffffff'
   },
   appBarWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 16,
     height: 52
   },
+  closeButton: {
+    width: 52,
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+    paddingLeft: 16
+  },
   titleWrapper: {
-    paddingBottom: 20
+    backgroundColor: '#ffffff',
+    paddingVertical: 20
   },
   title: {
     fontFamily: 'Pretendard-SemiBold',
@@ -165,7 +168,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20
   },
   textInputWrapper: {
-    flex: 1
+    flex: 1,
+    backgroundColor: '#ffffff',
+    paddingBottom: 20
   },
   textInput: {
     fontSize: 16,
@@ -173,9 +178,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20
   },
   saveButton: {
-    paddingLeft: 30,
+    width: 52,
     height: '100%',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    paddingRight: 16
   },
   saveButtonText: {
     fontFamily: 'Pretendard-SemiBold',

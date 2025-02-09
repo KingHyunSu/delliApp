@@ -6,7 +6,7 @@ import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
 
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
-import {activeThemeState} from '@/store/system'
+import {activeThemeState, displayModeState} from '@/store/system'
 import {editScheduleFormState, scheduleDateState} from '@/store/schedule'
 import {editScheduleCompleteCacheListState, editScheduleCompleteFormState} from '@/store/scheduleComplete'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
@@ -25,6 +25,7 @@ import {navigate} from '@/utils/navigation'
 import {format} from 'date-fns'
 import {useGetScheduleCompleteDetail} from '@/apis/hooks/useScheduleComplete'
 import ScheduleCompleteCardMenuModal from '@/components/modal/ScheduleCompleteCardMenuModal'
+import {Shadow} from 'react-native-shadow-2'
 
 interface Props {
   moveEditSchedule: Function
@@ -50,6 +51,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const editScheduleForm = useRecoilValue(editScheduleFormState)
   const scheduleDate = useRecoilValue(scheduleDateState)
   const activeTheme = useRecoilValue(activeThemeState)
+  const displayMode = useRecoilValue(displayModeState)
 
   const resetEditScheduleForm = useResetRecoilState(editScheduleFormState)
   const resetEditScheduleCompleteForm = useResetRecoilState(editScheduleCompleteFormState)
@@ -311,12 +313,20 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
             <View style={styles.completeCardWrapper}>
               {imageUrl ? (
                 <Pressable onPress={showScheduleCompleteCardMenu}>
+                  <Shadow
+                    style={{width: 40, height: 40, borderRadius: 15}}
+                    containerStyle={{position: 'absolute', top: 7, left: 3}}
+                    startColor="#e9e9e9"
+                    distance={25}
+                    disabled={displayMode === 2}
+                  />
+
                   <ScheduleCompleteCard
                     type="timetable"
                     imageUrl={imageUrl}
-                    memo={editScheduleCompleteForm.memo}
-                    shadowColor="#f5f5f5"
-                    shadowDistance={5}
+                    record={editScheduleCompleteForm.record}
+                    shadowColor="#efefef"
+                    shadowDistance={3}
                   />
                 </Pressable>
               ) : (

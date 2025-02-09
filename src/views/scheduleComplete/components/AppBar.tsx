@@ -1,4 +1,4 @@
-import {useState, useCallback} from 'react'
+import {useState, useMemo, useCallback} from 'react'
 import {StyleSheet, Pressable, Text, View} from 'react-native'
 import ScheduleCompleteCardDetailMenuModal from '@/components/modal/ScheduleCompleteCardDetailMenuModal'
 
@@ -11,13 +11,14 @@ import {useRecoilValue} from 'recoil'
 import {activeThemeState} from '@/store/system'
 
 interface Props {
+  type: 'detail' | 'edit'
   title: string
   completeCount: number
-  detailScreen?: boolean
+  onSubmit?: () => void
   onEdit?: () => void
   onDelete?: () => void
 }
-const AppBar = ({title, completeCount, detailScreen, onEdit, onDelete}: Props) => {
+const AppBar = ({type, title, completeCount, onSubmit, onEdit, onDelete}: Props) => {
   const [isShowModal, setIsShowModal] = useState(false)
   const activeTheme = useRecoilValue(activeThemeState)
 
@@ -39,10 +40,29 @@ const AppBar = ({title, completeCount, detailScreen, onEdit, onDelete}: Props) =
     }
   }, [onDelete])
 
+  const rightButtonComponent = useMemo(() => {
+    switch (type) {
+      case 'detail':
+        return (
+          <Pressable style={rightButtonStyle} onPress={() => setIsShowModal(true)}>
+            <MoreIcon fill={activeTheme.color3} />
+          </Pressable>
+        )
+      case 'edit':
+        return (
+          <Pressable style={rightButtonStyle} onPress={onSubmit}>
+            <Text style={styles.buttonText}>완료</Text>
+          </Pressable>
+        )
+      default:
+        return <View style={rightButtonStyle} />
+    }
+  }, [type, onSubmit, activeTheme.color3])
+
   return (
     <View style={[styles.container, {backgroundColor: activeTheme.color1}]}>
-      <Pressable style={styles.button} onPress={goBack}>
-        {detailScreen ? (
+      <Pressable style={leftButtonStyle} onPress={goBack}>
+        {type === 'detail' ? (
           <LeftArrowIcon stroke={activeTheme.color3} strokeWidth={3} />
         ) : (
           <CancelIcon stroke={activeTheme.color3} strokeWidth={3} />
@@ -57,13 +77,7 @@ const AppBar = ({title, completeCount, detailScreen, onEdit, onDelete}: Props) =
         <Text style={[styles.subTitle, {color: activeTheme.color3}]}>{completeCount}번째 완료</Text>
       </View>
 
-      {detailScreen ? (
-        <Pressable style={styles.button} onPress={() => setIsShowModal(true)}>
-          <MoreIcon fill={activeTheme.color3} />
-        </Pressable>
-      ) : (
-        <View style={styles.button} />
-      )}
+      {rightButtonComponent}
 
       {onEdit && onDelete && (
         <ScheduleCompleteCardDetailMenuModal
@@ -90,12 +104,6 @@ const styles = StyleSheet.create({
     gap: 3,
     paddingHorizontal: 5
   },
-  button: {
-    width: 48,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
   title: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 16
@@ -103,7 +111,25 @@ const styles = StyleSheet.create({
   subTitle: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 12
+  },
+  button: {
+    width: 48,
+    height: 48,
+    justifyContent: 'center'
+  },
+  buttonText: {
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
+    color: '#1E90FF'
   }
+})
+
+const leftButtonStyle = StyleSheet.compose(styles.button, {
+  paddingLeft: 12
+})
+const rightButtonStyle = StyleSheet.compose(styles.button, {
+  alignItems: 'flex-end',
+  paddingRight: 16
 })
 
 export default AppBar

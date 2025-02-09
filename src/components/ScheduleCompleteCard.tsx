@@ -6,7 +6,7 @@ import {Defs, LinearGradient, Rect, Stop, Svg} from 'react-native-svg'
 interface Props {
   type: 'main' | 'thumb' | 'timetable'
   imageUrl: string | null
-  memo: string | null
+  record: string | null
   completeCount?: number
   shadowColor: string
   shadowDistance: number
@@ -14,7 +14,7 @@ interface Props {
 }
 const ScheduleCompleteCard = ({
   imageUrl,
-  memo,
+  record,
   type,
   completeCount,
   shadowColor,
@@ -40,7 +40,7 @@ const ScheduleCompleteCard = ({
   const frontCardStyle = useMemo(() => {
     let left = 0
 
-    if (memo) {
+    if (record) {
       left = 12
       if (type === 'thumb') {
         left = 3
@@ -50,7 +50,7 @@ const ScheduleCompleteCard = ({
     }
 
     return [styles.frontCard, {left}]
-  }, [memo, type])
+  }, [record, type])
 
   const memoStyle = useMemo(() => {
     let fontSize = 14
@@ -64,48 +64,54 @@ const ScheduleCompleteCard = ({
       padding = 1
     }
 
-    return [styles.memo, {fontSize, padding}]
+    return [styles.record, {fontSize, padding}]
   }, [type])
 
   return (
     <View style={styles.container}>
       {/* back card */}
-      {memo && (
+      {record && (
         <View style={backCardStyle}>
-          <Shadow startColor={shadowColor} distance={shadowDistance}>
-            <View style={{width: '100%', height: '100%'}}>
-              <Text style={memoStyle}>{memo}</Text>
-            </View>
-          </Shadow>
+          <View style={{width: '100%', height: '100%'}}>
+            <Text style={memoStyle}>{record}</Text>
+          </View>
         </View>
       )}
 
       {/* front card */}
       {imageUrl && (
         <View style={frontCardStyle}>
-          <Shadow stretch startColor={shadowColor} offset={shadowOffset} distance={shadowDistance}>
-            <Image source={{uri: imageUrl}} style={styles.image} />
+          <Shadow
+            style={styles.shadow}
+            containerStyle={styles.shadowContainer}
+            startColor={shadowColor}
+            offset={shadowOffset}
+            distance={shadowDistance}
+            sides={{start: true, end: false, top: true, bottom: false}}
+            corners={{topStart: true, topEnd: false, bottomStart: false, bottomEnd: false}}
+          />
 
-            {completeCount && (
-              <>
-                <View style={{position: 'absolute', top: 0, width: '100%', height: '100%'}}>
-                  <Svg width="100%" height="100%">
-                    <Defs>
-                      <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                        <Stop offset="0" stopColor="#333" stopOpacity="0.5" />
-                        <Stop offset="0.25" stopColor="#333" stopOpacity="0.25" />
-                        <Stop offset="0.5" stopColor="#333" stopOpacity="0" />
-                      </LinearGradient>
-                    </Defs>
+          <Image source={{uri: imageUrl}} style={styles.image} />
 
-                    <Rect width="100%" height="100%" fill="url(#grad)" />
-                  </Svg>
-                </View>
+          {completeCount && (
+            <>
+              <View style={{position: 'absolute', top: 0, width: '100%', height: '100%'}}>
+                <Svg width="100%" height="100%">
+                  <Defs>
+                    <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+                      <Stop offset="0" stopColor="#333" stopOpacity="0.5" />
+                      <Stop offset="0.25" stopColor="#333" stopOpacity="0.25" />
+                      <Stop offset="0.5" stopColor="#333" stopOpacity="0" />
+                    </LinearGradient>
+                  </Defs>
 
-                <Text style={styles.cardCountText}>{completeCount}번째 완료</Text>
-              </>
-            )}
-          </Shadow>
+                  <Rect width="100%" height="100%" fill="url(#grad)" />
+                </Svg>
+              </View>
+
+              <Text style={styles.cardCountText}>{completeCount}번째 완료</Text>
+            </>
+          )}
         </View>
       )}
     </View>
@@ -121,7 +127,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: '#ffffff',
-    position: 'absolute'
+    position: 'absolute',
+    borderWidth: 1,
+    borderColor: '#f0eff586'
   },
   frontCard: {
     width: '100%',
@@ -133,9 +141,11 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover'
+    resizeMode: 'cover',
+    borderWidth: 1,
+    borderColor: '#f0eff586'
   },
-  memo: {
+  record: {
     fontFamily: 'Pretendard-Medium',
     color: '#000000'
   },
@@ -146,6 +156,16 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontFamily: 'Pretendard-Bold',
     fontSize: 12
+  },
+  shadow: {
+    width: '100%',
+    height: '100%'
+  },
+  shadowContainer: {
+    backgroundColor: '#fff',
+    position: 'absolute',
+    width: '91%',
+    height: '96%'
   }
 })
 

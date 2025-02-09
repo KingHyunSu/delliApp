@@ -9,31 +9,29 @@ export interface GetScheduleCompleteDetailResponse {
   start_time: number
   end_time: number
   file_name: string
-  memo: string
+  record: string
   schedule_id: number
   complete_count: number
   main_path: string
   thumb_path: string
+  total: number
 }
 
 export interface GetScheduleCompleteCardListRequest {
   id: number
   page: number
 }
-export interface GetScheduleCompleteCardListItem {
-  schedule_complete_id: number
-  path: string
-  memo: string
-}
 export interface GetScheduleCompleteCardListResponse {
-  total: number
-  schedule_complete_list: GetScheduleCompleteCardListItem[]
+  schedule_complete_id: number
+  record: string
+  main_path: string
+  thumb_path: string
 }
 
-export interface GetScheduleCompleteCardUploadUrlRequest {
+export interface GetScheduleCompletePhotoCardUploadUrlRequest {
   name: string
 }
-export interface GetScheduleCompleteCardUploadUrlResponse {
+export interface GetScheduleCompletePhotoCardUploadUrlResponse {
   main_url: string
   thumb_url: string
   timetable_url: string
@@ -53,14 +51,22 @@ export interface SetScheduleCompleteResponse {
 export interface UpdateScheduleCompleteRequest {
   schedule_complete_id: number
   complete_date: string
-  memo: string
+  record: string
   file_name: string | null
 }
 export interface UpdateScheduleCompleteResponse {
   main_path: string
   thumb_path: string
   timetable_path: string
-  memo: string
+  record: string
+}
+
+export interface UpdateScheduleCompleteRecordCardRequest {
+  schedule_complete_id: number
+  record: string
+}
+export interface UpdateScheduleCompleteRecordCardResponse {
+  result: boolean
 }
 
 export interface UpdateAttachScheduleCompleteCardRequest {

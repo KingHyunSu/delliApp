@@ -1,34 +1,35 @@
-import {useState, useMemo, useCallback, useEffect, useRef} from 'react'
-import {Platform, StyleSheet, View, Pressable, Image, Text, ActivityIndicator} from 'react-native'
+import {useState, useMemo, useCallback, useRef} from 'react'
+import {ViewStyle, Platform, StyleSheet, View, Pressable, Image, Text, ActivityIndicator} from 'react-native'
 import {Shadow} from 'react-native-shadow-2'
 import AppBar from '../../components/AppBar'
 import EditMenuBottomSheet, {SelectType} from './components/EditMenuBottomSheet'
 import ImageCropModal from './components/ImageCropModal'
-import EditNoteModal from './components/EditNoteModal'
-import {check, request, PermissionStatus, PERMISSIONS, RESULTS} from 'react-native-permissions'
-import {launchCamera, launchImageLibrary, Asset} from 'react-native-image-picker'
+import ScheduleCompleteRecordModal from '@/components/modal/ScheduleCompleteRecordModal'
+import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
+import {launchCamera, launchImageLibrary} from 'react-native-image-picker'
 import {captureRef} from 'react-native-view-shot'
 import ImageResizer from '@bam.tech/react-native-image-resizer'
 
 import CropIcon from '@/assets/icons/crop.svg'
 import DeleteIcon from '@/assets/icons/delete.svg'
-import NoteStackIcon from '@/assets/icons/note_stack.svg'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {editScheduleCompleteCacheListState} from '@/store/scheduleComplete'
-import {windowDimensionsState} from '@/store/system'
+import {activeThemeState, displayModeState, windowDimensionsState} from '@/store/system'
 import {scheduleDateState, scheduleListState} from '@/store/schedule'
 import {useUploadImage} from '@/apis/hooks/useAws'
 import {
   useDeleteScheduleCompleteCard,
-  useGetScheduleCompleteCardUploadUrl,
+  useGetScheduleCompletePhotoCardUploadUrl,
   useUpdateScheduleComplete
 } from '@/apis/hooks/useScheduleComplete'
 import {EditScheduleCompleteCardScreenProps} from '@/types/navigation'
 import {UpdateScheduleCompleteResponse} from '@/apis/types/scheduleComplete'
+import {useAlert} from '@/components/Alert'
 
 const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardScreenProps) => {
-  const {mutateAsync: getScheduleCompleteCardUploadUrlMutateAsync} = useGetScheduleCompleteCardUploadUrl()
+  const alert = useAlert()
+  const {mutateAsync: getScheduleCompletePhotoCardUploadUrlMutateAsync} = useGetScheduleCompletePhotoCardUploadUrl()
   const {mutateAsync: uploadImageMutateAsync} = useUploadImage()
   const {mutateAsync: updateScheduleCompleteMutateAsync} = useUpdateScheduleComplete()
   const {mutateAsync: deleteScheduleCompleteCardMutateAsync} = useDeleteScheduleCompleteCard()
@@ -39,9 +40,11 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
   const [isShowImageCropModal, setIsShowImageCropModal] = useState(false)
   const [isShowEditNoteModal, setIsShowEditNoteModal] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [activePhotoCard, setActivePhotoCard] = useState(true)
+  const [activeRecordCard, setActiveRecordCard] = useState(false)
   const [tempImageUrl, setTempImageUrl] = useState<string | null>(null)
   const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const [memo, setMemo] = useState(route.params.memo)
+  const [record, setRecord] = useState(route.params.record)
 
   const [editScheduleCompleteCacheList, setEditScheduleCompleteCacheList] = useRecoilState(
     editScheduleCompleteCacheListState
@@ -49,6 +52,8 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const windowDimensions = useRecoilValue(windowDimensionsState)
   const scheduleDate = useRecoilValue(scheduleDateState)
+  const activeTheme = useRecoilValue(activeThemeState)
+  const displayMode = useRecoilValue(displayModeState)
 
   const cardWidth = useMemo(() => {
     return windowDimensions.width * 0.77
@@ -58,11 +63,30 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
     return cardWidth * 1.25
   }, [cardWidth])
 
+  const containerStyle = useMemo(() => {
+    const backgroundColor = displayMode === 1 ? '#e0e0e0' : '#494949'
+    return [styles.container, {backgroundColor}]
+  }, [displayMode])
+
+  const backCardContainerStyle = useMemo(() => {
+    const overlapStyle: ViewStyle | null =
+      activePhotoCard && activeRecordCard
+        ? {
+            position: 'absolute',
+            top: -20,
+            left: -8,
+            transform: [{rotate: '-2deg'}]
+          }
+        : {}
+
+    return [cardStyles.backCardContainer, {...overlapStyle, width: cardWidth, height: cardHeight}]
+  }, [activePhotoCard, activeRecordCard, cardWidth, cardHeight])
+
   const frontCardContainerStyle = useMemo(() => {
-    const left = memo ? 12 : 0
+    const left = activePhotoCard && activeRecordCard ? 12 : 0
 
     return {width: cardWidth, height: cardHeight, left}
-  }, [memo, cardWidth, cardHeight])
+  }, [activePhotoCard, activeRecordCard, cardWidth, cardHeight])
 
   const dateString = useMemo(() => {
     const year = scheduleDate.getFullYear()
@@ -76,7 +100,17 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
     return scheduleList.find(item => item.schedule_id === route.params.schedule_id)
   }, [scheduleList, route.params])
 
+  const showEditRecordCardModal = useCallback(() => {
+    if (activePhotoCard) {
+      return
+    }
+
+    setIsShowEditNoteModal(true)
+  }, [activePhotoCard, setIsShowEditNoteModal])
+
   const handleCamera = useCallback(async () => {
+    setIsLoading(true)
+
     let permission = null
     if (Platform.OS === 'ios') {
       permission = PERMISSIONS.IOS.CAMERA
@@ -84,7 +118,26 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
     if (!permission) return
 
     const status = await check(permission)
-    console.log('status', status)
+
+    if (status === RESULTS.DENIED) {
+      await request(permission)
+    }
+
+    const response = await launchCamera({
+      presentationStyle: 'overFullScreen',
+      mediaType: 'photo'
+    })
+
+    if (response.didCancel || response.errorCode) {
+      setIsLoading(false)
+    } else if (response.assets) {
+      const asset = response.assets[0]
+      const uri = asset.uri
+      if (uri) {
+        setTempImageUrl(uri)
+        setIsShowImageCropModal(true)
+      }
+    }
   }, [])
 
   const handlePhoto = useCallback(async () => {
@@ -101,8 +154,6 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
     if (status === RESULTS.DENIED) {
       await request(permission)
     }
-
-    // setIsShowEditMenuBottomSheet(false)
 
     const response = await launchImageLibrary({
       presentationStyle: 'overFullScreen',
@@ -144,12 +195,15 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
       switch (type) {
         case 'camera':
           await handleCamera()
-          return
+          break
         case 'photo':
           await handlePhoto()
-          return
+          break
+        case 'record':
+          setIsShowEditNoteModal(true)
+          break
         default:
-          return
+          break
       }
     },
     [handleCamera, handlePhoto]
@@ -163,7 +217,7 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
             ...route.params,
             main_path: newScheduleComplete.main_path,
             thumb_path: newScheduleComplete.thumb_path,
-            memo: newScheduleComplete.memo
+            record: newScheduleComplete.record
           }
         }
         return item
@@ -183,7 +237,7 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
           return {
             ...item,
             schedule_complete_id: route.params.schedule_complete_id,
-            schedule_complete_memo: newScheduleComplete.memo,
+            schedule_complete_record: newScheduleComplete.record,
             schedule_complete_card_path: newScheduleComplete.timetable_path
           } as Schedule
         }
@@ -194,6 +248,21 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
   )
 
   const handleSubmit = useCallback(async () => {
+    if (!activePhotoCard && !activeRecordCard) {
+      alert.show({
+        title: '포토 카드 또는 기록 카드 중\n하나를 추가해 주세요',
+        buttons: [
+          {
+            text: '확인',
+            onPress: () => {
+              return
+            }
+          }
+        ]
+      })
+      return
+    }
+
     let imageName = null
 
     if (imageUrl) {
@@ -202,7 +271,7 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
 
       const captureUri = await captureRef(captureCardRef)
 
-      const {main_url, thumb_url, timetable_url} = await getScheduleCompleteCardUploadUrlMutateAsync({
+      const {main_url, thumb_url, timetable_url} = await getScheduleCompletePhotoCardUploadUrlMutateAsync({
         name: imageName
       })
 
@@ -238,7 +307,7 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
     const response = await updateScheduleCompleteMutateAsync({
       schedule_complete_id: route.params.schedule_complete_id,
       complete_date: route.params.complete_date,
-      memo: memo || '',
+      record: record || '',
       file_name: imageName
     })
 
@@ -252,38 +321,60 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
       screen: 'Home'
     })
   }, [
+    alert,
+    activePhotoCard,
+    activeRecordCard,
     route.params,
-    memo,
+    record,
     imageUrl,
     getNewEditScheduleCompleteCacheList,
     getNewScheduleList,
     uploadImageMutateAsync,
     deleteScheduleCompleteCardMutateAsync,
     updateScheduleCompleteMutateAsync,
-    getScheduleCompleteCardUploadUrlMutateAsync,
+    getScheduleCompletePhotoCardUploadUrlMutateAsync,
     setEditScheduleCompleteCacheList,
     setScheduleList,
     navigation
   ])
 
   return (
-    <View style={styles.container}>
-      <AppBar title={targetSchedule?.title || ''} completeCount={route.params.complete_count || 0} />
+    <View style={containerStyle}>
+      <AppBar
+        type="edit"
+        title={targetSchedule?.title || ''}
+        completeCount={route.params.complete_count || 0}
+        onSubmit={handleSubmit}
+      />
 
       <View style={styles.wrapper}>
         <View>
           {/* back card */}
-          {memo && (
-            <View style={[cardStyles.backCardContainer, {width: cardWidth, height: cardHeight}]}>
-              <Shadow startColor="#f0eff586" distance={0}>
-                <View style={cardStyles.backCardWrapper} />
-              </Shadow>
-            </View>
+          {activeRecordCard && (
+            <Pressable style={backCardContainerStyle} onPress={showEditRecordCardModal}>
+              {record ? (
+                <Text style={cardStyles.recordText}>{record}</Text>
+              ) : (
+                <View style={cardStyles.editRecordWrapper}>
+                  <Text style={cardStyles.editRecordText}>기록 카드 작성하기</Text>
+                </View>
+              )}
+            </Pressable>
           )}
 
           {/* front card */}
-          <View style={frontCardContainerStyle}>
-            <Shadow startColor="#e0e0e0" offset={[7, 7]} distance={15}>
+          {activePhotoCard && (
+            <View style={frontCardContainerStyle}>
+              <Shadow
+                style={cardStyles.shadow}
+                containerStyle={cardStyles.shadowContainer}
+                startColor="#f5f5f5"
+                distance={10}
+                sides={{start: true, end: false, top: true, bottom: false}}
+                corners={{topStart: true, topEnd: false, bottomStart: false, bottomEnd: false}}
+                disabled={activePhotoCard && !activeRecordCard}
+              />
+
               <Pressable style={cardStyles.frontCardWrapper} onPress={() => setIsShowEditMenuBottomSheet(true)}>
                 <View style={cardStyles.imageWrapper}>
                   {isLoading ? (
@@ -319,8 +410,15 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
                   <Text style={cardStyles.date}>{dateString}</Text>
                 </View>
               </Pressable>
-            </Shadow>
-          </View>
+            </View>
+          )}
+
+          {/* empty */}
+          {!activeRecordCard && !activePhotoCard && (
+            <View style={[cardStyles.emptyCardContainer, {width: cardWidth, height: cardHeight}]}>
+              <Text style={cardStyles.emptyCardText}>카드를 추가해 주세요</Text>
+            </View>
+          )}
         </View>
       </View>
 
@@ -340,26 +438,33 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
         </View>
       </View>
 
-      <View style={styles.footer}>
-        {!route.params.memo && (
-          <View style={styles.memoInfoWrapper}>
-            <View style={styles.memoInfoTail} />
-            <Text style={styles.memoInfoText}>기록 남기기</Text>
+      {/* footer */}
+      <View style={[footerStyles.container, {backgroundColor: activeTheme.color5}]}>
+        <Pressable
+          style={[footerStyles.button, {borderColor: activeTheme.color2}]}
+          onPress={() => setActivePhotoCard(!activePhotoCard)}>
+          <View style={[footerStyles.mark, {backgroundColor: activePhotoCard ? '#1E90FF' : '#efefef'}]}>
+            <View style={footerStyles.innerMark} />
           </View>
-        )}
 
-        <Shadow startColor="#f0eff5" distance={5}>
-          <Pressable style={styles.noteButton} onPress={() => setIsShowEditNoteModal(true)}>
-            <NoteStackIcon fill="#777" />
-          </Pressable>
-        </Shadow>
-        <Pressable style={styles.submitButton} onPress={handleSubmit}>
-          <Text style={styles.submitButtonText}>만들기</Text>
+          <Text style={[footerStyles.buttonText, {color: activeTheme.color3}]}>포토 카드</Text>
+        </Pressable>
+
+        <Pressable
+          style={[footerStyles.button, {borderColor: activeTheme.color2}]}
+          onPress={() => setActiveRecordCard(!activeRecordCard)}>
+          <View style={[footerStyles.mark, {backgroundColor: activeRecordCard ? '#1E90FF' : '#efefef'}]}>
+            <View style={footerStyles.innerMark} />
+          </View>
+
+          <Text style={[footerStyles.buttonText, {color: activeTheme.color3}]}>기록 카드</Text>
         </Pressable>
       </View>
 
       <EditMenuBottomSheet
         visible={isShowEditMenuBottomSheet}
+        activePhotoCard={activePhotoCard}
+        activeRecordCard={activeRecordCard}
         onSelect={changeScheduleCompleteCard}
         onClose={() => setIsShowEditMenuBottomSheet(false)}
       />
@@ -369,10 +474,10 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
         onCrop={handleCrop}
         onClose={closeImageCropModal}
       />
-      <EditNoteModal
+      <ScheduleCompleteRecordModal
         visible={isShowEditNoteModal}
-        value={route.params.memo || ''}
-        onChange={setMemo}
+        value={route.params.record || ''}
+        onChange={setRecord}
         onClose={() => setIsShowEditNoteModal(false)}
       />
     </View>
@@ -381,71 +486,12 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#e0e0e0'
-    // backgroundColor: '#000000b2'
+    flex: 1
   },
   wrapper: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
-  },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 15,
-    backgroundColor: '#ffffff',
-    paddingLeft: 20,
-    paddingRight: 16,
-    paddingTop: 25,
-    paddingBottom: 20
-  },
-  memoInfoWrapper: {
-    position: 'absolute',
-    top: -13,
-    left: 15,
-    backgroundColor: '#555',
-    paddingHorizontal: 15,
-    paddingVertical: 7,
-    borderRadius: 10
-  },
-  memoInfoTail: {
-    position: 'absolute',
-    left: 22,
-    bottom: -6,
-    borderTopWidth: 10,
-    borderLeftWidth: 7,
-    borderRightWidth: 7,
-    borderBottomWidth: 0,
-    borderTopColor: '#555',
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: 'transparent'
-  },
-  memoInfoText: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 12,
-    color: '#ffffff'
-  },
-  noteButton: {
-    width: 52,
-    height: 52,
-    borderRadius: 28,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  submitButton: {
-    flex: 1,
-    height: 56,
-    backgroundColor: '#1E90FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 100
-  },
-  submitButtonText: {
-    fontFamily: 'Pretendard-SemiBold',
-    fontSize: 18,
-    color: '#ffffff'
   }
 })
 
@@ -458,15 +504,30 @@ const cardStyles = StyleSheet.create({
     paddingHorizontal: 15
   },
   backCardContainer: {
-    position: 'absolute',
-    top: -20,
-    left: -8,
     backgroundColor: '#ffffff',
-    transform: [{rotate: '-2deg'}]
+    padding: 15
   },
-  backCardWrapper: {
+  emptyCardContainer: {
+    borderWidth: 1,
+    borderColor: '#000000',
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  emptyCardText: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 16,
+    color: '#555555'
+  },
+  shadow: {
     width: '100%',
     height: '100%'
+  },
+  shadowContainer: {
+    backgroundColor: '#fff',
+    position: 'absolute',
+    width: '91%',
+    height: '96%'
   },
   captureContainer: {
     position: 'absolute',
@@ -527,6 +588,63 @@ const cardStyles = StyleSheet.create({
     fontFamily: 'Pretendard-Medium',
     fontSize: 18,
     color: '#000000'
+  },
+  recordText: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 16,
+    color: '#424242'
+  },
+  editRecordWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  editRecordText: {
+    fontFamily: 'Pretendard-Regular',
+    fontSize: 16,
+    color: '#777777'
+  }
+})
+
+const footerStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 15,
+    backgroundColor: '#ffffff',
+    paddingLeft: 20,
+    paddingRight: 16,
+    paddingTop: 25,
+    paddingBottom: 20
+  },
+  button: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 56,
+    borderWidth: 1,
+    borderColor: '#efefef',
+    borderRadius: 10,
+    paddingLeft: 15
+  },
+  buttonText: {
+    flex: 1,
+    textAlign: 'center',
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 14
+  },
+  mark: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  innerMark: {
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: '#ffffff'
   }
 })
 

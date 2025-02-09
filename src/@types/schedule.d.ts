@@ -34,7 +34,7 @@ declare global {
     schedule_complete_card_x?: number
     schedule_complete_card_y?: number
     schedule_complete_card_path?: string
-    schedule_complete_memo?: string
+    schedule_complete_record?: string
   }
 
   interface Schedule extends GetCurrentScheduleListResponse {}

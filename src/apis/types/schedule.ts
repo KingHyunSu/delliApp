@@ -32,7 +32,7 @@ export interface GetCurrentScheduleListResponse {
   text_color: string
   update_date: string
   schedule_complete_id?: number
-  schedule_complete_memo?: string
+  schedule_complete_record?: string
   schedule_complete_card_x?: number
   schedule_complete_card_y?: number
   schedule_complete_card_path?: string

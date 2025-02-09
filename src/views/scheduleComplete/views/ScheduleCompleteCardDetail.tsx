@@ -1,29 +1,46 @@
 import {useCallback, useMemo, useState} from 'react'
-import {StyleSheet, View} from 'react-native'
+import {StyleSheet, Pressable, View} from 'react-native'
 import AppBar from '../components/AppBar'
 import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
 import ScheduleCardListBottomSheet from '@/components/bottomSheet/ScheduleCardListBottomSheet'
+import ScheduleCompleteRecordModal from '@/components/modal/ScheduleCompleteRecordModal'
 import {useAlert} from '@/components/Alert'
 
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {scheduleListState} from '@/store/schedule'
-import {useDeleteScheduleCompleteCard, useGetScheduleCompleteList} from '@/apis/hooks/useScheduleComplete'
-import {ScheduleCompleteCardDetailScreenProps} from '@/types/navigation'
 import {editScheduleCompleteCacheListState} from '@/store/scheduleComplete'
+import {displayModeState} from '@/store/system'
+import {
+  useGetScheduleCompleteCardList,
+  useDeleteScheduleCompleteCard,
+  useUpdateScheduleCompleteRecordCard
+} from '@/apis/hooks/useScheduleComplete'
+import {ScheduleCompleteCardDetailScreenProps} from '@/types/navigation'
+import {GetScheduleCompleteCardListResponse} from '@/apis/types/scheduleComplete'
 
 const ScheduleCompleteCardDetail = ({navigation, route}: ScheduleCompleteCardDetailScreenProps) => {
   const alert = useAlert()
 
-  const [detail, setDetail] = useState<EditScheduleCompleteForm>(route.params)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isShowScheduleCompleteRecordModal, setIsShowScheduleCompleteRecordModal] = useState(false)
   const [page, setPage] = useState(1)
+  const [detail, setDetail] = useState<EditScheduleCompleteForm>(route.params)
+  const [list, setList] = useState<GetScheduleCompleteCardListResponse[]>([])
 
+  const {mutateAsync: getScheduleCompleteCardListMutateAsync} = useGetScheduleCompleteCardList()
+  const {mutateAsync: updateScheduleCompleteRecordCardMutateAsync} = useUpdateScheduleCompleteRecordCard()
   const {mutateAsync: deleteScheduleCompleteCardMutateAsync} = useDeleteScheduleCompleteCard()
-  const {data: scheduleCompleteListResponse} = useGetScheduleCompleteList({id: route.params.schedule_id, page})
 
   const [editScheduleCompleteCacheList, setEditScheduleCompleteCacheList] = useRecoilState(
     editScheduleCompleteCacheListState
   )
   const scheduleList = useRecoilValue(scheduleListState)
+  const displayMode = useRecoilValue(displayModeState)
+
+  const containerStyle = useMemo(() => {
+    const backgroundColor = displayMode === 1 ? '#e0e0e0' : '#494949'
+    return [styles.container, {backgroundColor}]
+  }, [displayMode])
 
   const imageUrl = useMemo(() => {
     if (detail.main_path) {
@@ -37,34 +54,44 @@ const ScheduleCompleteCardDetail = ({navigation, route}: ScheduleCompleteCardDet
     return scheduleList.find(item => item.schedule_id === detail.schedule_id)
   }, [detail, scheduleList])
 
-  const updateCache = useCallback(() => {
-    const newEditScheduleCompleteCacheList = editScheduleCompleteCacheList.map(item => {
-      if (detail.schedule_complete_id === item.schedule_complete_id) {
-        return {
-          ...item,
-          path: null,
-          memo: null
+  const updateCache = useCallback(
+    (value: EditScheduleCompleteForm) => {
+      const newEditScheduleCompleteCacheList = editScheduleCompleteCacheList.map(item => {
+        if (detail.schedule_complete_id === item.schedule_complete_id) {
+          return {
+            ...item,
+            ...value
+          }
         }
-      }
-      return item
-    })
+        return item
+      })
 
-    setEditScheduleCompleteCacheList(newEditScheduleCompleteCacheList)
-  }, [editScheduleCompleteCacheList, detail.schedule_complete_id, setEditScheduleCompleteCacheList])
-
-  const handlePress = useCallback(
-    (id: number, completeCount: number) => {
-      const scheduleCompleteList = scheduleCompleteListResponse.schedule_complete_list
-
-      const targetItem = scheduleCompleteList.find(item => item.schedule_complete_id === id)
-
-      setDetail(prevState => ({
-        ...prevState,
-        ...targetItem,
-        complete_count: completeCount
-      }))
+      setEditScheduleCompleteCacheList(newEditScheduleCompleteCacheList)
     },
-    [scheduleCompleteListResponse.schedule_complete_list]
+    [editScheduleCompleteCacheList, detail.schedule_complete_id, setEditScheduleCompleteCacheList]
+  )
+
+  const handlePress = useCallback((value: GetScheduleCompleteCardListResponse, count: number) => {
+    setDetail(prevState => ({
+      ...prevState,
+      ...value,
+      complete_count: count
+    }))
+  }, [])
+
+  const updateRecord = useCallback(
+    async (value: string) => {
+      const response = await updateScheduleCompleteRecordCardMutateAsync({
+        schedule_complete_id: detail.schedule_complete_id,
+        record: value
+      })
+
+      if (response.result) {
+        updateCache({...detail, record: value})
+        setIsShowScheduleCompleteRecordModal(false)
+      }
+    },
+    [detail, updateScheduleCompleteRecordCardMutateAsync, updateCache]
   )
 
   const handleEdit = useCallback(() => {
@@ -92,50 +119,82 @@ const ScheduleCompleteCardDetail = ({navigation, route}: ScheduleCompleteCardDet
             })
 
             if (response.result) {
-              updateCache()
+              updateCache({
+                ...detail,
+                record: null,
+                main_path: null,
+                thumb_path: null
+              })
               navigation.goBack()
             }
           }
         }
       ]
     })
-  }, [alert, detail.schedule_complete_id, deleteScheduleCompleteCardMutateAsync, updateCache, navigation])
+  }, [alert, detail, deleteScheduleCompleteCardMutateAsync, updateCache, navigation])
+
+  const getScheduleCompleteCardList = useCallback(async () => {
+    if (list.length === route.params.total || isLoading) {
+      return
+    }
+
+    setIsLoading(true)
+
+    const response = await getScheduleCompleteCardListMutateAsync({
+      id: route.params.schedule_id,
+      page
+    })
+
+    setList(prevState => [...prevState, ...response])
+    setPage(page + 1)
+    setIsLoading(false)
+  }, [isLoading, list, route.params.total, route.params.schedule_id, page, getScheduleCompleteCardListMutateAsync])
 
   return (
-    <View style={styles.container}>
+    <View style={containerStyle}>
       <AppBar
+        type="detail"
         title={targetSchedule?.title || ''}
         completeCount={detail.complete_count}
-        detailScreen
         onEdit={handleEdit}
         onDelete={handleDelete}
       />
 
       <View style={styles.wrapper}>
         {imageUrl && (
-          <View style={styles.cardWrapper}>
+          <Pressable style={styles.cardWrapper} onPress={() => setIsShowScheduleCompleteRecordModal(true)}>
             <ScheduleCompleteCard
               type="main"
               imageUrl={imageUrl}
-              memo={detail.memo}
+              record={detail.record}
               shadowColor="#e0e0e0"
               shadowDistance={15}
               shadowOffset={[7, 7]}
             />
-          </View>
+          </Pressable>
         )}
       </View>
 
-      <ScheduleCardListBottomSheet value={scheduleCompleteListResponse} onPress={handlePress} onPaging={() => {}} />
+      <ScheduleCardListBottomSheet
+        value={list}
+        total={route.params.total}
+        onPress={handlePress}
+        onPaging={getScheduleCompleteCardList}
+      />
+
+      <ScheduleCompleteRecordModal
+        visible={isShowScheduleCompleteRecordModal}
+        value={detail.record || ''}
+        onChange={updateRecord}
+        onClose={() => setIsShowScheduleCompleteRecordModal(false)}
+      />
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#E0E0E0'
-    // backgroundColor: '#f5f5f5'
+    flex: 1
   },
   wrapper: {
     flex: 1,
