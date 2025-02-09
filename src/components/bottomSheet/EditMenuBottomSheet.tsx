@@ -26,6 +26,7 @@ import {format} from 'date-fns'
 import {useGetScheduleCompleteDetail} from '@/apis/hooks/useScheduleComplete'
 import ScheduleCompleteCardMenuModal from '@/components/modal/ScheduleCompleteCardMenuModal'
 import {Shadow} from 'react-native-shadow-2'
+import ScheduleCompleteRecordModal from '@/components/modal/ScheduleCompleteRecordModal'
 
 interface Props {
   moveEditSchedule: Function
@@ -41,6 +42,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
 
   const [isResetEditScheduleForm, setIsResetEditScheduleForm] = useState(true)
   const [isShowScheduleCompleteCardMenu, setIsShowScheduleCompleteCardMenu] = useState(false)
+  const [isShowScheduleCompleteRecordModal, setIsShowScheduleCompleteRecordModal] = useState(false)
 
   const [showEditMenuBottomSheet, setShowEditMenuBottomSheet] = useRecoilState(showEditMenuBottomSheetState)
   const [editScheduleCompleteForm, setEditScheduleCompleteForm] = useRecoilState(editScheduleCompleteFormState)
@@ -121,6 +123,11 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
       navigate('EditScheduleCompleteCard', editScheduleCompleteForm)
     }
   }, [closeEditMenuBottomSheet, editScheduleCompleteForm])
+
+  const showScheduleCompleteRecordCard = useCallback(() => {
+    setIsShowScheduleCompleteCardMenu(false)
+    setIsShowScheduleCompleteRecordModal(true)
+  }, [])
 
   const moveAttachScheduleCompleteCard = useCallback(() => {
     setIsShowScheduleCompleteCardMenu(false)
@@ -375,9 +382,18 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
 
       <ScheduleCompleteCardMenuModal
         visible={isShowScheduleCompleteCardMenu}
-        moveAttachScheduleCompleteCard={moveAttachScheduleCompleteCard}
+        isShowScheduleCompleteRecordCard={!!editScheduleCompleteForm?.record}
+        showScheduleCompleteRecordCard={showScheduleCompleteRecordCard}
         moveScheduleCompleteCardDetail={moveScheduleCompleteCardDetail}
+        moveAttachScheduleCompleteCard={moveAttachScheduleCompleteCard}
         onClose={() => setIsShowScheduleCompleteCardMenu(false)}
+      />
+
+      <ScheduleCompleteRecordModal
+        visible={isShowScheduleCompleteRecordModal}
+        value={editScheduleCompleteForm?.record || ''}
+        readonly
+        onClose={() => setIsShowScheduleCompleteRecordModal(false)}
       />
     </BottomSheetModal>
   )

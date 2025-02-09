@@ -89,6 +89,7 @@ const ScheduleCompleteCard = ({
             distance={shadowDistance}
             sides={{start: true, end: false, top: true, bottom: false}}
             corners={{topStart: true, topEnd: false, bottomStart: false, bottomEnd: false}}
+            disabled={!record}
           />
 
           <Image source={{uri: imageUrl}} style={styles.image} />

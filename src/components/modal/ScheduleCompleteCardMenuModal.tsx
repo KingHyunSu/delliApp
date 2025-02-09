@@ -2,14 +2,18 @@ import {StyleSheet, Modal, View, Pressable, Text} from 'react-native'
 
 interface Props {
   visible: boolean
-  moveAttachScheduleCompleteCard: () => void
+  isShowScheduleCompleteRecordCard: boolean
+  showScheduleCompleteRecordCard: () => void
   moveScheduleCompleteCardDetail: () => void
+  moveAttachScheduleCompleteCard: () => void
   onClose: () => void
 }
 const ScheduleCompleteCardMenuModal = ({
   visible,
-  moveAttachScheduleCompleteCard,
+  isShowScheduleCompleteRecordCard,
+  showScheduleCompleteRecordCard,
   moveScheduleCompleteCardDetail,
+  moveAttachScheduleCompleteCard,
   onClose
 }: Props) => {
   return (
@@ -17,12 +21,18 @@ const ScheduleCompleteCardMenuModal = ({
       <Pressable style={styles.container} onPress={onClose} />
 
       <View style={styles.wrapper}>
-        <Pressable style={styles.button} onPress={moveAttachScheduleCompleteCard}>
-          <Text style={styles.buttonText}>완료 카드 붙히기</Text>
-        </Pressable>
+        {isShowScheduleCompleteRecordCard && (
+          <Pressable style={styles.button} onPress={showScheduleCompleteRecordCard}>
+            <Text style={styles.buttonText}>기록 카드 보기</Text>
+          </Pressable>
+        )}
 
         <Pressable style={styles.button} onPress={moveScheduleCompleteCardDetail}>
-          <Text style={styles.buttonText}>상세보기</Text>
+          <Text style={styles.buttonText}>상세 보기</Text>
+        </Pressable>
+
+        <Pressable style={styles.button} onPress={moveAttachScheduleCompleteCard}>
+          <Text style={styles.buttonText}>완료 카드 붙히기</Text>
         </Pressable>
       </View>
     </Modal>

@@ -71,6 +71,21 @@ const ScheduleCompleteCardDetail = ({navigation, route}: ScheduleCompleteCardDet
     [editScheduleCompleteCacheList, detail.schedule_complete_id, setEditScheduleCompleteCacheList]
   )
 
+  const getNewScheduleCompleteCardList = useCallback(
+    (value: string) => {
+      return list.map(item => {
+        if (item.schedule_complete_id === detail.schedule_complete_id) {
+          return {
+            ...item,
+            record: value
+          }
+        }
+        return item
+      })
+    },
+    [list, detail.schedule_complete_id]
+  )
+
   const handlePress = useCallback((value: GetScheduleCompleteCardListResponse, count: number) => {
     setDetail(prevState => ({
       ...prevState,
@@ -87,11 +102,19 @@ const ScheduleCompleteCardDetail = ({navigation, route}: ScheduleCompleteCardDet
       })
 
       if (response.result) {
+        // update schedule complete cached list
         updateCache({...detail, record: value})
-        setIsShowScheduleCompleteRecordModal(false)
+        // update detail
+        setDetail(prevState => ({
+          ...prevState,
+          record: value
+        }))
+        // update schedule complete card list
+        const newScheduleCompleteCardList = getNewScheduleCompleteCardList(value)
+        setList(newScheduleCompleteCardList)
       }
     },
-    [detail, updateScheduleCompleteRecordCardMutateAsync, updateCache]
+    [detail, updateScheduleCompleteRecordCardMutateAsync, updateCache, getNewScheduleCompleteCardList]
   )
 
   const handleEdit = useCallback(() => {

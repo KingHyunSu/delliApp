@@ -9,13 +9,14 @@ import {activeThemeState, safeAreaInsetsState, windowDimensionsState} from '@/st
 interface Props {
   visible: boolean
   value: string
-  onChange: (value: string) => void
+  readonly?: boolean
+  onChange?: (value: string) => void
   onClose: () => void
 }
-const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
+const EditNoteModal = ({visible, value, readonly, onChange, onClose}: Props) => {
   const textInputRef = useRef<TextInput>(null)
 
-  const [_value, _setIsValue] = useState(value)
+  const [_value, _setIsValue] = useState('')
   const [isScrolling, setIsScrolling] = useState(false)
   const [isInputMode, setIsInputMode] = useState(false)
 
@@ -32,17 +33,22 @@ const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
   }))
 
   const isEditable = useMemo(() => {
+    if (readonly) {
+      return false
+    }
     if (isInputMode) {
       return true
     }
     return !isScrolling
-  }, [isInputMode, isScrolling])
+  }, [readonly, isInputMode, isScrolling])
 
   const pressTextInput = useCallback(() => {
+    if (readonly) return
+
     if (!isScrolling) {
       setIsInputMode(true)
     }
-  }, [isScrolling])
+  }, [isScrolling, readonly])
 
   const handleClose = useCallback(() => {
     _setIsValue(value)
@@ -50,8 +56,10 @@ const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
   }, [value])
 
   const handleSave = useCallback(() => {
-    onChange(_value)
-    setIsInputMode(false)
+    if (onChange) {
+      onChange(_value)
+      setIsInputMode(false)
+    }
   }, [_value, onChange])
 
   useEffect(() => {
@@ -67,6 +75,10 @@ const EditNoteModal = ({visible, value, onChange, onClose}: Props) => {
       height.value = withTiming(windowDimensions.height * 0.5)
     }
   }, [isInputMode, windowDimensions.width, windowDimensions.height])
+
+  useEffect(() => {
+    _setIsValue(value)
+  }, [value])
 
   return (
     <Modal visible={visible} transparent>
