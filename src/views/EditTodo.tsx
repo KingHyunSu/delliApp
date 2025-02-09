@@ -273,7 +273,7 @@ const EditTodo = ({navigation, route}: EditTodoScreenProps) => {
             style={[styles.memo, {color: activeTheme.color3}]}
             value={editTodoForm.memo}
             multiline
-            placeholder="메모를 입력해주세요"
+            placeholder="메모를 입력해 주세요"
             placeholderTextColor="#c3c5cc"
             onChangeText={changeMemo}
           />

@@ -250,7 +250,7 @@ const EditScheduleBottomSheet = forwardRef<EditScheduleBottomSheetRef, Props>(({
         <TextInput
           style={titleStyle}
           value={data.title}
-          placeholder="일정명을 입력해주세요"
+          placeholder="일정명을 입력해 주세요"
           placeholderTextColor="#c3c5cc"
           onPress={focusTitleInput}
           onChangeText={changeTitle}
