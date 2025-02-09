@@ -217,7 +217,8 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
             ...route.params,
             main_path: newScheduleComplete.main_path,
             thumb_path: newScheduleComplete.thumb_path,
-            record: newScheduleComplete.record
+            record: newScheduleComplete.record,
+            total: item.total + 1
           }
         }
         return item

@@ -52,6 +52,10 @@ const ScheduleCardListBottomSheet = ({value, total, onPress, onPaging}: Props) =
 
   const getRenderItem: ListRenderItem<GetScheduleCompleteCardListResponse> = useCallback(
     ({item, index}) => {
+      if (!item.thumb_path) {
+        return <></>
+      }
+
       const url = domain + '/' + item.thumb_path
       const completeCount = index + 1
 

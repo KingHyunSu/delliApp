@@ -337,7 +337,9 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
                   />
                 </Pressable>
               ) : (
-                <Pressable style={styles.emptyCompleteCard} onPress={moveEditScheduleComplete}>
+                <Pressable
+                  style={[styles.emptyCompleteCard, {borderColor: activeTheme.color3}]}
+                  onPress={moveEditScheduleComplete}>
                   <PlusIcon width={24} height={24} stroke="#1E90FF" />
                 </Pressable>
               )}
