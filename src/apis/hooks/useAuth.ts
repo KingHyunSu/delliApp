@@ -87,7 +87,9 @@ export const useAccess = () => {
 
       setLoginInfo({
         login_type: accessInfo.login_type,
-        email: accessInfo.email
+        email: accessInfo.email,
+        nickname: accessInfo.nickname,
+        profile_path: accessInfo.profile_path
       })
 
       setWidgetReloadable(accessInfo.widget_reloadable)

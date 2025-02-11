@@ -29,6 +29,7 @@ import {
   AttachScheduleCompleteCardScreen
 } from '@/views/scheduleComplete'
 import {StoreListScreen, StoreDetailScreen} from '@/views/store'
+import ProfileScreen from '@/views/Profile'
 import SettingScreen from '@/views/Setting'
 import LeaveScreen from '@/views/Leave'
 import WidgetReloadScreen from '@/views/WidgetReload'
@@ -122,7 +123,7 @@ const BottomTabs = React.memo(({activeTheme}: BottomTabsProps) => {
       />
       <Tab.Screen
         name="Setting"
-        component={SettingScreen}
+        component={ProfileScreen}
         options={{
           tabBarIcon: ({focused}) => {
             return <MyIcon width={30} height={30} fill={focused ? activeTheme.color7 : activeTheme.color8} />
@@ -261,7 +262,7 @@ function App(): JSX.Element {
 
   React.useEffect(() => {
     setLoginStateSetter(setIsLogin)
-  }, [setLoginStateSetter])
+  }, [setIsLogin])
 
   // TODO - 타이머 코드 임시 비활성화
   // React.useEffect(() => {

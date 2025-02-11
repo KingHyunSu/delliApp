@@ -5,8 +5,58 @@ import {
   UpdateCustomRequest,
   UpdateCustomResponse,
   SetBackgroundRequest,
-  UpdateColorThemeRequest
+  UpdateColorThemeRequest,
+  GetProfileImageUploadUrlRequest,
+  UpdateNicknameRequest,
+  UpdateProfileImageRequest,
+  GetUserProfileResponse
 } from '@/apis/types/user'
+
+export const useGetUserProfile = () => {
+  return useQuery({
+    queryKey: ['userProfile'],
+    queryFn: async () => {
+      const response = await userApi.getUserProfile()
+
+      return response.data as GetUserProfileResponse
+    },
+    initialData: {
+      before_start_count: 0,
+      in_progress_count: 0,
+      completed_count: 0
+    } as GetUserProfileResponse
+  })
+}
+
+export const useGetProfileImageUploadUrl = () => {
+  return useMutation({
+    mutationFn: async (params: GetProfileImageUploadUrlRequest) => {
+      const response = await userApi.getProfileImageUploadUrl(params)
+
+      return response.data
+    }
+  })
+}
+
+export const useUpdateProfileImage = () => {
+  return useMutation({
+    mutationFn: async (params: UpdateProfileImageRequest) => {
+      const response = await userApi.updateProfileImage(params)
+
+      return response.data
+    }
+  })
+}
+
+export const useUpdateNickname = () => {
+  return useMutation({
+    mutationFn: async (params: UpdateNicknameRequest) => {
+      const response = await userApi.updateNickname(params)
+
+      return response.data
+    }
+  })
+}
 
 export const useUpdateDisplayMode = () => {
   return useMutation({

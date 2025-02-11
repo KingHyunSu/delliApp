@@ -3,7 +3,7 @@ import {ViewStyle, Platform, StyleSheet, View, Pressable, Image, Text, ActivityI
 import {Shadow} from 'react-native-shadow-2'
 import AppBar from '../../components/AppBar'
 import EditMenuBottomSheet, {SelectType} from './components/EditMenuBottomSheet'
-import ImageCropModal from './components/ImageCropModal'
+import ImageCropModal from '@/components/modal/ImageCropModal'
 import ScheduleCompleteRecordModal from '@/components/modal/ScheduleCompleteRecordModal'
 import {check, request, PERMISSIONS, RESULTS} from 'react-native-permissions'
 import {launchCamera, launchImageLibrary} from 'react-native-image-picker'

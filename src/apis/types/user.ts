@@ -1,3 +1,30 @@
+export interface GetUserProfileResponse {
+  before_start_count: number
+  in_progress_count: number
+  completed_count: number
+}
+
+export interface GetProfileImageUploadUrlRequest {
+  name: string
+}
+export interface GetProfileImageUploadUrlResponse {
+  url: string
+}
+
+export interface UpdateProfileImageRequest {
+  file_name: string
+}
+export interface UpdateProfileImageResponse {
+  profile_path: string
+}
+
+export interface UpdateNicknameRequest {
+  nickname: string
+}
+export interface UpdateNicknameResponse {
+  result: boolean
+}
+
 export interface UpdateDisplayModeRequest {
   display_mode: DisplayMode
 }

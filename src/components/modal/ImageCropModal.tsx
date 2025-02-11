@@ -1,4 +1,4 @@
-import {StyleSheet, Modal, SafeAreaView, Pressable, View} from 'react-native'
+import {StyleSheet, Modal, Pressable, View} from 'react-native'
 import {CropView} from 'react-native-image-crop-tools'
 import CancelIcon from '@/assets/icons/cancle.svg'
 import CheckIcon from '@/assets/icons/check.svg'

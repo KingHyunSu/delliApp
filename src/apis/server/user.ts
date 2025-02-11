@@ -1,5 +1,12 @@
 import http from '@/utils/http'
 import {
+  GetUserProfileResponse,
+  GetProfileImageUploadUrlRequest,
+  GetProfileImageUploadUrlResponse,
+  UpdateProfileImageRequest,
+  UpdateProfileImageResponse,
+  UpdateNicknameRequest,
+  UpdateNicknameResponse,
   UpdateDisplayModeRequest,
   UpdateDisplayModeResponse,
   UpdateCustomRequest,
@@ -10,6 +17,22 @@ import {
   GetOutlineListResponse,
   UpdateColorThemeRequest
 } from '@/apis/types/user'
+
+export const getUserProfile = () => {
+  return http.get<any, Response<GetUserProfileResponse>>('user/profile')
+}
+
+export const getProfileImageUploadUrl = (params: GetProfileImageUploadUrlRequest) => {
+  return http.get<any, Response<GetProfileImageUploadUrlResponse>>('user/profile-image/upload-url', {params})
+}
+
+export const updateProfileImage = (data: UpdateProfileImageRequest) => {
+  return http.post<any, Response<UpdateProfileImageResponse>>('user/update/profile-image', data)
+}
+
+export const updateNickname = (data: UpdateNicknameRequest) => {
+  return http.post<any, Response<UpdateNicknameResponse>>('user/update/nickname', data)
+}
 
 export const updateDisplayMode = (data: UpdateDisplayModeRequest) => {
   return http.post<any, Response<UpdateDisplayModeResponse>>('user/update/display_mode', data)
