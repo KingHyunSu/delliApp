@@ -50,6 +50,12 @@ const EditNoteModal = ({visible, value, readonly, onChange, onClose}: Props) => 
     }
   }, [isScrolling, readonly])
 
+  const blurTextInput = useCallback(() => {
+    if (isInputMode) {
+      return
+    }
+  }, [isInputMode])
+
   const handleClose = useCallback(() => {
     _setIsValue(value)
     setIsInputMode(false)
@@ -72,7 +78,7 @@ const EditNoteModal = ({visible, value, readonly, onChange, onClose}: Props) => 
       Keyboard.dismiss()
 
       width.value = withTiming(windowDimensions.width - 32)
-      height.value = withTiming(windowDimensions.height * 0.5)
+      height.value = withTiming(windowDimensions.height * 0.6)
     }
   }, [isInputMode, windowDimensions.width, windowDimensions.height])
 
@@ -89,7 +95,7 @@ const EditNoteModal = ({visible, value, readonly, onChange, onClose}: Props) => 
           {/* app bar */}
           {isInputMode && (
             <Animated.View style={{paddingTop: safeAreaInsets.top}}>
-              <Pressable style={styles.appBarWrapper} onPress={Keyboard.dismiss}>
+              <View style={styles.appBarWrapper}>
                 <Pressable style={styles.closeButton} onPress={handleClose}>
                   <CancelIcon stroke={activeTheme.color3} strokeWidth={3} />
                 </Pressable>
@@ -97,18 +103,18 @@ const EditNoteModal = ({visible, value, readonly, onChange, onClose}: Props) => 
                 <Pressable style={styles.saveButton} onPress={handleSave}>
                   <Text style={styles.saveButtonText}>저장</Text>
                 </Pressable>
-              </Pressable>
+              </View>
             </Animated.View>
           )}
 
-          <Pressable style={styles.titleWrapper} onPress={Keyboard.dismiss}>
+          <View style={styles.titleWrapper}>
             <Text style={styles.title}>기록</Text>
-          </Pressable>
+          </View>
 
           <KeyboardAwareScrollView
             style={styles.textInputWrapper}
             showsVerticalScrollIndicator={false}
-            extraScrollHeight={50}
+            extraScrollHeight={0}
             onScrollBeginDrag={() => setIsScrolling(true)}
             onScrollEndDrag={() => setIsScrolling(false)}>
             <TextInput
@@ -122,6 +128,7 @@ const EditNoteModal = ({visible, value, readonly, onChange, onClose}: Props) => 
               placeholderTextColor="#c3c5cc"
               onChangeText={_setIsValue}
               onPress={pressTextInput}
+              onBlur={blurTextInput}
             />
           </KeyboardAwareScrollView>
 
@@ -143,7 +150,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#00000080'
+    backgroundColor: '#000000',
+    opacity: 0.8
   },
   container: {
     flex: 1,
@@ -152,9 +160,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16
   },
   wrapper: {
-    width: '100%',
-    height: '50%',
-    backgroundColor: '#ffffff'
+    backgroundColor: '#ffffff',
+    paddingBottom: 10
   },
   appBarWrapper: {
     flexDirection: 'row',
@@ -187,7 +194,8 @@ const styles = StyleSheet.create({
   textInput: {
     fontSize: 16,
     paddingVertical: 0,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
+    paddingBottom: 40
   },
   saveButton: {
     width: 52,
@@ -213,7 +221,8 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000'
+    // backgroundColor: '#000000'
+    backgroundColor: '#6B727E'
   }
 })
 

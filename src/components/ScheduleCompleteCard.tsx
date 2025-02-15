@@ -23,18 +23,28 @@ const ScheduleCompleteCard = ({
 }: Props) => {
   const backCardStyle = useMemo(() => {
     const rotate = imageUrl ? -2 : 0
-    let top = -20
-    let left = -8
+    let top = 0
+    let left = 0
+    let padding = 15
 
-    if (type === 'thumb') {
-      top = -7
-      left = -3
-    } else if (type === 'timetable') {
-      top = -5
-      left = -2
+    if (imageUrl) {
+      top = -20
+      left = -8
+
+      if (type === 'thumb') {
+        top = -7
+        left = -3
+      } else if (type === 'timetable') {
+        top = -5
+        left = -2
+      }
     }
 
-    return [styles.backCard, {transform: [{rotate: `${rotate}deg`}], top, left}]
+    if (type === 'thumb' || type === 'timetable') {
+      padding = 1
+    }
+
+    return [styles.backCard, {padding, transform: [{rotate: `${rotate}deg`}], top, left}]
   }, [imageUrl, type])
 
   const frontCardStyle = useMemo(() => {
@@ -52,19 +62,16 @@ const ScheduleCompleteCard = ({
     return [styles.frontCard, {left}]
   }, [record, type])
 
-  const memoStyle = useMemo(() => {
+  const recordTextStyle = useMemo(() => {
     let fontSize = 14
-    let padding = 15
 
     if (type === 'thumb') {
       fontSize = 10
-      padding = 1
     } else if (type === 'timetable') {
       fontSize = 5
-      padding = 1
     }
 
-    return [styles.record, {fontSize, padding}]
+    return [styles.recordText, {fontSize}]
   }, [type])
 
   return (
@@ -72,9 +79,7 @@ const ScheduleCompleteCard = ({
       {/* back card */}
       {record && (
         <View style={backCardStyle}>
-          <View style={{width: '100%', height: '100%'}}>
-            <Text style={memoStyle}>{record}</Text>
-          </View>
+          <Text style={recordTextStyle}>{record}</Text>
         </View>
       )}
 
@@ -96,7 +101,7 @@ const ScheduleCompleteCard = ({
 
           {completeCount && (
             <>
-              <View style={{position: 'absolute', top: 0, width: '100%', height: '100%'}}>
+              <View style={styles.frontCardHeader}>
                 <Svg width="100%" height="100%">
                   <Defs>
                     <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
@@ -139,6 +144,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0
   },
+  frontCardHeader: {
+    position: 'absolute',
+    top: 0,
+    width: '100%',
+    height: '100%'
+  },
   image: {
     width: '100%',
     height: '100%',
@@ -146,7 +157,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#f0eff586'
   },
-  record: {
+  recordText: {
     fontFamily: 'Pretendard-Medium',
     color: '#000000'
   },
