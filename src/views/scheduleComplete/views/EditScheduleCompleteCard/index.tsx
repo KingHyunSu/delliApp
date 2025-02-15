@@ -36,6 +36,9 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
   const [_imageUrl, _setImageUrl] = useState<string | null>(null)
   const [_record, _setRecord] = useState(route.params.record)
 
+  const [editScheduleCompleteCardForm, setEditScheduleCompleteCardForm] = useRecoilState(
+    editScheduleCompleteCardFormState
+  )
   const [editScheduleCompleteCacheList, setEditScheduleCompleteCacheList] = useRecoilState(
     editScheduleCompleteCacheListState
   )
@@ -43,7 +46,6 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
 
   const activeTheme = useRecoilValue(activeThemeState)
   const displayMode = useRecoilValue(displayModeState)
-  const editScheduleCompleteCardForm = useRecoilValue(editScheduleCompleteCardFormState)
   const resetEditScheduleCompleteCardForm = useResetRecoilState(editScheduleCompleteCardFormState)
   const resetEditScheduleCompletePhotoCardForm = useResetRecoilState(editScheduleCompletePhotoCardFormState)
 
@@ -56,9 +58,25 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
     return scheduleList.find(item => item.schedule_id === route.params.schedule_id)
   }, [scheduleList, route.params])
 
+  const changeScheduleCompleteRecord = useCallback(
+    (value: string) => {
+      setEditScheduleCompleteCardForm(prevState => ({
+        ...prevState,
+        record: value
+      }))
+    },
+    [setEditScheduleCompleteCardForm]
+  )
+
   const pressCard = useCallback(() => {
-    setIsShowEditScheduleCompleteCardMenu(true)
-  }, [])
+    if (_imageUrl && _record) {
+      setIsShowEditScheduleCompleteCardMenu(true)
+    } else if (_imageUrl) {
+      navigation.navigate('EditScheduleCompletePhotoCard')
+    } else if (_record) {
+      setIsShowEditNoteModal(true)
+    }
+  }, [_imageUrl, _record, navigation])
 
   const handlePhotoCardSelected = useCallback(() => {
     if (_imageUrl) {
@@ -306,7 +324,7 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
       <ScheduleCompleteRecordModal
         visible={isShowEditNoteModal}
         value={_record || ''}
-        onChange={_setRecord}
+        onChange={changeScheduleCompleteRecord}
         onClose={() => setIsShowEditNoteModal(false)}
       />
       <EditScheduleCompleteCardMenuBottomSheet
