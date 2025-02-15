@@ -1,13 +1,13 @@
-import {useMutation, useQuery} from '@tanstack/react-query'
+import {useMutation} from '@tanstack/react-query'
 import {
   DeleteScheduleCompleteCardRequest,
   GetScheduleCompletePhotoCardUploadUrlRequest,
   GetScheduleCompleteDetailRequest,
   GetScheduleCompleteCardListRequest,
   SetScheduleCompleteRequest,
-  UpdateScheduleCompleteRequest,
   UpdateAttachScheduleCompleteCardRequest,
-  UpdateScheduleCompleteRecordCardRequest
+  UpdateScheduleCompleteRecordCardRequest,
+  UpdateScheduleCompleteCardRequest
 } from '@/apis/types/scheduleComplete'
 import * as scheduleCompleteApi from '@/apis/server/scheduleComplete'
 
@@ -41,20 +41,20 @@ export const useSetScheduleComplete = () => {
   })
 }
 
-export const useUpdateScheduleComplete = () => {
+export const useGetScheduleCompletePhotoCardUploadUrl = () => {
   return useMutation({
-    mutationFn: async (params: UpdateScheduleCompleteRequest) => {
-      const response = await scheduleCompleteApi.updateScheduleComplete(params)
+    mutationFn: async (params: GetScheduleCompletePhotoCardUploadUrlRequest) => {
+      const response = await scheduleCompleteApi.getScheduleCompletePhotoCardUploadUrl(params)
 
       return response.data
     }
   })
 }
 
-export const useGetScheduleCompletePhotoCardUploadUrl = () => {
+export const useUpdateScheduleCompleteCard = () => {
   return useMutation({
-    mutationFn: async (params: GetScheduleCompletePhotoCardUploadUrlRequest) => {
-      const response = await scheduleCompleteApi.getScheduleCompletePhotoCardUploadUrl(params)
+    mutationFn: async (params: UpdateScheduleCompleteCardRequest) => {
+      const response = await scheduleCompleteApi.updateScheduleCompleteCard(params)
 
       return response.data
     }

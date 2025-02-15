@@ -26,6 +26,7 @@ import {
   ScheduleCompleteScreen,
   ScheduleCompleteCardDetailScreen,
   EditScheduleCompleteCardScreen,
+  EditScheduleCompletePhotoCardScreen,
   AttachScheduleCompleteCardScreen
 } from '@/views/scheduleComplete'
 import {StoreListScreen, StoreDetailScreen} from '@/views/store'
@@ -204,6 +205,11 @@ function App(): JSX.Element {
       case 'EditTodo':
       case 'Leave':
         _bottomSafeAreaColor = activeTheme.color1
+        break
+      case 'EditScheduleCompletePhotoCard':
+        _statusBarTextStyle = 'light-content'
+        _statusBarColor = '#000000'
+        _bottomSafeAreaColor = '#000000'
         break
       case 'AttachScheduleCompleteCard':
         _statusBarTextStyle = activeBackground.display_mode === 1 ? 'dark-content' : 'light-content'
@@ -472,6 +478,11 @@ function App(): JSX.Element {
                       />
                       <Stack.Screen name="ScheduleCompleteCardDetail" component={ScheduleCompleteCardDetailScreen} />
                       <Stack.Screen name="EditScheduleCompleteCard" component={EditScheduleCompleteCardScreen} />
+                      <Stack.Screen
+                        name="EditScheduleCompletePhotoCard"
+                        component={EditScheduleCompletePhotoCardScreen}
+                        options={{animation: 'none', gestureEnabled: false}}
+                      />
                       <Stack.Screen
                         name="AttachScheduleCompleteCard"
                         component={AttachScheduleCompleteCardScreen}

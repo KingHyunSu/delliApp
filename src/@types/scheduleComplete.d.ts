@@ -14,4 +14,21 @@ declare global {
     thumb_path: string | null
     total: number
   }
+
+  interface EditScheduleCompleteCardForm {
+    imageUrl: string | null
+    record: string
+  }
+
+  interface ScheduleCompletePhotoCardText {
+    index: number
+    text: string
+    x: number
+    y: number
+    rotate: number
+  }
+  interface EditScheduleCompletePhotoCardForm {
+    originalImageUrl: string | null
+    photoCardTextList: ScheduleCompletePhotoCardText[]
+  }
 }

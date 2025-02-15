@@ -48,13 +48,13 @@ export interface SetScheduleCompleteResponse {
   complete_count: number
 }
 
-export interface UpdateScheduleCompleteRequest {
+export interface UpdateScheduleCompleteCardRequest {
   schedule_complete_id: number
   complete_date: string
   record: string
   file_name: string | null
 }
-export interface UpdateScheduleCompleteResponse {
+export interface UpdateScheduleCompleteCardResponse {
   main_path: string
   thumb_path: string
   timetable_path: string

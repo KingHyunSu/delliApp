@@ -14,17 +14,22 @@ interface Props {
   type: 'detail' | 'edit'
   title: string
   completeCount: number
+  onBack?: () => void
   onSubmit?: () => void
   onEdit?: () => void
   onDelete?: () => void
 }
-const AppBar = ({type, title, completeCount, onSubmit, onEdit, onDelete}: Props) => {
+const AppBar = ({type, title, completeCount, onBack, onSubmit, onEdit, onDelete}: Props) => {
   const [isShowModal, setIsShowModal] = useState(false)
   const activeTheme = useRecoilValue(activeThemeState)
 
   const goBack = useCallback(() => {
-    navigationRef.current?.goBack()
-  }, [])
+    if (onBack) {
+      onBack()
+    } else {
+      navigationRef.current?.goBack()
+    }
+  }, [onBack])
 
   const handleEdit = useCallback(() => {
     if (onEdit) {
@@ -51,7 +56,7 @@ const AppBar = ({type, title, completeCount, onSubmit, onEdit, onDelete}: Props)
       case 'edit':
         return (
           <Pressable style={rightButtonStyle} onPress={onSubmit}>
-            <Text style={styles.buttonText}>완료</Text>
+            <Text style={styles.buttonText}>저장</Text>
           </Pressable>
         )
       default:
@@ -113,8 +118,8 @@ const styles = StyleSheet.create({
     fontSize: 12
   },
   button: {
-    width: 48,
-    height: 48,
+    width: 60,
+    height: '100%',
     justifyContent: 'center'
   },
   buttonText: {

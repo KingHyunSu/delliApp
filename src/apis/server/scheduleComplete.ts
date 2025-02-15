@@ -9,12 +9,12 @@ import {
   GetScheduleCompleteCardListResponse,
   SetScheduleCompleteRequest,
   SetScheduleCompleteResponse,
-  UpdateScheduleCompleteRequest,
-  UpdateScheduleCompleteResponse,
   UpdateAttachScheduleCompleteCardRequest,
   UpdateAttachScheduleCompleteCardResponse,
   UpdateScheduleCompleteRecordCardRequest,
-  UpdateScheduleCompleteRecordCardResponse
+  UpdateScheduleCompleteRecordCardResponse,
+  UpdateScheduleCompleteCardRequest,
+  UpdateScheduleCompleteCardResponse
 } from '@/apis/types/scheduleComplete'
 import http from '@/utils/http'
 
@@ -24,10 +24,6 @@ export const getScheduleCompleteDetail = (params: GetScheduleCompleteDetailReque
 
 export const setScheduleComplete = (data: SetScheduleCompleteRequest) => {
   return http.post<any, Response<SetScheduleCompleteResponse>>('schedule/complete', data)
-}
-
-export const updateScheduleComplete = (data: UpdateScheduleCompleteRequest) => {
-  return http.post<any, Response<UpdateScheduleCompleteResponse>>('schedule/complete/update', data)
 }
 
 export const getScheduleCompleteCardList = (params: GetScheduleCompleteCardListRequest) => {
@@ -41,6 +37,10 @@ export const getScheduleCompletePhotoCardUploadUrl = (params: GetScheduleComplet
       params
     }
   )
+}
+
+export const updateScheduleCompleteCard = (data: UpdateScheduleCompleteCardRequest) => {
+  return http.post<any, Response<UpdateScheduleCompleteCardResponse>>('schedule/complete/card/update', data)
 }
 
 export const updateScheduleCompleteRecordCard = (data: UpdateScheduleCompleteRecordCardRequest) => {
