@@ -77,7 +77,8 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
           text: value,
           x: initialPhotoCardTextPosition.x,
           y: initialPhotoCardTextPosition.y,
-          rotate: 0
+          rotate: 0,
+          scale: 1
         }
 
         setActiveEditPhotoCardText(newPhotoCardText)
@@ -94,13 +95,11 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
   )
 
   const changePhotoCardTextTransform = useCallback(
-    (value: {x: number; y: number; rotate: number}) => {
+    (value: {x: number; y: number; rotate: number; scale: number}) => {
       if (!activeEditPhotoCardText) return
 
       const newPhotoCardTextList = photoCardTextList.map(item => {
-        return item.index === activeEditPhotoCardText.index
-          ? {...item, x: value.x, y: value.y, rotate: value.rotate}
-          : item
+        return item.index === activeEditPhotoCardText.index ? {...item, ...value} : item
       })
 
       setPhotoCardTextList(newPhotoCardTextList)

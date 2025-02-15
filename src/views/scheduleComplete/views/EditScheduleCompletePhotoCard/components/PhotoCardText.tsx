@@ -1,4 +1,4 @@
-import {useEffect, useMemo, useState} from 'react'
+import {useCallback, useEffect, useMemo, useState} from 'react'
 import {StyleSheet, View, Pressable, Text} from 'react-native'
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS, withTiming} from 'react-native-reanimated'
@@ -9,7 +9,7 @@ interface Props {
   value: ScheduleCompletePhotoCardText
   enabled: boolean
   gestureSafeArea: number
-  onChangeTransform: (value: {x: number; y: number; rotate: number}) => void
+  onChangeTransform: (value: {x: number; y: number; rotate: number; scale: number}) => void
   onPress: () => void
 }
 const PhotoCardText = ({value, enabled, gestureSafeArea = 10, onChangeTransform, onPress}: Props) => {
@@ -17,12 +17,14 @@ const PhotoCardText = ({value, enabled, gestureSafeArea = 10, onChangeTransform,
   const [savedTranslateX, setSavedTranslateX] = useState(value.x)
   const [savedTranslateY, setSavedTranslateY] = useState(value.y)
   const [savedRotation, setSavedRotation] = useState(value.rotate)
+  const [savedScale, setSavedScale] = useState(value.scale)
   const [isRotationBlock, setIsRotationBlock] = useState(false)
 
   const opacity = useSharedValue(0)
   const translateX = useSharedValue(value.x)
   const translateY = useSharedValue(value.y)
   const rotation = useSharedValue(value.rotate)
+  const scale = useSharedValue(value.scale)
 
   const overlayAnimatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value
@@ -31,7 +33,8 @@ const PhotoCardText = ({value, enabled, gestureSafeArea = 10, onChangeTransform,
     transform: [
       {translateX: translateX.value},
       {translateY: translateY.value},
-      {rotateZ: `${(rotation.value / Math.PI) * 180}deg`}
+      {rotateZ: `${(rotation.value / Math.PI) * 180}deg`},
+      {scale: scale.value}
     ]
   }))
 
@@ -47,11 +50,12 @@ const PhotoCardText = ({value, enabled, gestureSafeArea = 10, onChangeTransform,
         transform: [
           {translateX: savedTranslateX + gestureSafeArea - 10},
           {translateY: savedTranslateY + gestureSafeArea - 10},
-          {rotateZ: `${(savedRotation / Math.PI) * 180}deg`}
+          {rotateZ: `${(savedRotation / Math.PI) * 180}deg`},
+          {scale: savedScale}
         ]
       }
     ]
-  }, [savedTranslateX, savedTranslateY, savedRotation, gestureSafeArea])
+  }, [savedTranslateX, savedTranslateY, savedRotation, savedScale, gestureSafeArea])
 
   const moveGesture = Gesture.Pan()
     .onUpdate(e => {
@@ -65,7 +69,8 @@ const PhotoCardText = ({value, enabled, gestureSafeArea = 10, onChangeTransform,
       runOnJS(onChangeTransform)({
         x: translateX.value,
         y: translateY.value,
-        rotate: rotation.value
+        rotate: rotation.value,
+        scale: scale.value
       })
     })
 
@@ -100,11 +105,27 @@ const PhotoCardText = ({value, enabled, gestureSafeArea = 10, onChangeTransform,
       runOnJS(onChangeTransform)({
         x: translateX.value,
         y: translateY.value,
-        rotate: rotation.value
+        rotate: rotation.value,
+        scale: scale.value
       })
     })
 
-  const composeGesture = Gesture.Simultaneous(moveGesture, rotateGesture)
+  const pinchGesture = Gesture.Pinch()
+    .onUpdate(e => {
+      scale.value = savedScale * e.scale
+    })
+    .onEnd(() => {
+      runOnJS(setSavedScale)(scale.value)
+
+      runOnJS(onChangeTransform)({
+        x: translateX.value,
+        y: translateY.value,
+        rotate: rotation.value,
+        scale: scale.value
+      })
+    })
+
+  const composeGesture = Gesture.Simultaneous(moveGesture, rotateGesture, pinchGesture)
 
   useEffect(() => {
     if (enabled) {
