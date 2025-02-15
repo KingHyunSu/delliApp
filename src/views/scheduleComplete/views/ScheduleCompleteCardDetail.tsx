@@ -184,7 +184,7 @@ const ScheduleCompleteCardDetail = ({navigation, route}: ScheduleCompleteCardDet
       />
 
       <View style={styles.wrapper}>
-        {imageUrl && (
+        {(imageUrl || detail.record) && (
           <Pressable style={styles.cardWrapper} onPress={() => setIsShowScheduleCompleteRecordModal(true)}>
             <ScheduleCompleteCard
               type="main"

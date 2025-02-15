@@ -40,7 +40,9 @@ const ScheduleCompleteCard = ({
       }
     }
 
-    if (type === 'thumb' || type === 'timetable') {
+    if (type === 'thumb') {
+      padding = 5
+    } else if (type === 'timetable') {
       padding = 1
     }
 
@@ -66,7 +68,7 @@ const ScheduleCompleteCard = ({
     let fontSize = 14
 
     if (type === 'thumb') {
-      fontSize = 10
+      fontSize = 9
     } else if (type === 'timetable') {
       fontSize = 5
     }

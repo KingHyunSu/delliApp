@@ -52,27 +52,27 @@ const ScheduleCardListBottomSheet = ({value, total, onPress, onPaging}: Props) =
 
   const getRenderItem: ListRenderItem<GetScheduleCompleteCardListResponse> = useCallback(
     ({item, index}) => {
-      if (!item.thumb_path) {
-        return <></>
+      if (item.thumb_path || item.record) {
+        const url = item.thumb_path ? domain + '/' + item.thumb_path : null
+        const completeCount = index + 1
+
+        return (
+          <View style={styles.itemContainer}>
+            <Pressable style={styles.cardWrapper} onPress={() => handlePress(item, completeCount)}>
+              <ScheduleCompleteCard
+                type="thumb"
+                imageUrl={url}
+                record={item.record}
+                completeCount={completeCount}
+                shadowColor="#efefef"
+                shadowDistance={5}
+              />
+            </Pressable>
+          </View>
+        )
       }
 
-      const url = domain + '/' + item.thumb_path
-      const completeCount = index + 1
-
-      return (
-        <View style={styles.itemContainer}>
-          <Pressable style={styles.cardWrapper} onPress={() => handlePress(item, completeCount)}>
-            <ScheduleCompleteCard
-              type="thumb"
-              imageUrl={url}
-              record={item.record}
-              completeCount={completeCount}
-              shadowColor="#efefef"
-              shadowDistance={5}
-            />
-          </Pressable>
-        </View>
-      )
+      return <></>
     },
     [domain, handlePress]
   )

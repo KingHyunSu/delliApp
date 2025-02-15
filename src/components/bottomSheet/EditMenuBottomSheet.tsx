@@ -318,7 +318,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
 
           {editScheduleCompleteForm && (
             <View style={styles.completeCardWrapper}>
-              {imageUrl ? (
+              {imageUrl || editScheduleCompleteForm.record ? (
                 <Pressable onPress={showScheduleCompleteCardMenu}>
                   <Shadow
                     style={{width: 40, height: 40, borderRadius: 15}}
