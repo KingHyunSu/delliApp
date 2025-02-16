@@ -280,7 +280,7 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
         <Pressable style={styles.cardWrapper} onPress={pressCard}>
           {_imageUrl || _record ? (
             <ScheduleCompleteCard
-              type="main"
+              size="large"
               imageUrl={_imageUrl}
               record={_record}
               shadowColor="#e0e0e0"

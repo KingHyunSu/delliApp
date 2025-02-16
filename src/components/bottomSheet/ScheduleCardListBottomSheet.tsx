@@ -60,7 +60,7 @@ const ScheduleCardListBottomSheet = ({value, total, onPress, onPaging}: Props) =
           <View style={styles.itemContainer}>
             <Pressable style={styles.cardWrapper} onPress={() => handlePress(item, completeCount)}>
               <ScheduleCompleteCard
-                type="thumb"
+                size="medium"
                 imageUrl={url}
                 record={item.record}
                 completeCount={completeCount}

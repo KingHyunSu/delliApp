@@ -4,7 +4,8 @@ import {Shadow} from 'react-native-shadow-2'
 import {Defs, LinearGradient, Rect, Stop, Svg} from 'react-native-svg'
 
 interface Props {
-  type: 'main' | 'thumb' | 'timetable'
+  type?: 'default' | 'attach'
+  size: 'small' | 'medium' | 'large'
   imageUrl: string | null
   record: string | null
   completeCount?: number
@@ -13,68 +14,81 @@ interface Props {
   shadowOffset?: [x: string | number, y: string | number] | undefined
 }
 const ScheduleCompleteCard = ({
+  type = 'default',
   imageUrl,
   record,
-  type,
+  size,
   completeCount,
   shadowColor,
   shadowDistance,
   shadowOffset = [0, 0]
 }: Props) => {
   const backCardStyle = useMemo(() => {
-    const rotate = imageUrl ? -2 : 0
+    let rotate = 0
     let top = 0
     let left = 0
     let padding = 15
 
     if (imageUrl) {
-      top = -20
-      left = -8
-
-      if (type === 'thumb') {
-        top = -7
-        left = -3
-      } else if (type === 'timetable') {
-        top = -5
+      if (type === 'attach') {
         left = -2
+        rotate = 3
+      } else {
+        top = -20
+        left = -8
+        rotate = -2
+
+        if (size === 'medium') {
+          top = -7
+          left = -3
+        } else if (size === 'small') {
+          top = -5
+          left = -2
+        }
       }
     }
 
-    if (type === 'thumb') {
+    if (size === 'medium') {
       padding = 5
-    } else if (type === 'timetable') {
+    } else if (size === 'small') {
       padding = 1
     }
 
     return [styles.backCard, {padding, transform: [{rotate: `${rotate}deg`}], top, left}]
-  }, [imageUrl, type])
+  }, [imageUrl, type, size])
 
   const frontCardStyle = useMemo(() => {
     let left = 0
+    let rotate = 0
 
     if (record) {
-      left = 12
-      if (type === 'thumb') {
-        left = 3
-      } else if (type === 'timetable') {
-        left = 2
+      if (type === 'attach') {
+        left = 1
+        rotate = -1
+      } else {
+        left = 12
+        if (size === 'medium') {
+          left = 3
+        } else if (size === 'small') {
+          left = 2
+        }
       }
     }
 
-    return [styles.frontCard, {left}]
-  }, [record, type])
+    return [styles.frontCard, {left, transform: [{rotate: `${rotate}deg`}]}]
+  }, [record, type, size])
 
   const recordTextStyle = useMemo(() => {
     let fontSize = 14
 
-    if (type === 'thumb') {
+    if (size === 'medium') {
       fontSize = 9
-    } else if (type === 'timetable') {
+    } else if (size === 'small') {
       fontSize = 5
     }
 
     return [styles.recordText, {fontSize}]
-  }, [type])
+  }, [size])
 
   return (
     <View style={styles.container}>

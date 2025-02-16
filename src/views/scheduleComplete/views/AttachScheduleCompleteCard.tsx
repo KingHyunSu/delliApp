@@ -2,6 +2,7 @@ import {useState, useMemo, useCallback, useEffect} from 'react'
 import {LayoutChangeEvent, StyleSheet, View, Text, Image, Pressable} from 'react-native'
 import AppBar from '@/components/AppBar'
 import {Timetable} from '@/components/TimeTable'
+import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS} from 'react-native-reanimated'
 
@@ -51,7 +52,11 @@ const AttachScheduleCompleteCard = ({navigation, route}: AttachScheduleCompleteC
     return timetableWrapperSize - 40
   }, [timetableWrapperSize])
 
-  const imageUri = useMemo(() => {
+  const imageUrl = useMemo(() => {
+    if (!route.params.schedule_complete_card_path) {
+      return null
+    }
+
     const domain = process.env.CDN_URL
     return domain + '/' + route.params.schedule_complete_card_path
   }, [route.params.schedule_complete_card_path])
@@ -186,7 +191,17 @@ const AttachScheduleCompleteCard = ({navigation, route}: AttachScheduleCompleteC
         <View style={{width: radius * 2, height: radius * 2, position: 'absolute'}} onLayout={handleTimetableLayout}>
           <GestureDetector gesture={moveGesture}>
             <Animated.View style={cardWrapperStyle}>
-              <Image source={{uri: imageUri}} style={{width: cardWidth, height: cardHeight}} />
+              <View style={{width: cardWidth, height: cardHeight}}>
+                <ScheduleCompleteCard
+                  type="attach"
+                  size="small"
+                  imageUrl={imageUrl}
+                  record={route.params.schedule_complete_record}
+                  shadowColor="#efefef"
+                  shadowDistance={2}
+                  shadowOffset={[0, 1]}
+                />
+              </View>
 
               <Image source={require('@/assets/images/tape.png')} style={styles.tape} />
             </Animated.View>

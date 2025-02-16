@@ -138,6 +138,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
       schedule_complete_card_x: editScheduleForm.schedule_complete_card_x,
       schedule_complete_card_y: editScheduleForm.schedule_complete_card_y,
       schedule_complete_card_path: editScheduleForm.schedule_complete_card_path,
+      schedule_complete_record: editScheduleForm.schedule_complete_record,
       schedule_id: editScheduleForm.schedule_id
     })
   }, [
@@ -146,6 +147,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
     editScheduleForm.schedule_complete_card_x,
     editScheduleForm.schedule_complete_card_y,
     editScheduleForm.schedule_complete_card_path,
+    editScheduleForm.schedule_complete_record,
     editScheduleForm.schedule_id
   ])
 
@@ -329,7 +331,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
                   />
 
                   <ScheduleCompleteCard
-                    type="timetable"
+                    size="small"
                     imageUrl={imageUrl}
                     record={editScheduleCompleteForm.record}
                     shadowColor="#efefef"

@@ -7,6 +7,7 @@ import Outline from '../components/Outline'
 import Background from '../components/Background'
 import SchedulePie from '../components/SchedulePie'
 import ScheduleText from '../components/ScheduleText'
+import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
 // import DefaultTimeAnchor from '@/assets/icons/default_time_anchor.svg'
 
 import {useSetRecoilState, useRecoilValue} from 'recoil'
@@ -154,7 +155,6 @@ const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
     return data.map((item, index) => {
       if (
         editScheduleCompleteCardId === item.schedule_complete_id ||
-        !item.schedule_complete_card_path ||
         item.schedule_complete_card_x === null ||
         item.schedule_complete_card_x === undefined ||
         item.schedule_complete_card_y === null ||
@@ -163,16 +163,31 @@ const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
         return null
       }
 
-      const imageUrl = domain + '/' + item.schedule_complete_card_path
-      const left = Math.round(radius + (radius / 100) * item.schedule_complete_card_x)
-      const top = Math.round(radius - (radius / 100) * item.schedule_complete_card_y)
+      if (item.schedule_complete_card_path || item.schedule_complete_record) {
+        const imageUrl = item.schedule_complete_card_path ? domain + '/' + item.schedule_complete_card_path : null
+        const left = Math.round(radius + (radius / 100) * item.schedule_complete_card_x)
+        const top = Math.round(radius - (radius / 100) * item.schedule_complete_card_y)
 
-      return (
-        <View key={index} style={{position: 'absolute', left, top}}>
-          <Image source={{uri: imageUrl}} style={{width: cardWidth, height: cardHeight}} />
-          <Image source={require('@/assets/images/tape.png')} style={styles.tape} />
-        </View>
-      )
+        return (
+          <View key={index} style={{position: 'absolute', left, top}}>
+            <View style={{width: cardWidth, height: cardHeight}}>
+              <ScheduleCompleteCard
+                type="attach"
+                size="small"
+                imageUrl={imageUrl}
+                record={item.schedule_complete_record || ''}
+                shadowColor="#efefef"
+                shadowDistance={2}
+                shadowOffset={[0, 1]}
+              />
+            </View>
+
+            <Image source={require('@/assets/images/tape.png')} style={styles.tape} />
+          </View>
+        )
+      }
+
+      return null
     })
   }, [editScheduleCompleteCardId, data, radius])
 
