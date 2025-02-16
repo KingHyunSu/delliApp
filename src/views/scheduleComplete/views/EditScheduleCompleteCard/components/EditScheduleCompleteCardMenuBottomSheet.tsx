@@ -4,7 +4,7 @@ import {BottomSheetModal, BottomSheetView, BottomSheetBackdropProps, BottomSheet
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import {useRecoilValue} from 'recoil'
-import {activeThemeState} from '@/store/system'
+import {activeThemeState, safeAreaInsetsState} from '@/store/system'
 
 type SelectType = 'photo' | 'record'
 
@@ -17,6 +17,7 @@ const EditScheduleCompleteCardMenuBottomSheet = ({visible, onSelect, onClose}: P
   const bottomSheetModalRef = useRef<BottomSheetModal>(null)
 
   const activeTheme = useRecoilValue(activeThemeState)
+  const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const handleSelect = useCallback(
     (type: SelectType) => {
@@ -59,7 +60,7 @@ const EditScheduleCompleteCardMenuBottomSheet = ({visible, onSelect, onClose}: P
       backdropComponent={getBottomSheetBackdrop}
       handleComponent={getBottomSheetHandler}
       onDismiss={onClose}>
-      <BottomSheetView style={styles.container}>
+      <BottomSheetView style={[styles.container, {paddingBottom: safeAreaInsets.bottom + 20}]}>
         <Text style={styles.title}>완료 카드 수정하기</Text>
 
         <Pressable style={styles.button} onPress={() => handleSelect('photo')}>
@@ -77,8 +78,7 @@ const EditScheduleCompleteCardMenuBottomSheet = ({visible, onSelect, onClose}: P
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 50
+    paddingTop: 10
   },
   title: {
     fontFamily: 'Pretendard-SemiBold',

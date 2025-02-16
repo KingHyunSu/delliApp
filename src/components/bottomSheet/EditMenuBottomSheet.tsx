@@ -1,12 +1,12 @@
 import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
-import {StyleSheet, Platform, Alert, View, Text, Pressable, Image} from 'react-native'
-import {BottomSheetModal, BottomSheetBackdropProps, BottomSheetHandleProps} from '@gorhom/bottom-sheet'
+import {StyleSheet, Platform, Alert, View, Text, Pressable} from 'react-native'
+import {BottomSheetModal, BottomSheetView, BottomSheetBackdropProps, BottomSheetHandleProps} from '@gorhom/bottom-sheet'
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
 
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
-import {activeThemeState, displayModeState} from '@/store/system'
+import {activeThemeState, displayModeState, safeAreaInsetsState} from '@/store/system'
 import {editScheduleFormState, scheduleDateState} from '@/store/schedule'
 import {editScheduleCompleteCacheListState, editScheduleCompleteFormState} from '@/store/scheduleComplete'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
@@ -54,14 +54,11 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const scheduleDate = useRecoilValue(scheduleDateState)
   const activeTheme = useRecoilValue(activeThemeState)
   const displayMode = useRecoilValue(displayModeState)
+  const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const resetEditScheduleForm = useResetRecoilState(editScheduleFormState)
   const resetEditScheduleCompleteForm = useResetRecoilState(editScheduleCompleteFormState)
   const setReloadWidgetWithImage = useSetRecoilState(reloadWidgetWithImageState)
-
-  const snapPoints = useMemo(() => {
-    return [400]
-  }, [])
 
   const imageUrl = useMemo(() => {
     if (editScheduleCompleteForm?.thumb_path) {
@@ -299,10 +296,8 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
       handleComponent={bottomSheetHandler}
       backgroundStyle={{backgroundColor: activeTheme.color5}}
       index={0}
-      snapPoints={snapPoints}
-      enableDynamicSizing={false}
       onDismiss={closeEditMenuBottomSheet}>
-      <View style={[styles.container, {backgroundColor: activeTheme.color2}]}>
+      <BottomSheetView style={[styles.container, {backgroundColor: activeTheme.color2}]}>
         <View style={[styles.header, {backgroundColor: activeTheme.color5}]}>
           <View style={styles.titleWrapper}>
             <Text style={[styles.title, {color: activeTheme.color3}]}>{editScheduleForm.title}</Text>
@@ -349,7 +344,11 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
           )}
         </View>
 
-        <View style={[styles.menuContainer, {backgroundColor: activeTheme.color5}]}>
+        <View
+          style={[
+            styles.menuContainer,
+            {backgroundColor: activeTheme.color5, paddingBottom: safeAreaInsets.bottom + 20}
+          ]}>
           <Pressable style={styles.menuWrapper} onPress={moveEditTodo}>
             <View style={todoButton}>
               <TodoIcon width={14} height={14} fill="#fff" />
@@ -382,7 +381,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
             <Text style={[styles.text, {color: activeTheme.color3}]}>삭제하기</Text>
           </Pressable>
         </View>
-      </View>
+      </BottomSheetView>
 
       <ScheduleCompleteCardMenuModal
         visible={isShowScheduleCompleteCardMenu}
