@@ -27,6 +27,7 @@ declare global {
     y: number
     rotate: number
     scale: number
+    textColor: string
   }
   interface EditScheduleCompletePhotoCardForm {
     originalImageUrl: string | null

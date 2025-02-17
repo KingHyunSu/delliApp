@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from 'react'
+import {useEffect, useMemo, useState} from 'react'
 import {StyleSheet, View, Pressable, Text} from 'react-native'
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS, withTiming} from 'react-native-reanimated'
@@ -48,14 +48,18 @@ const PhotoCardText = ({value, enabled, gestureSafeArea = 10, onChangeTransform,
       styles.container,
       {
         transform: [
-          {translateX: savedTranslateX + gestureSafeArea - 10},
-          {translateY: savedTranslateY + gestureSafeArea - 10},
+          {translateX: savedTranslateX},
+          {translateY: savedTranslateY},
           {rotateZ: `${(savedRotation / Math.PI) * 180}deg`},
           {scale: savedScale}
         ]
       }
     ]
-  }, [savedTranslateX, savedTranslateY, savedRotation, savedScale, gestureSafeArea])
+  }, [savedTranslateX, savedTranslateY, savedRotation, savedScale])
+
+  const textStyle = useMemo(() => {
+    return [styles.text, {color: value.textColor}]
+  }, [value.textColor])
 
   const moveGesture = Gesture.Pan()
     .onUpdate(e => {
@@ -155,13 +159,13 @@ const PhotoCardText = ({value, enabled, gestureSafeArea = 10, onChangeTransform,
               </View>
             </Animated.View>
 
-            <Text style={styles.text}>{value.text}</Text>
+            <Text style={textStyle}>{value.text}</Text>
           </Animated.View>
         </GestureDetector>
       ) : (
         <View style={containerStyle}>
-          <Pressable style={styles.button} onPress={onPress}>
-            <Text style={styles.text}>{value.text}</Text>
+          <Pressable style={{padding: gestureSafeArea}} onPress={onPress}>
+            <Text style={textStyle}>{value.text}</Text>
           </Pressable>
         </View>
       )}
@@ -172,7 +176,8 @@ const PhotoCardText = ({value, enabled, gestureSafeArea = 10, onChangeTransform,
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    alignSelf: 'flex-start'
+    top: 0,
+    left: 0
   },
   overlay: {
     flexDirection: 'row',
@@ -208,9 +213,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Medium',
     fontSize: 24,
     color: '#000'
-  },
-  button: {
-    padding: 10
   }
 })
 

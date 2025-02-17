@@ -58,8 +58,21 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
   }, [])
 
   const showEditPhotoCardTextModal = useCallback(() => {
-    setActiveEditPhotoCardText(null)
+    setActiveEditPhotoCardText({
+      index: photoCardTextList.length + 1,
+      text: '',
+      x: initialPhotoCardTextPosition.x,
+      y: initialPhotoCardTextPosition.y,
+      rotate: 0,
+      scale: 1,
+      textColor: '#000000'
+    })
     setIsShowEditPhotoCardTextModal(true)
+  }, [photoCardTextList, initialPhotoCardTextPosition])
+
+  const closeEditPhotoCardTextModal = useCallback(() => {
+    setActiveEditPhotoCardText(null)
+    setIsShowEditPhotoCardTextModal(false)
   }, [])
 
   const changePhoto = useCallback(async (url: string) => {
@@ -68,30 +81,22 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
   }, [])
 
   const changePhotoCardText = useCallback(
-    (value: string) => {
+    (value: ScheduleCompletePhotoCardText) => {
       let newPhotoCardTextList = [...photoCardTextList]
 
-      if (activeEditPhotoCardText === null) {
-        const newPhotoCardText = {
-          index: newPhotoCardTextList.length + 1,
-          text: value,
-          x: initialPhotoCardTextPosition.x,
-          y: initialPhotoCardTextPosition.y,
-          rotate: 0,
-          scale: 1
-        }
-
-        setActiveEditPhotoCardText(newPhotoCardText)
-        newPhotoCardTextList.push(newPhotoCardText)
-      } else {
+      if (value.index === photoCardTextList.length) {
         newPhotoCardTextList = photoCardTextList.map(item => {
-          return item.index === activeEditPhotoCardText.index ? {...item, text: value} : item
+          return item.index === activeEditPhotoCardText?.index ? {...item, ...value} : item
         })
+      } else {
+        setActiveEditPhotoCardText(value)
+        newPhotoCardTextList.push(value)
       }
 
       setPhotoCardTextList(newPhotoCardTextList)
+      setIsShowEditPhotoCardTextModal(false)
     },
-    [photoCardTextList, activeEditPhotoCardText, initialPhotoCardTextPosition]
+    [photoCardTextList, activeEditPhotoCardText]
   )
 
   const changePhotoCardTextTransform = useCallback(
@@ -151,20 +156,20 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
 
   useEffect(() => {
     setInitialPhotoCardTextPosition({
-      x: 15 - gestureSafeArea,
-      y: 15 + cardWidth - gestureSafeArea
+      x: 15,
+      y: 15 + cardHeight - gestureSafeArea
     })
-  }, [cardWidth])
+  }, [cardHeight])
 
   useEffect(() => {
-    if (activeEditPhotoCardText === null) {
-      controlBarTranslateY.value = withTiming(0, {duration: 200})
-      controlBarOpacity.value = withTiming(0, {duration: 200})
-    } else {
+    if (activeEditPhotoCardText?.index === photoCardTextList.length) {
       controlBarTranslateY.value = withTiming(-72, {duration: 200})
       controlBarOpacity.value = withTiming(1, {duration: 400})
+    } else {
+      controlBarTranslateY.value = withTiming(0, {duration: 200})
+      controlBarOpacity.value = withTiming(0, {duration: 200})
     }
-  }, [activeEditPhotoCardText])
+  }, [activeEditPhotoCardText?.index, photoCardTextList.length])
 
   useEffect(() => {
     setOriginalImageUrl(editScheduleCompletePhotoCardForm.originalImageUrl)
@@ -200,21 +205,21 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
               style={styles.image}
             />
           </View>
-
-          {/* photo card text list */}
-          {photoCardTextList.map(item => {
-            return (
-              <PhotoCardText
-                key={item.index}
-                value={item}
-                enabled={activeEditPhotoCardText?.index === item.index}
-                gestureSafeArea={gestureSafeArea}
-                onChangeTransform={changePhotoCardTextTransform}
-                onPress={() => pressPhotoCardText(item)}
-              />
-            )
-          })}
         </View>
+
+        {/* photo card text list */}
+        {photoCardTextList.map(item => {
+          return (
+            <PhotoCardText
+              key={item.index}
+              value={item}
+              enabled={activeEditPhotoCardText?.index === item.index}
+              gestureSafeArea={gestureSafeArea}
+              onChangeTransform={changePhotoCardTextTransform}
+              onPress={() => pressPhotoCardText(item)}
+            />
+          )
+        })}
 
         {/*  photo card text control bar */}
         <Animated.View style={[controlBarAnimatedStyle, controlBarStyles.container]}>
@@ -255,9 +260,10 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
       />
       <EditPhotoCardTextModal
         visible={isShowEditPhotoCardTextModal}
-        value={activeEditPhotoCardText?.text || null}
+        value={activeEditPhotoCardText}
+        gestureSafeArea={gestureSafeArea}
         onChange={changePhotoCardText}
-        onClose={() => setIsShowEditPhotoCardTextModal(false)}
+        onClose={closeEditPhotoCardTextModal}
       />
     </Pressable>
   )
