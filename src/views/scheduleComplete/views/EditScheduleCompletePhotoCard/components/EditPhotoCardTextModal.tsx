@@ -139,16 +139,14 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
           </Pressable>
         </View>
 
-        <View style={styles.wrapper}>
+        <Pressable style={styles.wrapper} onPress={() => setActiveControlType(null)}>
           <Animated.View style={textInputAnimatedStyle}>
             {activeControlType ? (
-              <Pressable onPress={() => setActiveControlType(null)}>
-                {_value?.text ? (
-                  <Text style={textStyle}>{_value.text}</Text>
-                ) : (
-                  <Text style={styles.emptyText}>텍스트 입력하기</Text>
-                )}
-              </Pressable>
+              _value?.text ? (
+                <Text style={textStyle}>{_value.text}</Text>
+              ) : (
+                <Text style={styles.emptyText}>텍스트 입력하기</Text>
+              )
             ) : (
               <TextInput
                 style={textStyle}
@@ -161,7 +159,7 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
               />
             )}
           </Animated.View>
-        </View>
+        </Pressable>
 
         <View style={controlStyles.bar}>
           <Pressable style={controlBarButtonStyle('TEXT_COLOR')} onPress={pressControlTextColor}>
@@ -187,7 +185,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: '#000000',
-    opacity: 0.5
+    opacity: 0.7
   },
   container: {
     flex: 1
