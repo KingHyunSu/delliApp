@@ -124,7 +124,7 @@ const BottomTabs = React.memo(({activeTheme}: BottomTabsProps) => {
       />
       <Tab.Screen
         name="Setting"
-        component={ProfileScreen}
+        component={SettingScreen} // TODO - ProfileScreen로 변경하기
         options={{
           tabBarIcon: ({focused}) => {
             return <MyIcon width={30} height={30} fill={focused ? activeTheme.color7 : activeTheme.color8} />
