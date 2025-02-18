@@ -99,7 +99,7 @@ const Intro = ({navigation}: IntroScreenProps) => {
 
         setIsLogin(true)
       } else if (response.code === '4000') {
-        navigation.navigate('JoinTerms', {type, token})
+        navigation.replace('JoinTerms', {type, token})
       } else {
         console.error('login error')
       }
@@ -108,7 +108,7 @@ const Intro = ({navigation}: IntroScreenProps) => {
   )
 
   const signInWithGuest = useCallback(async () => {
-    navigation.navigate('JoinTerms', {type: LOGIN_TYPE.GUEST, token: ''})
+    navigation.replace('JoinTerms', {type: LOGIN_TYPE.GUEST, token: ''})
   }, [navigation])
 
   const signInWithKakao = useCallback(async () => {
