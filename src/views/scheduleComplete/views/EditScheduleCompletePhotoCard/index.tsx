@@ -206,7 +206,7 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
       </View>
 
       <View style={styles.wrapper}>
-        <View ref={captureCardRef}>
+        <View ref={captureCardRef} collapsable={false}>
           <View ref={captureCardRef} style={[styles.cardContainer, {width: cardWidth, height: cardHeight}]}>
             <View style={styles.imageWrapper}>
               <Image

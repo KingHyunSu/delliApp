@@ -1,4 +1,4 @@
-import React from 'react'
+import {useMemo, useEffect} from 'react'
 import {StyleSheet, Text} from 'react-native'
 import Animated, {runOnJS, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
 
@@ -12,7 +12,7 @@ const Toast = () => {
   const scale = useSharedValue(0)
   const opacity = useSharedValue(0)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (toast.visible) {
       scale.value = withTiming(1, {duration: 150})
       opacity.value = withTiming(1, {duration: 250})
@@ -38,9 +38,13 @@ const Toast = () => {
     }
   })
 
-  const containerStyle = React.useMemo(() => {
+  const containerStyle = useMemo(() => {
     return [animatedStyle, styles.container, {top: safeAreaInsets.top}]
   }, [safeAreaInsets.top])
+
+  if (!toast.visible) {
+    return <></>
+  }
 
   return (
     <Animated.View style={containerStyle}>

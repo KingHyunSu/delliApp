@@ -1,4 +1,4 @@
-import {useState, useMemo, useCallback, useEffect} from 'react'
+import {useRef, useState, useMemo, useCallback, useEffect} from 'react'
 import {Keyboard, StyleSheet, Modal, TextInput, View, Pressable, Text, Image} from 'react-native'
 import {DefaultColorList, FontList} from '@/components/decorate'
 import Animated, {useSharedValue, useAnimatedStyle, withTiming} from 'react-native-reanimated'
@@ -15,16 +15,16 @@ interface Props {
   onClose: () => void
 }
 const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onClose}: Props) => {
+  const textInputRef = useRef<TextInput>(null)
   const [_value, _setValue] = useState<ScheduleCompletePhotoCardText | null>(null)
-  const [keyboardHeight, setKeyboardHeight] = useState(0)
   const [activeControlType, setActiveControlType] = useState<ActiveControlType | null>(null)
 
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
-  const textInputOpacity = useSharedValue(0)
+  const controlContentsHeight = useSharedValue(0)
 
-  const textInputAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: textInputOpacity.value
+  const controlContentsAnimatedStyle = useAnimatedStyle(() => ({
+    height: controlContentsHeight.value
   }))
 
   const containerStyle = useMemo(() => {
@@ -49,6 +49,15 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
     },
     [activeControlType]
   )
+
+  const handleShowModal = useCallback(() => {
+    textInputRef.current?.blur()
+    textInputRef.current?.focus()
+  }, [])
+
+  const pressWrapper = useCallback(() => {
+    setActiveControlType(null)
+  }, [])
 
   const pressControlTextColor = useCallback(() => {
     setActiveControlType('TEXT_COLOR')
@@ -92,14 +101,20 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
 
   useEffect(() => {
     const showKeyboardSubscription = Keyboard.addListener('keyboardDidShow', e => {
-      setKeyboardHeight(e.endCoordinates.height)
-      textInputOpacity.value = withTiming(1)
+      controlContentsHeight.value = withTiming(e.endCoordinates.height, {duration: e.duration})
+    })
+
+    const hideKeyboardSubscription = Keyboard.addListener('keyboardDidHide', e => {
+      if (activeControlType === null) {
+        controlContentsHeight.value = withTiming(0, {duration: e.duration})
+      }
     })
 
     return () => {
       showKeyboardSubscription.remove()
+      hideKeyboardSubscription.remove()
     }
-  }, [])
+  }, [activeControlType])
 
   useEffect(() => {
     if (!visible) {
@@ -125,10 +140,10 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
   }, [_value, activeControlType, changeTextColor, changeFont, safeAreaInsets.bottom])
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
+    <Modal visible={visible} transparent statusBarTranslucent onShow={handleShowModal}>
       <Pressable style={styles.overlay} />
 
-      <Pressable style={containerStyle}>
+      <View style={containerStyle}>
         <View style={styles.appBarContainer}>
           <Pressable style={[styles.appBarButton, {paddingLeft: 16}]} onPress={onClose}>
             <CancelIcon stroke="#ffffff" strokeWidth={3} />
@@ -139,26 +154,26 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
           </Pressable>
         </View>
 
-        <Pressable style={styles.wrapper} onPress={() => setActiveControlType(null)}>
-          <Animated.View style={textInputAnimatedStyle}>
-            {activeControlType ? (
-              _value?.text ? (
-                <Text style={textStyle}>{_value.text}</Text>
-              ) : (
-                <Text style={styles.emptyText}>텍스트 입력하기</Text>
-              )
+        <Pressable style={styles.wrapper} onPress={pressWrapper}>
+          {activeControlType ? (
+            _value?.text ? (
+              <Text style={textStyle}>{_value.text}</Text>
             ) : (
-              <TextInput
-                style={textStyle}
-                value={_value?.text}
-                placeholder="텍스트 입력하기"
-                placeholderTextColor="#c3c5cc"
-                autoFocus
-                multiline
-                onChangeText={changeText}
-              />
-            )}
-          </Animated.View>
+              <Text style={styles.emptyText}>텍스트 입력하기</Text>
+            )
+          ) : (
+            <TextInput
+              ref={textInputRef}
+              style={textStyle}
+              value={_value?.text}
+              multiline
+              autoFocus
+              autoCapitalize="none"
+              placeholder="텍스트 입력하기"
+              placeholderTextColor="#c3c5cc"
+              onChangeText={changeText}
+            />
+          )}
         </Pressable>
 
         <View style={controlStyles.bar}>
@@ -171,8 +186,10 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
           </Pressable>
         </View>
 
-        <View style={[controlStyles.container, {height: keyboardHeight}]}>{ControlContentsComponent}</View>
-      </Pressable>
+        <Animated.View style={[controlContentsAnimatedStyle, controlStyles.container]}>
+          {ControlContentsComponent}
+        </Animated.View>
+      </View>
     </Modal>
   )
 }
@@ -212,14 +229,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff30'
   },
   textInput: {
-    fontSize: 24,
+    fontSize: 18,
     fontFamily: 'Pretendard-Medium',
+    textAlign: 'center',
     padding: 0
   },
   emptyText: {
-    fontSize: 24,
+    fontSize: 18,
     fontFamily: 'Pretendard-Medium',
-    color: '#c3c5cc'
+    color: '#c3c5cc',
+    textAlign: 'center'
   }
 })
 
