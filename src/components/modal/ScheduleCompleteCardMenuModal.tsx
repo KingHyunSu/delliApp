@@ -1,4 +1,7 @@
+import {useMemo} from 'react'
 import {StyleSheet, Modal, View, Pressable, Text} from 'react-native'
+import {useRecoilValue} from 'recoil'
+import {activeThemeState} from '@/store/system'
 
 interface Props {
   visible: boolean
@@ -16,23 +19,29 @@ const ScheduleCompleteCardMenuModal = ({
   moveAttachScheduleCompleteCard,
   onClose
 }: Props) => {
+  const activeTheme = useRecoilValue(activeThemeState)
+
+  const buttonTextStyle = useMemo(() => {
+    return [styles.buttonText, {color: activeTheme.color3}]
+  }, [activeTheme.color3])
+
   return (
     <Modal visible={visible} transparent animationType="none">
       <Pressable style={styles.container} onPress={onClose} />
 
-      <View style={styles.wrapper}>
+      <View style={[styles.wrapper, {backgroundColor: activeTheme.color5}]}>
         {isShowScheduleCompleteRecordCard && (
           <Pressable style={styles.button} onPress={showScheduleCompleteRecordCard}>
-            <Text style={styles.buttonText}>기록 카드 보기</Text>
+            <Text style={buttonTextStyle}>기록 카드 보기</Text>
           </Pressable>
         )}
 
         <Pressable style={styles.button} onPress={moveScheduleCompleteCardDetail}>
-          <Text style={styles.buttonText}>상세 보기</Text>
+          <Text style={buttonTextStyle}>상세 보기</Text>
         </Pressable>
 
         <Pressable style={styles.button} onPress={moveAttachScheduleCompleteCard}>
-          <Text style={styles.buttonText}>완료 카드 붙히기</Text>
+          <Text style={buttonTextStyle}>완료 카드 붙히기</Text>
         </Pressable>
       </View>
     </Modal>
