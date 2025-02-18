@@ -135,7 +135,7 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
           </Pressable>
 
           <Pressable style={[styles.appBarButton, {paddingRight: 16}]} onPress={handleChange}>
-            <Text style={saveButtonTextStyle}>{value === null ? '추가' : '수정'}</Text>
+            <Text style={saveButtonTextStyle}>{value?.text ? '수정' : '추가'}</Text>
           </Pressable>
         </View>
 
@@ -193,7 +193,7 @@ const styles = StyleSheet.create({
   appBarContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    height: 48
+    height: 53
   },
   appBarButton: {
     width: 48,
@@ -208,7 +208,8 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: '#ffffff30'
   },
   textInput: {
     fontSize: 24,

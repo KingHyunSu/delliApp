@@ -76,6 +76,13 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
     setIsShowEditPhotoCardTextModal(false)
   }, [])
 
+  const getEnablePhotoCardText = useCallback(
+    (item: ScheduleCompletePhotoCardText) => {
+      return !isShowEditPhotoCardTextModal && activeEditPhotoCardText?.index === item.index
+    },
+    [isShowEditPhotoCardTextModal, activeEditPhotoCardText?.index]
+  )
+
   const changePhoto = useCallback(async (url: string) => {
     setOriginalImageUrl(url)
     setIsShowEditPhotoMenuBottomSheet(false)
@@ -157,20 +164,20 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
 
   useEffect(() => {
     setInitialPhotoCardTextPosition({
-      x: 15,
-      y: 15 + cardHeight - gestureSafeArea
+      x: 15 - gestureSafeArea,
+      y: 15 + cardWidth - gestureSafeArea
     })
-  }, [cardHeight])
+  }, [cardWidth])
 
   useEffect(() => {
-    if (activeEditPhotoCardText?.index === photoCardTextList.length) {
+    if (!isShowEditPhotoCardTextModal && activeEditPhotoCardText) {
       controlBarTranslateY.value = withTiming(-72, {duration: 200})
       controlBarOpacity.value = withTiming(1, {duration: 400})
     } else {
       controlBarTranslateY.value = withTiming(0, {duration: 200})
       controlBarOpacity.value = withTiming(0, {duration: 200})
     }
-  }, [activeEditPhotoCardText?.index, photoCardTextList.length])
+  }, [isShowEditPhotoCardTextModal, activeEditPhotoCardText])
 
   useEffect(() => {
     setOriginalImageUrl(editScheduleCompletePhotoCardForm.originalImageUrl)
@@ -199,28 +206,30 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
       </View>
 
       <View style={styles.wrapper}>
-        <View ref={captureCardRef} style={[styles.cardContainer, {width: cardWidth, height: cardHeight}]}>
-          <View style={styles.imageWrapper}>
-            <Image
-              source={originalImageUrl ? {uri: originalImageUrl} : require('@/assets/images/empty.png')}
-              style={styles.image}
-            />
+        <View ref={captureCardRef}>
+          <View ref={captureCardRef} style={[styles.cardContainer, {width: cardWidth, height: cardHeight}]}>
+            <View style={styles.imageWrapper}>
+              <Image
+                source={originalImageUrl ? {uri: originalImageUrl} : require('@/assets/images/empty.png')}
+                style={styles.image}
+              />
+            </View>
           </View>
-        </View>
 
-        {/* photo card text list */}
-        {photoCardTextList.map(item => {
-          return (
-            <PhotoCardText
-              key={item.index}
-              value={item}
-              enabled={activeEditPhotoCardText?.index === item.index}
-              gestureSafeArea={gestureSafeArea}
-              onChangeTransform={changePhotoCardTextTransform}
-              onPress={() => pressPhotoCardText(item)}
-            />
-          )
-        })}
+          {/* photo card text list */}
+          {photoCardTextList.map(item => {
+            return (
+              <PhotoCardText
+                key={item.index}
+                value={item}
+                enabled={getEnablePhotoCardText(item)}
+                gestureSafeArea={gestureSafeArea}
+                onChangeTransform={changePhotoCardTextTransform}
+                onPress={() => pressPhotoCardText(item)}
+              />
+            )
+          })}
+        </View>
 
         {/*  photo card text control bar */}
         <Animated.View style={[controlBarAnimatedStyle, controlBarStyles.container]}>
