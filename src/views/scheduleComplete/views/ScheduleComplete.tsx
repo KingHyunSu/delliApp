@@ -38,11 +38,12 @@ const ScheduleComplete = ({navigation, route}: ScheduleCompleteScreenProps) => {
       </View>
 
       <View style={styles.buttonWrapper}>
+        <Pressable style={recordButtonStyle} onPress={moveRecord}>
+          <Text style={recordButtonTextStyle}>완료 카드 만들기</Text>
+        </Pressable>
+
         <Pressable style={backButtonStyle} onPress={moveHome}>
           <Text style={backButtonTextStyle}>돌아가기</Text>
-        </Pressable>
-        <Pressable style={recordButtonStyle} onPress={moveRecord}>
-          <Text style={recordButtonTextStyle}>기록하기</Text>
         </Pressable>
       </View>
     </View>
@@ -79,13 +80,11 @@ const styles = StyleSheet.create({
     bottom: 0
   },
   buttonWrapper: {
-    flexDirection: 'row',
     gap: 10,
     paddingBottom: 30
   },
   button: {
-    height: 56,
-    flex: 1,
+    height: 58,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10
