@@ -1,7 +1,6 @@
 import {useState, useMemo, useCallback} from 'react'
 import {Linking, StyleSheet, SafeAreaView, ScrollView, View, Pressable, Text} from 'react-native'
 import AppBar from '@/components/AppBar'
-import ArrowLeftIcon from '@/assets/icons/arrow_left.svg'
 import CheckIcon from '@/assets/icons/check.svg'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
@@ -12,7 +11,7 @@ import {useAccess, useGetJoinTermsList, useJoin} from '@/apis/hooks/useAuth'
 import {JoinTermsScreenProps} from '@/types/navigation'
 import {GetJoinTermsListResponse} from '@/apis/types/auth'
 
-const JoinTerms = ({route, navigation}: JoinTermsScreenProps) => {
+const JoinTerms = ({route}: JoinTermsScreenProps) => {
   const {data: termsList} = useGetJoinTermsList()
   const {mutateAsync: joinMutateAsync} = useJoin()
   const {mutateAsync: accessMutateAsync} = useAccess()
@@ -27,7 +26,7 @@ const JoinTerms = ({route, navigation}: JoinTermsScreenProps) => {
   }, [checkedList, termsList.length])
 
   const containerStyle = useMemo(() => {
-    return [styles.conatiner, !isDisabled && {backgroundColor: '#1E90FF'}]
+    return [styles.container, !isDisabled && {backgroundColor: '#1E90FF'}]
   }, [isDisabled])
 
   const submitButtonStyle = useMemo(() => {
@@ -143,13 +142,7 @@ const JoinTerms = ({route, navigation}: JoinTermsScreenProps) => {
   return (
     <SafeAreaView style={containerStyle}>
       <View style={styles.wrapper}>
-        <AppBar>
-          <View style={headerStyles.section}>
-            <Pressable style={headerStyles.backButton} onPress={navigation.goBack}>
-              <ArrowLeftIcon stroke="#242933" />
-            </Pressable>
-          </View>
-        </AppBar>
+        <AppBar />
 
         <ScrollView style={styles.contentContainer}>
           <View style={styles.titleContainer}>
@@ -199,7 +192,7 @@ const JoinTerms = ({route, navigation}: JoinTermsScreenProps) => {
 }
 
 const styles = StyleSheet.create({
-  conatiner: {
+  container: {
     flex: 1,
     backgroundColor: '#D4D4D4'
   },
@@ -297,27 +290,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Pretendard-Bold',
     fontSize: 18,
     color: '#fff'
-  }
-})
-
-const headerStyles = StyleSheet.create({
-  section: {
-    flex: 1
-  },
-  backButton: {
-    width: 40,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  titleSection: {
-    flex: 1,
-    alignItems: 'center'
-  },
-  title: {
-    fontFamily: 'Pretendard-Medium',
-    fontSize: 16,
-    color: '#000'
   }
 })
 
