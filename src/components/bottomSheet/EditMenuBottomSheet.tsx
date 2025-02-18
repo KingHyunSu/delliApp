@@ -295,9 +295,8 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
       backdropComponent={bottomSheetBackdrop}
       handleComponent={bottomSheetHandler}
       backgroundStyle={{backgroundColor: activeTheme.color5}}
-      index={0}
       onDismiss={closeEditMenuBottomSheet}>
-      <BottomSheetView style={[styles.container, {backgroundColor: activeTheme.color2}]}>
+      <BottomSheetView style={{backgroundColor: activeTheme.color2}}>
         <View style={[styles.header, {backgroundColor: activeTheme.color5}]}>
           <View style={styles.titleWrapper}>
             <Text style={[styles.title, {color: activeTheme.color3}]}>{editScheduleForm.title}</Text>
@@ -403,9 +402,6 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
