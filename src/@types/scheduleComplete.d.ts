@@ -20,6 +20,7 @@ declare global {
     record: string
   }
 
+  type FontType = 'Pretendard-Regular' | 'Pretendard-Medium' | 'Pretendard-SemiBold' | 'Pretendard-Bold'
   interface ScheduleCompletePhotoCardText {
     index: number
     text: string
@@ -28,6 +29,7 @@ declare global {
     rotate: number
     scale: number
     textColor: string
+    font: FontType
   }
   interface EditScheduleCompletePhotoCardForm {
     originalImageUrl: string | null

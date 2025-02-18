@@ -1,11 +1,12 @@
 import {useState, useMemo, useCallback, useEffect} from 'react'
 import {Keyboard, StyleSheet, Modal, TextInput, View, Pressable, Text, Image} from 'react-native'
-import {DefaultColorList} from '@/components/decorate'
+import {DefaultColorList, FontList} from '@/components/decorate'
 import Animated, {useSharedValue, useAnimatedStyle, withTiming} from 'react-native-reanimated'
 import CancelIcon from '@/assets/icons/cancle.svg'
 import {useRecoilValue} from 'recoil'
 import {safeAreaInsetsState} from '@/store/system'
 
+type ActiveControlType = 'TEXT_COLOR' | 'FONT'
 interface Props {
   visible: boolean
   value: ScheduleCompletePhotoCardText | null
@@ -16,7 +17,7 @@ interface Props {
 const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onClose}: Props) => {
   const [_value, _setValue] = useState<ScheduleCompletePhotoCardText | null>(null)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
-  const [activeControl, setActiveControl] = useState(false)
+  const [activeControlType, setActiveControlType] = useState<ActiveControlType | null>(null)
 
   const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
@@ -37,11 +38,25 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
 
   const textStyle = useMemo(() => {
     const color = _value ? _value.textColor : '#000000'
-    return [styles.textInput, {color, padding: gestureSafeArea}]
+    return [styles.textInput, {color, fontFamily: _value?.font, padding: gestureSafeArea}]
   }, [_value, gestureSafeArea])
 
+  const controlBarButtonStyle = useCallback(
+    (type: ActiveControlType) => {
+      const backgroundColor = type === activeControlType ? '#555555' : 'transparent'
+
+      return [controlStyles.barButton, {backgroundColor}]
+    },
+    [activeControlType]
+  )
+
   const pressControlTextColor = useCallback(() => {
-    setActiveControl(true)
+    setActiveControlType('TEXT_COLOR')
+    Keyboard.dismiss()
+  }, [])
+
+  const pressControlFont = useCallback(() => {
+    setActiveControlType('FONT')
     Keyboard.dismiss()
   }, [])
 
@@ -54,6 +69,12 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
   const changeTextColor = useCallback((color: string) => {
     _setValue(prevState => {
       return prevState ? {...prevState, textColor: color} : prevState
+    })
+  }, [])
+
+  const changeFont = useCallback((font: FontType) => {
+    _setValue(prevState => {
+      return prevState ? {...prevState, font} : prevState
     })
   }, [])
 
@@ -82,9 +103,26 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
 
   useEffect(() => {
     if (!visible) {
-      setActiveControl(false)
+      setActiveControlType(null)
     }
   }, [visible])
+
+  const ControlContentsComponent = useMemo(() => {
+    switch (activeControlType) {
+      case 'TEXT_COLOR':
+        return (
+          <DefaultColorList
+            value={_value?.textColor || null}
+            contentContainerStyle={{paddingTop: 20, paddingBottom: safeAreaInsets.bottom + 20}}
+            onChange={changeTextColor}
+          />
+        )
+      case 'FONT':
+        return <FontList value={_value?.font || null} onChange={changeFont} />
+      default:
+        return <></>
+    }
+  }, [_value, activeControlType, changeTextColor, changeFont, safeAreaInsets.bottom])
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -103,8 +141,8 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
 
         <View style={styles.wrapper}>
           <Animated.View style={textInputAnimatedStyle}>
-            {activeControl ? (
-              <Pressable onPress={() => setActiveControl(false)}>
+            {activeControlType ? (
+              <Pressable onPress={() => setActiveControlType(null)}>
                 {_value?.text ? (
                   <Text style={textStyle}>{_value.text}</Text>
                 ) : (
@@ -126,18 +164,16 @@ const EditPhotoCardTextModal = ({visible, value, gestureSafeArea, onChange, onCl
         </View>
 
         <View style={controlStyles.bar}>
-          <Pressable style={controlStyles.barButton} onPress={pressControlTextColor}>
+          <Pressable style={controlBarButtonStyle('TEXT_COLOR')} onPress={pressControlTextColor}>
             <Image source={require('@/assets/icons/color.png')} style={controlStyles.colorIcon} />
+          </Pressable>
+
+          <Pressable style={controlBarButtonStyle('FONT')} onPress={pressControlFont}>
+            <Text style={controlStyles.fontIcon}>Aa</Text>
           </Pressable>
         </View>
 
-        <View style={[controlStyles.container, {height: keyboardHeight}]}>
-          <DefaultColorList
-            value={_value?.textColor || null}
-            contentContainerStyle={{paddingTop: 20, paddingBottom: safeAreaInsets.bottom + 20}}
-            onChange={changeTextColor}
-          />
-        </View>
+        <View style={[controlStyles.container, {height: keyboardHeight}]}>{ControlContentsComponent}</View>
       </Pressable>
     </Modal>
   )
@@ -151,7 +187,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: '#000000',
-    opacity: 0.85
+    opacity: 0.5
   },
   container: {
     flex: 1
@@ -190,16 +226,20 @@ const styles = StyleSheet.create({
 
 const controlStyles = StyleSheet.create({
   bar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
     width: '100%',
-    height: 52,
-    backgroundColor: '#00000080',
-    alignItems: 'center'
+    height: 59,
+    backgroundColor: '#000000d0',
+    paddingVertical: 7
   },
   barButton: {
-    width: 52,
+    width: 65,
     height: '100%',
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    borderRadius: 10
   },
   colorIcon: {
     width: 24,
@@ -207,6 +247,11 @@ const controlStyles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#ffffff',
     borderRadius: 12
+  },
+  fontIcon: {
+    fontFamily: 'Pretendard-Medium',
+    color: '#fff',
+    fontSize: 22
   },
   container: {
     width: '100%',

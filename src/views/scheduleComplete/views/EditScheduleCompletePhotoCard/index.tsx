@@ -65,7 +65,8 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
       y: initialPhotoCardTextPosition.y,
       rotate: 0,
       scale: 1,
-      textColor: '#000000'
+      textColor: '#000000',
+      font: 'Pretendard-Medium'
     })
     setIsShowEditPhotoCardTextModal(true)
   }, [photoCardTextList, initialPhotoCardTextPosition])

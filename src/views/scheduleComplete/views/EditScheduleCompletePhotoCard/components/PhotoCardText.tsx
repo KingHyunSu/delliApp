@@ -58,8 +58,8 @@ const PhotoCardText = ({value, enabled, gestureSafeArea = 10, onChangeTransform,
   }, [savedTranslateX, savedTranslateY, savedRotation, savedScale])
 
   const textStyle = useMemo(() => {
-    return [styles.text, {color: value.textColor}]
-  }, [value.textColor])
+    return [styles.text, {color: value.textColor, fontFamily: value.font}]
+  }, [value.textColor, value.font])
 
   const moveGesture = Gesture.Pan()
     .onUpdate(e => {
@@ -210,7 +210,6 @@ const styles = StyleSheet.create({
     transform: [{rotateZ: '135deg'}]
   },
   text: {
-    fontFamily: 'Pretendard-Medium',
     fontSize: 24,
     color: '#000'
   }
