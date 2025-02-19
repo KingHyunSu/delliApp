@@ -1,10 +1,12 @@
 import {useState, useMemo, useCallback, useEffect} from 'react'
 import {StyleSheet, View, Pressable, Text} from 'react-native'
 import AppBar from '../../components/AppBar'
+import EditScheduleCompleteCardMenuBottomSheet from './components/EditScheduleCompleteCardMenuBottomSheet'
 import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
 import ScheduleCompleteRecordModal from '@/components/modal/ScheduleCompleteRecordModal'
-import ImageResizer from '@bam.tech/react-native-image-resizer'
+import {useAlert} from '@/components/Alert'
 
+import {getResizedImage, getUriToBlob} from '@/utils/helper'
 import {useRecoilState, useRecoilValue, useResetRecoilState} from 'recoil'
 import {
   editScheduleCompleteCacheListState,
@@ -21,8 +23,6 @@ import {
 } from '@/apis/hooks/useScheduleComplete'
 import {EditScheduleCompleteCardScreenProps} from '@/types/navigation'
 import {UpdateScheduleCompleteCardResponse} from '@/apis/types/scheduleComplete'
-import {useAlert} from '@/components/Alert'
-import EditScheduleCompleteCardMenuBottomSheet from './components/EditScheduleCompleteCardMenuBottomSheet'
 
 const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardScreenProps) => {
   const alert = useAlert()
@@ -136,10 +136,6 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
     [route.params, editScheduleCompleteCacheList]
   )
 
-  const getResizedImage = async (uri: string, width: number, height: number) => {
-    return await ImageResizer.createResizedImage(uri, width, height, 'JPEG', 1)
-  }
-
   const getNewScheduleList = useCallback(
     (newScheduleComplete: UpdateScheduleCompleteCardResponse) => {
       return scheduleList.map(item => {
@@ -190,13 +186,9 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
       const thumbImage = await getResizedImage(_imageUrl, thumbImageWidth, thumbImageHeight)
       const timetableImage = await getResizedImage(_imageUrl, timetableImageWidth, timetableImageHeight)
 
-      const mainImageData = await fetch(mainImage.uri)
-      const thumbImageData = await fetch(thumbImage.uri)
-      const timetableImageData = await fetch(timetableImage.uri)
-
-      const mainImageBlob = await mainImageData.blob()
-      const thumbImageBlob = await thumbImageData.blob()
-      const timetableImageBlob = await timetableImageData.blob()
+      const mainImageBlob = await getUriToBlob(mainImage.uri)
+      const thumbImageBlob = await getUriToBlob(thumbImage.uri)
+      const timetableImageBlob = await getUriToBlob(timetableImage.uri)
 
       const {main_url, thumb_url, timetable_url} = await getScheduleCompletePhotoCardUploadUrlMutateAsync({
         name: imageName

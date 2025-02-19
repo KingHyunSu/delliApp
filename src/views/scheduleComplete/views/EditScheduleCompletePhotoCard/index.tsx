@@ -15,8 +15,8 @@ import {captureRef} from 'react-native-view-shot'
 
 import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil'
 import {windowDimensionsState} from '@/store/system'
-import {EditScheduleCompletePhotoCardScreenProps} from '@/types/navigation'
 import {editScheduleCompleteCardFormState, editScheduleCompletePhotoCardFormState} from '@/store/scheduleComplete'
+import {EditScheduleCompletePhotoCardScreenProps} from '@/types/navigation'
 
 const gestureSafeArea = 50
 
@@ -210,7 +210,7 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
           <View ref={captureCardRef} style={[styles.cardContainer, {width: cardWidth, height: cardHeight}]}>
             <View style={styles.imageWrapper}>
               <Image
-                source={originalImageUrl ? {uri: originalImageUrl} : require('@/assets/images/empty.png')}
+                source={originalImageUrl ? {uri: 'file://' + originalImageUrl} : require('@/assets/images/empty.png')}
                 style={styles.image}
               />
             </View>

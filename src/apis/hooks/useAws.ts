@@ -2,7 +2,7 @@ import {useMutation} from '@tanstack/react-query'
 
 interface UploadImageRequest {
   url: string
-  data: FormData
+  data: Blob
   contentType: string
 }
 export const useUploadImage = () => {

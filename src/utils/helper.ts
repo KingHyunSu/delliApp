@@ -1,3 +1,5 @@
+import ImageResizer from '@bam.tech/react-native-image-resizer'
+
 export const setDigit = (val: string | number) => {
   const result = String(val)
 
@@ -65,4 +67,27 @@ export const objectEqual = (obj1: any, obj2: any): boolean => {
   }
 
   return true
+}
+
+export const getResizedImage = async (uri: string, width: number, height: number) => {
+  return await ImageResizer.createResizedImage(uri, width, height, 'JPEG', 70, 0)
+}
+
+export const getUriToBlob = (uri: string): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+
+    xhr.onload = function () {
+      resolve(xhr.response)
+    }
+
+    xhr.onerror = function () {
+      reject(new Error('uriToBlob failed'))
+    }
+
+    xhr.responseType = 'blob'
+
+    xhr.open('GET', uri, true)
+    xhr.send(null)
+  })
 }

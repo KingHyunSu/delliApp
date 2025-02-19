@@ -1,4 +1,4 @@
-import {Platform, StyleSheet, Modal, Pressable, View} from 'react-native'
+import {StyleSheet, Modal, Pressable, View} from 'react-native'
 import {CropView} from 'react-native-image-crop-tools'
 import CancelIcon from '@/assets/icons/cancle.svg'
 import CheckIcon from '@/assets/icons/check.svg'
@@ -23,9 +23,7 @@ const ImageCropModal = ({visible, sourceUrl, onCrop, onClose}: Props) => {
 
   const doCrop = useCallback(
     (result: {uri: string; width: number; height: number}) => {
-      const _uri = Platform.OS === 'android' ? `file://${result.uri}` : result.uri
-
-      onCrop(_uri)
+      onCrop(result.uri)
       onClose()
     },
     [onCrop, onClose]
