@@ -1,5 +1,5 @@
 import {useRef, useState, useMemo, useEffect, useCallback} from 'react'
-import {Keyboard, StyleSheet, Modal, View, Pressable, Text, TextInput} from 'react-native'
+import {Keyboard, Platform, StyleSheet, Modal, View, Pressable, Text, TextInput} from 'react-native'
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view'
 import Animated, {useSharedValue, useAnimatedStyle, withTiming} from 'react-native-reanimated'
 import CancelIcon from '@/assets/icons/cancle.svg'
@@ -69,32 +69,35 @@ const EditNoteModal = ({visible, value, readonly, onChange, onClose}: Props) => 
   }, [_value, onChange])
 
   useEffect(() => {
+    const fullHeight =
+      Platform.OS === 'android' ? windowDimensions.height + safeAreaInsets.top : windowDimensions.height
+
     if (isInputMode) {
       textInputRef.current?.focus()
 
       width.value = withTiming(windowDimensions.width)
-      height.value = withTiming(windowDimensions.height)
+      height.value = withTiming(fullHeight)
     } else {
       Keyboard.dismiss()
 
       width.value = withTiming(windowDimensions.width - 32)
-      height.value = withTiming(windowDimensions.height * 0.6)
+      height.value = withTiming(fullHeight * 0.6)
     }
-  }, [isInputMode, windowDimensions.width, windowDimensions.height])
+  }, [isInputMode, safeAreaInsets.top, windowDimensions.width, windowDimensions.height])
 
   useEffect(() => {
     _setIsValue(value)
   }, [value])
 
   return (
-    <Modal visible={visible} transparent>
+    <Modal visible={visible} transparent statusBarTranslucent>
       <View style={styles.overlay} />
 
       <View style={styles.container}>
-        <Animated.View style={[styles.wrapper, wrapperAnimatedStyle, {backgroundColor: activeTheme.color1}]}>
+        <Animated.View style={[styles.wrapper, wrapperAnimatedStyle]}>
           {/* app bar */}
           {isInputMode && (
-            <Animated.View style={{paddingTop: safeAreaInsets.top}}>
+            <View style={{paddingTop: safeAreaInsets.top, backgroundColor: '#202023'}}>
               <View style={styles.appBarWrapper}>
                 <Pressable style={styles.closeButton} onPress={handleClose}>
                   <CancelIcon stroke={activeTheme.color3} strokeWidth={3} />
@@ -104,7 +107,7 @@ const EditNoteModal = ({visible, value, readonly, onChange, onClose}: Props) => 
                   <Text style={styles.saveButtonText}>저장</Text>
                 </Pressable>
               </View>
-            </Animated.View>
+            </View>
           )}
 
           <View style={styles.titleWrapper}>
@@ -112,7 +115,9 @@ const EditNoteModal = ({visible, value, readonly, onChange, onClose}: Props) => 
           </View>
 
           <KeyboardAwareScrollView
+            enableOnAndroid
             style={styles.textInputWrapper}
+            contentContainerStyle={isInputMode && styles.textInputWrapper}
             showsVerticalScrollIndicator={false}
             extraScrollHeight={0}
             onScrollBeginDrag={() => setIsScrolling(true)}
@@ -124,6 +129,7 @@ const EditNoteModal = ({visible, value, readonly, onChange, onClose}: Props) => 
               multiline
               editable={isEditable}
               scrollEnabled={false}
+              autoCapitalize="none"
               placeholder="기록을 입력해 주세요"
               placeholderTextColor="#c3c5cc"
               onChangeText={_setIsValue}
@@ -160,10 +166,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16
   },
   wrapper: {
-    backgroundColor: '#ffffff',
-    paddingBottom: 10
+    backgroundColor: '#ffffff'
   },
   appBarWrapper: {
+    width: '100%',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -177,6 +183,7 @@ const styles = StyleSheet.create({
     paddingLeft: 16
   },
   titleWrapper: {
+    width: '100%',
     backgroundColor: '#ffffff',
     paddingVertical: 20
   },
@@ -188,14 +195,12 @@ const styles = StyleSheet.create({
   },
   textInputWrapper: {
     flex: 1,
-    backgroundColor: '#ffffff',
-    paddingBottom: 20
+    paddingBottom: 10
   },
   textInput: {
     fontSize: 16,
-    paddingVertical: 0,
-    paddingHorizontal: 20,
-    paddingBottom: 40
+    paddingTop: 0,
+    paddingHorizontal: 20
   },
   saveButton: {
     width: 52,
@@ -221,7 +226,6 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     justifyContent: 'center',
     alignItems: 'center',
-    // backgroundColor: '#000000'
     backgroundColor: '#6B727E'
   }
 })
