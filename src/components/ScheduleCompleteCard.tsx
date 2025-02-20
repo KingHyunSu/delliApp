@@ -1,5 +1,5 @@
 import {StyleSheet, View, Image, Text} from 'react-native'
-import {useMemo} from 'react'
+import {useCallback, useMemo} from 'react'
 import {Shadow} from 'react-native-shadow-2'
 import {Defs, LinearGradient, Rect, Stop, Svg} from 'react-native-svg'
 
@@ -23,13 +23,15 @@ const ScheduleCompleteCard = ({
   shadowDistance,
   shadowOffset = [0, 0]
 }: Props) => {
-  const backCardStyle = useMemo(() => {
+  const backCardContainerStyle = useMemo(() => {
     let rotate = 0
     let top = 0
     let left = 0
-    let padding = 15
+    let borderWidth = 0
 
     if (imageUrl) {
+      borderWidth = 1
+
       if (type === 'attach') {
         left = -2
         rotate = 3
@@ -48,14 +50,20 @@ const ScheduleCompleteCard = ({
       }
     }
 
+    return [styles.backCard, {transform: [{rotate: `${rotate}deg`}], top, left, borderWidth}]
+  }, [imageUrl, type, size])
+
+  const backCardWrapperStyle = useMemo(() => {
+    let padding = 15
+
     if (size === 'medium') {
       padding = 5
     } else if (size === 'small') {
       padding = 1
     }
 
-    return [styles.backCard, {padding, transform: [{rotate: `${rotate}deg`}], top, left}]
-  }, [imageUrl, type, size])
+    return {padding}
+  }, [size])
 
   const frontCardStyle = useMemo(() => {
     let left = 0
@@ -90,12 +98,58 @@ const ScheduleCompleteCard = ({
     return [styles.recordText, {fontSize}]
   }, [size])
 
+  const getHeaderShadowComponent = useCallback((stopList: Array<{offset: string; color: string; opacity: string}>) => {
+    return (
+      <View style={styles.cardHeader}>
+        <Svg width="100%" height="100%">
+          <Defs>
+            <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
+              {stopList.map((item, index) => {
+                return <Stop key={index} offset={item.offset} stopColor={item.color} stopOpacity={item.opacity} />
+              })}
+            </LinearGradient>
+          </Defs>
+
+          <Rect width="100%" height="100%" fill="url(#grad)" />
+        </Svg>
+      </View>
+    )
+  }, [])
+
+  const headerComponent = useMemo(() => {
+    const headerShadowComponent = getHeaderShadowComponent([
+      {offset: '0', color: '#333', opacity: '0.5'},
+      {offset: '0.25', color: '#333', opacity: '0.25'},
+      {offset: '0.5', color: '#333', opacity: '0'}
+    ])
+
+    return (
+      <>
+        {headerShadowComponent}
+        <Text style={styles.cardCountText}>{completeCount}번째 완료</Text>
+      </>
+    )
+  }, [getHeaderShadowComponent, completeCount])
+
   return (
     <View style={styles.container}>
       {/* back card */}
       {record && (
-        <View style={backCardStyle}>
-          <Text style={recordTextStyle}>{record}</Text>
+        <View style={backCardContainerStyle}>
+          <View style={backCardWrapperStyle}>
+            <Text style={recordTextStyle}>{record}</Text>
+          </View>
+
+          {!imageUrl && completeCount && (
+            <>
+              {getHeaderShadowComponent([
+                {offset: '0', color: '#ffffff', opacity: '0.9'},
+                {offset: '0.25', color: '#ffffff', opacity: '0.7'},
+                {offset: '0.5', color: '#ffffff', opacity: '0.3'}
+              ])}
+              {headerComponent}
+            </>
+          )}
         </View>
       )}
 
@@ -115,25 +169,7 @@ const ScheduleCompleteCard = ({
 
           <Image source={{uri: imageUrl}} style={styles.image} />
 
-          {completeCount && (
-            <>
-              <View style={styles.frontCardHeader}>
-                <Svg width="100%" height="100%">
-                  <Defs>
-                    <LinearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                      <Stop offset="0" stopColor="#333" stopOpacity="0.5" />
-                      <Stop offset="0.25" stopColor="#333" stopOpacity="0.25" />
-                      <Stop offset="0.5" stopColor="#333" stopOpacity="0" />
-                    </LinearGradient>
-                  </Defs>
-
-                  <Rect width="100%" height="100%" fill="url(#grad)" />
-                </Svg>
-              </View>
-
-              <Text style={styles.cardCountText}>{completeCount}번째 완료</Text>
-            </>
-          )}
+          {completeCount && headerComponent}
         </View>
       )}
     </View>
@@ -150,7 +186,6 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#ffffff',
     position: 'absolute',
-    borderWidth: 1,
     borderColor: '#f0eff586'
   },
   frontCard: {
@@ -160,7 +195,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0
   },
-  frontCardHeader: {
+  cardHeader: {
     position: 'absolute',
     top: 0,
     width: '100%',
