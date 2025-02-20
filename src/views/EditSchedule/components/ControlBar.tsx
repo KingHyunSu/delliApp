@@ -192,6 +192,7 @@ const ControlBar = forwardRef<Ref, Props>((props, ref) => {
               step={2}
               minimumValue={10}
               maximumValue={32}
+              thumbTintColor="#ffffff"
               minimumTrackTintColor={displayMode === 'light' ? '#424242' : '#babfc5'}
               maximumTrackTintColor={displayMode === 'light' ? '#babfc5' : '#424242'}
               onValueChange={changeFontSize}
@@ -333,13 +334,17 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: 'Pretendard-SemiBold',
     fontSize: 10,
-    color: '#696969'
+    color: '#696969',
+    includeFontPadding: false,
+    textAlignVertical: 'center'
   },
 
   fontSizeButtonIcon: {
     fontFamily: 'Pretendard-Regular',
     fontSize: 26,
-    color: '#696969'
+    color: '#696969',
+    includeFontPadding: false,
+    textAlignVertical: 'center'
   },
   colorButton: {
     paddingRight: 15
@@ -362,17 +367,16 @@ const styles = StyleSheet.create({
   },
   submitButtonText: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 14
+    fontSize: 14,
+    includeFontPadding: false,
+    textAlignVertical: 'center'
   }
 })
 
 const controlViewStyles = StyleSheet.create({
   container: {
     zIndex: 999,
-    position: 'absolute',
-    bottom: 72,
-    left: 0,
-    right: 0
+    marginBottom: 10
   },
   wrapper: {
     alignSelf: 'flex-start',
@@ -396,12 +400,16 @@ const controlViewStyles = StyleSheet.create({
   text: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 16,
-    color: '#ffffff'
+    color: '#ffffff',
+    includeFontPadding: false,
+    textAlignVertical: 'center'
   },
   label: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 12,
-    marginLeft: 10
+    marginLeft: 10,
+    includeFontPadding: false,
+    textAlignVertical: 'center'
   },
   button: {
     height: 40,
