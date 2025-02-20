@@ -1,7 +1,7 @@
 import {useMemo} from 'react'
 import {StyleSheet, Modal, View, Pressable, Text} from 'react-native'
 import {useRecoilValue} from 'recoil'
-import {activeThemeState} from '@/store/system'
+import {activeThemeState, safeAreaInsetsState} from '@/store/system'
 
 interface Props {
   visible: boolean
@@ -20,16 +20,22 @@ const ScheduleCompleteCardMenuModal = ({
   onClose
 }: Props) => {
   const activeTheme = useRecoilValue(activeThemeState)
+  const safeAreaInsets = useRecoilValue(safeAreaInsetsState)
 
   const buttonTextStyle = useMemo(() => {
     return [styles.buttonText, {color: activeTheme.color3}]
   }, [activeTheme.color3])
 
+  const wrapperStyle = useMemo(() => {
+    const bottom = 330 + safeAreaInsets.bottom
+    return [styles.wrapper, {bottom, backgroundColor: activeTheme.color5}]
+  }, [safeAreaInsets.bottom])
+
   return (
     <Modal visible={visible} transparent animationType="none">
       <Pressable style={styles.container} onPress={onClose} />
 
-      <View style={[styles.wrapper, {backgroundColor: activeTheme.color5}]}>
+      <View style={wrapperStyle}>
         {isShowScheduleCompleteRecordCard && (
           <Pressable style={styles.button} onPress={showScheduleCompleteRecordCard}>
             <Text style={buttonTextStyle}>기록 카드 보기</Text>
@@ -55,7 +61,6 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     position: 'absolute',
-    bottom: 365,
     right: 16,
     width: 150,
     backgroundColor: '#ffffff',
