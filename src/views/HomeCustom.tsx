@@ -1,5 +1,5 @@
 import {useState, useMemo, useCallback} from 'react'
-import {StyleSheet, BackHandler, ActivityIndicator, View, Text, Image, Pressable} from 'react-native'
+import {Platform, StyleSheet, BackHandler, ActivityIndicator, View, Text, Image, Pressable} from 'react-native'
 import {useFocusEffect} from '@react-navigation/native'
 import AppBar from '@/components/AppBar'
 import {Timetable} from '@/components/TimeTable'
@@ -77,12 +77,15 @@ const HomeCustom = ({navigation}: HomeCustomProps) => {
     })
 
     if (response.result) {
-      await updateWidgetStyle({
-        outline_background_color: outline.background_color,
-        outline_progress_color: outline.progress_color,
-        background_color: background.background_color,
-        text_color: background.accent_color
-      })
+      if (Platform.OS === 'ios') {
+        // TODO - android 위젯 추가 전까지 ios만 적용
+        await updateWidgetStyle({
+          outline_background_color: outline.background_color,
+          outline_progress_color: outline.progress_color,
+          background_color: background.background_color,
+          text_color: background.accent_color
+        })
+      }
 
       setActiveBackground(background)
       setActiveOutline(outline)

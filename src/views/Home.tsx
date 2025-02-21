@@ -275,8 +275,11 @@ const Home = ({navigation}: HomeScreenProps) => {
     }
 
     if (isReady && widgetReloadable && reloadWidgetWithImage) {
-      updateWidget()
-      setReloadWidgetWithImage(false)
+      if (Platform.OS === 'ios') {
+        // TODO - android 위젯 추가 전까지 ios만 적용
+        updateWidget()
+        setReloadWidgetWithImage(false)
+      }
     }
   }, [isReady, widgetReloadable, reloadWidgetWithImage, scheduleList, updateWidgetWithImage, setReloadWidgetWithImage])
 
