@@ -280,8 +280,8 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
               shadowOffset={[7, 7]}
             />
           ) : (
-            <Pressable style={styles.emptyCard}>
-              <Text style={styles.emptyCardText}>카드가 없어요</Text>
+            <Pressable style={[styles.emptyCard, {borderColor: activeTheme.color3}]}>
+              <Text style={[styles.emptyCardText, {color: activeTheme.color3}]}>카드가 없어요</Text>
             </Pressable>
           )}
         </Pressable>
@@ -347,13 +347,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#555555',
     borderStyle: 'dashed'
   },
   emptyCardText: {
     fontFamily: 'Pretendard-Regular',
-    fontSize: 18,
-    color: '#555555'
+    fontSize: 18
   }
 })
 
