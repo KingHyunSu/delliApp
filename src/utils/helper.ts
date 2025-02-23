@@ -70,7 +70,7 @@ export const objectEqual = (obj1: any, obj2: any): boolean => {
 }
 
 export const getResizedImage = async (uri: string, width: number, height: number) => {
-  return await ImageResizer.createResizedImage(uri, width, height, 'JPEG', 70, 0)
+  return await ImageResizer.createResizedImage(uri, width, height, 'JPEG', 100, 0)
 }
 
 export const getUriToBlob = (uri: string): Promise<Blob> => {
@@ -90,4 +90,9 @@ export const getUriToBlob = (uri: string): Promise<Blob> => {
     xhr.open('GET', uri, true)
     xhr.send(null)
   })
+}
+
+export const getImageUrl = (options: {path: string; width: number}) => {
+  const width = Math.round(options.width * 2)
+  return `${process.env.CDN_URL}/${options.path}?w=${width}`
 }

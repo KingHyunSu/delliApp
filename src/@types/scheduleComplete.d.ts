@@ -10,8 +10,7 @@ declare global {
     record: string | null
     complete_count: number
     schedule_id: number
-    main_path: string | null
-    thumb_path: string | null
+    photo_card_path: string | null
     total: number
   }
 

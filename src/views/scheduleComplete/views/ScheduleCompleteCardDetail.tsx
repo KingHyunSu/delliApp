@@ -6,10 +6,11 @@ import ScheduleCardListBottomSheet from '@/components/bottomSheet/ScheduleCardLi
 import ScheduleCompleteRecordModal from '@/components/modal/ScheduleCompleteRecordModal'
 import {useAlert} from '@/components/Alert'
 
+import {getImageUrl} from '@/utils/helper'
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {scheduleListState} from '@/store/schedule'
 import {editScheduleCompleteCacheListState} from '@/store/scheduleComplete'
-import {displayModeState} from '@/store/system'
+import {displayModeState, windowDimensionsState} from '@/store/system'
 import {
   useGetScheduleCompleteCardList,
   useDeleteScheduleCompleteCard,
@@ -36,6 +37,7 @@ const ScheduleCompleteCardDetail = ({navigation, route}: ScheduleCompleteCardDet
   )
   const [scheduleList, setScheduleList] = useRecoilState(scheduleListState)
   const displayMode = useRecoilValue(displayModeState)
+  const windowDimensions = useRecoilValue(windowDimensionsState)
 
   const containerStyle = useMemo(() => {
     const backgroundColor = displayMode === 1 ? '#e0e0e0' : '#494949'
@@ -43,12 +45,11 @@ const ScheduleCompleteCardDetail = ({navigation, route}: ScheduleCompleteCardDet
   }, [displayMode])
 
   const imageUrl = useMemo(() => {
-    if (detail.main_path) {
-      const domain = process.env.CDN_URL
-      return domain + '/' + detail.main_path
+    if (detail.photo_card_path) {
+      return getImageUrl({path: detail.photo_card_path, width: windowDimensions.width * 0.8})
     }
     return null
-  }, [detail])
+  }, [detail, windowDimensions.width])
 
   const targetSchedule = useMemo(() => {
     return scheduleList.find(item => item.schedule_id === detail.schedule_id)
@@ -140,7 +141,7 @@ const ScheduleCompleteCardDetail = ({navigation, route}: ScheduleCompleteCardDet
               // update schedule complete cached list
               const newEditScheduleCompleteCacheList = editScheduleCompleteCacheList.map(item => {
                 if (item.schedule_complete_id === detail.schedule_complete_id) {
-                  return {...item, record: null, main_path: null, thumb_path: null}
+                  return {...item, record: null, photo_card_path: null}
                 }
                 return item
               })

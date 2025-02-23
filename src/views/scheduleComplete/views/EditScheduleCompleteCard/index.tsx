@@ -124,8 +124,7 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
         if (route.params.schedule_complete_id === item.schedule_complete_id) {
           return {
             ...route.params,
-            main_path: newScheduleComplete.main_path,
-            thumb_path: newScheduleComplete.thumb_path,
+            photo_card_path: newScheduleComplete.photo_card_path,
             record: newScheduleComplete.record,
             total: item.total + 1
           }
@@ -144,7 +143,7 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
             ...item,
             schedule_complete_id: route.params.schedule_complete_id,
             schedule_complete_record: newScheduleComplete.record,
-            schedule_complete_card_path: newScheduleComplete.timetable_path
+            schedule_complete_card_path: newScheduleComplete.photo_card_path
           } as Schedule
         }
         return item
@@ -173,33 +172,19 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
 
     if (_imageUrl) {
       imageName = new Date().getTime() + '_' + route.params.schedule_id.toString() + '.jpeg'
-      const contentType = 'image/jpeg'
 
-      const mainImageWidth = 1000
-      const mainImageHeight = mainImageWidth * 1.2
-      const thumbImageWidth = 400 // TODO - 400? 300?
-      const thumbImageHeight = thumbImageWidth * 1.2
-      const timetableImageWidth = 100
-      const timetableImageHeight = timetableImageWidth * 1.2
+      const imageWidth = 1200
+      const imageHeight = imageWidth * 1.2
 
-      const mainImage = await getResizedImage(_imageUrl, mainImageWidth, mainImageHeight)
-      const thumbImage = await getResizedImage(_imageUrl, thumbImageWidth, thumbImageHeight)
-      const timetableImage = await getResizedImage(_imageUrl, timetableImageWidth, timetableImageHeight)
+      const resizedImage = await getResizedImage(_imageUrl, imageWidth, imageHeight)
+      const resizedImageBlob = await getUriToBlob(resizedImage.uri)
 
-      const mainImageBlob = await getUriToBlob(mainImage.uri)
-      const thumbImageBlob = await getUriToBlob(thumbImage.uri)
-      const timetableImageBlob = await getUriToBlob(timetableImage.uri)
+      const response = await getScheduleCompletePhotoCardUploadUrlMutateAsync({name: imageName})
 
-      const {main_url, thumb_url, timetable_url} = await getScheduleCompletePhotoCardUploadUrlMutateAsync({
-        name: imageName
-      })
-
-      await uploadImageMutateAsync({url: main_url, data: mainImageBlob, contentType})
-      await uploadImageMutateAsync({url: thumb_url, data: thumbImageBlob, contentType})
-      await uploadImageMutateAsync({url: timetable_url, data: timetableImageBlob, contentType})
+      await uploadImageMutateAsync({url: response.url, data: resizedImageBlob, contentType: 'image/jpeg'})
 
       // 이미지 변경시 기존 이미지 제거
-      if (route.params.main_path) {
+      if (route.params.photo_card_path) {
         await deleteScheduleCompleteCardMutateAsync({schedule_complete_id: route.params.schedule_complete_id})
       }
     }

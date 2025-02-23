@@ -4,6 +4,7 @@ import {BottomSheetModal, BottomSheetView, BottomSheetBackdropProps, BottomSheet
 import BottomSheetBackdrop from '@/components/BottomSheetBackdrop'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
+import ScheduleCompleteRecordModal from '@/components/modal/ScheduleCompleteRecordModal'
 
 import {useRecoilState, useSetRecoilState, useResetRecoilState, useRecoilValue} from 'recoil'
 import {activeThemeState, displayModeState, safeAreaInsetsState} from '@/store/system'
@@ -18,15 +19,15 @@ import DeleteIcon from '@/assets/icons/trash.svg'
 import RoutineIcon from '@/assets/icons/routine.svg'
 import TodoIcon from '@/assets/icons/priority.svg'
 
+import {getImageUrl} from '@/utils/helper'
+import {navigate} from '@/utils/navigation'
 import {useQueryClient} from '@tanstack/react-query'
 import {useUpdateScheduleDeleted} from '@/apis/hooks/useSchedule'
 import {useSetScheduleComplete} from '@/apis/hooks/useScheduleComplete'
-import {navigate} from '@/utils/navigation'
 import {format} from 'date-fns'
 import {useGetScheduleCompleteDetail} from '@/apis/hooks/useScheduleComplete'
 import ScheduleCompleteCardMenuModal from '@/components/modal/ScheduleCompleteCardMenuModal'
 import {Shadow} from 'react-native-shadow-2'
-import ScheduleCompleteRecordModal from '@/components/modal/ScheduleCompleteRecordModal'
 
 interface Props {
   moveEditSchedule: Function
@@ -61,9 +62,8 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
   const setReloadWidgetWithImage = useSetRecoilState(reloadWidgetWithImageState)
 
   const imageUrl = useMemo(() => {
-    if (editScheduleCompleteForm?.thumb_path) {
-      const domain = process.env.CDN_URL
-      return domain + '/' + editScheduleCompleteForm.thumb_path
+    if (editScheduleCompleteForm?.photo_card_path) {
+      return getImageUrl({path: editScheduleCompleteForm.photo_card_path, width: 44})
     }
     return null
   }, [editScheduleCompleteForm])
@@ -98,8 +98,7 @@ const EditMenuBottomSheet = ({moveEditSchedule}: Props) => {
       memo: '',
       complete_count: response.complete_count,
       schedule_id: editScheduleForm.schedule_id,
-      main_path: null,
-      thumb_path: null
+      photo_card_path: null
     })
   }, [
     editScheduleForm.schedule_id,

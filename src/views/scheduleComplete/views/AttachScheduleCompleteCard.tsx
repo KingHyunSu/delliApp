@@ -6,6 +6,7 @@ import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
 import {Gesture, GestureDetector} from 'react-native-gesture-handler'
 import Animated, {useSharedValue, useAnimatedStyle, runOnJS} from 'react-native-reanimated'
 
+import {getImageUrl} from '@/utils/helper'
 import {useRecoilState, useRecoilValue} from 'recoil'
 import {activeBackgroundState, timetableWrapperSizeState} from '@/store/system'
 import {scheduleListState} from '@/store/schedule'
@@ -57,8 +58,7 @@ const AttachScheduleCompleteCard = ({navigation, route}: AttachScheduleCompleteC
       return null
     }
 
-    const domain = process.env.CDN_URL
-    return domain + '/' + route.params.schedule_complete_card_path
+    return getImageUrl({path: route.params.schedule_complete_card_path, width: cardWidth})
   }, [route.params.schedule_complete_card_path])
 
   const moveGesture = Gesture.Pan()

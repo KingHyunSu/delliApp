@@ -3,6 +3,8 @@ import {ListRenderItem, StyleSheet, View, Text, Pressable} from 'react-native'
 import BottomSheet, {BottomSheetFlatList, BottomSheetHandleProps} from '@gorhom/bottom-sheet'
 import BottomSheetHandler from '@/components/BottomSheetHandler'
 import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
+
+import {getImageUrl} from '@/utils/helper'
 import {useRecoilValue} from 'recoil'
 import {activeThemeState, displayModeState, windowDimensionsState} from '@/store/system'
 import {GetScheduleCompleteCardListResponse} from '@/apis/types/scheduleComplete'
@@ -14,8 +16,6 @@ interface Props {
   onPaging: () => void
 }
 const ScheduleCardListBottomSheet = ({value, total, onPress, onPaging}: Props) => {
-  const domain = process.env.CDN_URL
-
   const bottomSheetRef = useRef<BottomSheet>(null)
 
   const windowDimensions = useRecoilValue(windowDimensionsState)
@@ -52,16 +52,16 @@ const ScheduleCardListBottomSheet = ({value, total, onPress, onPaging}: Props) =
 
   const getRenderItem: ListRenderItem<GetScheduleCompleteCardListResponse> = useCallback(
     ({item, index}) => {
-      if (item.thumb_path || item.record) {
-        const url = item.thumb_path ? domain + '/' + item.thumb_path : null
+      if (item.photo_card_path || item.record) {
         const completeCount = index + 1
+        const imageUrl = item.photo_card_path ? getImageUrl({path: item.photo_card_path, width: itemWidth - 20}) : null
 
         return (
           <View style={styles.itemContainer}>
             <Pressable style={styles.cardWrapper} onPress={() => handlePress(item, completeCount)}>
               <ScheduleCompleteCard
                 size="medium"
-                imageUrl={url}
+                imageUrl={imageUrl}
                 record={item.record}
                 completeCount={completeCount}
                 shadowColor="#efefef"
@@ -74,7 +74,7 @@ const ScheduleCardListBottomSheet = ({value, total, onPress, onPaging}: Props) =
 
       return <></>
     },
-    [domain, handlePress]
+    [itemWidth, handlePress]
   )
 
   return (

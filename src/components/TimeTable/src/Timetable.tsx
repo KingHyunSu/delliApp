@@ -1,5 +1,5 @@
 import {ForwardedRef, forwardRef, useImperativeHandle, useRef, useState, useMemo, useCallback, useEffect} from 'react'
-import {Image, StyleSheet, View} from 'react-native'
+import {Image, StyleSheet, Pressable, View} from 'react-native'
 import Svg, {Text} from 'react-native-svg'
 import {captureRef} from 'react-native-view-shot'
 
@@ -10,6 +10,8 @@ import ScheduleText from '../components/ScheduleText'
 import ScheduleCompleteCard from '@/components/ScheduleCompleteCard'
 // import DefaultTimeAnchor from '@/assets/icons/default_time_anchor.svg'
 
+import {getImageUrl} from '@/utils/helper'
+import {getScheduleBackgroundColor, getScheduleTextColor} from '../util'
 import {useSetRecoilState, useRecoilValue} from 'recoil'
 import {
   activeOutlineState,
@@ -19,8 +21,6 @@ import {
 } from '@/store/system'
 import {editScheduleFormState} from '@/store/schedule'
 import {showEditMenuBottomSheetState} from '@/store/bottomSheet'
-
-import {getScheduleBackgroundColor, getScheduleTextColor} from '../util'
 
 type Timetable = {
   capture: () => Promise<string>
@@ -149,8 +149,7 @@ const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
 
   const scheduleCompleteCardComponent = useMemo(() => {
     const cardWidth = 35
-    const cardHeight = 35 * 1.25
-    const domain = process.env.CDN_URL
+    const cardHeight = cardWidth * 1.25
 
     return data.map((item, index) => {
       if (
@@ -164,12 +163,17 @@ const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
       }
 
       if (item.schedule_complete_card_path || item.schedule_complete_record) {
-        const imageUrl = item.schedule_complete_card_path ? domain + '/' + item.schedule_complete_card_path : null
         const left = Math.round(radius + (radius / 100) * item.schedule_complete_card_x)
         const top = Math.round(radius - (radius / 100) * item.schedule_complete_card_y)
+        const imageUrl = item.schedule_complete_card_path
+          ? getImageUrl({path: item.schedule_complete_card_path, width: cardWidth})
+          : null
 
         return (
-          <View key={index} style={{position: 'absolute', left, top}}>
+          <Pressable
+            key={index}
+            style={{position: 'absolute', left, top}}
+            onPress={() => openEditMenuBottomSheet(item)}>
             <View style={{width: cardWidth, height: cardHeight}}>
               <ScheduleCompleteCard
                 type="attach"
@@ -183,7 +187,7 @@ const TimetableComponent = (props: Props, ref: ForwardedRef<Timetable>) => {
             </View>
 
             <Image source={require('@/assets/images/tape.png')} style={styles.tape} />
-          </View>
+          </Pressable>
         )
       }
 
