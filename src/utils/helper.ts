@@ -70,7 +70,7 @@ export const objectEqual = (obj1: any, obj2: any): boolean => {
 }
 
 export const getResizedImage = async (uri: string, width: number, height: number) => {
-  return await ImageResizer.createResizedImage(uri, width, height, 'JPEG', 100, 0)
+  return await ImageResizer.createResizedImage(uri, width, height, 'PNG', 100, 0)
 }
 
 export const getUriToBlob = (uri: string): Promise<Blob> => {

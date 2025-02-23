@@ -207,7 +207,7 @@ const EditScheduleCompletePhotoCard = ({navigation}: EditScheduleCompletePhotoCa
 
       <View style={styles.wrapper}>
         <View ref={captureCardRef} collapsable={false}>
-          <View ref={captureCardRef} style={[styles.cardContainer, {width: cardWidth, height: cardHeight}]}>
+          <View style={[styles.cardContainer, {width: cardWidth, height: cardHeight}]}>
             <View style={styles.imageWrapper}>
               <Image
                 source={originalImageUrl ? {uri: 'file://' + originalImageUrl} : require('@/assets/images/empty.png')}

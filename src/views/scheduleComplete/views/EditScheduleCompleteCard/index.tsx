@@ -171,7 +171,7 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
     let imageName = null
 
     if (_imageUrl) {
-      imageName = new Date().getTime() + '_' + route.params.schedule_id.toString() + '.jpeg'
+      imageName = new Date().getTime() + '_' + route.params.schedule_id.toString() + '.png'
 
       const imageWidth = 1200
       const imageHeight = imageWidth * 1.2
@@ -181,7 +181,7 @@ const EditScheduleCompleteCard = ({navigation, route}: EditScheduleCompleteCardS
 
       const response = await getScheduleCompletePhotoCardUploadUrlMutateAsync({name: imageName})
 
-      await uploadImageMutateAsync({url: response.url, data: resizedImageBlob, contentType: 'image/jpeg'})
+      await uploadImageMutateAsync({url: response.url, data: resizedImageBlob, contentType: 'image/png'})
 
       // 이미지 변경시 기존 이미지 제거
       if (route.params.photo_card_path) {
