@@ -42,6 +42,12 @@ const Splash = () => {
     }
   }, [isAppOpenAdClosed, setIsInit])
 
+  // TODO - android 광고 추가 전 임시
+  // useEffect(() => {
+  //   SystemSplashScreen.hide()
+  //   setIsInit(true)
+  // }, [])
+
   return <View style={styles.container} />
 }
 
